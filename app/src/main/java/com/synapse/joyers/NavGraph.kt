@@ -1,0 +1,34 @@
+package com.synapse.joyers.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.synapse.joyers.ui.screens.LoginScreen
+import com.synapse.joyers.ui.screens.SplashScreen
+
+sealed class Routes(val route: String) {
+    data object Splash : Routes("splash")
+    data object Login : Routes("login")
+}
+
+@Composable
+fun AppNavGraph(navController: NavHostController) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.Splash.route
+    ) {
+
+        composable(Routes.Splash.route) {
+            SplashScreen(onNavigateToLogin = {
+                navController.navigate(Routes.Login.route) {
+                    popUpTo(Routes.Splash.route) { inclusive = true }
+                }
+            })
+        }
+
+        composable(Routes.Login.route) {
+            LoginScreen()
+        }
+    }
+}
