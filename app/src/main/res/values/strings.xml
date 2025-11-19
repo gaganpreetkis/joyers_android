@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">joyers</string>
+    <string name="email">Email</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="joyers">Joyers_image</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="username_email">Username / Email</string>
+    <string name="remember_me">Remember Me</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="or">Or</string>
+    <string name="join_with">Join With</string>
+    <string name="a_new_joyer">A New Joyer?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="facebook">Facebook</string>
+    <string name="google">Google</string>
+    <string name="reset_password_in_two_steps">Reset password in two steps.</string>
+    <string name="send_verification_code">Send verification code via :</string>
+    <string name="sms">SMS</string>
+    <string name="next">Next</string>
+    <string name="enter_verification_code">Verification Code</string>
+    <string name="already_a_joyer">Already a Joyer?</string>
+    <string name="resend_code">Resend Code</string>
+    <string name="verify">Verify</string>
+    <string name="email_sent">We have sent a code to your email</string>
+    <string name="number_sent">We have sent a code to your phone number</string>
+    <string name="weak_password">Password must be 8-16 characters and include uppercase letter, number, and special character.</string>
+    <string name="password_does_not_match">Password does not match. Please try again</string>
+
+
+    <string name="username_must_be_3_15_characters_only_letters_numbers_and_underscores">Usernames must be 3–15 characters and can only contain letters (A–Z), numbers (0–9), and underscores. Special characters are not allowed.</string>
 </resources>

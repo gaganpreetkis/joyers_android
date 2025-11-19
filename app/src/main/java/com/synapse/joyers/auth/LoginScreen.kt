@@ -1,5 +1,9 @@
-package com.synapse.joyers.ui.screens
+package com.synapse.joyers.auth
 
+import android.graphics.Rect
+import android.view.View
+import android.view.ViewTreeObserver
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,14 +16,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.synapse.joyers.R
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalLayoutApi::class)
+@Preview
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit = {},
@@ -31,27 +40,74 @@ fun LoginScreen(
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(false) }
+    var isKeyboardVisible by remember { mutableStateOf(false) }
+    var logoSize by remember { mutableStateOf(155.dp to 59.dp) }
+    var viewHeight by remember { mutableStateOf(45.dp) }
+    var showGapView by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // Function to check keyboard visibility and update UI
+    fun updateKeyboardState(frameLayout: View) {
+        val rect = Rect()
+        frameLayout.getWindowVisibleDisplayFrame(rect)
+        val screenHeight = frameLayout.rootView.height
+        val keypadHeight = screenHeight - rect.bottom
+
+        if (keypadHeight > screenHeight * 0.15) {
+            // Keyboard is visible
+            logoSize = 125.dp to 48.dp
+            viewHeight = 20.dp
+            showGapView = true
+            isKeyboardVisible = true
+        } else {
+            // Keyboard is hidden
+            logoSize = 155.dp to 59.dp
+            viewHeight = 45.dp
+            showGapView = false
+            isKeyboardVisible = false
+        }
+    }
+
+    DisposableEffect(Unit) {
+        val activity = context as? ComponentActivity
+        val frameLayout = activity?.window?.decorView?.rootView
+
+        if (frameLayout != null) {
+            // Initial check
+            updateKeyboardState(frameLayout)
+
+            val listener = ViewTreeObserver.OnGlobalLayoutListener { updateKeyboardState(frameLayout) }
+            frameLayout.viewTreeObserver.addOnGlobalLayoutListener(listener)
+
+            onDispose {
+                frameLayout.viewTreeObserver.removeOnGlobalLayoutListener(listener)
+            }
+        } else {
+            onDispose { }
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 35.dp)
+            .statusBarsPadding()
     ) {
 
-        Spacer(modifier = Modifier.height(45.dp))
+        Spacer(modifier = Modifier.height(viewHeight))
 
         // LOGO
         Image(
             painter = painterResource(id = R.drawable.joyer_logo),
             contentDescription = "Joyers Logo",
             modifier = Modifier
-                .width(155.dp)
-                .height(59.dp)
+                .size(logoSize.first, logoSize.second)
                 .align(Alignment.CenterHorizontally)
         )
 
-        Spacer(modifier = Modifier.height(45.dp))
+        Spacer(modifier = Modifier.height(viewHeight))
 
         // LOGIN LABEL
         Text(
@@ -85,7 +141,7 @@ fun LoginScreen(
                     modifier = Modifier.size(20.dp)
                 )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(0.dp))
 
                 TextField(
                     value = username.value,
@@ -93,11 +149,13 @@ fun LoginScreen(
                     placeholder = { Text("Username / Email", color = Color(0xFF9A9A9A)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                        unfocusedContainerColor = Color(0xFFF1F1F1),
+                        focusedContainerColor = Color(0xFFF1F1F1),
+                        disabledIndicatorColor = Color(0xFFF1F1F1),
+                        focusedIndicatorColor = Color(0xFFF1F1F1),
+                        unfocusedIndicatorColor = Color(0xFFF1F1F1),
                     ),
-                    singleLine = true
+                    singleLine = true,
                 )
             }
 
@@ -127,40 +185,49 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(Color(0xFFF1F1F1), RoundedCornerShape(8.dp))
-                .padding(horizontal = 15.dp),
+                .padding(start = 15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Image(
-                painter = painterResource(id = R.drawable.password_icon),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            TextField(
-                value = password.value,
-                onValueChange = { password.value = it },
-                placeholder = { Text("Password", color = Color(0xFF9A9A9A)) },
-                visualTransformation =
-                    if (passwordVisible.value) VisualTransformation.None
-                    else PasswordVisualTransformation(),
-                modifier = Modifier.weight(1f),
-                colors = TextFieldDefaults.colors(
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                singleLine = true
-            )
-
-            IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
                 Image(
-                    painter = painterResource(id = R.drawable.password_hide),
+                    painter = painterResource(id = R.drawable.password_icon),
                     contentDescription = null,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(20.dp)
                 )
+
+                Spacer(modifier = Modifier.width(0.dp))
+
+                TextField(
+                    value = password.value,
+                    onValueChange = { password.value = it },
+                    placeholder = { Text("Password", color = Color(0xFF9A9A9A)) },
+                    visualTransformation =
+                        if (passwordVisible.value) VisualTransformation.None
+                        else PasswordVisualTransformation(),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFF1F1F1),
+                        focusedContainerColor = Color(0xFFF1F1F1),
+                        disabledIndicatorColor = Color(0xFFF1F1F1),
+                        focusedIndicatorColor = Color(0xFFF1F1F1),
+                        unfocusedIndicatorColor = Color(0xFFF1F1F1),
+                    ),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (password.value.trim().isNotEmpty()) {
+                IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                    Image(
+                        painter = painterResource(id = if (passwordVisible.value) R.drawable.show_password else R.drawable.password_hide),
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
             }
         }
 
@@ -168,16 +235,24 @@ fun LoginScreen(
 
         // REMEMBER ME + FORGOT PASSWORD
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 19.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    rememberMe = !rememberMe
+                }
+            ) {
                 Checkbox(
-                    checked = false,
-                    onCheckedChange = {},
+                    checked = rememberMe,
+                    onCheckedChange = null,
                     modifier = Modifier.size(16.dp)
                 )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Remember Me",
                     fontSize = 12.sp,
@@ -203,12 +278,13 @@ fun LoginScreen(
             onClick = onLoginClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
+                .height(50.dp)
+                .background(color = Color(0xFFD4A038), shape = RoundedCornerShape(8.dp)),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFD4A038)
             )
         ) {
-            Text("Login", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+            Text("Login", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(modifier = Modifier.height(11.dp))
