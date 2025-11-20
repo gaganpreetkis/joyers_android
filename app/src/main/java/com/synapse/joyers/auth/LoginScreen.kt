@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.synapse.joyers.R
 import androidx.compose.ui.unit.sp
+import com.synapse.joyers.common_widgets.BottomSocialDialog
 import com.synapse.joyers.common_widgets.CountryCodePicker
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -41,6 +42,7 @@ fun LoginScreen(
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
     val isPhoneMode = remember { mutableStateOf(false) }
+    var showSocialDialog by remember { mutableStateOf(false) }
     var selectedCountryCode by remember { mutableStateOf("+1") }
     var rememberMe by remember { mutableStateOf(false) }
     var isKeyboardVisible by remember { mutableStateOf(false) }
@@ -257,10 +259,10 @@ fun LoginScreen(
                     rememberMe = !rememberMe
                 }
             ) {
-                Checkbox(
-                    checked = rememberMe,
-                    onCheckedChange = null,
-                    modifier = Modifier.size(16.dp)
+                Image(
+                    painter = painterResource(id = if (rememberMe) R.drawable.checkbox_checked else R.drawable.checkbox_unchecked),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -315,7 +317,7 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(Color.Black, RoundedCornerShape(8.dp))
-                .clickable { onJoinWithClick() },
+                .clickable { showSocialDialog = true },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -355,6 +357,13 @@ fun LoginScreen(
                 .align(Alignment.CenterHorizontally)
                 .clickable { onSignUpClick() }
                 .padding(top = 4.dp, bottom = 20.dp)
+        )
+
+        BottomSocialDialog(
+            showDialog = showSocialDialog,
+            onDismiss = { showSocialDialog = false },
+            onFacebookClick = { },
+            onGoogleClick = { }
         )
     }
 }

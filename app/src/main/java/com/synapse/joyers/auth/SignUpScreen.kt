@@ -1,10 +1,12 @@
 package com.synapse.joyers.auth
 
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -30,6 +33,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -42,6 +46,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -49,8 +56,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,6 +75,7 @@ import com.synapse.joyers.ui.theme.Gray40
 import com.synapse.joyers.ui.theme.Gray80
 import com.synapse.joyers.ui.theme.Red
 import com.synapse.joyers.ui.theme.White
+import com.synapse.joyers.utils.isValidPassword
 import kotlinx.coroutines.delay
 import kotlin.text.isNotEmpty
 import kotlin.text.replace
@@ -81,6 +93,8 @@ fun SignUpScreen(
     val context = LocalContext.current
     val isKeyBoardOpen = rememberIsKeyboardOpen()
     var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var showUsernameLoader by remember { mutableStateOf(false) }
     var showUsernameTick by remember { mutableStateOf(false) }
     var showUsernameError by remember { mutableStateOf(false) }
@@ -99,9 +113,12 @@ fun SignUpScreen(
     var passwordError by remember { mutableStateOf<String?>(null) }
     var confirmPasswordError by remember { mutableStateOf<String?>(null) }
     var showPasswordFields by remember { mutableStateOf(false) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    var isConfirmPasswordVisible by remember { mutableStateOf(false) }
     var selectedCountryCode by remember { mutableStateOf("+1") }
     var signupError by remember { mutableStateOf<String?>(null) }
     var codeSentMessage by remember { mutableStateOf("") }
+    var signInButtonText by remember { mutableStateOf(context.getString(R.string.sign_up)) }
 
     // Debounced username validation
     LaunchedEffect(username) {
@@ -146,11 +163,19 @@ fun SignUpScreen(
         }
     }
 
-//    val isPasswordFormValid = remember(password, confirmPassword) {
-//        isValidPassword(password) && password == confirmPassword
-//    }
+    val isPasswordFormValid = remember(password, confirmPassword) {
+        isValidPassword(password)
+//                && password == confirmPassword
+    }
 
     val isVerificationValid = verificationCode.length == 6
+
+    if (isFormValid && !showPasswordFields) {
+        signInButtonText = context.getString(R.string.next)
+    } else {
+        signInButtonText = context.getString(R.string.sign_up)
+    }
+
 
     Column(
         modifier = Modifier
@@ -158,6 +183,7 @@ fun SignUpScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 35.dp)
             .statusBarsPadding()
+            .imePadding()
     ) {
 
         Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 20.dp else 45.dp))
@@ -187,11 +213,11 @@ fun SignUpScreen(
                     shape = RoundedCornerShape(8.dp)
                 )
                 .border(
-                    width = if (showUsernameError) 1.dp else 0.dp,
-                    color = Red,
+                    width = 1.dp,
+                    color = if (showUsernameError) Red else Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
-                .padding(horizontal = 15.dp),
+                .padding(horizontal = 19.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
             Spacer(Modifier.width(4.dp))
@@ -206,10 +232,10 @@ fun SignUpScreen(
                 TextField(
                     value = username,
                     onValueChange = { username = it },
-                    textStyle = androidx.compose.ui.text.TextStyle(
+                    textStyle = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false)
                     ),
-                    placeholder = { Text("Username", color = Gray40) },
+                    placeholder = { Text("@username", color = Gray40) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(0.71f),
@@ -305,10 +331,9 @@ fun SignUpScreen(
 
         // EMAIL
 
-        var isEmailSelected by remember { mutableStateOf(true) }
-        val toggleIcon = if (isEmailSelected) R.drawable.telephone_icon_golden else R.drawable.ic_mail_golden
-        val contactIcon = if (isEmailSelected) R.drawable.ic_mail else R.drawable.ic_telephone_gray
-        val contactPlaceHolder = if (isEmailSelected) "Email" else "Phone Number"
+        val toggleIcon = if (!isPhoneMode) R.drawable.telephone_icon_golden else R.drawable.ic_mail_golden
+        val contactIcon = if (!isPhoneMode) R.drawable.ic_mail else R.drawable.ic_telephone_gray
+        val contactPlaceHolder = if (!isPhoneMode) "Email" else "Phone Number"
 
         Row(
             modifier = Modifier
@@ -322,13 +347,12 @@ fun SignUpScreen(
                     .weight(0.85f)
                     .fillMaxHeight()
                     .background(Gray20, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
-                    .padding(horizontal = 15.dp),
+                    .padding(horizontal = 19.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
 
-
-                if (isEmailSelected) {
+                if (!isPhoneMode) {
                     Image(
                         painter = painterResource(id = contactIcon),
                         contentDescription = null,
@@ -342,7 +366,10 @@ fun SignUpScreen(
                         value = email,
                         onValueChange = { email = it },
                         placeholder = { Text(contactPlaceHolder, color = Gray40) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(0.97f),
+                        textStyle = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = Color(0xFFF1F1F1),
                             focusedContainerColor = Color(0xFFF1F1F1),
@@ -353,14 +380,13 @@ fun SignUpScreen(
                         singleLine = true
                     )
 
-                    Spacer(Modifier.width(50.dp))
-
                     if (email.isNotEmpty()) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_cancel_grey),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(15.dp)
+                                .padding(start = 0.dp, end = 0.dp)
                                 .clickable {
                                     email = ""
                                     showVerification = false
@@ -387,9 +413,12 @@ fun SignUpScreen(
                         value = phone,
                         onValueChange = { phone = it },
                         placeholder = { Text(contactPlaceHolder, color = Gray40) },
+                        textStyle = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(0.71f),
+                            .weight(0.98f),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = Color(0xFFF1F1F1),
                             focusedContainerColor = Color(0xFFF1F1F1),
@@ -399,8 +428,6 @@ fun SignUpScreen(
                         ),
                         singleLine = true
                     )
-
-                    Spacer(Modifier.weight(0.29f))
 
                     if (phone.isNotEmpty()) {
                         Image(
@@ -425,8 +452,7 @@ fun SignUpScreen(
                     Box(
                         modifier = Modifier
                             .clickable {
-                                isEmailSelected = !isEmailSelected
-                                isPhoneMode = false
+                                isPhoneMode = !isPhoneMode
                                 email = ""
                                 phone = ""
                                 showVerification = false
@@ -468,15 +494,6 @@ fun SignUpScreen(
         if (showVerification) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (codeSentMessage.isNotEmpty()) {
-                Text(
-                    text = codeSentMessage,
-                    fontSize = 16.sp,
-                    color = Black,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
-
             TextField(
                 value = verificationCode,
                 onValueChange = {
@@ -488,22 +505,39 @@ fun SignUpScreen(
                 placeholder = { Text(context.getString(R.string.enter_verification_code), color = Gray40) },
                 modifier = Modifier
                     .width(181.dp)
-                    .align(Alignment.CenterHorizontally),
+                    .align(Alignment.CenterHorizontally)
+                    .border(
+                        width = 1.dp,
+                        color = if (verificationError == null) Color.Transparent else Red,
+                        shape = RoundedCornerShape(8.dp)
+                    ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedTextColor = Black,
-                    unfocusedPlaceholderColor = Gray40,
-                    focusedContainerColor = Color(0xFFF5F5F5),
-                    unfocusedContainerColor = Color(0xFFF5F5F5)
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xFFF1F1F1),
+                    focusedContainerColor = Color(0xFFF1F1F1),
+                    disabledIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
                 ),
-                textStyle = androidx.compose.ui.text.TextStyle(
+                textStyle = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = if (verificationCode.isNotEmpty()) FontWeight.SemiBold else FontWeight.Normal,
                     letterSpacing = if (verificationCode.isNotEmpty()) 0.2.sp else 0.sp,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = TextAlign.Center
                 ),
                 singleLine = true
             )
+
+            Spacer(Modifier.height(4.dp))
+
+            if (codeSentMessage.isNotEmpty() && verificationError == null) {
+                Text(
+                    text = codeSentMessage,
+                    fontSize = 14.sp,
+                    color = Black, textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth()
+                )
+            }
 
             if (verificationError != null) {
                 Text(
@@ -521,13 +555,19 @@ fun SignUpScreen(
             // Verify Button
             Button(
                 onClick = {
-
+                    if (verificationCode.equals("999999")) {
+                        verificationError = null
+                        showVerification = false
+                        showPasswordFields = true
+                    } else {
+                        verificationError = "Validation code is incorrect or has expired"
+                    }
                 },
                 enabled = isVerificationValid,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Golden60,
-                    disabledContainerColor = Color(0xFFD3D3D3),
+                    disabledContainerColor = Golden60,
                     contentColor = White,
                     disabledContentColor = colorResource(id = R.color.color_button_login_alt)
                 ),
@@ -536,7 +576,7 @@ fun SignUpScreen(
                 Text(
                     text = context.getString(R.string.verify),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Normal,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
             }
@@ -568,7 +608,7 @@ fun SignUpScreen(
                 Text(
                     text = context.getString(R.string.resend_code),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Normal,
                     color = White,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
@@ -576,22 +616,279 @@ fun SignUpScreen(
         }
 
 
-        Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 45.dp else 71.dp))
 
-        // SIGN UP BUTTON
-        Button(
-            onClick = onSignUpClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .background(color = Color(0xFFD4A038), shape = RoundedCornerShape(8.dp)),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFD4A038)
-            )
-        ) {
-            Text("Sign Up", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+        // Password Fields
+        if (showPasswordFields) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            val focusRequester = remember { FocusRequester() }
+            var isPasswordFocused by remember { mutableStateOf(false) }
+
+            // Password Input
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(
+                        color = Gray20,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = if (passwordError != null) Red else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(horizontal = 19.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.password_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp, 20.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                TextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        passwordError = null
+                    },
+                    placeholder = { Text(context.getString(R.string.password), color = Gray40) },
+                    modifier = Modifier.weight(0.83f)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { focusState ->
+                            isPasswordFocused = focusState.isFocused
+                        },
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Gray20,
+                        focusedContainerColor = Gray20,
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.width(0.dp))
+                if (password.isNotEmpty()) {
+                    Image(
+                        painter = painterResource(id = if (isPasswordVisible) R.drawable.show_password else R.drawable.password_hide),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp, 17.dp)
+                            .clickable { isPasswordVisible = !isPasswordVisible }
+                    )
+                }
+            }
+
+            // Password strength indicator
+            if (password.isNotEmpty() && isValidPassword(password)  && isPasswordFocused) {
+
+                Text(
+                    text = context.getString(R.string.strong),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Green,
+                    modifier = Modifier.align(Alignment.End)
+                        .padding(top = 4.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+//                    repeat(4) { index ->
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(4.dp)
+                                .background(
+                                    color = Color.Green,
+                                    shape = RoundedCornerShape(2.dp)
+                                )
+                        )
+//                        if (index < 3) {
+//                            Spacer(modifier = Modifier.width(4.dp))
+//                        }
+//                    }
+                }
+            }
+
+            if (passwordError != null) {
+                Text(
+                    text = passwordError!!,
+                    color = Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 3.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            // Confirm Password Input
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(
+                        color = Gray20,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = if (confirmPasswordError != null) Red else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(horizontal = 15.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.password_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                TextField(
+                    value = confirmPassword,
+                    onValueChange = {
+                        confirmPassword = it
+                        confirmPasswordError = null
+
+                    },
+                    placeholder = { Text(context.getString(R.string.confirm_password), color = Gray40) },
+                    modifier = Modifier.weight(0.83f),
+                    visualTransformation = if (isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Gray20,
+                        focusedContainerColor = Gray20,
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.width(0.dp))
+                if (confirmPassword.isNotEmpty()) {
+                    Image(
+                        painter = painterResource(id = if (isConfirmPasswordVisible) R.drawable.show_password else R.drawable.password_hide),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp, 17.dp)
+                            .clickable { isConfirmPasswordVisible = !isConfirmPasswordVisible }
+                    )
+                }
+            }
+
+            if (confirmPasswordError != null) {
+                Text(
+                    text = confirmPasswordError!!,
+                    color = Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 3.dp)
+                )
+            }
         }
 
+
+        Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 45.dp else 71.dp))
+
+      if (!showVerification) {
+          // Sign Up Button
+          Button(
+              onClick = {
+                  if (showPasswordFields) {
+                      if (!isValidPassword(password)) {
+                          passwordError = context.getString(R.string.weak_password)
+                      } else if (confirmPassword != password) {
+                          confirmPasswordError = context.getString(R.string.password_does_not_match)
+                      }
+                      // Final signup
+//                    val registerRequest = if (isPhoneMode) {
+//                        RegisterRequest(
+//                            username = username.replace("@", ""),
+//                            password = password,
+//                            confirmPassword = confirmPassword,
+//                            mobile = phone,
+//                            country_code = selectedCountryCode
+//                        )
+//                    } else {
+//                        RegisterRequest(
+//                            username = username.replace("@", ""),
+//                            email = email,
+//                            password = password,
+//                            confirmPassword = confirmPassword
+//                        )
+//                    }
+//                    signupViewModel.signup(registerRequest)
+                      Toast.makeText(context, "Signed In", Toast.LENGTH_SHORT).show()
+                  } else {
+                      // Next step - verify email/phone
+                      if (isPhoneMode) {
+                          if (phone.length >= 6) {
+                              showVerification = true
+                              codeSentMessage = if (isPhoneMode) {
+                                  context.getString(R.string.code_sent_to_phone)
+                              } else {
+                                  context.getString(R.string.code_sent_to_email)
+                              }
+                              emailError = null
+                              phoneError = null
+//                            signupViewModel.checkUserEmail(
+//                                VerifyEmailRequest(
+//                                    mobile = phone,
+//                                    country_code = selectedCountryCode
+//                                )
+//                            )
+                          } else {
+                              phoneError = context.getString(R.string.invaild_phone)
+                          }
+                      } else {
+                          if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                              showVerification = true
+                              codeSentMessage = if (isPhoneMode) {
+                                  context.getString(R.string.code_sent_to_phone)
+                              } else {
+                                  context.getString(R.string.code_sent_to_email)
+                              }
+                              emailError = null
+                              phoneError = null
+//                            signupViewModel.checkUserEmail(VerifyEmailRequest(email = email))
+                          } else {
+                              emailError = context.getString(R.string.invaild_email)
+                          }
+                      }
+                  }
+              },
+              enabled = if (showPasswordFields) password.isNotEmpty() else isFormValid,
+              modifier = Modifier.fillMaxWidth(),
+              colors = ButtonDefaults.buttonColors(
+                  containerColor = Golden60,
+                  disabledContainerColor = Golden60,
+                  contentColor = White,
+                  disabledContentColor = Gray20
+              ),
+              shape = RoundedCornerShape(8.dp)
+          ) {
+              Text(
+                  text = signInButtonText,
+                  fontSize = 16.sp,
+                  fontWeight = FontWeight.Normal,
+                  modifier = Modifier.padding(vertical = 12.dp)
+              )
+          }
+
+      }
         Spacer(modifier = Modifier.height(50.dp))
 
         // SIGNUP FOOTER

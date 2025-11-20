@@ -29,4 +29,357 @@
 
 
     <string name="username_must_be_3_15_characters_only_letters_numbers_and_underscores">Usernames must be 3–15 characters and can only contain letters (A–Z), numbers (0–9), and underscores. Special characters are not allowed.</string>
+
+
+    <!-- font weight -->
+    <integer name="normal">400</integer>
+    <integer name="bold">700</integer>
+    <integer name="light">300</integer>
+    <integer name="thin">100</integer>
+    <integer name="medium">500</integer>
+    <integer name="semiBold">600</integer>
+    <integer name="extraBold">800</integer>
+    <integer name="extraLight">200</integer>
+    <string name="title_activity_signup">SignupActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="onlyUserName">\@username</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="weak">Weak</string>
+    <string name="good">Good</string>
+    <string name="strong">Strong</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="upload_picture">Upload Picture</string>
+    <string name="header">Header</string>
+    <string name="name_only">Name</string>
+    <string name="joyer_name">Joyer Name</string>
+    <string name="joyer_location_only">Joyer Location</string>
+    <string name="select_location">Select Location</string>
+    <string name="skip">Skip</string>
+    <string name="joyer_status">Joyer Status</string>
+    <string name="identity">Identity</string>
+    <string name="status">Status</string>
+    <string name="classic">Classic</string>
+    <string name="celebrity">Celebrity</string>
+    <string name="proficient">Proficient</string>
+    <string name="leader">Leader</string>
+    <string name="provider">Provider</string>
+    <string name="clarifications">Clarifications</string>
+    <string name="title1">Joyers are categorized into different statuses based on their titles, which determine their roles and functionalities within the app. Here is an overview of these statuses:</string>
+
+    <!--<string name="celebrity_text"><![CDATA[<font color="#D69E3A">Celebrity</font> :&nbsp;&nbsp;Celebrities are Joyers recognized or certified by a local or international organization.]]></string>
+    <string name="proficient_text"><![CDATA[<font color="#D69E3A">Proficient</font> :&nbsp;&nbsp;Proficient Joyers are professionals or individuals skilled in a specific field.]]></string>
+    <string name="leader_text"><![CDATA[<font color="#D69E3A">Leader</font> :&nbsp;&nbsp;Leaders are Joyers holding a leadership position.]]></string>
+    <string name="provider_text"><![CDATA[<font color="#D69E3A">Provider</font> :&nbsp;&nbsp;are organizations or companies offering products or services.]]></string>
+    <string name="classic_text"><![CDATA[<font color="#D69E3A">Classic</font> :&nbsp;&nbsp;Classic Joyers are registered with a social title rather than a professional title.]]></string>
+    -->
+
+
+    <string name="celebrity_text">Celebrity :\u00A0\u00A0Celebrities are Joyers recognized or certified by a local or international organization.</string>
+    <string name="proficient_text">Proficient :\u00A0\u00A0Proficient Joyers are professionals or individuals skilled in a specific field.</string>
+    <string name="leader_text">Leader :\u00A0\u00A0Leaders are Joyers holding a leadership position.</string>
+    <string name="provider_text">Provider :\u00A0\u00A0are organizations or companies offering products or services.</string>
+    <string name="classic_text">Classic :\u00A0\u00A0Classic Joyers are registered with a social title rather than a professional title.</string>
+
+
+    <string name="title2">Based on this classification, Joyers are registered under either social or professional titles, which correspond to one of five statuses: social titles fall under the <b>Classic</b> status, while professional titles fall under <b>Celebrity, Proficient, Leader,</b> or <b>Provider</b> statuses.</string>
+    <string name="title3">In light of these classifications, <b>Classic</b> Joyers have access to all social and professional features of the Joyers app, with the exception of offering or selling products and services online. They can request or purchase products and services from other Joyers but are not permitted to sell them. Conversely, Joyers with the <b>Celebrity, Proficient, Leader,</b> or <b>Provider</b> status can access all social and professional features of the Joyers app, including the ability to offer and sell products and services online to other Joyers.</string>
+    <string name="title4">Together, these statuses ensure every Joyer has access to features suited to their role or expertise.</string>
+    <string name="floating_action_button">Floating Action Button</string>
+    <string name="title">Title</string>
+    <string name="select_title">Select Title</string>
+    <string name="oath">Oath</string>
+    <string name="place_to_visit">Place To Visit_</string>
+
+
+    <!-- <string name="joyer_auth_1"><![CDATA[
+ My <font color="#D69E3A"><b>FREEDOM</b></font> is to Enjoy Life,<br/>
+ With The <font color="#D69E3A"><b>STYLE</b></font> I Choose,<br/>
+ Working <font color="#D69E3A"><b>HARD</b></font> to Achieve My Goals,<br/>
+ Without Harming <font color="#D69E3A"><b>MYSELF</b></font>,<br/>
+ Nor My <font color="#D69E3A"><b>PARTNERS</b></font> on Earth.
+ ]]></string>-->
+
+    <string name="joyer_auth_1_line_1"><![CDATA[
+My <font color="#D69E3A"><b>FREEDOM</b></font> is to Enjoy Life,
+]]></string>
+
+    <string name="joyer_auth_1_line_2"><![CDATA[
+With The <font color="#D69E3A"><b>STYLE</b></font> I Choose,
+]]></string>
+
+    <string name="joyer_auth_1_line_3"><![CDATA[
+Working <font color="#D69E3A"><b>HARD</b></font> to Achieve My Goals,
+]]></string>
+
+    <string name="joyer_auth_1_line_4"><![CDATA[
+Without Harming <font color="#D69E3A"><b>MYSELF</b></font>,
+]]></string>
+
+    <string name="joyer_auth_1_line_5"><![CDATA[
+Nor My <font color="#D69E3A"><b>PARTNERS</b></font> on Earth.
+]]></string>
+
+
+    <!-- <string name="joyer_auth_2"><![CDATA[
+ My Having <font color="#D69E3A"><b>JOY</b></font> in This Journey,<br/>
+ <font color="#D69E3A"><b>BELOVED</b></font> Family & Friends.
+ ]]></string>-->
+
+    <string name="joyer_auth_2_line_1"><![CDATA[
+My Having <font color="#D69E3A"><b>JOY</b></font> in This Journey,
+]]></string>
+
+    <string name="joyer_auth_2_line_2"><![CDATA[
+<font color="#D69E3A"><b>BELOVED</b></font> Family &amp; Friends.
+]]></string>
+
+    <string name="joyer_auth_3_line_1"><![CDATA[&amp; By Doing So,]]></string>
+
+    <string name="joyer_auth_4_line_1"><![CDATA[
+I Will Make This <font color="#D69E3A"><b>PLANET</b></font> a Better Place,
+]]></string>
+
+    <string name="joyer_auth_4_line_2"><![CDATA[
+&amp; I Will Gain The <font color="#D69E3A"><b>POWER</b></font> of Life!
+]]></string>
+
+
+    <!--  <string name="joyer_auth_4"><![CDATA[
+  I Will Make This <font color="#D69E3A"><b>PLANET</b></font> a Better Place,<br/>
+  &amp; I Will Gain The <font color="#D69E3A"><b>POWER</b></font> of Life!
+  ]]></string>-->
+
+
+    <string name="take_photo_from_camera">Camera</string>
+    <string name="take_image_from_gallery">Photo Library</string>
+    <string name="pick_multiple_images">Photo Library</string>
+    <string name="pick_image">Select Media Source</string>
+
+    <string name="search">Search</string>
+    <string name="search_speciality">Search Title</string>
+    <string name="selected">Selected</string>
+    <string name="suggestions">Suggestions</string>
+    <string name="show">Show</string>
+    <string name="hide">Hide</string>
+    <string name="invaild_email">Invalid email address. Please try again.</string>
+    <string name="invaild_phone">Invalid mobile number. Please try again.</string>
+    <string name="username_is_already_taken">This username is already taken. Please try another.</string>
+    <string name="forty_five">45</string>
+    <string name="apply">Apply</string>
+    <string name="code_sent_to_email">Enter the code sent to your email.</string>
+    <string name="code_sent_to_phone">Enter the code sent to your phone number.</string>
+
+    <string name="ghost_description">
+    <![CDATA[
+    <font color="#FFD700">Ghost</font> : Ghost Joyer’s (Following &amp; Followers) are not seen by anyone, except the account owner.
+    ]]>
+</string>
+    <string name="profile">Profile</string>
+    <string name="loops">Loops</string>
+    <string name="joyers_council">Joyers Council</string>
+    <string name="deals">Deals</string>
+    <string name="joys_pannel">Joys Pannel</string>
+    <string name="joy_engine">Joy Engine</string>
+    <string name="diaries">Diaries</string>
+    <string name="help">Help</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="my_account">My Accounts</string>
+    <string name="username_error">Names must be 2-45 characters and may include letters, numbers, hyphens, apostrophes, and diacritical marks. Emojis and other special characters are not allowed.</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="get_started">Get Started!</string>
+    <string name="your_password_has_been_successfully_reset">Your password has been successfully reset!</string>
+    <string name="strik_without_space">*</string>
+    <string name="strik_right_space">*\u00A0</string>
+    <string name="strik_left_space">\u00A0*</string>
+    <string name="no_results_found">No results found!</string>
+    <string name="create_post">Create Post</string>
+    <string name="drafts">Drafts</string>
+    <string name="social">Social</string>
+    <string name="joy">Joy</string>
+    <string name="all_joyers">All Joyers</string>
+    <string name="let_s_joy_sara">Let’s Joy... Sara </string>
+    <string name="let_s_joy">Let’s Joy</string>
+    <string name="loop">Loop</string>
+    <string name="card">Card</string>
+    <string name="story">Story</string>
+    <string name="post">Post</string>
+    <string name="joy_line">Joy Line</string>
+    <string name="mention_joyers">Mention Joyers</string>
+    <string name="clear_list">Clear List</string>
+    <string name="clear_all">Clear All</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="joying_with">Joying With</string>
+    <string name="search_joyers">Search Joyers</string>
+    <string name="ask_question">Ask a question…</string>
+    <string name="poll_length">Poll Length</string>
+    <string name="_1_day">1 Day</string>
+    <string name="option_1">Option 1</string>
+    <string name="_25">25</string>
+    <string name="option_2">Option 2</string>
+    <string name="day">Day</string>
+
+    <!--Media Layout-->
+    <string name="media_library">Media Library</string>
+    <string name="media_height">Media Height :</string>
+    <string name="layout">Layout :</string>
+    <string name="view_1">View 1</string>
+    <string name="view_2">View 2</string>
+    <string name="view_3">View 3</string>
+    <string name="preview">Preview</string>
+    <string name="lets_joy_sara">Lets Joy... Sara</string>
+    <string name="add_joytag">Add Joytag</string>
+    <string name="country">Country</string>
+    <string name="joytag_country">Joytag Country</string>
+    <string name="type">Type</string>
+    <string name="older_joy">Older Joytags</string>
+    <string name="joytag_type">Joytag Type</string>
+    <string name="done">Done</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="previous">Previous</string>
+
+    <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
+        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
+        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
+        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.\n\n
+        Suspendisse interdum ornare ante. Aliquam nec cursus lorem. Morbi id magna felis. Vivamus
+        egestas, est a condimentum egestas, turpis nisl iaculis ipsum, in dictum tellus dolor sed
+        neque. Morbi tellus erat, dapibus ut sem a, iaculis tincidunt dui. Interdum et malesuada
+        fames ac ante ipsum primis in faucibus. Curabitur et eros porttitor, ultricies urna vitae,
+        molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
+        bibendum, vel congue leo egestas.\n\n
+        Sed interdum tortor nibh, in sagittis risus mollis quis. Curabitur mi odio, condimentum sit
+        amet auctor at, mollis non turpis. Nullam pretium libero vestibulum, finibus orci vel,
+        molestie quam. Fusce blandit tincidunt nulla, quis sollicitudin libero facilisis et. Integer
+        interdum nunc ligula, et fermentum metus hendrerit id. Vestibulum lectus felis, dictum at
+        lacinia sit amet, tristique id quam. Cras eu consequat dui. Suspendisse sodales nunc ligula,
+        in lobortis sem porta sed. Integer id ultrices magna, in luctus elit. Sed a pellentesque
+        est.\n\n
+        Aenean nunc velit, lacinia sed dolor sed, ultrices viverra nulla. Etiam a venenatis nibh.
+        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nulla, id elementum leo dui
+        non lorem. Nam mollis ipsum quis auctor varius. Quisque elementum eu libero sed commodo. In
+        eros nisl, imperdiet vel imperdiet et, scelerisque a mauris. Pellentesque varius ex nunc,
+        quis imperdiet eros placerat ac. Duis finibus orci et est auctor tincidunt. Sed non viverra
+        ipsum. Nunc quis augue egestas, cursus lorem at, molestie sem. Morbi a consectetur ipsum, a
+        placerat diam. Etiam vulputate dignissim convallis. Integer faucibus mauris sit amet finibus
+        convallis.\n\n
+        Phasellus in aliquet mi. Pellentesque habitant morbi tristique senectus et netus et
+        malesuada fames ac turpis egestas. In volutpat arcu ut felis sagittis, in finibus massa
+        gravida. Pellentesque id tellus orci. Integer dictum, lorem sed efficitur ullamcorper,
+        libero justo consectetur ipsum, in mollis nisl ex sed nisl. Donec maximus ullamcorper
+        sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
+        libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
+        vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>
+    <string name="search_gif">Search GIF</string>
+    <string name="save_this_joy_as_a_draft">Save this Joy as a draft?</string>
+    <string name="save_draft">Save Draft</string>
+    <string name="delete">Delete</string>
+    <string name="draft">Draft</string>
+    <string name="create_joy">Create Joy</string>
+
+    <!--Card Loop-->
+    <string name="create_card">Create Card</string>
+    <string name="card_picture">Card Picture</string>
+    <string name="camera">Camera</string>
+    <string name="rating_card">Rating Card</string>
+    <string name="council_card">Council Card</string>
+    <string name="competition">Competition :</string>
+    <string name="mr_miss_joyers"><![CDATA[Mr & Miss Joyers]]></string>
+    <string name="victors">Victors</string>
+    <string name="joyer_of_the_year">Joyer of the Year</string>
+    <string name="competition_type">Competition Type</string>
+    <string name="team_name">Team Name</string>
+    <string name="name_card">Name </string>
+    <string name="_45">45</string>
+    <string name="nationality">Nationality</string>
+    <string name="team_nationality">Team Nationality</string>
+    <string name="team_members">Team Members</string>
+    <string name="create">Create</string>
+    <string name="members">Members</string>
+    <string name="id_name">Sara Spegel James Spiem Pmes Epieia</string>
+    <string name="id_name_2">Lenda Whcte Laada Weazee…</string>
+    <string name="ratings">Rating</string>
+    <string name="socialrating">Social Rating</string>
+    <string name="professional_ratings">Professional Rating</string>
+    <string name="location">Location</string>
+    <string name="joyer_location">Joyer Location </string>
+    <string name="rating">Rating :</string>
+    <string name="select_from_gallery">Select from Gallery</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_profile_picture">Choose Profile Picture</string>
+    <string name="permission_denied">Permission denied!</string>
+    <string name="new_picture">New Picture</string>
+    <string name="from_your_camera">From your Camera</string>
+    <string name="create_loop">Create Loop</string>
+    <string name="change_picture">Change Picture</string>
+    <string name="public_loop">Public Loop</string>
+    <string name="private_loop">Private Loop</string>
+    <string name="loop_location">Loop Location</string>
+    <string name="loop_members">Loop Members</string>
+    <string name="loop_admins">Loop Admins :</string>
+    <string name="loop_member">Loop Members :</string>
+    <string name="loop_name">Loop Name</string>
+    <string name="admin">Admin</string>
+    <string name="loopadmin">Loop Admins </string>
+    <string name="one">1</string>
+    <string name="three_hunderd">300</string>
+    <string name="lina_rosa">Lina Rosa Rase</string>
+    <string name="text">Data Entry and Information Processing Workear</string>
+    <string name="lawyer">Lawyer</string>
+    <string name="id_name_3">Sara Spiegel James Spie</string>
+    <string name="software_developer">Software Developer</string>
+
+    <string name="one_m">1m</string>
+    <string name="joyline_edittext">Hi there! I’m using the best platform in this Globe, it’s Joyers Network! t’s an Amazing Social Platform which represent EVERY single aspect in my life! I’ve suggested it for many of my Friends who likes to create their Business, enjoy Hobbies and entertaints! Guys, Let’s Joy with the Joyers Network!</string>
+    <string name="edited">Edited</string>
+    <string name="my_accounts">My Accounts</string>
+    <string name="healthcare">Healthcare I…</string>
+    <string name="location_point">Los Angeles, California, United seirvie…</string>
+    <string name="name_sara">Sara Spegel James Spiem James Spiegel Jade II</string>
+    <string name="circle_arrow">Circle Arrow</string>
+    <string name="pinned">Pinned</string>
+    <string name="council">Council</string>
+    <string name="web_developer">Web Developer</string>
+    <string name="social_ratings">Social Rating - 2020</string>
+    <string name="sara_spiegel">Sara Spegel James Spiem James Spiegel Jade II</string>
+    <string name="doctor">Doctor</string>
+    <string name="new_york">New York, USA</string>
+    <string name="rate_now">Rate Now</string>
+    <string name="follow">Follow</string>
+    <string name="likes">Likes</string>
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
+    <string name="hire_invitation">Hire Invitation</string>
+    <string name="total_ratings">Total Ratings</string>
+    <string name="two_days">2 Days : 20 Hours Left</string>
+    <string name="edit">Edit</string>
+    <string name="read_more">Read more</string>
+    <string name="read_less">Read less</string>
+
+
+    <!--
+
+    Usernames must be 3-15 characters and can only contain letters, numbers, and underscores. Special characters are not allowed.
+Names must be 2-45 characters and may include letters, numbers, hyphens, apostrophes, and diacritical marks. Emojis and other special characters are not allowed.
+No username or email matches this entry. Please try again.
+No mobile number matches this entry. Please try again.
+Login failed. Please try again.
+Sign up failed. Please try again.
+Rest Password failed. Please try again.
+Validation code is incorrect or has expired.
+Your password has been successfully reset!
+Password must be 8-16 characters & include uppercase letter, number, and special character.
+
+ -->
+
+
 </resources>

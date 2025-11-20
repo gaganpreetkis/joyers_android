@@ -9,5 +9,9 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="color_button_login_alt">#99FFFFFF</color> <!-- Login Button Alternate this is dim white-->
+    <color name="color_border_light">#EAEAEA</color>
+    <color name="color_light_grey_bg">#F4F4F4</color>
+    <color name="dash_color">#E0E0E0</color>
+    <color name="color_overlay_dark">#5B5B5B</color>
 
 </resources>
