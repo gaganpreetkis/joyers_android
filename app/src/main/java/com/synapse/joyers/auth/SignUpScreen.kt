@@ -1,17 +1,13 @@
 package com.synapse.joyers.auth
 
-import android.provider.Settings.Global.getString
 import android.util.Patterns
-import android.util.TypedValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -34,15 +30,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,9 +54,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.hbb20.CountryCodePicker
 import com.synapse.joyers.R
+import com.synapse.joyers.common_widgets.CountryCodePicker
 import com.synapse.joyers.isValidUsername
 import com.synapse.joyers.ui.theme.Black
 import com.synapse.joyers.ui.theme.Golden60
@@ -73,9 +65,6 @@ import com.synapse.joyers.ui.theme.Gray80
 import com.synapse.joyers.ui.theme.Red
 import com.synapse.joyers.ui.theme.White
 import kotlinx.coroutines.delay
-import network.chaintech.cmpcountrycodepicker.model.CountryDetails
-import network.chaintech.cmpcountrycodepicker.ui.CountryPickerBasicTextField
-import java.time.format.TextStyle
 import kotlin.text.isNotEmpty
 import kotlin.text.replace
 
@@ -221,7 +210,9 @@ fun SignUpScreen(
                         platformStyle = PlatformTextStyle(includeFontPadding = false)
                     ),
                     placeholder = { Text("Username", color = Gray40) },
-                    modifier = Modifier.fillMaxWidth().weight(0.71f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(0.71f),
                     colors = TextFieldDefaults.colors(
                         unfocusedContainerColor = Color(0xFFF1F1F1),
                         focusedContainerColor = Color(0xFFF1F1F1),
@@ -329,21 +320,24 @@ fun SignUpScreen(
             Row(
                 modifier = Modifier
                     .weight(0.85f)
+                    .fillMaxHeight()
                     .background(Gray20, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
                     .padding(horizontal = 15.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Image(
-                    painter = painterResource(id = contactIcon),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    colorFilter = ColorFilter.tint(Gray80)
-                )
 
-                Spacer(modifier = Modifier.width(4.dp))
 
                 if (isEmailSelected) {
+                    Image(
+                        painter = painterResource(id = contactIcon),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        colorFilter = ColorFilter.tint(Gray80)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
                     TextField(
                         value = email,
                         onValueChange = { email = it },
@@ -358,18 +352,86 @@ fun SignUpScreen(
                         ),
                         singleLine = true
                     )
-                } else {
-                    CountryPickerBasicText()
-                }
 
+                    Spacer(Modifier.width(50.dp))
+
+                    if (email.isNotEmpty()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_cancel_grey),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(15.dp)
+                                .clickable {
+                                    email = ""
+                                    showVerification = false
+                                    showPasswordFields = false
+                                }
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(5.dp))
+                } else {
+                    Image(
+                        painter = painterResource(id = contactIcon),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        colorFilter = ColorFilter.tint(Gray80)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                        CountryCodePicker { code ->
+                            selectedCountryCode = code
+                        }
+
+                    TextField(
+                        value = phone,
+                        onValueChange = { phone = it },
+                        placeholder = { Text(contactPlaceHolder, color = Gray40) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(0.71f),
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color(0xFFF1F1F1),
+                            focusedContainerColor = Color(0xFFF1F1F1),
+                            disabledIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        ),
+                        singleLine = true
+                    )
+
+                    Spacer(Modifier.weight(0.29f))
+
+                    if (phone.isNotEmpty()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_cancel_grey),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(15.dp)
+                                .clickable {
+                                    email = ""
+                                    showVerification = false
+                                    showPasswordFields = false
+                                }
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(5.dp))
+                }
             }
 
             Spacer(Modifier.width(5.dp))
 
-                    // RIGHT CALL ICON PART
+                    // RIGHT TOGGLE ICON PART
                     Box(
                         modifier = Modifier
-                            .clickable{ isEmailSelected = !isEmailSelected  }
+                            .clickable {
+                                isEmailSelected = !isEmailSelected
+                                isPhoneMode = false
+                                email = ""
+                                phone = ""
+                                showVerification = false
+                                showPasswordFields = false
+                            }
                             .weight(0.15f)
                             .fillMaxHeight()
                             .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
@@ -381,215 +443,6 @@ fun SignUpScreen(
                             modifier = Modifier.size(22.dp),
                             colorFilter = ColorFilter.tint(Golden60)
                 )
-            }
-        }
-
-
-
-        // Email/Phone Input Toggle
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .height(50.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if (!isPhoneMode) {
-                // Email Input
-                Box(modifier = Modifier.weight(0.85f)) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = if (emailError != null) Color(0xFFFFE5E5) else Color(0xFFF5F5F5),
-                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
-                            )
-                            .border(
-                                width = if (emailError != null) 1.dp else 0.dp,
-                                color = Red,
-                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
-                            )
-                            .padding(horizontal = 15.dp, vertical = 0.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_mail),
-                            contentDescription = null,
-                            modifier = Modifier.size(23.dp, 24.dp),
-                            alignment = Alignment.Center
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-
-                        TextField(
-                            value = email,
-                            onValueChange = {
-                                email = it
-                                emailError = null
-                                showVerification = false
-                                showPasswordFields = false
-                            },
-                            placeholder = { Text(context.getString(R.string.email), color = Gray40) },
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                            colors = TextFieldDefaults.colors(
-                                unfocusedTextColor = Black,
-                                unfocusedPlaceholderColor = Gray40,
-                                unfocusedContainerColor = Color(0xFFF1F1F1),
-                                focusedContainerColor = Color(0xFFF1F1F1),
-                                disabledIndicatorColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
-                            ),
-                            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
-                            singleLine = true
-                        )
-                        if (email.isNotEmpty()) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_cancel_grey),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(15.dp)
-                                    .clickable {
-                                        email = ""
-                                        showVerification = false
-                                        showPasswordFields = false
-                                    }
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.width(5.dp))
-                Box(
-                    modifier = Modifier
-                        .weight(0.15f).fillMaxHeight()
-                        .background(
-                            color = Gray20,
-                            shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
-                        )
-                        .clickable {
-                            isPhoneMode = false
-                            email = ""
-                            phone = ""
-                            showVerification = false
-                            showPasswordFields = false
-                        }
-                        .padding(vertical = 0.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.telephone_icon_golden),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            } else {
-                // Phone Input
-                Box(modifier = Modifier.weight(0.85f)) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = if (phoneError != null) Color(0xFFFFE5E5) else Color(0xFFF5F5F5),
-                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
-                            )
-                            .border(
-                                width = if (phoneError != null) 1.dp else 0.dp,
-                                color = Red,
-                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
-                            )
-                            .padding(horizontal = 20.dp, vertical = 15.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_telephone_gray),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(7.dp))
-
-                        AndroidView(
-                            factory = { ctx ->
-                                CountryCodePicker(ctx).apply {
-                                    setDefaultCountryUsingNameCode("US")
-                                    showArrow(false)
-                                    showFlag(true)
-                                    showNameCode(false)
-                                    setShowPhoneCode(true)
-                                    setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16f, ctx.resources.displayMetrics).toInt())
-                                    setOnCountryChangeListener {
-                                        selectedCountryCode = selectedCountryCodeWithPlus
-                                    }
-                                }
-                            },
-                            modifier = Modifier.size(width = 70.dp, height = 38.dp)
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Divider(
-                            modifier = Modifier
-                                .height(20.dp)
-                                .width(0.5.dp),
-                            color = Gray40
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        OutlinedTextField(
-                            value = phone,
-                            onValueChange = {
-                                phone = it
-                                phoneError = null
-                                showVerification = false
-                                showPasswordFields = false
-                            },
-                            placeholder = { Text(context.getString(R.string.phone_number), color = Gray40) },
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedTextColor = Black,
-                                unfocusedPlaceholderColor = Gray40,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent
-                            ),
-                            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
-                            singleLine = true
-                        )
-                        if (phone.isNotEmpty()) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_cancel_grey),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(15.dp)
-                                    .clickable {
-                                        phone = ""
-                                        showVerification = false
-                                        showPasswordFields = false
-                                    }
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.width(5.dp))
-                Box(
-                    modifier = Modifier
-                        .weight(0.15f)
-                        .background(
-                            color = Golden60,
-                            shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
-                        )
-                        .clickable {
-                            isPhoneMode = true
-                            email = ""
-                            phone = ""
-                            showVerification = false
-                            showPasswordFields = false
-                        }
-                        .padding(vertical = 15.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.telephone_icon_golden),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
             }
         }
 
@@ -761,49 +614,6 @@ fun SignUpScreen(
         )
     }
 
-}
-
-@Composable
-fun CountryPickerBasicText() {
-    val selectedCountryState: MutableState<CountryDetails?> = remember {
-        mutableStateOf(null)
-    }
-    var mobileNumber by remember {
-        mutableStateOf("")
-    }
-
-    CountryPickerBasicTextField(
-        mobileNumber = mobileNumber,
-        defaultCountryCode = "ad",
-        onMobileNumberChange = {
-            mobileNumber = it
-        },
-        onCountrySelected = {
-//            selectedCountryState.value = it
-        },
-        modifier = Modifier.fillMaxWidth(),
-        defaultPaddingValues = PaddingValues(2.dp),
-        showCountryFlag = true,
-        showCountryPhoneCode = true,
-        showCountryName = false,
-        showCountryCode = false,
-        showArrowDropDown = false,
-        spaceAfterCountryFlag = 4.dp,
-        spaceAfterCountryPhoneCode = 4.dp,
-        spaceAfterCountryName = 6.dp,
-        spaceAfterCountryCode = 6.dp,
-        label = {
-            Text(text = "Phone Number", color = Gray40)
-        },
-        focusedBorderThickness = 0.dp,
-        unfocusedBorderThickness = 0.dp,
-        shape = RoundedCornerShape(6.dp),
-        verticalDividerColor = Color(0XFFDDDDDD),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0XFFDDDDDD),
-            unfocusedBorderColor = Color(0XFFDDDDDD)
-        )
-    )
 }
 
 @Composable

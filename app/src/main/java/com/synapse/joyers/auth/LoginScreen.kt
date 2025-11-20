@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.synapse.joyers.R
 import androidx.compose.ui.unit.sp
+import com.synapse.joyers.common_widgets.CountryCodePicker
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -40,6 +40,8 @@ fun LoginScreen(
     val username = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
+    val isPhoneMode = remember { mutableStateOf(false) }
+    var selectedCountryCode by remember { mutableStateOf("+1") }
     var rememberMe by remember { mutableStateOf(false) }
     var isKeyboardVisible by remember { mutableStateOf(false) }
     var logoSize by remember { mutableStateOf(155.dp to 59.dp) }
@@ -143,10 +145,15 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.width(0.dp))
 
+                if (isPhoneMode.value)
+                    CountryCodePicker { code ->
+                        selectedCountryCode = code
+                    }
+
                 TextField(
                     value = username.value,
                     onValueChange = { username.value = it },
-                    placeholder = { Text("Username / Email", color = Color(0xFF9A9A9A)) },
+                    placeholder = { Text(if (isPhoneMode.value) "Phone Number" else "Username / Email", color = Color(0xFF9A9A9A)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
                         unfocusedContainerColor = Color(0xFFF1F1F1),
@@ -166,11 +173,14 @@ fun LoginScreen(
                 modifier = Modifier
                     .weight(0.15f)
                     .fillMaxHeight()
+                    .clickable {
+                        isPhoneMode.value = !isPhoneMode.value
+                    }
                     .background(Color(0xFFF1F1F1), RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.telephone_icon_golden),
+                    painter = painterResource(id = if (isPhoneMode.value) R.drawable.ic_mail_golden else R.drawable.telephone_icon_golden),
                     contentDescription = null,
                     modifier = Modifier.size(22.dp)
                 )
@@ -348,3 +358,4 @@ fun LoginScreen(
         )
     }
 }
+
