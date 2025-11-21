@@ -6,10 +6,13 @@ import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,15 +21,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.synapse.joyers.R
 import androidx.compose.ui.unit.sp
 import com.synapse.joyers.common_widgets.BottomSocialDialog
 import com.synapse.joyers.common_widgets.CountryCodePicker
+import com.synapse.joyers.ui.theme.Gray20
+import com.synapse.joyers.ui.theme.Red
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -38,9 +47,11 @@ fun LoginScreen(
     onJoinWithClick: () -> Unit = {}
 ) {
 
-    val username = remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
+    var emailPhoneError by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf(false) }
     val isPhoneMode = remember { mutableStateOf(false) }
     var showSocialDialog by remember { mutableStateOf(false) }
     var selectedCountryCode by remember { mutableStateOf("+1") }
@@ -131,41 +142,68 @@ fun LoginScreen(
         ) {
 
             // LEFT PART
-            Row(
+            Box(
                 modifier = Modifier
                     .weight(0.85f)
-                    .background(Color(0xFFF1F1F1), RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
-                    .padding(start = 15.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .background(Gray20, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                    .border(color = if (emailPhoneError) Red else Color.Transparent, width = 1.dp, shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)),
             ) {
+                Row(
+                    modifier = Modifier.padding(start = 15.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                Image(
-                    painter = painterResource(id = R.drawable.user_icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
+                    Image(
+                        painter = painterResource(id = R.drawable.user_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
 
-                Spacer(modifier = Modifier.width(0.dp))
+                    Spacer(modifier = Modifier.width(0.dp))
 
-                if (isPhoneMode.value)
-                    CountryCodePicker { code ->
-                        selectedCountryCode = code
+                    if (isPhoneMode.value)
+                        CountryCodePicker { code ->
+                            selectedCountryCode = code
+                        }
+
+                    TextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        placeholder = { Text(if (isPhoneMode.value) "Phone Number" else "Username / Email", color = Color(0xFF9A9A9A)) },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = if (isPhoneMode.value) {
+                                KeyboardType.Phone
+                            } else {
+                                KeyboardType.Email
+                            }
+                        ),
+                        textStyle = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Gray20,
+                            focusedContainerColor = Gray20,
+                            disabledIndicatorColor = Gray20,
+                            focusedIndicatorColor = Gray20,
+                            unfocusedIndicatorColor = Gray20,
+                        ),
+                        singleLine = true,
+                    )
+
+                    if (username.isNotEmpty()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_cancel_grey),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(25.dp)
+                                .padding(start = 0.dp, end = 10.dp)
+                                .clickable {
+                                    username = ""
+                                }
+                        )
                     }
-
-                TextField(
-                    value = username.value,
-                    onValueChange = { username.value = it },
-                    placeholder = { Text(if (isPhoneMode.value) "Phone Number" else "Username / Email", color = Color(0xFF9A9A9A)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF1F1F1),
-                        focusedContainerColor = Color(0xFFF1F1F1),
-                        disabledIndicatorColor = Color(0xFFF1F1F1),
-                        focusedIndicatorColor = Color(0xFFF1F1F1),
-                        unfocusedIndicatorColor = Color(0xFFF1F1F1),
-                    ),
-                    singleLine = true,
-                )
+                }
             }
 
             Spacer(modifier = Modifier.width(5.dp))
@@ -178,7 +216,7 @@ fun LoginScreen(
                     .clickable {
                         isPhoneMode.value = !isPhoneMode.value
                     }
-                    .background(Color(0xFFF1F1F1), RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
+                    .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -192,55 +230,71 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         // PASSWORD FIELD
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .background(Color(0xFFF1F1F1), RoundedCornerShape(8.dp))
-                .padding(start = 15.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .border(color = if (passwordError) Red else Color.Transparent, width = 1.dp, shape = RoundedCornerShape(8.dp))
+                .background(Gray20, RoundedCornerShape(8.dp))
         ) {
-
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.padding(start = 15.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.password_icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
 
-                Spacer(modifier = Modifier.width(0.dp))
-
-                TextField(
-                    value = password.value,
-                    onValueChange = { password.value = it },
-                    placeholder = { Text("Password", color = Color(0xFF9A9A9A)) },
-                    visualTransformation =
-                        if (passwordVisible.value) VisualTransformation.None
-                        else PasswordVisualTransformation(),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF1F1F1),
-                        focusedContainerColor = Color(0xFFF1F1F1),
-                        disabledIndicatorColor = Color(0xFFF1F1F1),
-                        focusedIndicatorColor = Color(0xFFF1F1F1),
-                        unfocusedIndicatorColor = Color(0xFFF1F1F1),
-                    ),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            if (password.value.trim().isNotEmpty()) {
-                IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
                     Image(
-                        painter = painterResource(id = if (passwordVisible.value) R.drawable.show_password else R.drawable.password_hide),
+                        painter = painterResource(id = R.drawable.password_icon),
                         contentDescription = null,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(20.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(0.dp))
+
+                    TextField(
+                        value = password.value,
+                        onValueChange = { password.value = it },
+                        placeholder = { Text("Password", color = Color(0xFF9A9A9A)) },
+                        textStyle = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
+                        visualTransformation =
+                            if (passwordVisible.value) VisualTransformation.None
+                            else PasswordVisualTransformation(),
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Gray20,
+                            focusedContainerColor = Gray20,
+                            disabledIndicatorColor = Gray20,
+                            focusedIndicatorColor = Gray20,
+                            unfocusedIndicatorColor = Gray20,
+                        ),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
+
+                if (password.value.trim().isNotEmpty()) {
+                    IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                        Image(
+                            painter = painterResource(id = if (passwordVisible.value) R.drawable.show_password else R.drawable.password_hide),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
             }
+        }
+
+        if (passwordError) {
+            Text(
+                text = "The password or username entered is incorrect. Please try again.",
+                color = Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 3.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -264,7 +318,7 @@ fun LoginScreen(
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = "Remember Me",
                     fontSize = 12.sp,
@@ -283,11 +337,29 @@ fun LoginScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(45.dp))
+        Spacer(modifier = Modifier.height(11.dp))
+
+        if (emailPhoneError) {
+            Text(
+                text = "Login failed. Please try again.",
+                color = Red,
+                fontSize = 14.sp,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+            )
+        } else {
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
 
         // LOGIN BUTTON
         Button(
-            onClick = onLoginClick,
+            onClick = {
+                onLoginClick()
+                passwordError = !passwordError
+                emailPhoneError = !emailPhoneError
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -299,7 +371,7 @@ fun LoginScreen(
             Text("Login", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
         }
 
-        Spacer(modifier = Modifier.height(11.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // OR
         Text(
@@ -309,7 +381,7 @@ fun LoginScreen(
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // JOIN WITH BUTTON
         Row(
@@ -356,7 +428,7 @@ fun LoginScreen(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .clickable { onSignUpClick() }
-                .padding(top = 4.dp, bottom = 20.dp)
+                .padding(top = 0.dp, bottom = 0.dp)
         )
 
         BottomSocialDialog(
