@@ -11,6 +11,7 @@ composeBom = "2024.09.00"
 navigationCompose = "2.9.6"
 ccp = "2.7.3"
 material3 = "1.4.0"
+coil = "2.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -29,6 +30,7 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 ccp = { module = "com.hbb20:ccp", version.ref = "ccp" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 
 [plugins]

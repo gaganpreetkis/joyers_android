@@ -1,0 +1,1154 @@
+package com.synapse.joyers.auth
+
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
+import coil.compose.AsyncImage
+import com.synapse.joyers.R
+import com.synapse.joyers.common_widgets.ImagePickerBottomSheet
+import com.synapse.joyers.common_widgets.showCCPDialog
+import com.synapse.joyers.ui.theme.Black
+import com.synapse.joyers.ui.theme.Golden60
+import com.synapse.joyers.ui.theme.Gray20
+import com.synapse.joyers.ui.theme.Gray40
+import com.synapse.joyers.ui.theme.Red
+import com.synapse.joyers.utils.fontFamilyLato
+import com.synapse.joyers.utils.isValidNameAdvanced
+import kotlinx.coroutines.launch
+@Preview
+@Composable
+fun IdentityScreen(
+    initialPage: Int = 0,
+//    signupViewModel: SignupViewModel,
+//    preferencesManager: PreferencesManager,
+//    activity: AppCompatActivity,
+    onNavigateBack: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val pagerState = rememberPagerState(initialPage = initialPage) { 3 }
+    var currentPage by remember { mutableStateOf(initialPage) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val pageTitles = listOf(
+        context.getString(R.string.identity),
+        context.getString(R.string.status),
+        context.getString(R.string.status)
+    )
+
+    val pageCounts = listOf("1/3", "2/3", "3/3")
+    val progressValues = listOf(35, 70, 100)
+
+    // Update current page when pager state changes
+    LaunchedEffect(pagerState.currentPage) {
+        currentPage = pagerState.currentPage
+    }
+
+    // Update pager when initial page changes
+    LaunchedEffect(initialPage) {
+        if (pagerState.currentPage != initialPage) {
+            pagerState.animateScrollToPage(initialPage)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .windowInsetsPadding(WindowInsets.statusBars)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Back button
+                Box(
+                    modifier = Modifier
+                        .weight(0.2f)
+                        .fillMaxSize()
+                        .clickable(enabled = currentPage > 0) {
+                            if (currentPage > 0) {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(currentPage - 1)
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (currentPage > 0) {
+                        Image(
+                            painter = painterResource(id = R.drawable.outline_arrow_forward),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(27.dp, 24.dp)
+                                .padding(start = 20.dp),
+                            colorFilter = ColorFilter.tint(Golden60)
+                        )
+                    }
+                }
+
+                // Title
+                Text(
+                    text = pageTitles[currentPage],
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamilyLato,
+                    color = Black,
+                    modifier = Modifier.weight(0.6f),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+
+                // Page count
+                Text(
+                    text = pageCounts[currentPage],
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamilyLato,
+                    color = Golden60,
+                    modifier = Modifier
+                        .weight(0.2f)
+                        .padding(end = 20.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End
+                )
+            }
+
+            // Progress bar
+            LinearProgressIndicator(
+                progress = { progressValues[currentPage] / 100f },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(5.dp),
+                color = Golden60,
+                trackColor = Color(0xFFE0E0E0)
+            )
+
+            // Pager content
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                userScrollEnabled = false
+            ) { page ->
+                when (page) {
+                    0 -> PageOneContent(
+                        onNext = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(page + 1)
+                            }
+                        },
+//                        signupViewModel = signupViewModel,
+//                        preferencesManager = preferencesManager,
+//                        activity = activity
+                    )
+                  /*  1 -> PageTwoContent(
+                        onNext = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(page + 1)
+                            }
+                        },
+                        onBack = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(page - 1)
+                            }
+                        },
+////                        signupViewModel = signupViewModel,
+////                        preferencesManager = preferencesManager,
+////                        activity = activity
+                    )*/
+                   /* 2 -> PageThreeContent(
+                        onBack = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(page - 1)
+                            }
+                        },
+////                        signupViewModel = signupViewModel,
+////                        preferencesManager = preferencesManager,
+////                        activity = activity
+                    )*/
+                }
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun PageOneContent(
+    onNext: () -> Unit,
+//    signupViewModel: SignupViewModel? = null,
+//    preferencesManager: PreferencesManager? = null,
+//    activity: AppCompatActivity? = null
+) {
+    var username by remember { mutableStateOf("") }
+    var countryName by remember { mutableStateOf("") }
+    var profileImageUri by remember { mutableStateOf<Uri?>(null) }
+    var headerImageUri by remember { mutableStateOf<Uri?>(null) }
+    var showProfilePlaceholder by remember { mutableStateOf(true) }
+    var showHeaderPicker by remember { mutableStateOf(true) }
+    var showImagePickerBottomSheet by remember { mutableStateOf(false) }
+    var usernameError by remember { mutableStateOf<String?>(null) }
+    var imagePath by remember { mutableStateOf<String?>(null) }
+    var headerPath by remember { mutableStateOf<String?>(null) }
+    var selectedCountryCode by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val goldenColor = Golden60
+    val lightBlackColor = Black
+    val hintColor = Gray40
+    val whiteColor = Color.White
+    val redColor = Red
+    val astrikeColor = colorResource(id = R.color.astrike_color)
+
+    val maxLength = 45
+    val remainingChars = maxLength - username.length
+
+    // Image picker launchers
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            profileImageUri = it
+            showProfilePlaceholder = false
+//            signupViewModel?.let { vm ->
+//                preferencesManager?.let { pm ->
+//                    val scope = (context as? AppCompatActivity)?.lifecycleScope
+//                    scope?.launch {
+//                        val token = pm.getAccessToken()
+//                        if (token != null) {
+//                            vm.uploadImage(it, token)
+//                        }
+//                    }
+//                }
+//            }
+        }
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            // Camera image URI would be set here
+        }
+    }
+
+    val headerImagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            headerImageUri = it
+            showHeaderPicker = false
+//            signupViewModel?.let { vm ->
+//                preferencesManager?.let { pm ->
+//                    val scope = (context as? AppCompatActivity)?.lifecycleScope
+//                    scope?.launch {
+//                        val token = pm.getAccessToken()
+//                        if (token != null) {
+//                            vm.uploadImage(it, token)
+//                        }
+//                    }
+//                }
+//            }
+        }
+    }
+
+    // Observe API responses
+//    val imageUploadResponse = signupViewModel?.imageUploadResponse?.observeAsState()
+//    val setPageResponse = signupViewModel?.setPageResponse?.observeAsState()
+//
+//    LaunchedEffect(imageUploadResponse?.value) {
+//        imageUploadResponse?.value?.let { response ->
+//            val apiResultHandler = ApiResultHandler<UploadResponse>(
+//                context as AppCompatActivity,
+//                onLoading = { },
+//                onSuccess = {
+//                    // Store image path based on which image was selected
+//                    if (profileImageUri != null) {
+//                        imagePath = it?.data?._id
+//                    } else if (headerImageUri != null) {
+//                        headerPath = it?.data?._id
+//                    }
+//                },
+//                onFailure = { }
+//            )
+//            apiResultHandler.handleApiResult(response)
+//        }
+//    }
+
+//    LaunchedEffect(setPageResponse?.value) {
+//        setPageResponse?.value?.let { response ->
+//            val apiResultHandler = ApiResultHandler<BaseResponse>(
+//                context as AppCompatActivity,
+//                onLoading = { },
+//                onSuccess = {
+//                    val intent = Intent(context, JoyersAuthActivity::class.java)
+//                    context.startActivity(intent)
+//                    (context as AppCompatActivity).finish()
+//                },
+//                onFailure = { }
+//            )
+//            apiResultHandler.handleApiResult(response)
+//        }
+//    }
+
+    // Validation
+    val isNameValid = remember(username) {
+        username.isEmpty() || (isValidNameAdvanced(username) && username.length > 1)
+    }
+
+    val showNextButton = remember(username, countryName) {
+        username.isNotEmpty() && countryName.isNotEmpty() &&
+                /*isValidNameAdvanced(username) && */username.length > 1
+    }
+
+    val showSkipButton = remember(username, countryName) {
+        username.isEmpty() && countryName.isEmpty()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(25.dp)
+    ) {
+        // Profile Picture Section
+        Text(
+            text = context.getString(R.string.profile_picture),
+            fontSize = 18.sp,
+            fontWeight = FontWeight(600),
+            color = lightBlackColor,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Card with profile and header images
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(270.dp),
+            shape = RoundedCornerShape(5.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Header/Background Image
+                if (headerImageUri != null) {
+                    AsyncImage(
+                        model = headerImageUri,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    // Close button for header
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_cancel_golden),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(15.dp)
+                            .size(40.dp)
+                            .align(Alignment.TopEnd)
+                            .clickable {
+                                headerImageUri = null
+                                showHeaderPicker = true
+                                headerPath = null
+                            }
+                    )
+                } else {
+                    // Header picker button
+                    if (showHeaderPicker) {
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(15.dp)
+                                .clickable { headerImagePickerLauncher.launch("image/*") },
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(37.dp)
+                                    .background(Color.White, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.camera_inside_color),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = context.getString(R.string.header),
+                                fontSize = 11.sp,
+                                color = hintColor
+                            )
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(189.dp)
+                        .align(Alignment.Center)
+                ) {
+
+                    // Profile Image (centered)
+                    Box(
+                        modifier = Modifier
+                            .size(189.dp)
+                            .align(Alignment.Center)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(1.dp, Color.Gray, CircleShape)
+                    ) {
+                        if (profileImageUri != null) {
+                            AsyncImage(
+                                model = profileImageUri,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+
+                        } else if (showProfilePlaceholder) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clickable {
+                                        showImagePickerBottomSheet = true
+                                    },
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.camera_outline_colored),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(71.dp, 55.dp)
+                                )
+                                Spacer(modifier = Modifier.height(15.dp))
+                                Text(
+                                    text = context.getString(R.string.upload_picture),
+                                    fontSize = 15.sp,
+                                    fontFamily = fontFamilyLato,
+                                    fontStyle = FontStyle.Normal,
+                                    color = hintColor
+                                )
+                            }
+                        }
+                    }
+
+                    if (profileImageUri != null) {
+                    // Close button for profile
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_cross_golden),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(40.dp)
+                            .align(Alignment.BottomEnd)
+                            .clickable {
+                                profileImageUri = null
+                                showProfilePlaceholder = true
+                                imagePath = null
+                            }
+                    )
+                    }
+
+                }
+
+
+            }
+        }
+
+        Spacer(modifier = Modifier.height(15.dp))
+
+        // Name Section
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = context.getString(R.string.name_only),
+                fontSize = 18.sp,
+                fontWeight = FontWeight(600),
+                fontFamily = fontFamilyLato,
+                color = lightBlackColor
+            )
+            Text(
+                text = " *",
+                fontSize = 18.sp,
+                fontWeight = FontWeight(900),
+                fontFamily = fontFamilyLato,
+                color = astrikeColor
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Name Input
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(55.dp)
+                .background(
+                    color = Gray20,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .border(
+                    width = if (usernameError != null) 1.dp else 0.dp,
+                    color = if (usernameError != null) Red else Color.Transparent,
+                    shape = RoundedCornerShape(8.dp)
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.width(4.dp))
+            TextField(
+                value = username,
+                onValueChange = {
+                    if (it.length <= maxLength) {
+                        username = it
+                        usernameError = null
+                    }
+                },
+                placeholder = { Text(context.getString(R.string.joyer_name),
+                    color = hintColor,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontFamily = fontFamilyLato
+                ) },
+                modifier = Modifier.weight(0.8f)
+                    .fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    unfocusedTextColor = lightBlackColor,
+                    unfocusedPlaceholderColor = hintColor,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    errorIndicatorColor = Color.Transparent,
+                    // Optionally remove the background fill if needed
+                    // containerColor = Color.Transparent
+                ),
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = if (username.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    fontFamily = fontFamilyLato
+                ),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = remainingChars.toString(),
+                fontSize = 12.sp,
+                color = if (remainingChars == 0) redColor else hintColor,
+                modifier = Modifier.fillMaxHeight().padding(top = 5.dp, end = 7.dp),
+                fontFamily = fontFamilyLato,
+            )
+        }
+
+        if (usernameError != null) {
+            Text(
+                text = usernameError!!,
+                color = redColor,
+                fontSize = 14.sp,
+                fontFamily = fontFamilyLato,
+                fontStyle = FontStyle.Normal,
+                modifier = Modifier.padding(top = 3.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(15.dp))
+
+        // Location Section
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = context.getString(R.string.joyer_location_only),
+                fontSize = 18.sp,
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight(600),
+                color = lightBlackColor
+            )
+            Text(
+                text = context.getString(R.string.strik_left_space),
+                fontSize = 18.sp,
+                fontWeight = FontWeight(900),
+                color = astrikeColor
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Country Selection
+        Box(
+            Modifier
+            .fillMaxWidth()
+            .height(55.dp)
+            .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
+            .clickable {
+//                    activity?.let {
+                showCCPDialog(
+                    context,
+                    showPhoneCode = true
+                ) { code, name, flag, _ ->
+                    countryName = name
+                    selectedCountryCode = code
+                }
+//                    }
+            },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = if (countryName.isNotEmpty()) countryName else context.getString(R.string.select_location),
+                fontSize = 16.sp,
+                fontWeight = if (countryName.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
+                fontFamily = fontFamilyLato,
+                color = if (countryName.isNotEmpty()) lightBlackColor else hintColor,
+//                    modifier = Modifier.weight(0.33f)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+
+            ) {
+//                Spacer(modifier = Modifier.weight(0.33f))
+
+                Image(
+                    painter = painterResource(id = R.drawable.drop_down),
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 15.dp).size(36.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        // Next/Skip Buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            if (showSkipButton) {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(
+                            color = whiteColor,
+                            shape = CircleShape
+                        )
+                        .border(1.dp, goldenColor, CircleShape)
+                        .clickable {
+//                            preferencesManager?.let { pm ->
+//                                activity?.lifecycleScope?.launch {
+//                                    val token = pm.getAccessToken()
+//                                    val userID = pm.getUserId()
+//                                    if (token != null && userID != null) {
+//                                        signupViewModel?.setPageNumber(
+//                                            token = token,
+//                                            userId = userID,
+//                                            updateRequest = UpdateUserRequest(is_skipped = true)
+//                                        )
+//                                    }
+//                                }
+//                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = context.getString(R.string.skip),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight(600),
+                        fontFamily = fontFamilyLato,
+                        color = goldenColor
+                    )
+                }
+            }
+
+            if (showNextButton) {
+                Spacer(modifier = Modifier.width(5.dp))
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(goldenColor, CircleShape)
+                        .clickable {
+                            if (username.isNotEmpty() && isValidNameAdvanced(username) && username.length > 1) {
+                                onNext()
+                                // API call to update user would go here
+                            } else {
+                                usernameError = context.getString(R.string.username_error)
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.outline_arrow_forward),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(whiteColor)
+                    )
+                }
+            }
+        }
+    }
+
+    // Image Picker Bottom Sheet
+    ImagePickerBottomSheet(
+        showBottomSheet = showImagePickerBottomSheet,
+        onDismiss = { showImagePickerBottomSheet = false },
+        allowMultipleSelection = false,
+        onImagesPicked = { uris ->
+            profileImageUri = uris[0]
+            showProfilePlaceholder = false
+//            signupViewModel?.let { vm ->
+//                preferencesManager?.let { pm ->
+//                    activity?.lifecycleScope?.launch {
+//                        val token = pm.getAccessToken()
+//                        if (token != null) {
+//                            vm.uploadImage(uris[0], token)
+//                        }
+//                    }
+//                }
+//            }
+        },
+        onCameraImagePicked = { uri ->
+            profileImageUri = uri
+            showProfilePlaceholder = false
+//            signupViewModel?.let { vm ->
+//                preferencesManager?.let { pm ->
+//                    activity?.lifecycleScope?.launch {
+//                        val token = pm.getAccessToken()
+//                        if (token != null) {
+//                            vm.uploadImage(uri, token)
+//                        }
+//                    }
+//                }
+//            }
+        }
+    )
+}
+
+@Composable
+fun PageTwoContent(
+    onNext: () -> Unit,
+    onBack: () -> Unit,
+//    signupViewModel: SignupViewModel? = null,
+//    preferencesManager: PreferencesManager? = null,
+//    activity: AppCompatActivity? = null
+) {
+    var selectedStatus by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val goldenColor = Golden60
+    val lightBlackColor = Black
+    val blackColor = colorResource(id = R.color.black)
+    val whiteColor = Color.White
+
+    val statusOptions = listOf(
+        "Classic" to context.getString(R.string.classic),
+        "Celebrity" to context.getString(R.string.celebrity),
+        "Proficient" to context.getString(R.string.proficient),
+        "Leader" to context.getString(R.string.leader),
+        "Provider" to context.getString(R.string.provider)
+    )
+
+//    val userInfoResponse = signupViewModel?.userInfoResponse?.observeAsState()
+
+//    LaunchedEffect(userInfoResponse?.value) {
+//        userInfoResponse?.value?.let { response ->
+//            val apiResultHandler = ApiResultHandler<BaseResponse>(
+//                context as AppCompatActivity,
+//                onLoading = { },
+//                onSuccess = {
+//                    onNext()
+//                },
+//                onFailure = { }
+//            )
+//            apiResultHandler.handleApiResult(response)
+//        }
+//    }
+
+    val showNextButton = selectedStatus == "Classic"
+    val spaceHeight = if (showNextButton) 150.dp else 60.dp
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(25.dp)
+    ) {
+        Text(
+            text = context.getString(R.string.joyer_status),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = lightBlackColor,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Status options
+        statusOptions.forEach { (statusKey, statusText) ->
+            val isSelected = selectedStatus == statusKey
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp)
+                    .background(
+                        color = if (isSelected) goldenColor else Color(0xFFF5F5F5),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .clickable {
+                        selectedStatus = if (selectedStatus == statusKey) null else statusKey
+                    }
+                    .padding(17.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = statusText,
+                    fontSize = 16.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                    color = if (isSelected) whiteColor else blackColor
+                )
+            }
+            if (statusKey != statusOptions.last().first) {
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // Dashed line
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(3.dp)
+                .background(
+                    color = Color(0xFFE0E0E0),
+                    shape = RoundedCornerShape(1.5.dp)
+                )
+        )
+
+        Spacer(modifier = Modifier.height(15.dp))
+
+        // Clarifications section
+        Text(
+            text = context.getString(R.string.clarifications),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = lightBlackColor,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(15.dp)
+            ) {
+                Text(
+                    text = context.getString(R.string.title1),
+                    fontSize = 16.sp,
+                    color = lightBlackColor
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Styled text for each status
+                statusOptions.forEach { (statusKey, _) ->
+                    val fullText = when (statusKey) {
+                        "Classic" -> context.getString(R.string.classic_text)
+                        "Celebrity" -> context.getString(R.string.celebrity_text)
+                        "Proficient" -> context.getString(R.string.proficient_text)
+                        "Leader" -> context.getString(R.string.leader_text)
+                        "Provider" -> context.getString(R.string.provider_text)
+                        else -> ""
+                    }
+
+                    if (fullText.isNotEmpty()) {
+                        Text(
+                            text = buildAnnotatedString {
+                                val heading = statusKey
+                                val start = fullText.indexOf(heading)
+                                val end = start + heading.length
+
+                                append(fullText.substring(0, start))
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = goldenColor,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                ) {
+                                    append(heading)
+                                }
+                                append(fullText.substring(end))
+                            },
+                            fontSize = 16.sp,
+                            color = lightBlackColor,
+                            modifier = Modifier.padding(top = if (statusKey != "Classic") 7.dp else 0.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = context.getString(R.string.title2),
+                    fontSize = 16.sp,
+                    color = lightBlackColor
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = context.getString(R.string.title3),
+                    fontSize = 16.sp,
+                    color = lightBlackColor
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = context.getString(R.string.title4),
+                    fontSize = 16.sp,
+                    color = lightBlackColor
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(spaceHeight))
+    }
+
+    // Next button (floating)
+    if (showNextButton) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = 30.dp, bottom = 80.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(goldenColor, CircleShape)
+                    .clickable {
+                        onNext()
+                        // API call would go here
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.outline_arrow_forward),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    colorFilter = ColorFilter.tint(whiteColor)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PageThreeContent(
+    onBack: () -> Unit,
+//    signupViewModel: SignupViewModel? = null,
+//    preferencesManager: PreferencesManager? = null,
+//    activity: AppCompatActivity? = null
+) {
+    var selectedTitle by remember { mutableStateOf<String?>(null) }
+    var selectedTitleId by remember { mutableStateOf("") }
+    var showNextButton by remember { mutableStateOf(false) }
+    var showTitleDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val goldenColor = Golden60
+    val lightBlackColor = Black
+    val hintColor = Gray40
+    val whiteColor = Color.White
+
+//    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()
+//    val userInfoResponse = signupViewModel?.userInfoResponse?.observeAsState()
+//    var titles by remember { mutableStateOf<List<com.synapse.joyers.apiData.response.Title>>(emptyList()) }
+
+    // Load titles
+//    LaunchedEffect(Unit) {
+//        preferencesManager?.let { pm ->
+//            activity?.lifecycleScope?.launch {
+//                val token = pm.getAccessToken()
+//                if (token != null) {
+//                    signupViewModel?.getTitles(token)
+//                }
+//            }
+//        }
+//    }
+
+//    LaunchedEffect(titlesApiResponse?.value) {
+//        titlesApiResponse?.value?.let { response ->
+//            val apiResultHandler = ApiResultHandler<com.synapse.joyers.apiData.response.TitlesApiResponse>(
+//                context as AppCompatActivity,
+//                onLoading = { },
+//                onSuccess = {
+//                    titles = response.data?.data?.data ?: emptyList()
+//                },
+//                onFailure = { }
+//            )
+//            apiResultHandler.handleApiResult(response)
+//        }
+//    }
+
+//    LaunchedEffect(userInfoResponse?.value) {
+//        userInfoResponse?.value?.let { response ->
+//            val apiResultHandler = ApiResultHandler<BaseResponse>(
+//                context as AppCompatActivity,
+//                onLoading = { },
+//                onSuccess = {
+//                    val intent = Intent(context, com.synapse.joyers.ui.auth.JoyersAuthActivity::class.java)
+//                    context.startActivity(intent)
+//                    (context as AppCompatActivity).finish()
+//                },
+//                onFailure = { }
+//            )
+//            apiResultHandler.handleApiResult(response)
+//        }
+//    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(25.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(50.dp))
+
+        // Title selection button
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(55.dp)
+                .background(
+                    color = if (selectedTitle != null) goldenColor else Color(0xFFF5F5F5),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .border(
+                    width = if (selectedTitle == null) 1.dp else 0.dp,
+                    color = goldenColor,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .clickable {
+                    showTitleDialog = true
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = selectedTitle ?: context.getString(R.string.select_title),
+                fontSize = 16.sp,
+                fontWeight = if (selectedTitle != null) FontWeight.Bold else FontWeight.SemiBold,
+                color = if (selectedTitle != null) whiteColor else goldenColor
+            )
+        }
+
+        Spacer(modifier = Modifier.height(50.dp))
+
+        if (showNextButton) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(goldenColor, CircleShape)
+                    .clickable {
+//                        val intent = Intent(context, com.synapse.joyers.ui.auth.JoyersAuthActivity::class.java)
+//                        context.startActivity(intent)
+//                        (context as AppCompatActivity).finish()
+                        // API call would go here
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.outline_arrow_forward),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    colorFilter = ColorFilter.tint(whiteColor)
+                )
+            }
+        }
+    }
+
+    // Title Selection Dialog
+    if (showTitleDialog) {
+//        CustomRoundedDialog(
+//            titles = titles.toMutableList(),
+//            onDismiss = { showTitleDialog = false },
+//            onItemSelected = { titleId, titleName ->
+//                selectedTitle = titleName
+//                selectedTitleId = titleId
+//                showNextButton = true
+//                showTitleDialog = false
+//            }
+//        )
+    }
+}

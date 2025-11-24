@@ -1,10 +1,13 @@
 package com.synapse.joyers.common_widgets
 
+import android.content.Context
+import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -28,21 +35,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.hbb20.CountryCodePicker
 import com.synapse.joyers.R
 import com.synapse.joyers.ui.theme.Black
 import com.synapse.joyers.ui.theme.Gray40
 import com.synapse.joyers.ui.theme.Red
+import com.synapse.joyers.utils.fontFamilyLato
 
 
 /*@Composable
@@ -69,6 +85,32 @@ fun BasicTextField(
         singleLine = true
     )
 }*/
+
+fun showCCPDialog(context: Context, showPhoneCode: Boolean, onCodeSelected: (String, String, ImageView,Int) -> Unit) {
+    val ccp = CountryCodePicker(context)
+
+    // Optional: configure default country if needed
+    ccp.ccpDialogShowFlag = false
+    ccp.ccpDialogShowNameCode = false
+    ccp.ccpDialogShowTitle = true
+    ccp.setCcpDialogShowPhoneCode(showPhoneCode)
+
+    ccp.showFullName(true)
+
+    // Listener to capture the selected country code
+    ccp.setOnCountryChangeListener {
+        val code = ccp.selectedCountryCodeWithPlus
+        val name = ccp.selectedCountryName
+        val flag = ccp.imageViewFlag
+        val flagId = ccp.selectedCountryFlagResourceId
+
+        onCodeSelected(code, name, flag, flagId)
+    }
+
+    // Trigger the CCP dialog
+    ccp.launchCountrySelectionDialog()
+}
+
 
 @Composable
 fun CountryCodePicker(
@@ -177,3 +219,127 @@ fun PasswordField(password: String = "", passwordError: String = "") {
         }
     }
 }*/
+/*
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun myTextField(
+    value: String = "",
+    onValueChange: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        textStyle = TextStyle(
+            platformStyle = PlatformTextStyle(includeFontPadding = false),
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Normal,
+        ),
+        placeholder = { Text("@username",
+            modifier = Modifier.fillMaxWidth(),
+            color = Gray40,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Start,
+            style = TextStyle(
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Normal,
+            )) },
+        modifier = modifier
+            .fillMaxWidth(),
+//            .focusRequester(focusRequester)
+//            .onFocusChanged { focusState ->
+//                isUsernameFocused = focusState.isFocused
+//            },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = Color(0xFFF1F1F1),
+            focusedContainerColor = Color(0xFFF1F1F1),
+            disabledIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        singleLine = true
+    )
+
+
+}*/
+
+@Preview
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomTextField(
+    value: String = "tesst",
+    onValueChange: (String) -> Unit = {},
+    label: String = "@test",
+    modifier: Modifier = Modifier,
+    leadingIcon: ImageVector? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    maxLength: Int? = null
+) {
+    TextField(
+        value = value,
+        onValueChange = { newValue ->
+            if (maxLength == null || newValue.length <= maxLength) {
+                onValueChange(newValue)
+            }
+        },
+        placeholder = { Text("@username",
+            modifier = Modifier.fillMaxWidth(),
+            color = Gray40,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Start,
+            style = TextStyle(
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Normal,
+            )) },
+        label = { Text(text = label) },
+        modifier = modifier.fillMaxWidth(),
+        isError = isError,
+        singleLine = true,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        visualTransformation = visualTransformation,
+        leadingIcon = if (leadingIcon != null) {
+            {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = "$label icon",
+                    tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            null
+        },
+        trailingIcon = trailingIcon,
+        supportingText = {
+            if (isError && errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            } else if (maxLength != null) {
+                Text(
+                    text = "${value.length} / $maxLength",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+        },
+//        colors = TextFieldDefaults.outlinedTextFieldColors(
+//            focusedBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+//            unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+//        )
+    )
+}

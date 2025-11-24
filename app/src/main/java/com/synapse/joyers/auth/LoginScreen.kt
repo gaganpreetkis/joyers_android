@@ -24,6 +24,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -35,12 +37,15 @@ import com.synapse.joyers.R
 import androidx.compose.ui.unit.sp
 import com.synapse.joyers.common_widgets.BottomSocialDialog
 import com.synapse.joyers.common_widgets.CountryCodePicker
-import com.synapse.joyers.isValidUsername
+import com.synapse.joyers.ui.theme.Black
 import com.synapse.joyers.ui.theme.DisabledTextColor
 import com.synapse.joyers.ui.theme.Golden60
 import com.synapse.joyers.ui.theme.Gray20
+import com.synapse.joyers.ui.theme.Gray40
 import com.synapse.joyers.ui.theme.Red
 import com.synapse.joyers.ui.theme.White
+import com.synapse.joyers.utils.fontFamilyLato
+import com.synapse.joyers.utils.isValidPassword
 import kotlin.text.isNotEmpty
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -79,12 +84,6 @@ fun LoginScreen(
             username.isNotEmpty() &&
                     Patterns.EMAIL_ADDRESS.matcher(username).matches()
         }
-    }
-
-    val isPasswordValid = remember(password) {
-        password.length >= 8 &&
-                password.any { it.isUpperCase() } &&
-                password.any { !it.isLetterOrDigit() }
     }
 
     // Function to check keyboard visibility and update UI
@@ -134,6 +133,7 @@ fun LoginScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 35.dp)
             .statusBarsPadding()
+            .imePadding()
     ) {
 
         Spacer(modifier = Modifier.height(viewHeight))
@@ -153,8 +153,9 @@ fun LoginScreen(
         Text(
             text = "Login",
             fontSize = 18.sp,
+            fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF222222)
+            color = Black
         )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -174,7 +175,7 @@ fun LoginScreen(
                     .border(color = if (emailPhoneError) Red else Color.Transparent, width = 1.dp, shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)),
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 15.dp),
+                    modifier = Modifier.padding(start = 19.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -193,8 +194,22 @@ fun LoginScreen(
 
                     TextField(
                         value = username,
-                        onValueChange = { username = it },
-                        placeholder = { Text(if (isPhoneMode.value) "Phone Number" else "Username / Email", color = Color(0xFF9A9A9A)) },
+                        onValueChange = {
+                            username = it
+                            if (isFormValid && isValidPassword(password) && rememberMe) {
+                                rememberMe = false
+                            }
+                        },
+                        placeholder = {
+                            Text(
+                                if (isPhoneMode.value) "Phone Number" else "Username / Email", color = Gray40,
+                                fontSize = 16.sp,
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                                )
+                            )
+                        },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = if (isPhoneMode.value) {
@@ -204,6 +219,9 @@ fun LoginScreen(
                             }
                         ),
                         textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
                             platformStyle = PlatformTextStyle(includeFontPadding = false)
                         ),
                         colors = TextFieldDefaults.colors(
@@ -264,7 +282,7 @@ fun LoginScreen(
                 .background(Gray20, RoundedCornerShape(8.dp))
         ) {
             Row(
-                modifier = Modifier.padding(start = 15.dp),
+                modifier = Modifier.padding(start = 19.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -282,9 +300,26 @@ fun LoginScreen(
 
                     TextField(
                         value = password,
-                        onValueChange = { password = it },
-                        placeholder = { Text("Password", color = Color(0xFF9A9A9A)) },
+                        onValueChange = {
+                            password = it
+                            if (isFormValid && isValidPassword(password) && rememberMe) {
+                                rememberMe = false
+                            }
+                        },
+                        placeholder = {
+                            Text(
+                                "Password", color = Gray40,
+                                fontSize = 16.sp,
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                                )
+                            )
+                        },
                         textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
                             platformStyle = PlatformTextStyle(includeFontPadding = false)
                         ),
                         visualTransformation =
@@ -335,8 +370,10 @@ fun LoginScreen(
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-                    if (isFormValid && isPasswordValid) rememberMe = !rememberMe
+                modifier = Modifier.clickable(
+                    enabled = isFormValid && isValidPassword(password)
+                ) {
+                    if (isFormValid && isValidPassword(password)) rememberMe = !rememberMe
                 }
             ) {
                 Image(
@@ -347,6 +384,8 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = "Remember Me",
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
                     color = Color(0xFF9A9A9A)
                 )
@@ -358,8 +397,11 @@ fun LoginScreen(
                 text = "Forgot Password?",
                 fontSize = 12.sp,
                 color = Color(0xFFD4A038),
+                fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable { onForgotPasswordClick() }
+                modifier = Modifier.clickable {
+                    onForgotPasswordClick()
+                }
             )
         }
 
@@ -383,10 +425,10 @@ fun LoginScreen(
         Button(
             onClick = {
                 onLoginClick()
-                passwordError = !passwordError
-                emailPhoneError = !emailPhoneError
+                //passwordError = !passwordError
+                //emailPhoneError = !emailPhoneError
             },
-            enabled = isFormValid && isPasswordValid,
+            enabled = isFormValid && isValidPassword(password),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -398,7 +440,11 @@ fun LoginScreen(
                 disabledContentColor = DisabledTextColor
             ),
         ) {
-            Text("Login", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                "Login", fontSize = 16.sp,
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Bold,
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -407,6 +453,8 @@ fun LoginScreen(
         Text(
             text = "Or",
             fontSize = 16.sp,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Normal,
             color = Color(0xFF9A9A9A),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
@@ -428,7 +476,8 @@ fun LoginScreen(
                 text = "Join With",
                 color = Color.White,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Bold,
             )
 
             Spacer(modifier = Modifier.width(6.dp))
@@ -446,6 +495,8 @@ fun LoginScreen(
         Text(
             text = "A New Joyer?",
             fontSize = 12.sp,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Normal,
             color = Color(0xFF9A9A9A),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
@@ -453,6 +504,7 @@ fun LoginScreen(
         Text(
             text = "Sign Up",
             fontSize = 16.sp,
+            fontFamily = fontFamilyLato,
             fontWeight = FontWeight.Bold,
             color = Color(0xFFD4A038),
             modifier = Modifier
@@ -460,6 +512,8 @@ fun LoginScreen(
                 .clickable { onSignUpClick() }
                 .padding(top = 0.dp, bottom = 0.dp)
         )
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         BottomSocialDialog(
             showDialog = showSocialDialog,

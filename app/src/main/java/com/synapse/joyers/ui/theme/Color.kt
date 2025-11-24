@@ -15,7 +15,7 @@ val Black = Color(0xFF000000)
 val DisabledTextColor = Color(0x99FFFFFF)
 
 val Gray80 = Color(0xFF333333)
-val Gray40 = Color(0xFF9A9A9A)
+val Gray40 = Color(0xff858585)
 val Gray20 = Color(0xFFF1F1F1)
 val Golden60 = Color(0xffd69e3a)
 val Red = Color(0xffff0000)

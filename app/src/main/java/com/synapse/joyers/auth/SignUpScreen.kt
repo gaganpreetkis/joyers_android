@@ -256,7 +256,7 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(45.dp))
 
-        // SIGNUP LABEL
+// SIGNUP LABEL
         Text(
             text = "Sign Up",
             fontSize = 18.sp,
@@ -267,7 +267,7 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        // USERNAME INPUT
+// USERNAME INPUT
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -285,14 +285,13 @@ fun SignUpScreen(
                 .padding(horizontal = 19.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-            Spacer(Modifier.width(4.dp))
                 Image(
                     painter = painterResource(id = R.drawable.user_icon),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
 
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(0.dp))
 
                 TextField(
                     value = username,
@@ -328,9 +327,16 @@ fun SignUpScreen(
                         fontWeight = FontWeight.Normal,
                     ),
                     placeholder = { Text("@username",
+                        modifier = Modifier.fillMaxWidth(),
                         color = Gray40,
                         fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Normal,) },
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Start,
+                        style = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = false),
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
+                        )) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(0.71f)
@@ -401,14 +407,11 @@ fun SignUpScreen(
             )
         }
 
-
         Spacer(modifier = Modifier.height(10.dp))
 
-        Box(Modifier.weight(1f)) {
+        Box() {
 
             Column() {
-
-
 // EMAIL
 
                 val toggleIcon = if (!isPhoneMode) R.drawable.telephone_icon_golden else R.drawable.ic_mail_golden
@@ -440,7 +443,7 @@ fun SignUpScreen(
                                 colorFilter = ColorFilter.tint(Gray80)
                             )
 
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(0.dp))
 
                             TextField(
                                 value = email,
@@ -448,7 +451,12 @@ fun SignUpScreen(
                                 placeholder = { Text(contactPlaceHolder,
                                     color = Gray40,
                                     fontFamily = fontFamilyLato,
-                                    fontWeight = FontWeight.Normal,) },
+                                    fontWeight = FontWeight.Normal,
+                                    style = TextStyle(
+                                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Normal,
+                                    )) },
                                 modifier = Modifier.weight(0.97f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                 textStyle = TextStyle(
@@ -489,7 +497,7 @@ fun SignUpScreen(
                                 colorFilter = ColorFilter.tint(Gray80)
                             )
 
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(0.dp))
 
                             CountryCodePicker { code ->
                                 selectedCountryCode = code
@@ -590,7 +598,7 @@ fun SignUpScreen(
                     )
                 }
 
-                // Verification Code Input
+// Verification Code Input
                 if (showVerification) {
                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -665,13 +673,16 @@ fun SignUpScreen(
 // Verify Button
                     Button(
                         onClick = {
-                            if (verificationCode.equals("999999")) {
-                                verificationError = null
+                            verificationError = null
                                 showVerification = false
                                 showPasswordFields = true
-                            } else {
-                                verificationError = "Validation code is incorrect or has expired"
-                            }
+//                            if (verificationCode.equals("999999")) {
+//                                verificationError = null
+//                                showVerification = false
+//                                showPasswordFields = true
+//                            } else {
+//                                verificationError = "Validation code is incorrect or has expired"
+//                            }
                         },
                         enabled = isVerificationValid,
                         modifier = Modifier.fillMaxWidth(),
@@ -726,8 +737,6 @@ fun SignUpScreen(
                         )
                     }
                 }
-
-
 
 // Password Fields
                 if (showPasswordFields) {
@@ -927,19 +936,22 @@ fun SignUpScreen(
                     }
                 }
 
-
                 Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 45.dp else 71.dp))
 
+// Sign Up Button
                 if (!showVerification) {
-                    // Sign Up Button
                     Button(
                         onClick = {
+//                            onSignUpClick()
                             if (showPasswordFields) {
-                                if (!isValidPassword(password)) {
-                                    passwordError = context.getString(R.string.weak_password)
-                                } else if (confirmPassword != password) {
-                                    confirmPasswordError = context.getString(R.string.password_does_not_match)
-                                }
+
+                                onSignUpClick()
+
+//                                if (!isValidPassword(password)) {
+//                                    passwordError = context.getString(R.string.weak_password)
+//                                } else if (confirmPassword != password) {
+//                                    confirmPasswordError = context.getString(R.string.password_does_not_match)
+//                                }
                                 // Final signup
 //                    val registerRequest = if (isPhoneMode) {
 //                        RegisterRequest(
@@ -1017,9 +1029,10 @@ fun SignUpScreen(
                     }
 
                 }
+
                 Spacer(modifier = Modifier.height(50.dp))
 
-                // SIGNUP FOOTER
+// SIGNUP FOOTER
                 Text(
                     text = "Already a Joyer?",
                     fontSize = 12.sp,
@@ -1043,10 +1056,7 @@ fun SignUpScreen(
 
             }
 
-
-
-
-            // Username suggestions
+// Username suggestions
             if (showUsernameSuggestions) {
 //        if (showUsernameSuggestions && usernameSuggestions.isNotEmpty()) {
                 Card(
