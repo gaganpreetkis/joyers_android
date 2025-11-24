@@ -1,6 +1,7 @@
 package com.synapse.joyers.auth
 
 import android.graphics.Rect
+import android.util.Patterns
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
@@ -34,8 +35,13 @@ import com.synapse.joyers.R
 import androidx.compose.ui.unit.sp
 import com.synapse.joyers.common_widgets.BottomSocialDialog
 import com.synapse.joyers.common_widgets.CountryCodePicker
+import com.synapse.joyers.isValidUsername
+import com.synapse.joyers.ui.theme.DisabledTextColor
+import com.synapse.joyers.ui.theme.Golden60
 import com.synapse.joyers.ui.theme.Gray20
 import com.synapse.joyers.ui.theme.Red
+import com.synapse.joyers.ui.theme.White
+import kotlin.text.isNotEmpty
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -48,7 +54,7 @@ fun LoginScreen(
 ) {
 
     var username by remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
     var emailPhoneError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
@@ -61,6 +67,25 @@ fun LoginScreen(
     var viewHeight by remember { mutableStateOf(45.dp) }
     var showGapView by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
+    val isFormValid = remember(username, isPhoneMode) {
+        if (isPhoneMode.value) {
+            // PHONE VALIDATION
+            username.isNotEmpty() &&
+                    username.all { it.isDigit() } &&
+                    username.length in 10..15
+        } else {
+            // EMAIL VALIDATION
+            username.isNotEmpty() &&
+                    Patterns.EMAIL_ADDRESS.matcher(username).matches()
+        }
+    }
+
+    val isPasswordValid = remember(password) {
+        password.length >= 8 &&
+                password.any { it.isUpperCase() } &&
+                password.any { !it.isLetterOrDigit() }
+    }
 
     // Function to check keyboard visibility and update UI
     fun updateKeyboardState(frameLayout: View) {
@@ -214,6 +239,7 @@ fun LoginScreen(
                     .weight(0.15f)
                     .fillMaxHeight()
                     .clickable {
+                        username = ""
                         isPhoneMode.value = !isPhoneMode.value
                     }
                     .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
@@ -255,8 +281,8 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.width(0.dp))
 
                     TextField(
-                        value = password.value,
-                        onValueChange = { password.value = it },
+                        value = password,
+                        onValueChange = { password = it },
                         placeholder = { Text("Password", color = Color(0xFF9A9A9A)) },
                         textStyle = TextStyle(
                             platformStyle = PlatformTextStyle(includeFontPadding = false)
@@ -276,7 +302,7 @@ fun LoginScreen(
                     )
                 }
 
-                if (password.value.trim().isNotEmpty()) {
+                if (password.trim().isNotEmpty()) {
                     IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
                         Image(
                             painter = painterResource(id = if (passwordVisible.value) R.drawable.show_password else R.drawable.password_hide),
@@ -310,7 +336,7 @@ fun LoginScreen(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable {
-                    rememberMe = !rememberMe
+                    if (isFormValid && isPasswordValid) rememberMe = !rememberMe
                 }
             ) {
                 Image(
@@ -360,15 +386,19 @@ fun LoginScreen(
                 passwordError = !passwordError
                 emailPhoneError = !emailPhoneError
             },
+            enabled = isFormValid && isPasswordValid,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(color = Color(0xFFD4A038), shape = RoundedCornerShape(8.dp)),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFD4A038)
-            )
+                containerColor = Golden60,
+                disabledContainerColor = Golden60,
+                contentColor = White,
+                disabledContentColor = DisabledTextColor
+            ),
         ) {
-            Text("Login", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+            Text("Login", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(modifier = Modifier.height(8.dp))

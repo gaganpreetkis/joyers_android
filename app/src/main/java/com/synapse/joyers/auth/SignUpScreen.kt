@@ -211,7 +211,9 @@ fun SignUpScreen(
     val isFormValid = remember(username, email, phone, isPhoneMode) {
         val cleanUsername = username.text.replace("@", "")
         if (isPhoneMode) {
-            cleanUsername.isNotEmpty() && isValidUsername(cleanUsername) && phone.isNotEmpty()
+            phone.isNotEmpty() &&
+                    phone.all { it.isDigit() } &&
+                    phone.length in 10..15
         } else {
             cleanUsername.isNotEmpty() && isValidUsername(cleanUsername) && email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
         }
@@ -219,7 +221,13 @@ fun SignUpScreen(
 
     val isPasswordFormValid = remember(password, confirmPassword) {
         isValidPassword(password)
-//                && password == confirmPassword
+                && password == confirmPassword
+    }
+
+    val isPasswordValid = remember(password) {
+        password.length >= 8 &&
+                password.any { it.isUpperCase() } &&
+                password.any { !it.isLetterOrDigit() }
     }
 
     val isVerificationValid = verificationCode.length == 6
