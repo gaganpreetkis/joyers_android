@@ -58,6 +58,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -78,6 +79,7 @@ import com.synapse.joyers.ui.theme.Gray40
 import com.synapse.joyers.ui.theme.Gray80
 import com.synapse.joyers.ui.theme.Red
 import com.synapse.joyers.ui.theme.White
+import com.synapse.joyers.utils.fontFamilyLato
 import com.synapse.joyers.utils.isValidPassword
 import kotlinx.coroutines.delay
 import kotlin.text.isNotEmpty
@@ -258,6 +260,7 @@ fun SignUpScreen(
         Text(
             text = "Sign Up",
             fontSize = 18.sp,
+            fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF222222)
         )
@@ -320,10 +323,14 @@ fun SignUpScreen(
                         }
                                     },
                     textStyle = TextStyle(
-                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
                     ),
                     placeholder = { Text("@username",
-                        color = Gray40) },
+                        color = Gray40,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(0.71f)
@@ -388,6 +395,8 @@ fun SignUpScreen(
                 text = usernameError!!,
                 color = Red,
                 fontSize = 14.sp,
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(top = 3.dp)
             )
         }
@@ -436,11 +445,16 @@ fun SignUpScreen(
                             TextField(
                                 value = email,
                                 onValueChange = { email = it },
-                                placeholder = { Text(contactPlaceHolder, color = Gray40) },
+                                placeholder = { Text(contactPlaceHolder,
+                                    color = Gray40,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,) },
                                 modifier = Modifier.weight(0.97f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                 textStyle = TextStyle(
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,
                                 ),
                                 colors = TextFieldDefaults.colors(
                                     unfocusedContainerColor = Color(0xFFF1F1F1),
@@ -483,11 +497,20 @@ fun SignUpScreen(
 
                             TextField(
                                 value = phone,
-                                onValueChange = { phone = it },
-                                placeholder = { Text(contactPlaceHolder, color = Gray40) },
+                                onValueChange = {
+                                    if (it.length <= 15) {
+                                        phone = it
+                                    }
+                                                },
+                                placeholder = { Text(contactPlaceHolder,
+                                    color = Gray40,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                                 textStyle = TextStyle(
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,
                                 ),
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -551,6 +574,8 @@ fun SignUpScreen(
                         text = emailError!!,
                         color = Red,
                         fontSize = 14.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
                         modifier = Modifier.padding(top = 3.dp)
                     )
                 }
@@ -559,6 +584,8 @@ fun SignUpScreen(
                         text = phoneError!!,
                         color = Red,
                         fontSize = 14.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
                         modifier = Modifier.padding(top = 3.dp)
                     )
                 }
@@ -575,7 +602,10 @@ fun SignUpScreen(
                                 verificationError = null
                             }
                         },
-                        placeholder = { Text(context.getString(R.string.enter_verification_code), color = Gray40) },
+                        placeholder = { Text(context.getString(R.string.enter_verification_code),
+                            color = Gray40,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,) },
                         modifier = Modifier
                             .width(181.dp)
                             .align(Alignment.CenterHorizontally)
@@ -596,7 +626,8 @@ fun SignUpScreen(
                             fontSize = 16.sp,
                             fontWeight = if (verificationCode.isNotEmpty()) FontWeight.SemiBold else FontWeight.Normal,
                             letterSpacing = if (verificationCode.isNotEmpty()) 0.2.sp else 0.sp,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            fontFamily = fontFamilyLato
                         ),
                         singleLine = true
                     )
@@ -607,6 +638,8 @@ fun SignUpScreen(
                         Text(
                             text = codeSentMessage,
                             fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
                             color = Black, textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .padding(bottom = 4.dp)
@@ -619,6 +652,8 @@ fun SignUpScreen(
                             text = verificationError!!,
                             color = Red,
                             fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
                             modifier = Modifier
                                 .padding(top = 3.dp)
                                 .align(Alignment.CenterHorizontally)
@@ -651,7 +686,8 @@ fun SignUpScreen(
                         Text(
                             text = context.getString(R.string.verify),
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
                             modifier = Modifier.padding(vertical = 12.dp)
                         )
                     }
@@ -683,7 +719,8 @@ fun SignUpScreen(
                         Text(
                             text = context.getString(R.string.resend_code),
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
                             color = White,
                             modifier = Modifier.padding(vertical = 12.dp)
                         )
@@ -726,7 +763,10 @@ fun SignUpScreen(
                                 password = it
                                 passwordError = null
                             },
-                            placeholder = { Text(context.getString(R.string.password), color = Gray40) },
+                            placeholder = { Text(context.getString(R.string.password),
+                                color = Gray40,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,) },
                             modifier = Modifier
                                 .weight(0.83f)
                                 .focusRequester(focusRequester)
@@ -744,6 +784,8 @@ fun SignUpScreen(
                             ),
                             textStyle = TextStyle(
                                 fontSize = 16.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
                                 platformStyle = PlatformTextStyle(includeFontPadding = false)
                             ),
                             singleLine = true
@@ -766,6 +808,7 @@ fun SignUpScreen(
                         Text(
                             text = context.getString(R.string.strong),
                             fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
                             color = Color.Green,
                             modifier = Modifier
@@ -800,6 +843,8 @@ fun SignUpScreen(
                             text = passwordError!!,
                             color = Red,
                             fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
                             modifier = Modifier.padding(top = 3.dp)
                         )
                     }
@@ -836,7 +881,10 @@ fun SignUpScreen(
                                 confirmPasswordError = null
 
                             },
-                            placeholder = { Text(context.getString(R.string.confirm_password), color = Gray40) },
+                            placeholder = { Text(context.getString(R.string.confirm_password),
+                                color = Gray40,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,) },
                             modifier = Modifier.weight(0.83f),
                             visualTransformation = if (isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -849,6 +897,8 @@ fun SignUpScreen(
                             ),
                             textStyle = TextStyle(
                                 fontSize = 16.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
                                 platformStyle = PlatformTextStyle(includeFontPadding = false)
                             ),
                             singleLine = true
@@ -870,6 +920,8 @@ fun SignUpScreen(
                             text = confirmPasswordError!!,
                             color = Red,
                             fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
                             modifier = Modifier.padding(top = 3.dp)
                         )
                     }
@@ -906,7 +958,7 @@ fun SignUpScreen(
 //                        )
 //                    }
 //                    signupViewModel.signup(registerRequest)
-                                Toast.makeText(context, "Signed In", Toast.LENGTH_SHORT).show()
+//                                Toast.makeText(context, "Signed In", Toast.LENGTH_SHORT).show()
                             } else {
                                 // Next step - verify email/phone
                                 if (isPhoneMode) {
@@ -945,7 +997,7 @@ fun SignUpScreen(
                                 }
                             }
                         },
-                        enabled = if (showPasswordFields) password.isNotEmpty() else isFormValid,
+                        enabled = if (showPasswordFields) isPasswordFormValid else isFormValid,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Golden60,
@@ -958,6 +1010,7 @@ fun SignUpScreen(
                         Text(
                             text = signInButtonText,
                             fontSize = 16.sp,
+                            fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
                             modifier = Modifier.padding(vertical = 12.dp)
                         )
@@ -970,6 +1023,8 @@ fun SignUpScreen(
                 Text(
                     text = "Already a Joyer?",
                     fontSize = 12.sp,
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF9A9A9A),
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
@@ -978,6 +1033,7 @@ fun SignUpScreen(
                     text = "Login",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
+                    fontFamily = fontFamilyLato,
                     color = Color(0xFFD4A038),
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
@@ -1035,6 +1091,8 @@ fun SignUpScreen(
                                         }
                                         .padding(horizontal = 20.dp, vertical = 12.dp),
                                     fontSize = 16.sp,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,
                                     color = Black
                                 )
 
