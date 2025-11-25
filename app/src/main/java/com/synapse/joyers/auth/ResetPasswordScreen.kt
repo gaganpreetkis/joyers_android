@@ -385,6 +385,7 @@ fun ResetPasswordScreen(
                                     showPasswordStrength = isValidPassword(it)
                                 }
                             },
+                            isEnabled = !isPasswordResetSuccess,
                             placeholder = stringResource(R.string.password),
                             isPassword = true,
                             passwordVisible = isPasswordVisible,
@@ -479,6 +480,7 @@ fun ResetPasswordScreen(
                                 confirmPassword = it.take(16)
                                 confirmPasswordError = null
                             },
+                            isEnabled = !isPasswordResetSuccess,
                             placeholder = stringResource(R.string.confirm_password),
                             isPassword = true,
                             passwordVisible = isConfirmPasswordVisible,

@@ -41,6 +41,7 @@ fun AppBasicTextField(
     isPassword: Boolean = false,
     passwordVisible: Boolean = false,
     isCentered: Boolean = false,
+    isEnabled: Boolean = true,
     onPasswordToggle: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     textStyle: TextStyle = TextStyle(
@@ -80,6 +81,7 @@ fun AppBasicTextField(
                 value = value,
                 onValueChange = onValueChange,
                 singleLine = true,
+                enabled = isEnabled,
                 textStyle = textStyle.copy(color = contentColor),
                 visualTransformation = if (isPassword && !passwordVisible)
                     PasswordVisualTransformation() else VisualTransformation.None,
