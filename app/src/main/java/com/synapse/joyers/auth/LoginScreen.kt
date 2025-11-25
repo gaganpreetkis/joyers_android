@@ -9,7 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,26 +21,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.synapse.joyers.R
 import androidx.compose.ui.unit.sp
+import com.synapse.joyers.common_widgets.AppBasicTextField
 import com.synapse.joyers.common_widgets.BottomSocialDialog
 import com.synapse.joyers.common_widgets.CountryCodePicker
 import com.synapse.joyers.ui.theme.Black
 import com.synapse.joyers.ui.theme.DisabledTextColor
 import com.synapse.joyers.ui.theme.Golden60
 import com.synapse.joyers.ui.theme.Gray20
-import com.synapse.joyers.ui.theme.Gray40
 import com.synapse.joyers.ui.theme.Red
 import com.synapse.joyers.ui.theme.White
 import com.synapse.joyers.utils.fontFamilyLato
@@ -175,14 +168,14 @@ fun LoginScreen(
                     .border(color = if (emailPhoneError) Red else Color.Transparent, width = 1.dp, shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)),
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 19.dp),
+                    modifier = Modifier.padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
                     Image(
                         painter = painterResource(id = R.drawable.user_icon),
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(24.dp)
                     )
 
                     Spacer(modifier = Modifier.width(0.dp))
@@ -192,7 +185,7 @@ fun LoginScreen(
                             selectedCountryCode = code
                         }
 
-                    TextField(
+                    AppBasicTextField(
                         value = username,
                         onValueChange = {
                             username = it
@@ -200,16 +193,7 @@ fun LoginScreen(
                                 rememberMe = false
                             }
                         },
-                        placeholder = {
-                            Text(
-                                if (isPhoneMode.value) "Phone Number" else "Username / Email", color = Gray40,
-                                fontSize = 16.sp,
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                )
-                            )
-                        },
+                        placeholder = if (isPhoneMode.value) "Phone Number" else "Username / Email",
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = if (isPhoneMode.value) {
@@ -218,20 +202,6 @@ fun LoginScreen(
                                 KeyboardType.Email
                             }
                         ),
-                        textStyle = TextStyle(
-                            fontSize = 16.sp,
-                            fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Normal,
-                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Gray20,
-                            focusedContainerColor = Gray20,
-                            disabledIndicatorColor = Gray20,
-                            focusedIndicatorColor = Gray20,
-                            unfocusedIndicatorColor = Gray20,
-                        ),
-                        singleLine = true,
                     )
 
                     if (username.isNotEmpty()) {
@@ -266,7 +236,7 @@ fun LoginScreen(
                 Image(
                     painter = painterResource(id = if (isPhoneMode.value) R.drawable.ic_mail_golden else R.drawable.telephone_icon_golden),
                     contentDescription = null,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
@@ -282,7 +252,7 @@ fun LoginScreen(
                 .background(Gray20, RoundedCornerShape(8.dp))
         ) {
             Row(
-                modifier = Modifier.padding(start = 19.dp),
+                modifier = Modifier.padding(start = 20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -293,12 +263,12 @@ fun LoginScreen(
                     Image(
                         painter = painterResource(id = R.drawable.password_icon),
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(24.dp)
                     )
 
                     Spacer(modifier = Modifier.width(0.dp))
 
-                    TextField(
+                    AppBasicTextField(
                         value = password,
                         onValueChange = {
                             password = it
@@ -306,45 +276,12 @@ fun LoginScreen(
                                 rememberMe = false
                             }
                         },
-                        placeholder = {
-                            Text(
-                                "Password", color = Gray40,
-                                fontSize = 16.sp,
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                )
-                            )
-                        },
-                        textStyle = TextStyle(
-                            fontSize = 16.sp,
-                            fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Normal,
-                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                        ),
-                        visualTransformation =
-                            if (passwordVisible.value) VisualTransformation.None
-                            else PasswordVisualTransformation(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Gray20,
-                            focusedContainerColor = Gray20,
-                            disabledIndicatorColor = Gray20,
-                            focusedIndicatorColor = Gray20,
-                            unfocusedIndicatorColor = Gray20,
-                        ),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        placeholder = "Password",
+                        isPassword = true,
+                        passwordVisible = passwordVisible.value,
+                        onPasswordToggle = { passwordVisible.value = !passwordVisible.value },
+                        modifier = Modifier.fillMaxSize(),
                     )
-                }
-
-                if (password.trim().isNotEmpty()) {
-                    IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
-                        Image(
-                            painter = painterResource(id = if (passwordVisible.value) R.drawable.show_password else R.drawable.password_hide),
-                            contentDescription = null,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
                 }
             }
         }
@@ -364,7 +301,7 @@ fun LoginScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 19.dp),
+                .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 

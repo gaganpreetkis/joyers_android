@@ -1,7 +1,6 @@
 package com.synapse.joyers.auth
 
 import android.util.Patterns
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,8 +32,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -53,12 +50,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -70,7 +65,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.synapse.joyers.R
 import com.synapse.joyers.common_widgets.CountryCodePicker
-import com.synapse.joyers.isValidUsername
 import com.synapse.joyers.ui.theme.Black
 import com.synapse.joyers.ui.theme.DisabledTextColor
 import com.synapse.joyers.ui.theme.Golden60
@@ -81,6 +75,7 @@ import com.synapse.joyers.ui.theme.Red
 import com.synapse.joyers.ui.theme.White
 import com.synapse.joyers.utils.fontFamilyLato
 import com.synapse.joyers.utils.isValidPassword
+import com.synapse.joyers.utils.isValidUsername
 import kotlinx.coroutines.delay
 import kotlin.text.isNotEmpty
 import kotlin.text.replace
@@ -613,7 +608,9 @@ fun SignUpScreen(
                         placeholder = { Text(context.getString(R.string.enter_verification_code),
                             color = Gray40,
                             fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Normal,) },
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)) },
                         modifier = Modifier
                             .width(181.dp)
                             .align(Alignment.CenterHorizontally)

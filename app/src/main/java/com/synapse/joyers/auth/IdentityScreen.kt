@@ -1,6 +1,5 @@
 package com.synapse.joyers.auth
 
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -8,6 +7,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,17 +24,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -53,6 +54,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -62,9 +64,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
 import coil.compose.AsyncImage
 import com.synapse.joyers.R
+import com.synapse.joyers.apiData.response.Subtitle
+import com.synapse.joyers.apiData.response.Title
 import com.synapse.joyers.common_widgets.ImagePickerBottomSheet
 import com.synapse.joyers.common_widgets.showCCPDialog
 import com.synapse.joyers.ui.theme.Black
@@ -119,7 +122,7 @@ fun IdentityScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Header
+// Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,7 +130,7 @@ fun IdentityScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Back button
+// Back button
                 Box(
                     modifier = Modifier
                         .weight(0.2f)
@@ -143,17 +146,17 @@ fun IdentityScreen(
                 ) {
                     if (currentPage > 0) {
                         Image(
-                            painter = painterResource(id = R.drawable.outline_arrow_forward),
+                            painter = painterResource(id = R.drawable.ic_back_arrow_golden),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(27.dp, 24.dp)
-                                .padding(start = 20.dp),
+                                .padding(start = 20.dp)
+                                .size(27.dp, 24.dp),
                             colorFilter = ColorFilter.tint(Golden60)
                         )
                     }
                 }
 
-                // Title
+// Title
                 Text(
                     text = pageTitles[currentPage],
                     fontSize = 24.sp,
@@ -185,7 +188,7 @@ fun IdentityScreen(
                     .fillMaxWidth()
                     .height(5.dp),
                 color = Golden60,
-                trackColor = Color(0xFFE0E0E0)
+                trackColor = Golden60
             )
 
             // Pager content
@@ -205,7 +208,7 @@ fun IdentityScreen(
 //                        preferencesManager = preferencesManager,
 //                        activity = activity
                     )
-                  /*  1 -> PageTwoContent(
+                    1 -> PageTwoContent(
                         onNext = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page + 1)
@@ -219,8 +222,8 @@ fun IdentityScreen(
 ////                        signupViewModel = signupViewModel,
 ////                        preferencesManager = preferencesManager,
 ////                        activity = activity
-                    )*/
-                   /* 2 -> PageThreeContent(
+                    )
+                    2 -> PageThreeContent(
                         onBack = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page - 1)
@@ -229,7 +232,7 @@ fun IdentityScreen(
 ////                        signupViewModel = signupViewModel,
 ////                        preferencesManager = preferencesManager,
 ////                        activity = activity
-                    )*/
+                    )
                 }
             }
         }
@@ -406,7 +409,7 @@ fun PageOneContent(
                     )
                     // Close button for header
                     Image(
-                        painter = painterResource(id = R.drawable.ic_cancel_golden),
+                        painter = painterResource(id = R.drawable.ic_cancel_round_golden),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(15.dp)
@@ -505,7 +508,7 @@ fun PageOneContent(
                     if (profileImageUri != null) {
                     // Close button for profile
                     Image(
-                        painter = painterResource(id = R.drawable.ic_cross_golden),
+                        painter = painterResource(id = R.drawable.ic_cross_round_border_golden),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(10.dp)
@@ -745,7 +748,7 @@ fun PageOneContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.outline_arrow_forward),
+                        painter = painterResource(id = R.drawable.ic_forward_arrow_white),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
                         colorFilter = ColorFilter.tint(whiteColor)
@@ -830,185 +833,190 @@ fun PageTwoContent(
 //        }
 //    }
 
-    val showNextButton = selectedStatus == "Classic"
-    val spaceHeight = if (showNextButton) 150.dp else 60.dp
+    Box() {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(25.dp)
-    ) {
-        Text(
-            text = context.getString(R.string.joyer_status),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = lightBlackColor,
-            modifier = Modifier.fillMaxWidth()
-        )
+        val showNextButton = selectedStatus == "Classic"
+        val spaceHeight = if (showNextButton) 150.dp else 60.dp
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(25.dp)
+        ) {
+            Text(
+                text = context.getString(R.string.joyer_status),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = lightBlackColor,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        // Status options
-        statusOptions.forEach { (statusKey, statusText) ->
-            val isSelected = selectedStatus == statusKey
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Status options
+            statusOptions.forEach { (statusKey, statusText) ->
+                val isSelected = selectedStatus == statusKey
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(55.dp)
+                        .background(
+                            color = if (isSelected) goldenColor else Color(0xFFF5F5F5),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .clickable {
+                            selectedStatus = if (selectedStatus == statusKey) null else statusKey
+                        }
+                        .padding(17.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = statusText,
+                        fontSize = 16.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                        color = if (isSelected) whiteColor else blackColor
+                    )
+                }
+                if (statusKey != statusOptions.last().first) {
+                    Spacer(modifier = Modifier.height(5.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // Dashed line
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(55.dp)
+                    .height(3.dp)
                     .background(
-                        color = if (isSelected) goldenColor else Color(0xFFF5F5F5),
-                        shape = RoundedCornerShape(8.dp)
+                        color = Color(0xFFE0E0E0),
+                        shape = RoundedCornerShape(1.5.dp)
                     )
-                    .clickable {
-                        selectedStatus = if (selectedStatus == statusKey) null else statusKey
-                    }
-                    .padding(17.dp),
-                contentAlignment = Alignment.Center
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            // Clarifications section
+            Text(
+                text = context.getString(R.string.clarifications),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = lightBlackColor,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Text(
-                    text = statusText,
-                    fontSize = 16.sp,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                    color = if (isSelected) whiteColor else blackColor
-                )
-            }
-            if (statusKey != statusOptions.last().first) {
-                Spacer(modifier = Modifier.height(5.dp))
-            }
-        }
+                Column(
+                    modifier = Modifier.padding(15.dp)
+                ) {
+                    Text(
+                        text = context.getString(R.string.title1),
+                        fontSize = 16.sp,
+                        color = lightBlackColor
+                    )
 
-        Spacer(modifier = Modifier.height(28.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-        // Dashed line
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-                .background(
-                    color = Color(0xFFE0E0E0),
-                    shape = RoundedCornerShape(1.5.dp)
-                )
-        )
+                    // Styled text for each status
+                    statusOptions.forEach { (statusKey, _) ->
+                        val fullText = when (statusKey) {
+                            "Classic" -> context.getString(R.string.classic_text)
+                            "Celebrity" -> context.getString(R.string.celebrity_text)
+                            "Proficient" -> context.getString(R.string.proficient_text)
+                            "Leader" -> context.getString(R.string.leader_text)
+                            "Provider" -> context.getString(R.string.provider_text)
+                            else -> ""
+                        }
 
-        Spacer(modifier = Modifier.height(15.dp))
+                        if (fullText.isNotEmpty()) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    val heading = statusKey
+                                    val start = fullText.indexOf(heading)
+                                    val end = start + heading.length
 
-        // Clarifications section
-        Text(
-            text = context.getString(R.string.clarifications),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = lightBlackColor,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(15.dp)
-            ) {
-                Text(
-                    text = context.getString(R.string.title1),
-                    fontSize = 16.sp,
-                    color = lightBlackColor
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Styled text for each status
-                statusOptions.forEach { (statusKey, _) ->
-                    val fullText = when (statusKey) {
-                        "Classic" -> context.getString(R.string.classic_text)
-                        "Celebrity" -> context.getString(R.string.celebrity_text)
-                        "Proficient" -> context.getString(R.string.proficient_text)
-                        "Leader" -> context.getString(R.string.leader_text)
-                        "Provider" -> context.getString(R.string.provider_text)
-                        else -> ""
+                                    append(fullText.substring(0, start))
+                                    withStyle(
+                                        style = SpanStyle(
+                                            color = goldenColor,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    ) {
+                                        append(heading)
+                                    }
+                                    append(fullText.substring(end))
+                                },
+                                fontSize = 16.sp,
+                                color = lightBlackColor,
+                                modifier = Modifier.padding(top = if (statusKey != "Classic") 7.dp else 0.dp)
+                            )
+                        }
                     }
 
-                    if (fullText.isNotEmpty()) {
-                        Text(
-                            text = buildAnnotatedString {
-                                val heading = statusKey
-                                val start = fullText.indexOf(heading)
-                                val end = start + heading.length
+                    Spacer(modifier = Modifier.height(15.dp))
 
-                                append(fullText.substring(0, start))
-                                withStyle(
-                                    style = SpanStyle(
-                                        color = goldenColor,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                ) {
-                                    append(heading)
-                                }
-                                append(fullText.substring(end))
-                            },
-                            fontSize = 16.sp,
-                            color = lightBlackColor,
-                            modifier = Modifier.padding(top = if (statusKey != "Classic") 7.dp else 0.dp)
-                        )
-                    }
+                    Text(
+                        text = context.getString(R.string.title2),
+                        fontSize = 16.sp,
+                        color = lightBlackColor
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = context.getString(R.string.title3),
+                        fontSize = 16.sp,
+                        color = lightBlackColor
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = context.getString(R.string.title4),
+                        fontSize = 16.sp,
+                        color = lightBlackColor
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(15.dp))
-
-                Text(
-                    text = context.getString(R.string.title2),
-                    fontSize = 16.sp,
-                    color = lightBlackColor
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = context.getString(R.string.title3),
-                    fontSize = 16.sp,
-                    color = lightBlackColor
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = context.getString(R.string.title4),
-                    fontSize = 16.sp,
-                    color = lightBlackColor
-                )
             }
+
+            Spacer(modifier = Modifier.height(spaceHeight))
         }
 
-        Spacer(modifier = Modifier.height(spaceHeight))
-    }
-
-    // Next button (floating)
-    if (showNextButton) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 30.dp, bottom = 80.dp),
-            contentAlignment = Alignment.BottomEnd
-        ) {
+        // Next button (floating)
+        if (showNextButton) {
             Box(
                 modifier = Modifier
-                    .size(60.dp)
-                    .background(goldenColor, CircleShape)
-                    .clickable {
-                        onNext()
-                        // API call would go here
-                    },
-                contentAlignment = Alignment.Center
+                    .padding(end = 30.dp, bottom = 80.dp)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.BottomEnd
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.outline_arrow_forward),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    colorFilter = ColorFilter.tint(whiteColor)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(goldenColor, CircleShape)
+                        .clickable {
+                            onNext()
+                            // API call would go here
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_forward_arrow_white),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp),
+                        alignment = Alignment.Center,
+                        colorFilter = ColorFilter.tint(whiteColor)
+                    )
+                }
             }
         }
     }
@@ -1033,7 +1041,55 @@ fun PageThreeContent(
 
 //    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()
 //    val userInfoResponse = signupViewModel?.userInfoResponse?.observeAsState()
-//    var titles by remember { mutableStateOf<List<com.synapse.joyers.apiData.response.Title>>(emptyList()) }
+    var titles by remember { mutableStateOf<List<Title>>(emptyList()) }
+
+    val student = arrayListOf<Subtitle>(
+        Subtitle(uuid = "", name = "Associate's Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Bachelor's Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Diploma Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Doctoral Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Elementary School Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "High School Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Kindergartener", description = "Refers to children (5 years).", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Master's Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Middle School Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Postgraduate Diploma Student", description = "", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Preschooler", description = "Refers to children (3-4 years).", subtitles = arrayListOf()),
+    Subtitle(uuid = "", name = "Other Student", description = "", subtitles = arrayListOf())
+    )
+    titles = arrayListOf(
+        Title(_id = "1", title = "Baby Joyers", decriptionTitle = "Refers to infants and toddlers (0-2 years).", subtitles = arrayListOf()),
+    Title(_id = "2", title = "Couple", decriptionTitle = "", subtitles = arrayListOf()),
+    Title(_id = "3", title = "Family", decriptionTitle = "", subtitles = arrayListOf()),
+    Title(_id = "4", title = "Friends", decriptionTitle = "Two or more Joyers who share their activities with other Joyers.", subtitles = arrayListOf()),
+    Title(_id = "5", title = "Ghost", decriptionTitle = "Only the account owner can see the followers and following of a Ghost Joyer. This information is completely hidden from everyone else.", subtitles = arrayListOf()),
+    Title(_id = "6", title = "Nickname", decriptionTitle = "", subtitles = arrayListOf()),
+    Title(_id = "7", title = "Pet", decriptionTitle = "", subtitles = arrayListOf()),
+    Title(_id = "8", title = "Royalty & Nobility", decriptionTitle = "", subtitles = arrayListOf()),
+    Title(_id = "9", title = "Special Needs Joyer", decriptionTitle = "", subtitles = arrayListOf()),
+    Title(_id = "10", title = "Student", decriptionTitle = "", subtitles = student),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf())
+    )
+
+   /* val subtitle = Subtitle(
+        _id = "id2",
+        uuid = "title2",
+        name = "decriptionTitle",
+        description = "decription",
+        selected = false,
+    )
+
+    val title : Title = Title(
+        _id = "id",
+        title = "title1",
+        decriptionTitle = "decriptionTitle",
+        selected = false,
+        subtitles = arrayListOf<Subtitle>(
+            subtitle,subtitle,subtitle
+        )
+    )
+
+    titles = arrayListOf(title, title, title, title)*/
 
     // Load titles
 //    LaunchedEffect(Unit) {
@@ -1080,66 +1136,120 @@ fun PageThreeContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(25.dp),
+//            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 25.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(50.dp))
+        LazyColumn {
+            items(2) {
 
-        // Title selection button
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp)
-                .background(
-                    color = if (selectedTitle != null) goldenColor else Color(0xFFF5F5F5),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .border(
-                    width = if (selectedTitle == null) 1.dp else 0.dp,
-                    color = goldenColor,
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .clickable {
-                    showTitleDialog = true
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = selectedTitle ?: context.getString(R.string.select_title),
-                fontSize = 16.sp,
-                fontWeight = if (selectedTitle != null) FontWeight.Bold else FontWeight.SemiBold,
-                color = if (selectedTitle != null) whiteColor else goldenColor
-            )
+                Spacer(modifier = Modifier.height(15.dp))
+// Joyers Status
+                if (it == 0) {
+                    Text(
+                        text = stringResource(R.string.joyer_status),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        color = lightBlackColor
+                    )
+
+                    Spacer(Modifier.height(5.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp)
+                            .background(
+                                color = goldenColor,
+                                shape = RoundedCornerShape(4.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.classic),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = whiteColor
+                        )
+                    }
+                } else {
+//Title selection
+                    Text(
+                        text = stringResource(R.string.title),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        color = lightBlackColor
+                    )
+
+                    Spacer(Modifier.height(5.dp))
+
+// Title selection button
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp)
+                            .background(
+                                color = if (selectedTitle != null) goldenColor else whiteColor,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .border(
+                                width = if (selectedTitle == null) 1.dp else 0.dp,
+                                color = goldenColor,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .clickable {
+                                showTitleDialog = !showTitleDialog
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = selectedTitle ?: context.getString(R.string.select_title),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = if (selectedTitle != null) whiteColor else goldenColor
+                        )
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(50.dp))
 
         if (showNextButton) {
             Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .background(goldenColor, CircleShape)
-                    .clickable {
-//                        val intent = Intent(context, com.synapse.joyers.ui.auth.JoyersAuthActivity::class.java)
-//                        context.startActivity(intent)
-//                        (context as AppCompatActivity).finish()
-                        // API call would go here
-                    },
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.outline_arrow_forward),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    colorFilter = ColorFilter.tint(whiteColor)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(goldenColor, CircleShape)
+                        .clickable {
+                            // API call would go here
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_forward_arrow_white),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(whiteColor)
+                    )
+                }
             }
         }
     }
 
+
+
     // Title Selection Dialog
     if (showTitleDialog) {
+        selectedTitle = "Master's Student"
+        showNextButton = true
 //        CustomRoundedDialog(
 //            titles = titles.toMutableList(),
 //            onDismiss = { showTitleDialog = false },
@@ -1150,5 +1260,8 @@ fun PageThreeContent(
 //                showTitleDialog = false
 //            }
 //        )
+    } else {
+        selectedTitle = null
+        showNextButton = false
     }
 }

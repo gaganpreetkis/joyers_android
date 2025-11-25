@@ -115,15 +115,17 @@ fun showCCPDialog(context: Context, showPhoneCode: Boolean, onCodeSelected: (Str
 @Composable
 fun CountryCodePicker(
     defaultCountry: String = "US",
-    onCountrySelected: (String) -> Unit
+    onCountrySelected: (String) -> Unit = {},
+    onCountryNameCodeSelected: ((String) -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.width(8.dp))
         AndroidView(
             modifier = Modifier.wrapContentHeight(),
             factory = { context ->
-                com.hbb20.CountryCodePicker(context).apply {
+                CountryCodePicker(context).apply {
                     setDefaultCountryUsingNameCode(defaultCountry)
                     setCountryForNameCode(defaultCountry)
                     setAutoDetectedCountry(false)
@@ -133,6 +135,7 @@ fun CountryCodePicker(
                     showFlag(true)
                     setOnCountryChangeListener {
                         onCountrySelected(selectedCountryCodeWithPlus)
+                        onCountryNameCodeSelected?.invoke(selectedCountryNameCode)
                     }
                 }
             },
@@ -150,7 +153,7 @@ fun CountryCodePicker(
         VerticalDivider(
             modifier = Modifier
                 .height(24.dp),
-            color = Color(0xFFBDBDBD),
+            color = Gray40,
             thickness = 1.dp
         )
     }

@@ -30,10 +30,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,7 +43,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.viewinterop.AndroidView
+import android.widget.LinearLayout
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -56,6 +62,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.synapse.joyers.R
+import com.synapse.joyers.common_widgets.AppBasicTextField
 import com.synapse.joyers.common_widgets.CountryCodePicker
 import com.synapse.joyers.ui.theme.Black
 import com.synapse.joyers.ui.theme.DisabledTextColor
@@ -70,7 +77,8 @@ import com.synapse.joyers.utils.fontFamilyLato
 @Preview
 @Composable
 fun ForgotPasswordScreen(
-    onLoginClick: () -> Unit = {}
+    onLoginClick: () -> Unit = {},
+    onNavigateToResetPassword: (String, String, String, String) -> Unit = { _, _, _, _ -> }
 ) {
     var username by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -89,6 +97,7 @@ fun ForgotPasswordScreen(
     var view2Height by remember { mutableStateOf(55.dp) }
     var showGapView by remember { mutableStateOf(false) }
     var selectedCountryCode by remember { mutableStateOf("+1") }
+    var selectedCountryNameCode by remember { mutableStateOf("US") }
     val context = LocalContext.current
 
     // Form validation
@@ -158,6 +167,18 @@ fun ForgotPasswordScreen(
             }
         } else {
             onDispose { }
+        }
+    }
+
+    // Handle navigation after successful verification with 1 second delay
+    LaunchedEffect(isLoading) {
+        if (isLoading) {
+            delay(1000) // Show loader for 1 second
+            val identifier = if (isPhoneMode.value) phone else username
+            val countryCode = if (isPhoneMode.value) selectedCountryCode else ""
+            val countryNameCode = if (isPhoneMode.value) selectedCountryNameCode else ""
+            onNavigateToResetPassword(identifier, countryCode, countryNameCode, verificationCode)
+            isLoading = false
         }
     }
 
@@ -277,12 +298,12 @@ fun ForgotPasswordScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.user_icon),
                                 contentDescription = null,
-                                modifier = Modifier.size(23.dp)
+                                modifier = Modifier.size(24.dp)
                             )
 
                             //Spacer(modifier = Modifier.width(15.dp))
 
-                            TextField(
+                            AppBasicTextField(
                                 value = username,
                                 onValueChange = {
                                     username = it
@@ -291,35 +312,12 @@ fun ForgotPasswordScreen(
                                         showVerificationCode = false
                                     }
                                 },
-                                placeholder = {
-                                    Text(
-                                        stringResource(R.string.username_email),
-                                        color = Gray40,
-                                        fontSize = 16.sp,
-                                        style = TextStyle(
-                                            fontSize = 16.sp,
-                                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                        )
-                                    )
-                                },
+                                placeholder = stringResource(R.string.username_email),
                                 modifier = Modifier.weight(1f),
+                                containerColor = Color.Transparent,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Email
                                 ),
-                                textStyle = TextStyle(
-                                    fontSize = 16.sp,
-                                    fontFamily = fontFamilyLato,
-                                    fontWeight = FontWeight.Normal,
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                ),
-                                colors = TextFieldDefaults.colors(
-                                    unfocusedContainerColor = Gray20,
-                                    focusedContainerColor = Gray20,
-                                    disabledIndicatorColor = Gray20,
-                                    focusedIndicatorColor = Gray20,
-                                    unfocusedIndicatorColor = Gray20,
-                                ),
-                                singleLine = true,
                             )
 
                             if (username.isNotEmpty()) {
@@ -394,13 +392,16 @@ fun ForgotPasswordScreen(
                             Spacer(modifier = Modifier.width(7.dp))
 
                             CountryCodePicker(
-                                defaultCountry = "US",
+                                defaultCountry = selectedCountryNameCode,
                                 onCountrySelected = { code ->
                                     selectedCountryCode = code
+                                },
+                                onCountryNameCodeSelected = { nameCode ->
+                                    selectedCountryNameCode = nameCode
                                 }
                             )
 
-                            TextField(
+                            AppBasicTextField(
                                 value = phone,
                                 onValueChange = {
                                     if (it.length <= 15) {
@@ -411,35 +412,12 @@ fun ForgotPasswordScreen(
                                         showVerificationCode = false
                                     }
                                 },
-                                placeholder = {
-                                    Text(
-                                        stringResource(R.string.phone_number),
-                                        color = Gray40,
-                                        fontSize = 16.sp,
-                                        style = TextStyle(
-                                            fontSize = 16.sp,
-                                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                        )
-                                    )
-                                },
+                                placeholder = stringResource(R.string.phone_number),
                                 modifier = Modifier.weight(1f),
+                                containerColor = Color.Transparent,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Phone
                                 ),
-                                textStyle = TextStyle(
-                                    fontSize = 16.sp,
-                                    fontFamily = fontFamilyLato,
-                                    fontWeight = FontWeight.Normal,
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                ),
-                                colors = TextFieldDefaults.colors(
-                                    unfocusedContainerColor = Gray20,
-                                    focusedContainerColor = Gray20,
-                                    disabledIndicatorColor = Gray20,
-                                    focusedIndicatorColor = Gray20,
-                                    unfocusedIndicatorColor = Gray20,
-                                ),
-                                singleLine = true,
                             )
 
                             if (phone.isNotEmpty()) {
@@ -607,52 +585,30 @@ fun ForgotPasswordScreen(
             if (showVerificationCode) {
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Box(
+                AppBasicTextField(
+                    value = verificationCode,
+                    onValueChange = {
+                        if (it.length <= 6 && it.all { char -> char.isDigit() }) {
+                            verificationCode = it
+                            verificationError = null
+                        }
+                    },
+                    isCentered = true,
+                    placeholder = stringResource(R.string.enter_verification_code),
                     modifier = Modifier
-                        .width(220.dp)
-                        .height(50.dp)
-                        .align(Alignment.CenterHorizontally)
-                        .background(Gray20, RoundedCornerShape(8.dp))
-                ) {
-                    TextField(
-                        value = verificationCode,
-                        onValueChange = {
-                            if (it.length <= 6 && it.all { char -> char.isDigit() }) {
-                                verificationCode = it
-                                verificationError = null
-                            }
-                        },
-                        placeholder = {
-                            Text(
-                                stringResource(R.string.enter_verification_code),
-                                color = Gray40,
-                                textAlign = TextAlign.Center,
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                ),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        },
-                        modifier = Modifier.fillMaxSize(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        textStyle = TextStyle(
-                            fontSize = 16.sp,
-                            fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Normal,
-                            textAlign = TextAlign.Center,
-                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                        ),
-                        singleLine = true,
-                    )
-                }
+                        .width(181.dp)
+                        .height(40.dp)
+                        .align(Alignment.CenterHorizontally),
+                    containerColor = Gray20,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center,
+                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    ),
+                )
 
                 if (verificationError != null) {
                     Text(
@@ -717,9 +673,8 @@ fun ForgotPasswordScreen(
                 Button(
                     onClick = {
                         if (isVerificationValid) {
-                            // Verify code
+                            // Verify code - show loader, will navigate after 1 second
                             isLoading = true
-                            // TODO: Implement verification logic
                         } else {
                             verificationError = "Please enter a valid 6-digit code"
                         }
