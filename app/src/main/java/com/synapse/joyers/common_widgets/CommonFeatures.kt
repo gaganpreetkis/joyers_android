@@ -114,14 +114,15 @@ fun showCCPDialog(context: Context, showPhoneCode: Boolean, onCodeSelected: (Str
 
 @Composable
 fun CountryCodePicker(
+    initialPadding: Float = 2f,
     defaultCountry: String = "US",
     onCountrySelected: (String) -> Unit = {},
-    onCountryNameCodeSelected: ((String) -> Unit)? = null
+    onCountryNameCodeSelected: ((String) -> Unit)? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(initialPadding.dp))
         AndroidView(
             modifier = Modifier.wrapContentHeight(),
             factory = { context ->

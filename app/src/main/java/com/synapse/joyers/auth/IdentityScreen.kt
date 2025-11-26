@@ -737,6 +737,7 @@ fun PageOneContent(
                     modifier = Modifier
                         .size(60.dp)
                         .background(goldenColor, CircleShape)
+                        .clip(CircleShape)
                         .clickable {
                             if (username.isNotEmpty() && isValidNameAdvanced(username) && username.length > 1) {
                                 onNext()
@@ -1002,6 +1003,7 @@ fun PageTwoContent(
                     modifier = Modifier
                         .size(60.dp)
                         .background(goldenColor, CircleShape)
+                        .clip(CircleShape)
                         .clickable {
                             onNext()
                             // API call would go here
@@ -1068,7 +1070,24 @@ fun PageThreeContent(
     Title(_id = "8", title = "Royalty & Nobility", decriptionTitle = "", subtitles = arrayListOf()),
     Title(_id = "9", title = "Special Needs Joyer", decriptionTitle = "", subtitles = arrayListOf()),
     Title(_id = "10", title = "Student", decriptionTitle = "", subtitles = student),
-    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf())
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
+    Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
     )
 
    /* val subtitle = Subtitle(
@@ -1248,20 +1267,20 @@ fun PageThreeContent(
 
     // Title Selection Dialog
     if (showTitleDialog) {
-        selectedTitle = "Master's Student"
-        showNextButton = true
-//        CustomRoundedDialog(
-//            titles = titles.toMutableList(),
-//            onDismiss = { showTitleDialog = false },
-//            onItemSelected = { titleId, titleName ->
-//                selectedTitle = titleName
-//                selectedTitleId = titleId
-//                showNextButton = true
-//                showTitleDialog = false
-//            }
-//        )
+//        selectedTitle = "Master's Student"
+//        showNextButton = true
+        CustomRoundedDialog(
+            titles = titles.toMutableList(),
+            onDismiss = { showTitleDialog = false },
+            onItemSelected = { titleId, titleName ->
+                selectedTitle = titleName
+                selectedTitleId = titleId
+                showNextButton = true
+                showTitleDialog = false
+            }
+        )
     } else {
-        selectedTitle = null
-        showNextButton = false
+//        selectedTitle = null
+//        showNextButton = false
     }
 }

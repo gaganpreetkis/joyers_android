@@ -337,7 +337,7 @@ fun ResetPasswordScreen(
                             id = if (isPhoneMode) R.drawable.user_icon
                                  else R.drawable.telephone_icon_golden
                         ),
-                        contentDescription = null,
+                        contentDescription = "Toggle",
                         modifier = Modifier.size(24.dp),
                         colorFilter = if (isPhoneMode) {
                             ColorFilter.tint(Golden60)
@@ -385,6 +385,7 @@ fun ResetPasswordScreen(
                                     showPasswordStrength = isValidPassword(it)
                                 }
                             },
+                            maxLength = 16,
                             isEnabled = !isPasswordResetSuccess,
                             placeholder = stringResource(R.string.password),
                             isPassword = true,
@@ -480,6 +481,7 @@ fun ResetPasswordScreen(
                                 confirmPassword = it.take(16)
                                 confirmPasswordError = null
                             },
+                            maxLength = 16,
                             isEnabled = !isPasswordResetSuccess,
                             placeholder = stringResource(R.string.confirm_password),
                             isPassword = true,

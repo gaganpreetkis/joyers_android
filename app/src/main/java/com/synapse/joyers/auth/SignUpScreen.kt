@@ -38,6 +38,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,6 +52,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -64,6 +66,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.synapse.joyers.R
+import com.synapse.joyers.common_widgets.AppBasicTextField
+import com.synapse.joyers.common_widgets.AppBasicTextFieldWithCursorHandling
 import com.synapse.joyers.common_widgets.CountryCodePicker
 import com.synapse.joyers.ui.theme.Black
 import com.synapse.joyers.ui.theme.DisabledTextColor
@@ -100,13 +104,15 @@ fun SignUpScreen(
     var showUsernameError by remember { mutableStateOf(false) }
     var showUsernameSuggestions by remember { mutableStateOf(false) }
     var usernameError by remember { mutableStateOf<String?>(null) }
-    var usernameSuggestions by remember { mutableStateOf<List<String>>(
-        arrayListOf(
-            "test123",
-            "test256",
-            "test478",
+    var usernameSuggestions by remember {
+        mutableStateOf<List<String>>(
+            arrayListOf(
+                "test123",
+                "test256",
+                "test478",
+            )
         )
-    ) }
+    }
 
     var isPhoneMode by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
@@ -131,8 +137,6 @@ fun SignUpScreen(
 
 //    tempp====================
     var isSuggestionSelected by remember { mutableStateOf(false) }
-
-
 
 
     // Debounced username validation
@@ -163,7 +167,7 @@ fun SignUpScreen(
 
         } else {
             //        temp=====================
-            if (cleanUsername.length >= 6 && !isSuggestionSelected ) {
+            if (cleanUsername.length >= 6 && !isSuggestionSelected) {
                 showUsernameLoader = false
                 showUsernameSuggestions = true
                 usernameError = context.getString(R.string.username_is_already_taken)
@@ -193,7 +197,7 @@ fun SignUpScreen(
 
 
     val cleanUsername = username.text.replace("@", "")
-    if (!isUsernameFocused && username.text.replace("@", "").isNotEmpty() && !isValidUsername(cleanUsername) ) {
+    if (!isUsernameFocused && username.text.replace("@", "").isNotEmpty() && !isValidUsername(cleanUsername)) {
         showUsernameLoader = false
         usernameError = context.getString(R.string.username_must_be_3_15_characters_only_letters_numbers_and_underscores)
         showUsernameError = true
@@ -201,7 +205,7 @@ fun SignUpScreen(
     }
 
     if (!isPasswordFocused && password.isNotEmpty() && !isValidPassword(password)) {
-        passwordError =context.getString(R.string.weak_password)
+        passwordError = context.getString(R.string.weak_password_1)
     }
 
     // Form validation
@@ -278,77 +282,119 @@ fun SignUpScreen(
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(horizontal = 19.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.user_icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.user_icon),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
 
-                Spacer(modifier = Modifier.width(0.dp))
+            Spacer(modifier = Modifier.width(0.dp))
 
-                TextField(
-                    value = username,
-                    onValueChange = {
-                        var updatedText = ""
-                        if (username.text.length <= 15) {
-                            updatedText =
-                                if (it.text.isEmpty() || it.text.get(0).toString().equals("@")) {
-                                    it.text
-                                }
-                                else {
-                                    "@${it.text}"
-                                }
+            AppBasicTextFieldWithCursorHandling(
+                value = username,
+                onValueChange = {
+                    var updatedText = ""
+                    if (username.text.length <= 15) {
+                        updatedText =
+                            if (it.text.isEmpty() || it.text.get(0).toString().equals("@")) {
+                                it.text
+                            } else {
+                                "@${it.text}"
+                            }
 
-                        } else {
-                            updatedText = it.text.dropLast(1)
-                        }
-                        username = TextFieldValue(
-                            text = updatedText,
-                            selection = TextRange(
-                                start = updatedText.length,
-                                end = updatedText.length
-                            )
+                    } else {
+                        updatedText = it.text.dropLast(1)
+                    }
+                    username = TextFieldValue(
+                        text = updatedText,
+                        selection = TextRange(
+                            start = updatedText.length,
+                            end = updatedText.length
                         )
+                    )
 
-                        if (isSuggestionSelected) {
-                            isSuggestionSelected = false
-                        }
-                                    },
-                    textStyle = TextStyle(
+                    if (isSuggestionSelected) {
+                        isSuggestionSelected = false
+                    }
+                },
+                maxLength = 16,
+                placeholder = "@username",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.71f)
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { focusState ->
+                        isUsernameFocused = focusState.isFocused
+                    },
+                containerColor = Color.Transparent,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            )
+
+            /* PREVIOUS CODE - COMMENTED OUT
+            TextField(
+                value = username,
+                onValueChange = {
+                    var updatedText = ""
+                    if (username.text.length <= 15) {
+                        updatedText =
+                            if (it.text.isEmpty() || it.text.get(0).toString().equals("@")) {
+                                it.text
+                            }
+                            else {
+                                "@${it.text}"
+                            }
+
+                    } else {
+                        updatedText = it.text.dropLast(1)
+                    }
+                    username = TextFieldValue(
+                        text = updatedText,
+                        selection = TextRange(
+                            start = updatedText.length,
+                            end = updatedText.length
+                        )
+                    )
+
+                    if (isSuggestionSelected) {
+                        isSuggestionSelected = false
+                    }
+                                },
+                textStyle = TextStyle(
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.Normal,
+                ),
+                placeholder = { Text("@username",
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Gray40,
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.Normal,
+                    textAlign = TextAlign.Start,
+                    style = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false),
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Normal,
-                    ),
-                    placeholder = { Text("@username",
-                        modifier = Modifier.fillMaxWidth(),
-                        color = Gray40,
-                        fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Normal,
-                        textAlign = TextAlign.Start,
-                        style = TextStyle(
-                            platformStyle = PlatformTextStyle(includeFontPadding = false),
-                            fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Normal,
-                        )) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(0.71f)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState ->
-                            isUsernameFocused = focusState.isFocused
-                        },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF1F1F1),
-                        focusedContainerColor = Color(0xFFF1F1F1),
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    singleLine = true
-                )
+                    )) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.71f)
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { focusState ->
+                        isUsernameFocused = focusState.isFocused
+                    },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xFFF1F1F1),
+                    focusedContainerColor = Color(0xFFF1F1F1),
+                    disabledIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                singleLine = true
+            )
+            END OF PREVIOUS CODE */
 
             Spacer(modifier = Modifier.weight(0.29f))
 
@@ -413,6 +459,133 @@ fun SignUpScreen(
                 val contactIcon = if (!isPhoneMode) R.drawable.ic_mail else R.drawable.ic_telephone_gray
                 val contactPlaceHolder = if (!isPhoneMode) "Email" else "Phone Number"
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+
+                    // LEFT PART
+                    Box(
+                        modifier = Modifier
+                            .weight(0.85f)
+                            .fillMaxHeight()
+                            .background(Gray20, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                            .border(
+                                color = if ((emailError != null && !isPhoneMode) || (phoneError != null && isPhoneMode)) Red else Color.Transparent,
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
+                            )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(start = 20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (!isPhoneMode) {
+                                Image(
+                                    painter = painterResource(id = contactIcon),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                    colorFilter = ColorFilter.tint(Gray80)
+                                )
+
+                                Spacer(modifier = Modifier.width(0.dp))
+
+                                AppBasicTextField(
+                                    value = email,
+                                    onValueChange = { email = it },
+                                    maxLength = 100,
+                                    placeholder = contactPlaceHolder,
+                                    modifier = Modifier.weight(1f),
+                                    containerColor = Color.Transparent,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                                )
+
+                                if (email.isNotEmpty()) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(25.dp)
+                                            .padding(start = 0.dp, end = 10.dp)
+                                            .clickable {
+                                                email = ""
+                                                showVerification = false
+                                                showPasswordFields = false
+                                            }
+                                    )
+                                }
+                            } else {
+                                Image(
+                                    painter = painterResource(id = contactIcon),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                    colorFilter = ColorFilter.tint(Gray80)
+                                )
+
+                                Spacer(modifier = Modifier.width(7.dp))
+
+                                CountryCodePicker { code ->
+                                    selectedCountryCode = code
+                                }
+
+                                AppBasicTextField(
+                                    value = phone,
+                                    onValueChange = {
+                                        phone = it
+                                    },
+                                    maxLength = 15,
+                                    placeholder = contactPlaceHolder,
+                                    modifier = Modifier.weight(1f),
+                                    containerColor = Color.Transparent,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                )
+
+                                if (phone.isNotEmpty()) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(25.dp)
+                                            .padding(start = 0.dp, end = 10.dp)
+                                            .clickable {
+                                                phone = ""
+                                                showVerification = false
+                                                showPasswordFields = false
+                                            }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.width(5.dp))
+
+                    // RIGHT TOGGLE ICON PART
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                isPhoneMode = !isPhoneMode
+                                email = ""
+                                phone = ""
+                                showVerification = false
+                                showPasswordFields = false
+                            }
+                            .weight(0.15f)
+                            .fillMaxHeight()
+                            .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = toggleIcon),
+                            contentDescription = "Toggle",
+                            modifier = Modifier.size(24.dp),
+                            colorFilter = ColorFilter.tint(Golden60)
+                        )
+                    }
+                }
+
+                /* PREVIOUS CODE - COMMENTED OUT
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -565,11 +738,12 @@ fun SignUpScreen(
                         Image(
                             painter = painterResource(id = toggleIcon),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(22.dp),
+                            modifier = Modifier.size(24.dp),
                             colorFilter = ColorFilter.tint(Golden60)
                         )
                     }
                 }
+                END OF PREVIOUS CODE */
 
 // Error messages
                 if (emailError != null && !isPhoneMode) {
@@ -597,7 +771,32 @@ fun SignUpScreen(
                 if (showVerification) {
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    TextField(
+                    AppBasicTextField(
+                        value = verificationCode,
+                        onValueChange = {
+                            if (it.length <= 6 && it.all { char -> char.isDigit() }) {
+                                verificationCode = it
+                                verificationError = null
+                            }
+                        },
+                        maxLength = 6,
+                        isCentered = true,
+                        placeholder = stringResource(R.string.enter_verification_code),
+                        modifier = Modifier
+                            .width(181.dp)
+                            .height(40.dp)
+                            .align(Alignment.CenterHorizontally),
+                        containerColor = Gray20,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
+                            textAlign = TextAlign.Center,
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
+                    )
+                    /*TextField(
                         value = verificationCode,
                         onValueChange = {
                             if (it.length <= 6) {
@@ -635,7 +834,7 @@ fun SignUpScreen(
                             fontFamily = fontFamilyLato
                         ),
                         singleLine = true
-                    )
+                    )*/
 
                     Spacer(Modifier.height(4.dp))
 
@@ -671,8 +870,8 @@ fun SignUpScreen(
                     Button(
                         onClick = {
                             verificationError = null
-                                showVerification = false
-                                showPasswordFields = true
+                            showVerification = false
+                            showPasswordFields = true
 //                            if (verificationCode.equals("999999")) {
 //                                verificationError = null
 //                                showVerification = false
@@ -741,6 +940,61 @@ fun SignUpScreen(
 
 
                     // Password Input
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .border(
+                                color = if (passwordError != null) Red else Color.Transparent,
+                                width = 1.dp,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .background(Gray20, RoundedCornerShape(8.dp))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(start = 19.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.password_icon),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+
+                                Spacer(modifier = Modifier.width(0.dp))
+
+                                AppBasicTextField(
+                                    value = password,
+                                    onValueChange = {
+                                        password = it
+                                        passwordError = null
+                                    },
+                                    maxLength = 16,
+                                    placeholder = stringResource(R.string.password),
+                                    isPassword = true,
+                                    passwordVisible = isPasswordVisible,
+                                    onPasswordToggle = {
+                                        isPasswordVisible = !isPasswordVisible
+                                        passwordError = null
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .focusRequester(focusRequester)
+                                        .onFocusChanged { focusState ->
+                                            isPasswordFocused = focusState.isFocused
+                                        },
+                                    containerColor = Color.Transparent,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                                )
+                            }
+                        }
+                    }
+
+                    /* PREVIOUS CODE - COMMENTED OUT
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -760,7 +1014,7 @@ fun SignUpScreen(
                         Image(
                             painter = painterResource(id = R.drawable.password_icon),
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp, 20.dp)
+                            modifier = Modifier.size(24.dp, 24.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         TextField(
@@ -769,10 +1023,14 @@ fun SignUpScreen(
                                 password = it
                                 passwordError = null
                             },
-                            placeholder = { Text(context.getString(R.string.password),
-                                color = Gray40,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,) },
+                            placeholder = {
+                                Text(
+                                    context.getString(R.string.password),
+                                    color = Gray40,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,
+                                )
+                            },
                             modifier = Modifier
                                 .weight(0.83f)
                                 .focusRequester(focusRequester)
@@ -807,9 +1065,10 @@ fun SignUpScreen(
                             )
                         }
                     }
+                    END OF PREVIOUS CODE */
 
                     // Password strength indicator
-                    if (password.isNotEmpty() && isValidPassword(password)  && isPasswordFocused) {
+                    if (password.isNotEmpty() && isValidPassword(password) && isPasswordFocused) {
 
                         Text(
                             text = context.getString(R.string.strong),
@@ -858,6 +1117,56 @@ fun SignUpScreen(
                     Spacer(modifier = Modifier.height(15.dp))
 
                     // Confirm Password Input
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .border(
+                                color = if (confirmPasswordError != null) Red else Color.Transparent,
+                                width = 1.dp,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .background(Gray20, RoundedCornerShape(8.dp))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(start = 19.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.password_icon),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+
+                                Spacer(modifier = Modifier.width(0.dp))
+
+                                AppBasicTextField(
+                                    value = confirmPassword,
+                                    onValueChange = {
+                                        confirmPassword = it
+                                        confirmPasswordError = null
+                                    },
+                                    maxLength = 16,
+                                    placeholder = stringResource(R.string.confirm_password),
+                                    isPassword = true,
+                                    passwordVisible = isConfirmPasswordVisible,
+                                    onPasswordToggle = {
+                                        isConfirmPasswordVisible = !isConfirmPasswordVisible
+                                        confirmPasswordError = null
+                                    },
+                                    modifier = Modifier.fillMaxSize(),
+                                    containerColor = Color.Transparent,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                                )
+                            }
+                        }
+                    }
+
+                    /* PREVIOUS CODE - COMMENTED OUT
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -877,7 +1186,7 @@ fun SignUpScreen(
                         Image(
                             painter = painterResource(id = R.drawable.password_icon),
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         TextField(
@@ -887,10 +1196,14 @@ fun SignUpScreen(
                                 confirmPasswordError = null
 
                             },
-                            placeholder = { Text(context.getString(R.string.confirm_password),
-                                color = Gray40,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,) },
+                            placeholder = {
+                                Text(
+                                    context.getString(R.string.confirm_password),
+                                    color = Gray40,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,
+                                )
+                            },
                             modifier = Modifier.weight(0.83f),
                             visualTransformation = if (isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -920,6 +1233,7 @@ fun SignUpScreen(
                             )
                         }
                     }
+                    END OF PREVIOUS CODE */
 
                     if (confirmPasswordError != null) {
                         Text(
@@ -1044,11 +1358,11 @@ fun SignUpScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = fontFamilyLato,
-                    color = Color(0xFFD4A038),
+                    color = Golden60,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .clickable { onLogInClick() }
-                        .padding(4.dp)
+                        .padding(0.dp)
                 )
 
             }
@@ -1067,7 +1381,8 @@ fun SignUpScreen(
                     ) {
                         items(usernameSuggestions.size) { index ->
                             Row(
-                                Modifier.height(55.dp)
+                                Modifier
+                                    .height(55.dp)
                                     .background(
                                         color = Gray20
                                     )
@@ -1090,7 +1405,7 @@ fun SignUpScreen(
                                                     start = usernameSuggestions[index].length + 1,
                                                     end = usernameSuggestions[index].length + 1
                                                 )
-                                                )
+                                            )
                                             isSuggestionSelected = true
                                             showUsernameSuggestions = false
                                             showUsernameTick = true
@@ -1107,7 +1422,8 @@ fun SignUpScreen(
                                     painter = painterResource(id = R.drawable.ic_tick_green),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(20.dp))
+                                        .size(20.dp)
+                                )
 
                                 Spacer(Modifier.width(15.dp))
                             }

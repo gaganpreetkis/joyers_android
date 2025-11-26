@@ -57,5 +57,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     implementation(libs.ccp)
-    implementation(libs.coil.compose )
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
 }

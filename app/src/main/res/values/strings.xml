@@ -25,6 +25,7 @@
     <string name="email_sent">We have sent a code to your email</string>
     <string name="number_sent">We have sent a code to your phone number</string>
     <string name="weak_password">Password must be 8-16 characters and include uppercase letter, number, and special character.</string>
+    <string name="weak_password_1">Password must be 8-16 characters. Adding an uppercase letter, a number, and a special character is recommended for stronger security.</string>
     <string name="password_does_not_match">Password does not match. Please try again</string>
 
 

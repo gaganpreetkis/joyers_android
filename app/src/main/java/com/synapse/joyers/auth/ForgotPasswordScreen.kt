@@ -312,6 +312,7 @@ fun ForgotPasswordScreen(
                                         showVerificationCode = false
                                     }
                                 },
+                                maxLength = 100,
                                 placeholder = stringResource(R.string.username_email),
                                 modifier = Modifier.weight(1f),
                                 containerColor = Color.Transparent,
@@ -354,8 +355,9 @@ fun ForgotPasswordScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.telephone_icon_golden),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
+                            contentDescription = "Toggle",
+                            modifier = Modifier.size(24.dp),
+                            colorFilter = ColorFilter.tint(Golden60)
                         )
                     }
                 }
@@ -412,6 +414,7 @@ fun ForgotPasswordScreen(
                                         showVerificationCode = false
                                     }
                                 },
+                                maxLength = 15,
                                 placeholder = stringResource(R.string.phone_number),
                                 modifier = Modifier.weight(1f),
                                 containerColor = Color.Transparent,
@@ -454,7 +457,7 @@ fun ForgotPasswordScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.user_icon),
-                            contentDescription = null,
+                            contentDescription = "Toggle",
                             modifier = Modifier.size(24.dp),
                             colorFilter = ColorFilter.tint(Golden60)
                         )
@@ -593,6 +596,7 @@ fun ForgotPasswordScreen(
                             verificationError = null
                         }
                     },
+                    maxLength = 6,
                     isCentered = true,
                     placeholder = stringResource(R.string.enter_verification_code),
                     modifier = Modifier

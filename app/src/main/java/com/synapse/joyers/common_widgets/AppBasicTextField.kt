@@ -23,6 +23,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +43,7 @@ fun AppBasicTextField(
     passwordVisible: Boolean = false,
     isCentered: Boolean = false,
     isEnabled: Boolean = true,
+    maxLength: Int = 100,
     onPasswordToggle: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     textStyle: TextStyle = TextStyle(
@@ -79,7 +81,91 @@ fun AppBasicTextField(
 
             BasicTextField(
                 value = value,
-                onValueChange = onValueChange,
+                onValueChange = {
+                    if (it.length <= maxLength) {
+                        onValueChange(it)
+                    }
+                },
+                singleLine = true,
+                enabled = isEnabled,
+                textStyle = textStyle.copy(color = contentColor),
+                visualTransformation = if (isPassword && !passwordVisible)
+                    PasswordVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = keyboardOptions,
+                cursorBrush = SolidColor(Black),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        // Password eye button (optional) - only show when text is present
+        if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
+            IconButton(onClick = onPasswordToggle) {
+                Icon(
+                    painter = painterResource(
+                        if (passwordVisible) R.drawable.show_password
+                        else R.drawable.password_hide
+                    ),
+                    contentDescription = "Toggle Password",
+                )
+            }
+        }
+    }
+}
+
+// Overload that accepts TextFieldValue for cursor control
+@Composable
+fun AppBasicTextFieldWithCursorHandling(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    isPassword: Boolean = false,
+    passwordVisible: Boolean = false,
+    isCentered: Boolean = false,
+    isEnabled: Boolean = true,
+    maxLength: Int = 100,
+    onPasswordToggle: (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    textStyle: TextStyle = TextStyle(
+        fontSize = 16.sp,
+        fontFamily = fontFamilyLato,
+        fontWeight = FontWeight.Normal,
+        platformStyle = PlatformTextStyle(includeFontPadding = false)
+    ),
+    containerColor: Color = Gray20,
+    contentColor: Color = Black,
+    placeholderColor: Color = Gray40
+) {
+    Row(
+        modifier = modifier
+            .background(containerColor, shape = RoundedCornerShape(8.dp))
+            .padding(
+                start = if (isCentered) 2.dp else if (keyboardOptions.keyboardType == KeyboardType.Phone) 10.dp else 15.dp,
+                end = 2.dp
+            )
+            .fillMaxHeight(), // No horizontal padding
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Box(modifier = Modifier.weight(1f)) {
+
+            // Placeholder
+            if (value.text.isEmpty()) {
+                Text(
+                    text = placeholder,
+                    color = placeholderColor,
+                    style = textStyle,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            BasicTextField(
+                value = value,
+                onValueChange = {
+                    if (it.text.length <= maxLength) {
+                        onValueChange(it)
+                    }
+                },
                 singleLine = true,
                 enabled = isEnabled,
                 textStyle = textStyle.copy(color = contentColor),
@@ -92,7 +178,7 @@ fun AppBasicTextField(
         }
 
         // Password eye button (optional) - only show when text is present
-        if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
+        if (isPassword && onPasswordToggle != null && value.text.trim().isNotEmpty()) {
             IconButton(onClick = onPasswordToggle) {
                 Icon(
                     painter = painterResource(

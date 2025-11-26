@@ -28,7 +28,7 @@ fun SplashScreen(onNavigateToLogin: () -> Unit) {
         Image(
             painter = painterResource(id = R.drawable.joyer_logo),
             contentDescription = "Joyers Logo",
-            modifier = Modifier.size(140.dp) // adjust as needed
+            modifier = Modifier.fillMaxSize().padding(100.dp)
         )
     }
 }

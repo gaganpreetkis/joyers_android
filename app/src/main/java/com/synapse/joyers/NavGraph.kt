@@ -8,9 +8,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.synapse.joyers.auth.ForgotPasswordScreen
 import com.synapse.joyers.auth.IdentityScreen
+import com.synapse.joyers.auth.JoyersOathScreen
 import com.synapse.joyers.auth.SignUpScreen
 import com.synapse.joyers.auth.LoginScreen
 import com.synapse.joyers.auth.ResetPasswordScreen
+import com.synapse.joyers.auth.SplashVideoScreen
 import com.synapse.joyers.ui.screens.SplashScreen
 
 sealed class Routes(val route: String) {
@@ -20,6 +22,8 @@ sealed class Routes(val route: String) {
     data object ForgotPassword : Routes("forgotPassword")
     data object Identity : Routes("identity")
     data object ResetPassword : Routes("resetPassword")
+    data object JoyersOath : Routes("joyersOath")
+    data object SplashVideo : Routes("splashVideo")
 
 }
 
@@ -54,7 +58,10 @@ fun AppNavGraph(navController: NavHostController) {
                     navController.navigate(Routes.Identity.route)
                 },
                 onLogInClick = {
-                    navController.navigate(Routes.Login.route)
+                    navController.navigate(Routes.Login.route) {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -121,6 +128,30 @@ fun AppNavGraph(navController: NavHostController) {
                 onVerifyClick = { newPassword, confirmPassword ->
                     // TODO: Call API to reset password
                     // loginViewModel.resetPassword(...)
+                }
+            )
+        }
+
+        composable(Routes.JoyersOath.route) {
+            JoyersOathScreen(
+                onFabClick = {
+                    navController.navigate(Routes.SplashVideo.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.SplashVideo.route) {
+            SplashVideoScreen(
+                onNavigateToDashboard = { context ->
+                    // Show toast message
+                    android.widget.Toast.makeText(context, "Navigating to Dashboard", android.widget.Toast.LENGTH_SHORT).show()
+
+                    // Navigate to DashboardActivity (Activity, not Compose screen)
+                    /*val intent = android.content.Intent(context, com.synapse.joyers.ui.dashboard.DashboardActivity::class.java)
+                    context.startActivity(intent)
+                    (context as? android.app.Activity)?.finish()*/
                 }
             )
         }

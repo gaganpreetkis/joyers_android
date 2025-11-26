@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -181,7 +182,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.width(0.dp))
 
                     if (isPhoneMode.value)
-                        CountryCodePicker { code ->
+                        CountryCodePicker(initialPadding = 8f) { code ->
                             selectedCountryCode = code
                         }
 
@@ -193,6 +194,7 @@ fun LoginScreen(
                                 rememberMe = false
                             }
                         },
+                        maxLength = if (isPhoneMode.value) 16 else 100,
                         placeholder = if (isPhoneMode.value) "Phone Number" else "Username / Email",
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(
@@ -235,8 +237,9 @@ fun LoginScreen(
             ) {
                 Image(
                     painter = painterResource(id = if (isPhoneMode.value) R.drawable.ic_mail_golden else R.drawable.telephone_icon_golden),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    contentDescription = "Toggle",
+                    modifier = Modifier.size(24.dp),
+                    colorFilter = ColorFilter.tint(Golden60)
                 )
             }
         }
@@ -276,6 +279,7 @@ fun LoginScreen(
                                 rememberMe = false
                             }
                         },
+                        maxLength = 16,
                         placeholder = "Password",
                         isPassword = true,
                         passwordVisible = passwordVisible.value,
@@ -443,7 +447,7 @@ fun LoginScreen(
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFFD4A038),
+            color = Golden60,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .clickable { onSignUpClick() }
