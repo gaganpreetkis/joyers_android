@@ -301,8 +301,8 @@ fun CustomRoundedDialog(
                                     .height(35.dp)
                                     .padding(0.dp)
                                     .clip(RoundedCornerShape(35.dp))
-                                    .background(color = Gray20, shape = RoundedCornerShape(35.dp))
-                                    .border(width = 0.dp, color = Gray40, shape = RoundedCornerShape(35.dp))
+                                    .background(color = if (searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
+                                    .border(width = if (searchQuery.isEmpty()) 0.dp else 1.dp, color = if (searchQuery.isEmpty()) Gray40 else goldenColor, shape = RoundedCornerShape(35.dp))
                                     .clickable {
                                         keyboardController?.hide()
                                     },
@@ -313,7 +313,7 @@ fun CustomRoundedDialog(
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     fontFamily = fontFamilyLato,
-                                    color = Color.Black,
+                                    color = if (searchQuery.isEmpty()) lightBlackColor else goldenColor,
                                     textAlign = TextAlign.Center
                                 )
                             }

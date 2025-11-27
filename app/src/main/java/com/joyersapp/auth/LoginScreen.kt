@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.joyersapp.R
 import androidx.compose.ui.unit.sp
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.BottomSocialDialog
 import com.joyersapp.common_widgets.CountryCodePicker
 import com.joyersapp.theme.Black
@@ -271,7 +272,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.width(0.dp))
 
-                    AppBasicTextField(
+                    AppBasicTextFieldForPassword(
                         value = password,
                         onValueChange = {
                             password = it

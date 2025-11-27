@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.AutoResizeText
 import com.joyersapp.common_widgets.CountryCodePicker
 
@@ -257,7 +258,9 @@ fun ResetPasswordScreen(
                             AppBasicTextField(
                                 value = identifierValue,
                                 onValueChange = {
-                                    onBackToForgotPassword(false)
+                                    if (identifierValue != it) {
+                                        onBackToForgotPassword(false)
+                                    }
                                 },
                                 maxLength = 100,
                                 placeholder = stringResource(R.string.username_email),
@@ -349,7 +352,9 @@ fun ResetPasswordScreen(
                             AppBasicTextField(
                                 value = identifierValue,
                                 onValueChange = {
-                                    onBackToForgotPassword(false)
+                                    if (identifierValue != it) {
+                                        onBackToForgotPassword(false)
+                                    }
                                 },
                                 maxLength = 15,
                                 placeholder = stringResource(R.string.phone_number),
@@ -438,7 +443,7 @@ fun ResetPasswordScreen(
 
                         Spacer(modifier = Modifier.width(0.dp))
 
-                        AppBasicTextField(
+                        AppBasicTextFieldForPassword(
                             value = password,
                             onValueChange = {
                                 password = it.take(16)
@@ -537,7 +542,7 @@ fun ResetPasswordScreen(
 
                         Spacer(modifier = Modifier.width(0.dp))
 
-                        AppBasicTextField(
+                        AppBasicTextFieldForPassword(
                             value = confirmPassword,
                             onValueChange = {
                                 confirmPassword = it.take(16)

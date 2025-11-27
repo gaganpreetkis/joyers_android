@@ -73,6 +73,7 @@ import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.AppBasicTextFieldWithCursorHandling
 import com.joyersapp.common_widgets.CountryCodePicker
 import com.joyersapp.theme.Black
@@ -340,6 +341,7 @@ fun SignUpScreen(
                     }
                 },
                 maxLength = 16,
+                isEnabled = !showPasswordFields,
                 placeholder = "@username",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1021,7 +1023,7 @@ fun SignUpScreen(
 
                                 Spacer(modifier = Modifier.width(0.dp))
 
-                                AppBasicTextField(
+                                AppBasicTextFieldForPassword(
                                     value = password,
                                     onValueChange = {
                                         password = it
@@ -1198,7 +1200,7 @@ fun SignUpScreen(
 
                                 Spacer(modifier = Modifier.width(0.dp))
 
-                                AppBasicTextField(
+                                AppBasicTextFieldForPassword(
                                     value = confirmPassword,
                                     onValueChange = {
                                         confirmPassword = it
@@ -1384,7 +1386,7 @@ fun SignUpScreen(
                             }
                         },
                         enabled = if (showPasswordFields) isPasswordFormValid else isFormValid,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Golden60,
                             disabledContainerColor = Golden60,
@@ -1398,7 +1400,7 @@ fun SignUpScreen(
                             fontSize = 16.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
-                            modifier = Modifier.padding(vertical = 12.dp)
+                            /*modifier = Modifier.padding(vertical = 12.dp)*/
                         )
                     }
 

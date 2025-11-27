@@ -197,16 +197,19 @@ fun IdentityScreen(
             }
 
             // Progress bar
-            LinearProgressIndicator(
-                progress = { progressValues[currentPage] / 100f },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(5.dp),
-                color = Golden60,
-                trackColor = Gray20,
-                gapSize = 0.dp,
-                strokeCap = StrokeCap.Butt
-            )
+                    .height(5.dp)
+                    .background(Gray20)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progressValues[currentPage] / 100f)
+                        .fillMaxHeight()
+                        .background(Golden60)
+                )
+            }
 
             // Pager content
             HorizontalPager(
