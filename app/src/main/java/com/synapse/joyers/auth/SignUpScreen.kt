@@ -97,7 +97,6 @@ import kotlin.text.replace
 fun SignUpScreen(
     onSignUpClick: () -> Unit = {},
     onLogInClick: () -> Unit = {},
-//    isValidUsername: (String) -> Boolean,
 ) {
 
     val context = LocalContext.current
@@ -182,6 +181,7 @@ fun SignUpScreen(
             if (cleanUsername.length >= 6 && !isSuggestionSelected) {
                 showUsernameLoader = false
                 showUsernameSuggestions = true
+                showUsernameTick = false
                 usernameError = context.getString(R.string.username_is_already_taken)
                 showUsernameError = true
             } else {

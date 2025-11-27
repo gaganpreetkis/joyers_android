@@ -236,7 +236,7 @@ fun LoginScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = if (isPhoneMode.value) R.drawable.user_icon else R.drawable.telephone_icon_golden),
+                    painter = painterResource(id = if (isPhoneMode.value) R.drawable.user_icon_golden else R.drawable.telephone_icon_golden),
                     contentDescription = "Toggle",
                     modifier = Modifier.size(24.dp),
                     colorFilter = ColorFilter.tint(Golden60)
