@@ -67,7 +67,12 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         composable(Routes.Identity.route) {
-            IdentityScreen(0) { }
+            IdentityScreen(0, onNavigateToNext = {
+                navController.navigate(Routes.JoyersOath.route) {
+                    popUpTo(0)
+                    launchSingleTop = true
+                }
+            })
         }
 
         composable(Routes.ForgotPassword.route) {

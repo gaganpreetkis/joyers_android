@@ -14,6 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -51,11 +55,13 @@ import com.synapse.joyers.R
 import com.synapse.joyers.apiData.response.Subtitle
 import com.synapse.joyers.apiData.response.Title
 import com.synapse.joyers.common_widgets.AppBasicTextField
+import com.synapse.joyers.common_widgets.DashedLine
 import com.synapse.joyers.ui.theme.Black
 import com.synapse.joyers.ui.theme.Golden60
 import com.synapse.joyers.ui.theme.Gray20
 import com.synapse.joyers.ui.theme.Gray40
 import com.synapse.joyers.utils.fontFamilyLato
+import com.synapse.joyers.utils.rememberIsKeyboardOpen
 
 sealed class DialogState {
     data class Titles(val items: MutableList<Title>) : DialogState()
@@ -70,6 +76,7 @@ fun CustomRoundedDialog(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isKeyBoardOpen = rememberIsKeyboardOpen()
     var searchQuery by remember { mutableStateOf("") }
     var isExpanded by remember { mutableStateOf(false) }
     var currentState by remember { mutableStateOf<DialogState>(DialogState.Titles(titles)) }
@@ -82,7 +89,7 @@ fun CustomRoundedDialog(
     val lightBlackColor = Black
     val hintColor = Gray40
     val whiteColor = Color.White
-    
+
     val configuration = LocalConfiguration.current
     // Calculate maximum height: screen height - 100.dp (50.dp top + 50.dp bottom)
     val maxHeight = remember(configuration) {
@@ -196,49 +203,64 @@ fun CustomRoundedDialog(
                             .padding(horizontal = 30.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        // Search field
-                        TextField(
-                            value = searchQuery,
-                            onValueChange = { query ->
-                                searchQuery = query
-                                showNoResults = false
-                                if (query.isEmpty()) {
-                                    showApply = selectedTitleId.isNotEmpty()
-                                }
-                            },textStyle = TextStyle(
-                                platformStyle = PlatformTextStyle(includeFontPadding = false),
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
-                            ),
-                            placeholder = { Text(
-                                text = context.getString(R.string.search_speciality),
-                                color = hintColor,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
-                                textAlign = TextAlign.Start,
-                                style = TextStyle(
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false),
-                                    fontFamily = fontFamilyLato,
-                                    fontWeight = FontWeight.Normal,
-                                )) },
-                            modifier = Modifier.weight(1f)
+                        // Search field with icons
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(35.dp)
                                 .clip(shape = RoundedCornerShape(35.dp))
                                 .background(color = Gray20, shape = RoundedCornerShape(35.dp))
-                                .border(width = 0.dp, color = Gray40, shape = RoundedCornerShape(35.dp)),
-                            leadingIcon = {
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Leading search icon - positioned to match Material3 TextField icon spacing
                                 Image(
                                     painter = painterResource(id = R.drawable.ic_search),
                                     contentDescription = null,
-                                    modifier = Modifier.size(17.dp),
+                                    modifier = Modifier
+                                        .padding(start = 16.dp, end = 0.dp)
+                                        .size(17.dp),
                                     colorFilter = ColorFilter.tint(Gray40)
                                 )
-                            },
-                            trailingIcon = {
+
+                                // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
+                                // We account for this in our layout
+                                AppBasicTextField(
+                                    value = searchQuery,
+                                    onValueChange = { query ->
+                                        searchQuery = query
+                                        showNoResults = false
+                                        if (query.isEmpty()) {
+                                            showApply = selectedTitleId.isNotEmpty()
+                                        }
+                                    },
+                                    placeholder = context.getString(R.string.search_speciality),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
+                                    textStyle = TextStyle(
+                                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 14.sp
+                                    ),
+                                    containerColor = Color.Transparent,
+                                    contentColor = Black,
+                                    placeholderColor = hintColor,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                    maxLength = 100
+                                )
+
+                                // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
                                 if (searchQuery.isNotEmpty()) {
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_cancel_grey),
                                         contentDescription = null,
                                         modifier = Modifier
+                                            .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
                                             .size(15.dp)
                                             .clickable {
                                                 searchQuery = ""
@@ -246,19 +268,12 @@ fun CustomRoundedDialog(
                                                 showApply = selectedTitleId.isNotEmpty()
                                             }
                                     )
+                                } else {
+                                    // Spacer to maintain consistent padding when icon is not visible
+                                    Spacer(modifier = Modifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
                                 }
-                            },
-                            colors = TextFieldDefaults.colors(
-                                unfocusedContainerColor = Gray20,
-                                focusedContainerColor = Gray20,
-                                errorIndicatorColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
-                            ),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                            singleLine = true,
-                        )
+                            }
+                        }
 
                         // Search/Apply button
                         if (showApply && selectedTitleId.isNotEmpty()) {
@@ -279,10 +294,10 @@ fun CustomRoundedDialog(
                                     text = context.getString(R.string.apply),
                                     fontSize = 12.sp,
                                     color = Color.White,
-                                textAlign = TextAlign.Center,
+                                    textAlign = TextAlign.Center,
                                     fontFamily = fontFamilyLato,
-                                    fontWeight = FontWeight.Bold
-                            )
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         } else {
                             Box(
@@ -301,7 +316,7 @@ fun CustomRoundedDialog(
                                 Text(
                                     text = context.getString(R.string.search),
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontFamily = fontFamilyLato,
                                     color = Color.Black,
                                     textAlign = TextAlign.Center
@@ -329,11 +344,24 @@ fun CustomRoundedDialog(
                                     }
                                 }
 
-                                if (filteredTitles.isEmpty() && searchQuery.isNotEmpty()) {
+                                // Reorder list: move selected item (without subtitles) to top
+                                val reorderedTitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
+                                    val selectedTitle = filteredTitles.find { it._id == selectedTitleId }
+                                    if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
+                                        // Move selected item to top, keep others in original order
+                                        listOf(selectedTitle) + filteredTitles.filter { it._id != selectedTitleId }
+                                    } else {
+                                        filteredTitles
+                                    }
+                                } else {
+                                    filteredTitles
+                                }
+
+                                if (reorderedTitles.isEmpty() && searchQuery.isNotEmpty()) {
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(200.dp),
+                                            .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
@@ -350,7 +378,7 @@ fun CustomRoundedDialog(
                                     // Main content: Layout changes based on expanded state
                                     if (classificationTitles.isNotEmpty() && isExpanded) {
                                         // When expanded: Titles scroll independently, Clarifications scroll separately
-                                        Column (
+                                        Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .wrapContentHeight()
@@ -362,7 +390,7 @@ fun CustomRoundedDialog(
                                                     .fillMaxWidth()
                                                     .heightIn(max = titlesListMaxHeight.coerceAtLeast(150.dp))
                                             ) {
-                                                items(filteredTitles) { title ->
+                                                items(reorderedTitles) { title ->
                                                     TitleItem(
                                                         title = title,
                                                         isSelected = selectedTitleId == title._id,
@@ -399,15 +427,12 @@ fun CustomRoundedDialog(
                                                     .heightIn(max = 250.dp) // Fixed max height for clarifications
                                             ) {
                                                 Spacer(modifier = Modifier.height(20.dp))
-                                                Box(
+                                                DashedLine(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .height(3.dp)
-                                                        .padding(horizontal = 15.dp)
-                                                        .background(
-                                                            color = goldenColor,
-                                                            shape = RoundedCornerShape(1.5.dp)
-                                                        )
+                                                        .padding(horizontal = 15.dp),
+                                                    strokeWidth = 3f
                                                 )
                                                 Row(
                                                     modifier = Modifier
@@ -477,7 +502,7 @@ fun CustomRoundedDialog(
                                                     .wrapContentHeight()
                                                     .heightIn(max = contentMaxHeight - 200.dp)
                                             ) {
-                                                items(filteredTitles) { title ->
+                                                items(reorderedTitles) { title ->
                                                     TitleItem(
                                                         title = title,
                                                         isSelected = selectedTitleId == title._id,
@@ -505,15 +530,12 @@ fun CustomRoundedDialog(
                                             // Clarification header - always visible if classifications exist
                                             if (classificationTitles.isNotEmpty()) {
                                                 Spacer(modifier = Modifier.height(20.dp))
-                                                Box(
+                                                DashedLine(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .height(3.dp)
-                                                        .padding(horizontal = 15.dp)
-                                                        .background(
-                                                            color = goldenColor,
-                                                            shape = RoundedCornerShape(1.5.dp)
-                                                        )
+                                                        .padding(horizontal = 15.dp),
+                                                    strokeWidth = 3f
                                                 )
                                                 Row(
                                                     modifier = Modifier
@@ -594,7 +616,7 @@ fun CustomRoundedDialog(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(200.dp),
+                                            .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
@@ -606,22 +628,21 @@ fun CustomRoundedDialog(
                                     }
                                 } else {
                                     val classificationSubtitles = state.items.filter { !it.description.isNullOrEmpty() }
-                                    
+
                                     // Main content: Layout changes based on expanded state
                                     if (classificationSubtitles.isNotEmpty() && isExpanded) {
-                                        // When expanded: Subtitles and Clarifications side by side with equal height
-                                        val contentMaxHeight = maxHeight // Reserve space for header and search
-                                        Row(
+                                        // When expanded: Subtitles scroll independently, Clarifications scroll separately
+                                        Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .wrapContentHeight()
                                         ) {
-                                            // Subtitles list - takes 50% width, will match clarifications height
+                                            // Subtitles list - LazyColumn scrolls independently
+                                            val subtitlesListMaxHeight = (maxHeight - 100.dp) - 250.dp // Reserve space for clarifications
                                             LazyColumn(
                                                 modifier = Modifier
-                                                    .weight(1f)
-                                                    .wrapContentHeight()
-                                                    .heightIn(max = contentMaxHeight - 200.dp)
+                                                    .fillMaxWidth()
+                                                    .heightIn(max = subtitlesListMaxHeight.coerceAtLeast(150.dp))
                                             ) {
                                                 items(filteredSubtitles) { subtitle ->
                                                     SubtitleItem(
@@ -635,22 +656,19 @@ fun CustomRoundedDialog(
                                                 }
                                             }
 
-                                            // Clarifications section - takes 50% width, same height as subtitles
+                                            // Clarifications section - scrollable separately
                                             Column(
                                                 modifier = Modifier
-                                                    .weight(1f)
-                                                    .wrapContentHeight()
+                                                    .fillMaxWidth()
+                                                    .heightIn(max = 250.dp) // Fixed max height for clarifications
                                             ) {
                                                 Spacer(modifier = Modifier.height(20.dp))
-                                                Box(
+                                                DashedLine(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .height(3.dp)
-                                                        .padding(horizontal = 15.dp)
-                                                        .background(
-                                                            color = goldenColor,
-                                                            shape = RoundedCornerShape(1.5.dp)
-                                                        )
+                                                        .padding(horizontal = 15.dp),
+                                                    strokeWidth = 3f
                                                 )
                                                 Row(
                                                     modifier = Modifier
@@ -675,7 +693,7 @@ fun CustomRoundedDialog(
                                                         )
                                                     }
                                                     Text(
-                                                        text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                                        text = context.getString(R.string.hide),
                                                         fontSize = 12.sp,
                                                         fontWeight = FontWeight.Bold,
                                                         color = goldenColor,
@@ -685,31 +703,22 @@ fun CustomRoundedDialog(
                                                     )
                                                 }
 
-                                                // Clarifications list - only visible when expanded
-                                                AnimatedVisibility(
-                                                    visible = isExpanded,
-                                                    enter = expandVertically(
-                                                        animationSpec = tween(300),
-                                                        expandFrom = Alignment.Top
-                                                    ) + fadeIn(animationSpec = tween(300)),
-                                                    exit = shrinkVertically(
-                                                        animationSpec = tween(300),
-                                                        shrinkTowards = Alignment.Top
-                                                    ) + fadeOut(animationSpec = tween(300))
+                                                // Clarifications list - scrollable separately with fixed height
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(150.dp) // Fixed height for scrollable area
+                                                        .verticalScroll(rememberScrollState())
+                                                        .padding(horizontal = 15.dp)
                                                 ) {
-                                                    Column(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .padding(horizontal = 15.dp)
-                                                    ) {
-                                                        classificationSubtitles.forEach { subtitle ->
-                                                            ClassificationItem(
-                                                                title = subtitle.name ?: "",
-                                                                description = subtitle.description ?: ""
-                                                            )
-                                                            Spacer(modifier = Modifier.height(2.dp))
-                                                        }
+                                                    classificationSubtitles.forEach { subtitle ->
+                                                        ClassificationItem(
+                                                            title = subtitle.name ?: "",
+                                                            description = subtitle.description ?: ""
+                                                        )
+                                                        Spacer(modifier = Modifier.height(2.dp))
                                                     }
+                                                    Spacer(modifier = Modifier.height(10.dp))
                                                 }
                                             }
                                         }
@@ -741,15 +750,12 @@ fun CustomRoundedDialog(
                                             // Clarification header - always visible if classifications exist
                                             if (classificationSubtitles.isNotEmpty()) {
                                                 Spacer(modifier = Modifier.height(20.dp))
-                                                Box(
+                                                DashedLine(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .height(3.dp)
-                                                        .padding(horizontal = 15.dp)
-                                                        .background(
-                                                            color = goldenColor,
-                                                            shape = RoundedCornerShape(1.5.dp)
-                                                        )
+                                                        .padding(horizontal = 15.dp),
+                                                    strokeWidth = 3f
                                                 )
                                                 Row(
                                                     modifier = Modifier
@@ -836,24 +842,26 @@ fun TitleItem(
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(horizontal = 15.dp, vertical = 2.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
     ) {
         Text(
             text = title.title ?: "",
             fontSize = 14.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected) Golden60 else Black,
-            modifier = Modifier.weight(1f)
+            //modifier = Modifier.weight(1f)
         )
         if (!title.subtitles.isNullOrEmpty()) {
+            Spacer(modifier = Modifier.width(4.dp))
             Image(
-                painter = painterResource(id = R.drawable.ic_back_gray),
+                painter = painterResource(id = R.drawable.arrowdown_lite),
                 contentDescription = null,
-                modifier = Modifier.size(20.dp, 2.dp)
+                modifier = Modifier.size(11.dp)
             )
         }
         if (!title.decriptionTitle.isNullOrEmpty()) {
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = context.getString(R.string.strik_right_space),
                 fontSize = 14.sp,

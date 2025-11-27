@@ -85,7 +85,8 @@ fun IdentityScreen(
 //    signupViewModel: SignupViewModel,
 //    preferencesManager: PreferencesManager,
 //    activity: AppCompatActivity,
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onNavigateToNext: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = initialPage) { 3 }
@@ -204,6 +205,7 @@ fun IdentityScreen(
                                 pagerState.animateScrollToPage(page + 1)
                             }
                         },
+                        onNavigateToNext = { onNavigateToNext() }
 //                        signupViewModel = signupViewModel,
 //                        preferencesManager = preferencesManager,
 //                        activity = activity
@@ -229,6 +231,7 @@ fun IdentityScreen(
                                 pagerState.animateScrollToPage(page - 1)
                             }
                         },
+                        onNavigateToNext = {onNavigateToNext()}
 ////                        signupViewModel = signupViewModel,
 ////                        preferencesManager = preferencesManager,
 ////                        activity = activity
@@ -244,6 +247,7 @@ fun IdentityScreen(
 @Composable
 fun PageOneContent(
     onNext: () -> Unit,
+    onNavigateToNext: () -> Unit,
 //    signupViewModel: SignupViewModel? = null,
 //    preferencesManager: PreferencesManager? = null,
 //    activity: AppCompatActivity? = null
@@ -705,6 +709,7 @@ fun PageOneContent(
                         )
                         .border(1.dp, goldenColor, CircleShape)
                         .clickable {
+                            onNavigateToNext()
 //                            preferencesManager?.let { pm ->
 //                                activity?.lifecycleScope?.launch {
 //                                    val token = pm.getAccessToken()
@@ -1027,6 +1032,7 @@ fun PageTwoContent(
 @Composable
 fun PageThreeContent(
     onBack: () -> Unit,
+    onNavigateToNext: () -> Unit,
 //    signupViewModel: SignupViewModel? = null,
 //    preferencesManager: PreferencesManager? = null,
 //    activity: AppCompatActivity? = null
@@ -1249,6 +1255,7 @@ fun PageThreeContent(
                         .background(goldenColor, CircleShape)
                         .clickable {
                             // API call would go here
+                            onNavigateToNext()
                         },
                     contentAlignment = Alignment.Center
                 ) {

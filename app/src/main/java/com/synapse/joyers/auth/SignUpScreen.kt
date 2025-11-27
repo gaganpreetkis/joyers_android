@@ -80,6 +80,7 @@ import com.synapse.joyers.ui.theme.White
 import com.synapse.joyers.utils.fontFamilyLato
 import com.synapse.joyers.utils.isValidPassword
 import com.synapse.joyers.utils.isValidUsername
+import com.synapse.joyers.utils.rememberIsKeyboardOpen
 import kotlinx.coroutines.delay
 import kotlin.text.isNotEmpty
 import kotlin.text.replace
@@ -1454,15 +1455,4 @@ fun AppLogo(isKeyBoardOpen: Boolean, modifier: Modifier) {
         modifier = modifier.size(width, height)
     )
 
-}
-
-@Composable
-fun rememberIsKeyboardOpen(): Boolean {
-    val imeBottom = WindowInsets.ime.getBottom(LocalDensity.current)
-    var isKeyboardOpen by remember { mutableStateOf(imeBottom > 0) }
-
-    LaunchedEffect(imeBottom) {
-        isKeyboardOpen = imeBottom > 0
-    }
-    return isKeyboardOpen
 }
