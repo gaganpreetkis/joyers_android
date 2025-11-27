@@ -68,6 +68,7 @@ import coil.compose.AsyncImage
 import com.synapse.joyers.R
 import com.synapse.joyers.apiData.response.Subtitle
 import com.synapse.joyers.apiData.response.Title
+import com.synapse.joyers.common_widgets.DashedLine
 import com.synapse.joyers.common_widgets.ImagePickerBottomSheet
 import com.synapse.joyers.common_widgets.showCCPDialog
 import com.synapse.joyers.ui.theme.Black
@@ -189,7 +190,7 @@ fun IdentityScreen(
                     .fillMaxWidth()
                     .height(5.dp),
                 color = Golden60,
-                trackColor = Golden60
+                trackColor = Gray40,
             )
 
             // Pager content
@@ -387,7 +388,8 @@ fun PageOneContent(
         Text(
             text = context.getString(R.string.profile_picture),
             fontSize = 18.sp,
-            fontWeight = FontWeight(600),
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Normal,
             color = lightBlackColor,
             modifier = Modifier.fillMaxWidth()
         )
@@ -451,6 +453,8 @@ fun PageOneContent(
                             Text(
                                 text = context.getString(R.string.header),
                                 fontSize = 11.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
                                 color = hintColor
                             )
                         }
@@ -546,8 +550,8 @@ fun PageOneContent(
             Text(
                 text = " *",
                 fontSize = 18.sp,
-                fontWeight = FontWeight(900),
                 fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.ExtraBold,
                 color = astrikeColor
             )
         }
@@ -614,6 +618,7 @@ fun PageOneContent(
                 color = if (remainingChars == 0) redColor else hintColor,
                 modifier = Modifier.fillMaxHeight().padding(top = 5.dp, end = 7.dp),
                 fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Normal,
             )
         }
 
@@ -642,7 +647,8 @@ fun PageOneContent(
             Text(
                 text = context.getString(R.string.strik_left_space),
                 fontSize = 18.sp,
-                fontWeight = FontWeight(900),
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.ExtraBold,
                 color = astrikeColor
             )
         }
@@ -854,6 +860,7 @@ fun PageTwoContent(
                 text = context.getString(R.string.joyer_status),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
+                fontFamily = fontFamilyLato,
                 color = lightBlackColor,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -880,6 +887,7 @@ fun PageTwoContent(
                     Text(
                         text = statusText,
                         fontSize = 16.sp,
+                        fontFamily = fontFamilyLato,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
                         color = if (isSelected) whiteColor else blackColor
                     )
@@ -892,14 +900,12 @@ fun PageTwoContent(
             Spacer(modifier = Modifier.height(28.dp))
 
             // Dashed line
-            Box(
+            DashedLine(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(3.dp)
-                    .background(
-                        color = Color(0xFFE0E0E0),
-                        shape = RoundedCornerShape(1.5.dp)
-                    )
+                    .padding(horizontal = 15.dp),
+                strokeWidth = 3f
             )
 
             Spacer(modifier = Modifier.height(15.dp))
@@ -908,6 +914,7 @@ fun PageTwoContent(
             Text(
                 text = context.getString(R.string.clarifications),
                 fontSize = 16.sp,
+                fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.SemiBold,
                 color = lightBlackColor,
                 modifier = Modifier.fillMaxWidth()
@@ -926,6 +933,8 @@ fun PageTwoContent(
                     Text(
                         text = context.getString(R.string.title1),
                         fontSize = 16.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
                         color = lightBlackColor
                     )
 
@@ -961,6 +970,8 @@ fun PageTwoContent(
                                     append(fullText.substring(end))
                                 },
                                 fontSize = 16.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
                                 color = lightBlackColor,
                                 modifier = Modifier.padding(top = if (statusKey != "Classic") 7.dp else 0.dp)
                             )
@@ -972,6 +983,8 @@ fun PageTwoContent(
                     Text(
                         text = context.getString(R.string.title2),
                         fontSize = 16.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
                         color = lightBlackColor
                     )
 
@@ -980,6 +993,8 @@ fun PageTwoContent(
                     Text(
                         text = context.getString(R.string.title3),
                         fontSize = 16.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
                         color = lightBlackColor
                     )
 
@@ -988,6 +1003,8 @@ fun PageTwoContent(
                     Text(
                         text = context.getString(R.string.title4),
                         fontSize = 16.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
                         color = lightBlackColor
                     )
                 }
@@ -1173,7 +1190,7 @@ fun PageThreeContent(
                 if (it == 0) {
                     Text(
                         text = stringResource(R.string.joyer_status),
-                        fontSize = 14.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         color = lightBlackColor
@@ -1193,8 +1210,8 @@ fun PageThreeContent(
                     ) {
                         Text(
                             text = stringResource(R.string.classic),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
                             fontFamily = fontFamilyLato,
                             color = whiteColor
                         )
@@ -1203,7 +1220,7 @@ fun PageThreeContent(
 //Title selection
                     Text(
                         text = stringResource(R.string.title),
-                        fontSize = 14.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         color = lightBlackColor
@@ -1232,8 +1249,9 @@ fun PageThreeContent(
                     ) {
                         Text(
                             text = selectedTitle ?: context.getString(R.string.select_title),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
+                            fontSize = 16.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = if (selectedTitle != null) FontWeight.Bold else FontWeight.SemiBold,
                             color = if (selectedTitle != null) whiteColor else goldenColor
                         )
                     }

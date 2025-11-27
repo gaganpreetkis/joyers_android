@@ -49,6 +49,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -65,6 +66,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.request.ImageRequest
 import com.synapse.joyers.R
 import com.synapse.joyers.common_widgets.AppBasicTextField
 import com.synapse.joyers.common_widgets.AppBasicTextFieldWithCursorHandling
@@ -135,7 +140,13 @@ fun SignUpScreen(
     val focusRequester = remember { FocusRequester() }
     var isPasswordFocused by remember { mutableStateOf(false) }
     var isUsernameFocused by remember { mutableStateOf(true) }
-
+    val imageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                add(GifDecoder.Factory())
+            }
+            .build()
+    }
 //    tempp====================
     var isSuggestionSelected by remember { mutableStateOf(false) }
 
@@ -401,10 +412,33 @@ fun SignUpScreen(
 
             if (showUsernameLoader) {
                 // Loader GIF would go here - using placeholder for now
-                CircularProgressIndicator(
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(R.drawable.gif_loader_username)
+                        .decoderFactory(GifDecoder.Factory())
+                        .build(),
+                    imageLoader = imageLoader,
+                    contentDescription = "Splash GIF",
                     modifier = Modifier.size(20.dp),
-                    color = Golden60
+                    contentScale = ContentScale.FillBounds,
+                    onSuccess = {
+                        // Mark GIF as loaded, then start the delay
+                        //gifLoaded = true
+                    },
+                    onError = {
+                        // On error, still proceed after delay
+//                        gifLoaded = true
+                    }
                 )
+                Image(
+                    painter = painterResource(id = R.drawable.gif_loader_username),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+//                CircularProgressIndicator(
+//                    modifier = Modifier.size(20.dp),
+//                    color = Golden60
+//                )
             } else if (showUsernameTick) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_tick_green),

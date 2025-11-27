@@ -24,12 +24,11 @@
     <string name="verify">Verify</string>
     <string name="email_sent">We have sent a code to your email</string>
     <string name="number_sent">We have sent a code to your phone number</string>
-    <string name="weak_password">Password must be 8-16 characters and include uppercase letter, number, and special character.</string>
-    <string name="weak_password_1">Password must be 8-16 characters. Adding an uppercase letter, a number, and a special character is recommended for stronger security.</string>
+    <string name="weak_password">Password must be 8-16 characters. Adding an uppercase letter, a number, and a special character is recommended for stronger security.</string>
     <string name="password_does_not_match">Password does not match. Please try again</string>
 
 
-    <string name="username_must_be_3_15_characters_only_letters_numbers_and_underscores">Usernames must be 3–15 characters and can only contain letters (A–Z), numbers (0–9), and underscores. Special characters are not allowed.</string>
+    <string name="username_must_be_3_15_characters_only_letters_numbers_and_underscores">Username must be 3-15 characters using only letters (A-Z), numbers (0-9), or underscores (_). Spaces and special characters are not allowed.</string>
 
 
     <!-- font weight -->
@@ -188,7 +187,7 @@ I Will Make This <font color="#D69E3A"><b>PLANET</b></font> a Better Place,
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
     <string name="my_account">My Accounts</string>
-    <string name="username_error">Names must be 2-45 characters and may include letters, numbers, hyphens, apostrophes, and diacritical marks. Emojis and other special characters are not allowed.</string>
+    <string name="username_error">Display name must be 2-45 characters and may include letters, numbers, hyphens, apostrophes, and accents. No emojis or special characters.</string>
     <string name="reset_password">Reset Password</string>
     <string name="get_started">Get Started!</string>
     <string name="your_password_has_been_successfully_reset">Your password has been successfully reset!</string>

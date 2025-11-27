@@ -157,6 +157,7 @@ fun CustomRoundedDialog(
                                 text = context.getString(R.string.title),
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.SemiBold,
+                                fontFamily = fontFamilyLato,
                                 color = colorResource(id = R.color.black)
                             )
                         } else {
@@ -165,6 +166,7 @@ fun CustomRoundedDialog(
                                     text = context.getString(R.string.title),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
+                                    fontFamily = fontFamilyLato,
                                     color = colorResource(id = R.color.black)
                                 )
                                 Spacer(modifier = Modifier.width(11.dp))
@@ -177,6 +179,7 @@ fun CustomRoundedDialog(
                                 Text(
                                     text = (currentState as DialogState.Subtitles).parentTitle.title ?: "",
                                     fontSize = 16.sp,
+                                    fontFamily = fontFamilyLato,
                                     color = colorResource(id = R.color.black)
                                 )
                             }
@@ -368,6 +371,7 @@ fun CustomRoundedDialog(
                                             text = context.getString(R.string.no_results_found),
                                             fontSize = 24.sp,
                                             fontWeight = FontWeight.SemiBold,
+                                            fontFamily = fontFamilyLato,
                                             color = colorResource(id = R.color.black)
                                         )
                                     }
@@ -446,6 +450,7 @@ fun CustomRoundedDialog(
                                                             text = context.getString(R.string.strik_right_space),
                                                             fontSize = 16.sp,
                                                             fontWeight = FontWeight.Black,
+                                                            fontFamily = fontFamilyLato,
                                                             color = goldenColor
                                                         )
                                                         Spacer(modifier = Modifier.width(5.dp))
@@ -453,6 +458,7 @@ fun CustomRoundedDialog(
                                                             text = context.getString(R.string.clarifications),
                                                             fontSize = 16.sp,
                                                             fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
                                                             color = colorResource(id = R.color.black)
                                                         )
                                                     }
@@ -460,6 +466,7 @@ fun CustomRoundedDialog(
                                                         text = context.getString(R.string.hide),
                                                         fontSize = 12.sp,
                                                         fontWeight = FontWeight.Bold,
+                                                        fontFamily = fontFamilyLato,
                                                         color = goldenColor,
                                                         modifier = Modifier.clickable {
                                                             isExpanded = !isExpanded
@@ -549,6 +556,7 @@ fun CustomRoundedDialog(
                                                             text = context.getString(R.string.strik_right_space),
                                                             fontSize = 16.sp,
                                                             fontWeight = FontWeight.Black,
+                                                            fontFamily = fontFamilyLato,
                                                             color = goldenColor
                                                         )
                                                         Spacer(modifier = Modifier.width(5.dp))
@@ -556,6 +564,7 @@ fun CustomRoundedDialog(
                                                             text = context.getString(R.string.clarifications),
                                                             fontSize = 16.sp,
                                                             fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
                                                             color = colorResource(id = R.color.black)
                                                         )
                                                     }
@@ -563,6 +572,7 @@ fun CustomRoundedDialog(
                                                         text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
                                                         fontSize = 12.sp,
                                                         fontWeight = FontWeight.Bold,
+                                                        fontFamily = fontFamilyLato,
                                                         color = goldenColor,
                                                         modifier = Modifier.clickable {
                                                             isExpanded = !isExpanded
@@ -623,6 +633,7 @@ fun CustomRoundedDialog(
                                             text = context.getString(R.string.no_results_found),
                                             fontSize = 24.sp,
                                             fontWeight = FontWeight.SemiBold,
+                                            fontFamily = fontFamilyLato,
                                             color = colorResource(id = R.color.black)
                                         )
                                     }
@@ -682,6 +693,7 @@ fun CustomRoundedDialog(
                                                             text = context.getString(R.string.strik_right_space),
                                                             fontSize = 16.sp,
                                                             fontWeight = FontWeight.Black,
+                                                            fontFamily = fontFamilyLato,
                                                             color = goldenColor
                                                         )
                                                         Spacer(modifier = Modifier.width(5.dp))
@@ -689,6 +701,7 @@ fun CustomRoundedDialog(
                                                             text = context.getString(R.string.clarifications),
                                                             fontSize = 16.sp,
                                                             fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
                                                             color = colorResource(id = R.color.black)
                                                         )
                                                     }
@@ -696,6 +709,7 @@ fun CustomRoundedDialog(
                                                         text = context.getString(R.string.hide),
                                                         fontSize = 12.sp,
                                                         fontWeight = FontWeight.Bold,
+                                                        fontFamily = fontFamilyLato,
                                                         color = goldenColor,
                                                         modifier = Modifier.clickable {
                                                             isExpanded = !isExpanded
@@ -769,6 +783,7 @@ fun CustomRoundedDialog(
                                                             text = context.getString(R.string.strik_right_space),
                                                             fontSize = 16.sp,
                                                             fontWeight = FontWeight.Black,
+                                                            fontFamily = fontFamilyLato,
                                                             color = goldenColor
                                                         )
                                                         Spacer(modifier = Modifier.width(5.dp))
@@ -776,6 +791,7 @@ fun CustomRoundedDialog(
                                                             text = context.getString(R.string.clarifications),
                                                             fontSize = 16.sp,
                                                             fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
                                                             color = colorResource(id = R.color.black)
                                                         )
                                                     }
@@ -783,6 +799,7 @@ fun CustomRoundedDialog(
                                                         text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
                                                         fontSize = 12.sp,
                                                         fontWeight = FontWeight.Bold,
+                                                        fontFamily = fontFamilyLato,
                                                         color = goldenColor,
                                                         modifier = Modifier.clickable {
                                                             isExpanded = !isExpanded
@@ -848,6 +865,7 @@ fun TitleItem(
         Text(
             text = title.title ?: "",
             fontSize = 14.sp,
+            fontFamily = fontFamilyLato,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected) Golden60 else Black,
             //modifier = Modifier.weight(1f)
@@ -866,6 +884,7 @@ fun TitleItem(
                 text = context.getString(R.string.strik_right_space),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Black,
+                fontFamily = fontFamilyLato,
                 color = Golden60
             )
         }
@@ -889,6 +908,7 @@ fun SubtitleItem(
         Text(
             text = subtitle.name ?: "",
             fontSize = 14.sp,
+            fontFamily = fontFamilyLato,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected) Golden60 else Black,
             modifier = Modifier.weight(1f)
@@ -898,6 +918,7 @@ fun SubtitleItem(
             Text(
                 text = context.getString(R.string.strik_right_space),
                 fontSize = 14.sp,
+                fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Black,
                 color = Golden60
             )
@@ -921,6 +942,7 @@ fun ClassificationItem(
                 append(description)
             }
         },
-        fontSize = 14.sp
+        fontSize = 14.sp,
+        fontFamily = fontFamilyLato,
     )
 }
