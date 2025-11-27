@@ -317,7 +317,7 @@ fun CustomRoundedDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
-                            .heightIn(max = maxHeight) // Reserve space for header and search
+                            .heightIn(max = maxHeight - 100.dp) // Reserve space for header and search
                     ) {
                         when (val state = currentState) {
                             is DialogState.Titles -> {
@@ -349,23 +349,18 @@ fun CustomRoundedDialog(
                                         maxHeight// Reserve space for header and search
                                     // Main content: Layout changes based on expanded state
                                     if (classificationTitles.isNotEmpty() && isExpanded) {
-                                        // When expanded: Titles and Clarifications side by side with equal height
-
-
+                                        // When expanded: Titles scroll independently, Clarifications scroll separately
                                         Column (
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .wrapContentHeight()
-                                                .height(contentMaxHeight)
                                         ) {
-                                            // Titles list - takes 50% width, will match clarifications height
+                                            // Titles list - LazyColumn scrolls independently
+                                            val titlesListMaxHeight = (maxHeight - 100.dp) - 250.dp // Reserve space for clarifications
                                             LazyColumn(
                                                 modifier = Modifier
-//                                                    .weight(1f)
                                                     .fillMaxWidth()
-                                                    .heightIn(min = contentMaxHeight / 2, max = contentMaxHeight  - 200.dp)
-                                                    .height(contentMaxHeight - 200.dp -(35 * filteredTitles.size).dp)
-
+                                                    .heightIn(max = titlesListMaxHeight.coerceAtLeast(150.dp))
                                             ) {
                                                 items(filteredTitles) { title ->
                                                     TitleItem(
@@ -397,12 +392,11 @@ fun CustomRoundedDialog(
                                                 }
                                             }
 
-                                            // Clarifications section - takes 50% width, same height as titles
+                                            // Clarifications section - scrollable separately
                                             Column(
                                                 modifier = Modifier
-//                                                    .weight(1f)
                                                     .fillMaxWidth()
-                                                    .heightIn(max = contentMaxHeight / 2)
+                                                    .heightIn(max = 250.dp) // Fixed max height for clarifications
                                             ) {
                                                 Spacer(modifier = Modifier.height(20.dp))
                                                 Box(
@@ -438,9 +432,7 @@ fun CustomRoundedDialog(
                                                         )
                                                     }
                                                     Text(
-                                                        text = if (isExpanded) context.getString(R.string.hide) else context.getString(
-                                                            R.string.show
-                                                        ),
+                                                        text = context.getString(R.string.hide),
                                                         fontSize = 12.sp,
                                                         fontWeight = FontWeight.Bold,
                                                         color = goldenColor,
@@ -450,37 +442,25 @@ fun CustomRoundedDialog(
                                                     )
                                                 }
 
-                                                // Clarifications list - only visible when expanded
-                                                AnimatedVisibility(
-                                                    visible = isExpanded,
-                                                    enter = expandVertically(
-                                                        animationSpec = tween(300),
-                                                        expandFrom = Alignment.Top
-                                                    ) + fadeIn(animationSpec = tween(300)),
-                                                    exit = shrinkVertically(
-                                                        animationSpec = tween(300),
-                                                        shrinkTowards = Alignment.Top
-                                                    ) + fadeOut(animationSpec = tween(300))
+                                                // Clarifications list - scrollable separately with fixed height
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(150.dp) // Fixed height for scrollable area
+                                                        .verticalScroll(rememberScrollState())
+                                                        .padding(horizontal = 15.dp)
                                                 ) {
-                                                    Column(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .verticalScroll(rememberScrollState())
-                                                            .padding(horizontal = 15.dp)
-                                                    ) {
-                                                        classificationTitles.forEach { title ->
-                                                            ClassificationItem(
-                                                                title = title.title ?: "",
-                                                                description = title.decriptionTitle
-                                                                    ?: ""
-                                                            )
-                                                            Spacer(modifier = Modifier.height(2.dp))
-                                                        }
-//                                                        Spacer(modifier = Modifier.height(15.dp))
+                                                    classificationTitles.forEach { title ->
+                                                        ClassificationItem(
+                                                            title = title.title ?: "",
+                                                            description = title.decriptionTitle
+                                                                ?: ""
+                                                        )
+                                                        Spacer(modifier = Modifier.height(2.dp))
                                                     }
+                                                    Spacer(modifier = Modifier.height(10.dp))
                                                 }
                                             }
-                                            Spacer(modifier = Modifier.height(25.dp))
                                         }
                                     } else {
                                         // When clarifications are hidden or not available
@@ -634,13 +614,14 @@ fun CustomRoundedDialog(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .height(contentMaxHeight)
+                                                .wrapContentHeight()
                                         ) {
                                             // Subtitles list - takes 50% width, will match clarifications height
                                             LazyColumn(
                                                 modifier = Modifier
                                                     .weight(1f)
-                                                    .fillMaxHeight()
+                                                    .wrapContentHeight()
+                                                    .heightIn(max = contentMaxHeight - 200.dp)
                                             ) {
                                                 items(filteredSubtitles) { subtitle ->
                                                     SubtitleItem(
@@ -658,7 +639,7 @@ fun CustomRoundedDialog(
                                             Column(
                                                 modifier = Modifier
                                                     .weight(1f)
-                                                    .fillMaxHeight()
+                                                    .wrapContentHeight()
                                             ) {
                                                 Spacer(modifier = Modifier.height(20.dp))
                                                 Box(
@@ -719,7 +700,6 @@ fun CustomRoundedDialog(
                                                     Column(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .verticalScroll(rememberScrollState())
                                                             .padding(horizontal = 15.dp)
                                                     ) {
                                                         classificationSubtitles.forEach { subtitle ->
@@ -729,7 +709,6 @@ fun CustomRoundedDialog(
                                                             )
                                                             Spacer(modifier = Modifier.height(2.dp))
                                                         }
-                                                        Spacer(modifier = Modifier.height(15.dp))
                                                     }
                                                 }
                                             }

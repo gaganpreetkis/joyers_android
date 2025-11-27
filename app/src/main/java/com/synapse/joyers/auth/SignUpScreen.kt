@@ -417,7 +417,8 @@ fun SignUpScreen(
                         contentDescription = null,
                         alignment = Alignment.Center,
                         modifier = Modifier
-                            .size(15.dp)
+                            .size(30.dp)
+                            .padding(start = 5.dp, end = 10.dp)
                             .clickable { username = TextFieldValue(text = "") }
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -506,8 +507,8 @@ fun SignUpScreen(
                                         painter = painterResource(id = R.drawable.ic_cancel_grey),
                                         contentDescription = null,
                                         modifier = Modifier
-                                            .size(25.dp)
-                                            .padding(start = 0.dp, end = 10.dp)
+                                            .size(30.dp)
+                                            .padding(start = 5.dp, end = 10.dp)
                                             .clickable {
                                                 email = ""
                                                 showVerification = false
@@ -546,8 +547,8 @@ fun SignUpScreen(
                                         painter = painterResource(id = R.drawable.ic_cancel_grey),
                                         contentDescription = null,
                                         modifier = Modifier
-                                            .size(25.dp)
-                                            .padding(start = 0.dp, end = 10.dp)
+                                            .size(30.dp)
+                                            .padding(start = 5.dp, end = 10.dp)
                                             .clickable {
                                                 phone = ""
                                                 showVerification = false

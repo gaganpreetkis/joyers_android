@@ -174,7 +174,7 @@ fun LoginScreen(
                 ) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.user_icon),
+                        painter = painterResource(id = if (isPhoneMode.value) R.drawable.ic_telephone_gray else R.drawable.user_icon),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )
@@ -211,8 +211,8 @@ fun LoginScreen(
                             painter = painterResource(id = R.drawable.ic_cancel_grey),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(25.dp)
-                                .padding(start = 0.dp, end = 10.dp)
+                                .size(30.dp)
+                                .padding(start = 5.dp, end = 10.dp)
                                 .clickable {
                                     username = ""
                                 }
@@ -236,7 +236,7 @@ fun LoginScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = if (isPhoneMode.value) R.drawable.ic_mail_golden else R.drawable.telephone_icon_golden),
+                    painter = painterResource(id = if (isPhoneMode.value) R.drawable.user_icon else R.drawable.telephone_icon_golden),
                     contentDescription = "Toggle",
                     modifier = Modifier.size(24.dp),
                     colorFilter = ColorFilter.tint(Golden60)

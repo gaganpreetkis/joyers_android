@@ -326,8 +326,8 @@ fun ForgotPasswordScreen(
                                     painter = painterResource(id = R.drawable.ic_cancel_grey),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(25.dp)
-                                        .padding(start = 0.dp, end = 10.dp)
+                                        .size(30.dp)
+                                        .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
                                             username = ""
                                             if (showVerificationCode) {
@@ -428,8 +428,8 @@ fun ForgotPasswordScreen(
                                     painter = painterResource(id = R.drawable.ic_cancel_grey),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(25.dp)
-                                        .padding(start = 0.dp, end = 10.dp)
+                                        .size(30.dp)
+                                        .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
                                             phone = ""
                                             if (showVerificationCode) {
