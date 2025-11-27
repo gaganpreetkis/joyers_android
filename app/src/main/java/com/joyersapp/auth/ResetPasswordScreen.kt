@@ -451,6 +451,8 @@ fun ResetPasswordScreen(
                                 if (isPasswordFocused && it.isNotEmpty()) {
                                     showPasswordStrength = isValidPassword(it)
                                 }
+                                isPasswordFocused = true
+                                isConfirmPasswordFocused = false
                             },
                             maxLength = 16,
                             isEnabled = !isPasswordResetSuccess,
@@ -459,7 +461,8 @@ fun ResetPasswordScreen(
                             passwordVisible = isPasswordVisible,
                             onPasswordToggle = {
                                 isPasswordVisible = !isPasswordVisible
-                                passwordError = null
+                                //passwordError = null
+
                             },
                             modifier = Modifier
                                 .fillMaxSize()
@@ -547,6 +550,8 @@ fun ResetPasswordScreen(
                             onValueChange = {
                                 confirmPassword = it.take(16)
                                 confirmPasswordError = null
+                                isPasswordFocused = false
+                                isConfirmPasswordFocused = true
                             },
                             maxLength = 16,
                             isEnabled = !isPasswordResetSuccess,
@@ -555,7 +560,7 @@ fun ResetPasswordScreen(
                             passwordVisible = isConfirmPasswordVisible,
                             onPasswordToggle = {
                                 isConfirmPasswordVisible = !isConfirmPasswordVisible
-                                confirmPasswordError = null
+                                //confirmPasswordError = null
                             },
                             modifier = Modifier
                                 .fillMaxSize()

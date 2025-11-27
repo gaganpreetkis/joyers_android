@@ -542,9 +542,11 @@ fun SignUpScreen(
                                 AppBasicTextField(
                                     value = email,
                                     onValueChange = {
-                                        email = it
-                                        showVerification = false
-                                        showPasswordFields = false
+                                        if (email != it) {
+                                            email = it
+                                            showVerification = false
+                                            showPasswordFields = false
+                                        }
                                     },
                                     maxLength = 100,
                                     placeholder = contactPlaceHolder,
@@ -584,9 +586,11 @@ fun SignUpScreen(
                                 AppBasicTextField(
                                     value = phone,
                                     onValueChange = {
-                                        phone = it
-                                        showVerification = false
-                                        showPasswordFields = false
+                                        if (phone != it) {
+                                            phone = it
+                                            showVerification = false
+                                            showPasswordFields = false
+                                        }
                                     },
                                     maxLength = 15,
                                     placeholder = contactPlaceHolder,
@@ -1035,7 +1039,7 @@ fun SignUpScreen(
                                     passwordVisible = isPasswordVisible,
                                     onPasswordToggle = {
                                         isPasswordVisible = !isPasswordVisible
-                                        passwordError = null
+                                        //passwordError = null
                                     },
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -1212,7 +1216,7 @@ fun SignUpScreen(
                                     passwordVisible = isConfirmPasswordVisible,
                                     onPasswordToggle = {
                                         isConfirmPasswordVisible = !isConfirmPasswordVisible
-                                        confirmPasswordError = null
+                                        //confirmPasswordError = null
                                     },
                                     modifier = Modifier.fillMaxSize()
                                         .focusRequester(focusRequester)

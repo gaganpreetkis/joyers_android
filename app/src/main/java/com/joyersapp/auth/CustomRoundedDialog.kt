@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -77,6 +78,8 @@ fun CustomRoundedDialog(
     var showApply by remember { mutableStateOf(false) }
     var showNoResults by remember { mutableStateOf(false) }
 
+    val focusManager = LocalFocusManager.current
+
     val goldenColor = Golden60
     val lightBlackColor = Black
     val hintColor = Gray40
@@ -108,7 +111,9 @@ fun CustomRoundedDialog(
                     .heightIn(max = maxHeight)
                     .wrapContentHeight()
                     .padding(horizontal = 0.dp, vertical = 0.dp)
-                    .clickable(enabled = false) {},
+                    .clickable(enabled = false) {
+
+                    },
                 shape = RoundedCornerShape(25.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
@@ -322,122 +327,123 @@ fun CustomRoundedDialog(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Content area - height depends on content, refreshes on search
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .heightIn(max = maxHeight - 100.dp) // Reserve space for header and search
-                    ) {
-                        when (val state = currentState) {
-                            is DialogState.Titles -> {
-                                val filteredTitles = if (searchQuery.isEmpty()) {
-                                    state.items
-                                } else {
-                                    state.items.filter {
-                                        it.title?.contains(searchQuery, ignoreCase = true) == true
+                    if (isKeyBoardOpen) {
+                        // Content area - height depends on content, refreshes on search
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .height(maxHeight - 100.dp) // Reserve space for header and search
+                        ) {
+                            when (val state = currentState) {
+                                is DialogState.Titles -> {
+                                    val filteredTitles = if (searchQuery.isEmpty()) {
+                                        state.items
+                                    } else {
+                                        state.items.filter {
+                                            it.title?.contains(searchQuery, ignoreCase = true) == true
+                                        }
                                     }
-                                }
 
-                                // Reorder list: move selected item (without subtitles) to top
-                                val reorderedTitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
-                                    val selectedTitle = filteredTitles.find { it._id == selectedTitleId }
-                                    if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
-                                        // Move selected item to top, keep others in original order
-                                        listOf(selectedTitle) + filteredTitles.filter { it._id != selectedTitleId }
+                                    // Reorder list: move selected item (without subtitles) to top
+                                    val reorderedTitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
+                                        val selectedTitle = filteredTitles.find { it._id == selectedTitleId }
+                                        if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
+                                            // Move selected item to top, keep others in original order
+                                            listOf(selectedTitle) + filteredTitles.filter { it._id != selectedTitleId }
+                                        } else {
+                                            filteredTitles
+                                        }
                                     } else {
                                         filteredTitles
                                     }
-                                } else {
-                                    filteredTitles
-                                }
 
-                                if (reorderedTitles.isEmpty() && searchQuery.isNotEmpty()) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.no_results_found),
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontFamily = fontFamilyLato,
-                                            color = colorResource(id = R.color.black)
-                                        )
-                                    }
-                                } else {
-                                    val classificationTitles = state.items.filter { !it.decriptionTitle.isNullOrEmpty() && it.title?.contains(searchQuery, ignoreCase = true) == true }
-                                    val contentMaxHeight =
-                                        maxHeight// Reserve space for header and search
-                                    // Main content: Layout changes based on expanded state
-                                    if (classificationTitles.isNotEmpty() && isExpanded) {
-                                        // When expanded: Titles scroll independently, Clarifications scroll separately
-                                        Column(
+                                    if (reorderedTitles.isEmpty() && searchQuery.isNotEmpty()) {
+                                        Box(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .wrapContentHeight()
+                                                .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
+                                            contentAlignment = Alignment.Center
                                         ) {
-                                            // Titles list - LazyColumn scrolls independently
-                                            val titlesListMaxHeight = (maxHeight - 100.dp) - 250.dp // Reserve space for clarifications
-                                            LazyColumn(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .heightIn(max = titlesListMaxHeight.coerceAtLeast(150.dp))
-                                            ) {
-                                                items(reorderedTitles) { title ->
-                                                    TitleItem(
-                                                        title = title,
-                                                        isSelected = selectedTitleId == title._id,
-                                                        onClick = {
-                                                            if (selectedTitleId == title._id) {
-                                                                selectedTitleId = ""
-                                                                selectedTitleName = ""
-                                                                showApply = false
-                                                            } else {
-                                                                selectedTitleId = title._id ?: ""
-                                                                selectedTitleName =
-                                                                    title.title ?: ""
-                                                                if (title.subtitles.isNullOrEmpty()) {
-                                                                    showApply = true
-                                                                } else {
-                                                                    currentState =
-                                                                        DialogState.Subtitles(
-                                                                            title,
-                                                                            title.subtitles
-                                                                        )
-                                                                    showApply = false
-                                                                }
-                                                            }
-                                                            keyboardController?.hide()
-                                                        }
-                                                    )
-                                                }
-                                            }
-
-                                            // Clarifications section - scrollable separately
+                                            Text(
+                                                text = context.getString(R.string.no_results_found),
+                                                fontSize = 24.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontFamily = fontFamilyLato,
+                                                color = colorResource(id = R.color.black)
+                                            )
+                                        }
+                                    } else {
+                                        val classificationTitles = state.items.filter { !it.decriptionTitle.isNullOrEmpty() && it.title?.contains(searchQuery, ignoreCase = true) == true }
+                                        val contentMaxHeight =
+                                            maxHeight// Reserve space for header and search
+                                        // Main content: Layout changes based on expanded state
+                                        if (classificationTitles.isNotEmpty() && isExpanded) {
+                                            // When expanded: Titles scroll independently, Clarifications scroll separately
                                             Column(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .heightIn(max = 250.dp) // Fixed max height for clarifications
+                                                    .wrapContentHeight()
                                             ) {
-                                                Spacer(modifier = Modifier.height(20.dp))
-                                                DashedLine(
+                                                // Titles list - LazyColumn scrolls independently
+                                                val titlesListMaxHeight = (maxHeight - 100.dp) - 250.dp // Reserve space for clarifications
+                                                LazyColumn(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
-                                                        .height(3.dp)
-                                                        .padding(horizontal = 15.dp),
-                                                    strokeWidth = 3f
-                                                )
-                                                Row(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(horizontal = 15.dp, vertical = 15.dp),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
+                                                        .heightIn(max = titlesListMaxHeight.coerceAtLeast(150.dp))
                                                 ) {
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    items(reorderedTitles) { title ->
+                                                        TitleItem(
+                                                            title = title,
+                                                            isSelected = selectedTitleId == title._id,
+                                                            onClick = {
+                                                                if (selectedTitleId == title._id) {
+                                                                    selectedTitleId = ""
+                                                                    selectedTitleName = ""
+                                                                    showApply = false
+                                                                } else {
+                                                                    selectedTitleId = title._id ?: ""
+                                                                    selectedTitleName =
+                                                                        title.title ?: ""
+                                                                    if (title.subtitles.isNullOrEmpty()) {
+                                                                        showApply = true
+                                                                    } else {
+                                                                        currentState =
+                                                                            DialogState.Subtitles(
+                                                                                title,
+                                                                                title.subtitles
+                                                                            )
+                                                                        showApply = false
+                                                                    }
+                                                                }
+                                                                keyboardController?.hide()
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                // Clarifications section - scrollable separately
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .heightIn(max = 250.dp) // Fixed max height for clarifications
+                                                ) {
+                                                    Spacer(modifier = Modifier.height(20.dp))
+                                                    DashedLine(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(3.dp)
+                                                            .padding(horizontal = 15.dp),
+                                                        strokeWidth = 3f
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 15.dp, vertical = 15.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
 //                                                        Text(
 //                                                            text = context.getString(R.string.strik_right_space),
 //                                                            fontSize = 20.sp,
@@ -446,252 +452,266 @@ fun CustomRoundedDialog(
 //                                                            color = goldenColor
 //                                                        )
 //                                                        Spacer(modifier = Modifier.width(5.dp))
+                                                            Text(
+                                                                text = context.getString(R.string.clarifications),
+                                                                fontSize = 16.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = colorResource(id = R.color.black)
+                                                            )
+                                                        }
                                                         Text(
-                                                            text = context.getString(R.string.clarifications),
-                                                            fontSize = 16.sp,
+                                                            text = context.getString(R.string.hide),
+                                                            fontSize = 12.sp,
                                                             fontWeight = FontWeight.Bold,
                                                             fontFamily = fontFamilyLato,
-                                                            color = colorResource(id = R.color.black)
-                                                        )
-                                                    }
-                                                    Text(
-                                                        text = context.getString(R.string.hide),
-                                                        fontSize = 12.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontFamily = fontFamilyLato,
-                                                        color = goldenColor,
-                                                        modifier = Modifier.clickable {
-                                                            isExpanded = !isExpanded
-                                                        }
-                                                    )
-                                                }
-
-                                                // Clarifications list - scrollable separately with fixed height
-                                                Column(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(150.dp) // Fixed height for scrollable area
-                                                        .verticalScroll(rememberScrollState())
-                                                        .padding(horizontal = 15.dp)
-                                                ) {
-                                                    classificationTitles.forEach { title ->
-                                                        ClassificationItem(
-                                                            title = title.title ?: "",
-                                                            description = title.decriptionTitle
-                                                                ?: ""
-                                                        )
-                                                        Spacer(modifier = Modifier.height(2.dp))
-                                                    }
-                                                    Spacer(modifier = Modifier.height(10.dp))
-                                                }
-                                                Spacer(Modifier.height(25.dp))
-                                            }
-                                        }
-                                    } else {
-                                        // When clarifications are hidden or not available
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .wrapContentHeight()
-                                                .heightIn(max = contentMaxHeight)
-                                        ) {
-                                            // Titles list - wraps content
-                                            LazyColumn(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .wrapContentHeight()
-                                                    .heightIn(max = contentMaxHeight - 200.dp)
-                                            ) {
-                                                items(reorderedTitles) { title ->
-                                                    TitleItem(
-                                                        title = title,
-                                                        isSelected = selectedTitleId == title._id,
-                                                        onClick = {
-                                                            if (selectedTitleId == title._id) {
-                                                                selectedTitleId = ""
-                                                                selectedTitleName = ""
-                                                                showApply = false
-                                                            } else {
-                                                                selectedTitleId = title._id ?: ""
-                                                                selectedTitleName = title.title ?: ""
-                                                                if (title.subtitles.isNullOrEmpty()) {
-                                                                    showApply = true
-                                                                } else {
-                                                                    currentState = DialogState.Subtitles(title, title.subtitles)
-                                                                    showApply = false
-                                                                }
+                                                            color = goldenColor,
+                                                            modifier = Modifier.clickable {
+                                                                isExpanded = !isExpanded
                                                             }
-                                                            keyboardController?.hide()
-                                                        }
-                                                    )
-                                                }
-                                            }
-
-                                            // Clarification header - always visible if classifications exist
-                                            if (classificationTitles.isNotEmpty()) {
-                                                Spacer(modifier = Modifier.height(20.dp))
-                                                DashedLine(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(3.dp)
-                                                        .padding(horizontal = 15.dp),
-                                                    strokeWidth = 3f
-                                                )
-                                                Row(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(horizontal = 15.dp, vertical = 15.dp),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Text(
-                                                            text = context.getString(R.string.strik_right_space),
-                                                            fontSize = 20.sp,
-                                                            fontWeight = FontWeight.Black,
-                                                            fontFamily = fontFamilyLato,
-                                                            color = goldenColor
-                                                        )
-                                                        Spacer(modifier = Modifier.width(5.dp))
-                                                        Text(
-                                                            text = context.getString(R.string.clarifications),
-                                                            fontSize = 16.sp,
-                                                            fontWeight = FontWeight.Bold,
-                                                            fontFamily = fontFamilyLato,
-                                                            color = colorResource(id = R.color.black)
                                                         )
                                                     }
-                                                    Text(
-                                                        text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
-                                                        fontSize = 12.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontFamily = fontFamilyLato,
-                                                        color = goldenColor,
-                                                        modifier = Modifier.clickable {
-                                                            isExpanded = !isExpanded
-                                                        }
-                                                    )
-                                                }
 
-                                                // Clarifications list - only visible when expanded
-                                                AnimatedVisibility(
-                                                    visible = isExpanded,
-                                                    enter = expandVertically(
-                                                        animationSpec = tween(300),
-                                                        expandFrom = Alignment.Top
-                                                    ) + fadeIn(animationSpec = tween(300)),
-                                                    exit = shrinkVertically(
-                                                        animationSpec = tween(300),
-                                                        shrinkTowards = Alignment.Top
-                                                    ) + fadeOut(animationSpec = tween(300))
-                                                ) {
+                                                    // Clarifications list - scrollable separately with fixed height
                                                     Column(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
+                                                            .height(150.dp) // Fixed height for scrollable area
+                                                            .verticalScroll(rememberScrollState())
                                                             .padding(horizontal = 15.dp)
                                                     ) {
                                                         classificationTitles.forEach { title ->
                                                             ClassificationItem(
                                                                 title = title.title ?: "",
-                                                                description = title.decriptionTitle ?: ""
+                                                                description = title.decriptionTitle
+                                                                    ?: ""
                                                             )
                                                             Spacer(modifier = Modifier.height(2.dp))
                                                         }
-                                                        Spacer(modifier = Modifier.height(15.dp))
+                                                        Spacer(modifier = Modifier.height(10.dp))
+                                                    }
+                                                    Spacer(Modifier.height(25.dp))
+                                                }
+                                            }
+                                        } else {
+                                            // When clarifications are hidden or not available
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .wrapContentHeight()
+                                                    .heightIn(max = contentMaxHeight)
+                                            ) {
+                                                // Titles list - wraps content
+                                                LazyColumn(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .wrapContentHeight()
+                                                        .heightIn(max = contentMaxHeight - 200.dp)
+                                                ) {
+                                                    items(reorderedTitles) { title ->
+                                                        TitleItem(
+                                                            title = title,
+                                                            isSelected = selectedTitleId == title._id,
+                                                            onClick = {
+                                                                if (selectedTitleId == title._id) {
+                                                                    selectedTitleId = ""
+                                                                    selectedTitleName = ""
+                                                                    showApply = false
+                                                                } else {
+                                                                    selectedTitleId = title._id ?: ""
+                                                                    selectedTitleName = title.title ?: ""
+                                                                    if (title.subtitles.isNullOrEmpty()) {
+                                                                        showApply = true
+                                                                    } else {
+                                                                        currentState = DialogState.Subtitles(title, title.subtitles)
+                                                                        showApply = false
+                                                                    }
+                                                                }
+                                                                keyboardController?.hide()
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                // Clarification header - always visible if classifications exist
+                                                if (classificationTitles.isNotEmpty()) {
+                                                    Spacer(modifier = Modifier.height(20.dp))
+                                                    DashedLine(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(3.dp)
+                                                            .padding(horizontal = 15.dp),
+                                                        strokeWidth = 3f
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 15.dp, vertical = 15.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Text(
+                                                                text = context.getString(R.string.strik_right_space),
+                                                                fontSize = 20.sp,
+                                                                fontWeight = FontWeight.Black,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = goldenColor
+                                                            )
+                                                            Spacer(modifier = Modifier.width(5.dp))
+                                                            Text(
+                                                                text = context.getString(R.string.clarifications),
+                                                                fontSize = 16.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = colorResource(id = R.color.black)
+                                                            )
+                                                        }
+                                                        Text(
+                                                            text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
+                                                            color = goldenColor,
+                                                            modifier = Modifier.clickable {
+                                                                isExpanded = !isExpanded
+                                                            }
+                                                        )
+                                                    }
+
+                                                    // Clarifications list - only visible when expanded
+                                                    AnimatedVisibility(
+                                                        visible = isExpanded,
+                                                        enter = expandVertically(
+                                                            animationSpec = tween(300),
+                                                            expandFrom = Alignment.Top
+                                                        ) + fadeIn(animationSpec = tween(300)),
+                                                        exit = shrinkVertically(
+                                                            animationSpec = tween(300),
+                                                            shrinkTowards = Alignment.Top
+                                                        ) + fadeOut(animationSpec = tween(300))
+                                                    ) {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(horizontal = 15.dp)
+                                                        ) {
+                                                            classificationTitles.forEach { title ->
+                                                                ClassificationItem(
+                                                                    title = title.title ?: "",
+                                                                    description = title.decriptionTitle ?: ""
+                                                                )
+                                                                Spacer(modifier = Modifier.height(2.dp))
+                                                            }
+                                                            Spacer(modifier = Modifier.height(15.dp))
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            is DialogState.Subtitles -> {
-                                val filteredSubtitles = if (searchQuery.isEmpty()) {
-                                    state.items
-                                } else {
-                                    state.items.filter {
-                                        it.name?.contains(searchQuery, ignoreCase = true) == true
+                                is DialogState.Subtitles -> {
+                                    val filteredSubtitles = if (searchQuery.isEmpty()) {
+                                        state.items
+                                    } else {
+                                        state.items.filter {
+                                            it.name?.contains(searchQuery, ignoreCase = true) == true
+                                        }
                                     }
-                                }
 
-                                if (filteredSubtitles.isEmpty() && searchQuery.isNotEmpty()) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.no_results_found),
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontFamily = fontFamilyLato,
-                                            color = colorResource(id = R.color.black)
-                                        )
+                                    // Reorder list: move selected item (without subtitles) to top
+                                    val reorderedSubitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
+                                        val selectedTitle = filteredSubtitles.find { it.uuid == selectedTitleId }
+                                        if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
+                                            // Move selected item to top, keep others in original order
+                                            listOf(selectedTitle) + filteredSubtitles.filter { it.uuid != selectedTitleId }
+                                        } else {
+                                            filteredSubtitles
+                                        }
+                                    } else {
+                                        filteredSubtitles
                                     }
-                                } else {
-                                    val classificationSubtitles = state.items.filter { !it.description.isNullOrEmpty() && it.name?.contains(searchQuery, ignoreCase = true) == true }
 
-                                    // Main content: Layout changes based on expanded state
-                                    if (classificationSubtitles.isNotEmpty() && isExpanded) {
-                                        // When expanded: Subtitles scroll independently, Clarifications scroll separately
-                                        Column(
+
+                                    if (reorderedSubitles.isEmpty() && searchQuery.isNotEmpty()) {
+                                        Box(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .wrapContentHeight()
+                                                .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
+                                            contentAlignment = Alignment.Center
                                         ) {
-                                            // Subtitles list - LazyColumn scrolls independently
-                                            val subtitlesListMaxHeight = (maxHeight - 100.dp) - 250.dp // Reserve space for clarifications
-                                            LazyColumn(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .heightIn(max = subtitlesListMaxHeight.coerceAtLeast(150.dp))
-                                            ) {
-                                                items(filteredSubtitles) { subtitle ->
-                                                    SubtitleItem(
-                                                        subtitle = subtitle,
-                                                        isSelected = selectedTitleId == subtitle.uuid,
-                                                        onClick = {
-//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
-                                                            if (selectedTitleId == subtitle.uuid) {
-                                                                selectedTitleId = ""
-                                                                selectedTitleName = ""
-                                                                showApply = false
-                                                            } else {
-                                                                selectedTitleId = subtitle.uuid ?: ""
-                                                                val parentTitle = state.parentTitle.title ?: ""
-                                                                selectedTitleName = subtitle.name ?: ""
-                                                                showApply = true
-                                                            }
-                                                            keyboardController?.hide()
-                                                        }
-                                                    )
-                                                }
-                                            }
+                                            Text(
+                                                text = context.getString(R.string.no_results_found),
+                                                fontSize = 24.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontFamily = fontFamilyLato,
+                                                color = colorResource(id = R.color.black)
+                                            )
+                                        }
+                                    } else {
+                                        val classificationSubtitles = state.items.filter { !it.description.isNullOrEmpty() && it.name?.contains(searchQuery, ignoreCase = true) == true }
 
-                                            // Clarifications section - scrollable separately
+                                        // Main content: Layout changes based on expanded state
+                                        if (classificationSubtitles.isNotEmpty() && isExpanded) {
+                                            // When expanded: Subtitles scroll independently, Clarifications scroll separately
                                             Column(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .heightIn(max = 250.dp) // Fixed max height for clarifications
+                                                    .wrapContentHeight()
                                             ) {
-                                                Spacer(modifier = Modifier.height(20.dp))
-                                                DashedLine(
+                                                // Subtitles list - LazyColumn scrolls independently
+                                                val subtitlesListMaxHeight = (maxHeight - 100.dp) - 250.dp // Reserve space for clarifications
+                                                LazyColumn(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
-                                                        .height(3.dp)
-                                                        .padding(horizontal = 15.dp),
-                                                    strokeWidth = 3f
-                                                )
-                                                Row(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(horizontal = 15.dp, vertical = 15.dp),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
+                                                        .heightIn(max = subtitlesListMaxHeight.coerceAtLeast(150.dp))
                                                 ) {
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    items(reorderedSubitles) { subtitle ->
+                                                        SubtitleItem(
+                                                            subtitle = subtitle,
+                                                            isSelected = selectedTitleId == subtitle.uuid,
+                                                            onClick = {
+//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
+                                                                if (selectedTitleId == subtitle.uuid) {
+                                                                    selectedTitleId = ""
+                                                                    selectedTitleName = ""
+                                                                    showApply = false
+                                                                } else {
+                                                                    selectedTitleId = subtitle.uuid ?: ""
+                                                                    val parentTitle = state.parentTitle.title ?: ""
+                                                                    selectedTitleName = subtitle.name ?: ""
+                                                                    showApply = true
+                                                                }
+                                                                keyboardController?.hide()
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                // Clarifications section - scrollable separately
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .heightIn(max = 250.dp) // Fixed max height for clarifications
+                                                ) {
+                                                    Spacer(modifier = Modifier.height(20.dp))
+                                                    DashedLine(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(3.dp)
+                                                            .padding(horizontal = 15.dp),
+                                                        strokeWidth = 3f
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 15.dp, vertical = 15.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
 //                                                        Text(
 //                                                            text = context.getString(R.string.strik_right_space),
 //                                                            fontSize = 20.sp,
@@ -700,142 +720,32 @@ fun CustomRoundedDialog(
 //                                                            color = goldenColor
 //                                                        )
 //                                                        Spacer(modifier = Modifier.width(5.dp))
+                                                            Text(
+                                                                text = context.getString(R.string.clarifications),
+                                                                fontSize = 16.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = colorResource(id = R.color.black)
+                                                            )
+                                                        }
                                                         Text(
-                                                            text = context.getString(R.string.clarifications),
-                                                            fontSize = 16.sp,
+                                                            text = context.getString(R.string.hide),
+                                                            fontSize = 12.sp,
                                                             fontWeight = FontWeight.Bold,
                                                             fontFamily = fontFamilyLato,
-                                                            color = colorResource(id = R.color.black)
-                                                        )
-                                                    }
-                                                    Text(
-                                                        text = context.getString(R.string.hide),
-                                                        fontSize = 12.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontFamily = fontFamilyLato,
-                                                        color = goldenColor,
-                                                        modifier = Modifier.clickable {
-                                                            isExpanded = !isExpanded
-                                                        }
-                                                    )
-                                                }
-
-                                                // Clarifications list - scrollable separately with fixed height
-                                                Column(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(150.dp) // Fixed height for scrollable area
-                                                        .verticalScroll(rememberScrollState())
-                                                        .padding(horizontal = 15.dp)
-                                                ) {
-                                                    classificationSubtitles.forEach { subtitle ->
-                                                        ClassificationItem(
-                                                            title = subtitle.name ?: "",
-                                                            description = subtitle.description ?: ""
-                                                        )
-                                                        Spacer(modifier = Modifier.height(2.dp))
-                                                    }
-                                                    Spacer(modifier = Modifier.height(10.dp))
-                                                }
-                                                Spacer(Modifier.height(25.dp))
-                                            }
-                                        }
-                                    } else {
-                                        // When clarifications are hidden or not available
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .wrapContentHeight()
-                                        ) {
-                                            // Subtitles list - wraps content
-                                            LazyColumn(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .wrapContentHeight()
-                                            ) {
-                                                items(filteredSubtitles) { subtitle ->
-                                                    SubtitleItem(
-                                                        subtitle = subtitle,
-                                                        isSelected = selectedTitleId == subtitle.uuid,
-                                                        onClick = {
-//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
-                                                            if (selectedTitleId == subtitle.uuid) {
-                                                                selectedTitleId = ""
-                                                                selectedTitleName = ""
-                                                                showApply = false
-                                                            } else {
-                                                                selectedTitleId = subtitle.uuid ?: ""
-                                                                val parentTitle = state.parentTitle.title ?: ""
-                                                                selectedTitleName = subtitle.name ?: ""
-                                                                showApply = true
+                                                            color = goldenColor,
+                                                            modifier = Modifier.clickable {
+                                                                isExpanded = !isExpanded
                                                             }
-                                                            keyboardController?.hide()
-                                                        }
-                                                    )
-                                                }
-                                            }
-
-                                            // Clarification header - always visible if classifications exist
-                                            if (classificationSubtitles.isNotEmpty()) {
-                                                Spacer(modifier = Modifier.height(20.dp))
-                                                DashedLine(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(3.dp)
-                                                        .padding(horizontal = 15.dp),
-                                                    strokeWidth = 3f
-                                                )
-                                                Row(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(horizontal = 15.dp, vertical = 15.dp),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Text(
-                                                            text = context.getString(R.string.strik_right_space),
-                                                            fontSize = 20.sp,
-                                                            fontWeight = FontWeight.Black,
-                                                            fontFamily = fontFamilyLato,
-                                                            color = goldenColor
-                                                        )
-                                                        Spacer(modifier = Modifier.width(5.dp))
-                                                        Text(
-                                                            text = context.getString(R.string.clarifications),
-                                                            fontSize = 16.sp,
-                                                            fontWeight = FontWeight.Bold,
-                                                            fontFamily = fontFamilyLato,
-                                                            color = colorResource(id = R.color.black)
                                                         )
                                                     }
-                                                    Text(
-                                                        text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
-                                                        fontSize = 12.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontFamily = fontFamilyLato,
-                                                        color = goldenColor,
-                                                        modifier = Modifier.clickable {
-                                                            isExpanded = !isExpanded
-                                                        }
-                                                    )
-                                                }
 
-                                                // Clarifications list - only visible when expanded
-                                                AnimatedVisibility(
-                                                    visible = isExpanded,
-                                                    enter = expandVertically(
-                                                        animationSpec = tween(300),
-                                                        expandFrom = Alignment.Top
-                                                    ) + fadeIn(animationSpec = tween(300)),
-                                                    exit = shrinkVertically(
-                                                        animationSpec = tween(300),
-                                                        shrinkTowards = Alignment.Top
-                                                    ) + fadeOut(animationSpec = tween(300))
-                                                ) {
+                                                    // Clarifications list - scrollable separately with fixed height
                                                     Column(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
+                                                            .height(150.dp) // Fixed height for scrollable area
+                                                            .verticalScroll(rememberScrollState())
                                                             .padding(horizontal = 15.dp)
                                                     ) {
                                                         classificationSubtitles.forEach { subtitle ->
@@ -845,7 +755,666 @@ fun CustomRoundedDialog(
                                                             )
                                                             Spacer(modifier = Modifier.height(2.dp))
                                                         }
-                                                        Spacer(modifier = Modifier.height(15.dp))
+                                                        Spacer(modifier = Modifier.height(10.dp))
+                                                    }
+                                                    Spacer(Modifier.height(25.dp))
+                                                }
+                                            }
+                                        } else {
+                                            // When clarifications are hidden or not available
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .wrapContentHeight()
+                                            ) {
+                                                // Subtitles list - wraps content
+                                                LazyColumn(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .wrapContentHeight()
+                                                ) {
+                                                    items(reorderedSubitles) { subtitle ->
+                                                        SubtitleItem(
+                                                            subtitle = subtitle,
+                                                            isSelected = selectedTitleId == subtitle.uuid,
+                                                            onClick = {
+//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
+                                                                if (selectedTitleId == subtitle.uuid) {
+                                                                    selectedTitleId = ""
+                                                                    selectedTitleName = ""
+                                                                    showApply = false
+                                                                } else {
+                                                                    selectedTitleId = subtitle.uuid ?: ""
+                                                                    val parentTitle = state.parentTitle.title ?: ""
+                                                                    selectedTitleName = subtitle.name ?: ""
+                                                                    showApply = true
+                                                                }
+                                                                keyboardController?.hide()
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                // Clarification header - always visible if classifications exist
+                                                if (classificationSubtitles.isNotEmpty()) {
+                                                    Spacer(modifier = Modifier.height(20.dp))
+                                                    DashedLine(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(3.dp)
+                                                            .padding(horizontal = 15.dp),
+                                                        strokeWidth = 3f
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 15.dp, vertical = 15.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Text(
+                                                                text = context.getString(R.string.strik_right_space),
+                                                                fontSize = 20.sp,
+                                                                fontWeight = FontWeight.Black,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = goldenColor
+                                                            )
+                                                            Spacer(modifier = Modifier.width(5.dp))
+                                                            Text(
+                                                                text = context.getString(R.string.clarifications),
+                                                                fontSize = 16.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = colorResource(id = R.color.black)
+                                                            )
+                                                        }
+                                                        Text(
+                                                            text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
+                                                            color = goldenColor,
+                                                            modifier = Modifier.clickable {
+                                                                isExpanded = !isExpanded
+                                                            }
+                                                        )
+                                                    }
+
+                                                    // Clarifications list - only visible when expanded
+                                                    AnimatedVisibility(
+                                                        visible = isExpanded,
+                                                        enter = expandVertically(
+                                                            animationSpec = tween(300),
+                                                            expandFrom = Alignment.Top
+                                                        ) + fadeIn(animationSpec = tween(300)),
+                                                        exit = shrinkVertically(
+                                                            animationSpec = tween(300),
+                                                            shrinkTowards = Alignment.Top
+                                                        ) + fadeOut(animationSpec = tween(300))
+                                                    ) {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(horizontal = 15.dp)
+                                                        ) {
+                                                            classificationSubtitles.forEach { subtitle ->
+                                                                ClassificationItem(
+                                                                    title = subtitle.name ?: "",
+                                                                    description = subtitle.description ?: ""
+                                                                )
+                                                                Spacer(modifier = Modifier.height(2.dp))
+                                                            }
+                                                            Spacer(modifier = Modifier.height(15.dp))
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Content area - height depends on content, refreshes on search
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .heightIn(max = maxHeight - 100.dp) // Reserve space for header and search
+                        ) {
+                            when (val state = currentState) {
+                                is DialogState.Titles -> {
+                                    val filteredTitles = if (searchQuery.isEmpty()) {
+                                        state.items
+                                    } else {
+                                        state.items.filter {
+                                            it.title?.contains(searchQuery, ignoreCase = true) == true
+                                        }
+                                    }
+
+                                    // Reorder list: move selected item (without subtitles) to top
+                                    val reorderedTitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
+                                        val selectedTitle = filteredTitles.find { it._id == selectedTitleId }
+                                        if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
+                                            // Move selected item to top, keep others in original order
+                                            listOf(selectedTitle) + filteredTitles.filter { it._id != selectedTitleId }
+                                        } else {
+                                            filteredTitles
+                                        }
+                                    } else {
+                                        filteredTitles
+                                    }
+
+                                    if (reorderedTitles.isEmpty() && searchQuery.isNotEmpty()) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = context.getString(R.string.no_results_found),
+                                                fontSize = 24.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontFamily = fontFamilyLato,
+                                                color = colorResource(id = R.color.black)
+                                            )
+                                        }
+                                    } else {
+                                        val classificationTitles = state.items.filter { !it.decriptionTitle.isNullOrEmpty() && it.title?.contains(searchQuery, ignoreCase = true) == true }
+                                        val contentMaxHeight =
+                                            maxHeight// Reserve space for header and search
+                                        // Main content: Layout changes based on expanded state
+                                        if (classificationTitles.isNotEmpty() && isExpanded) {
+                                            // When expanded: Titles scroll independently, Clarifications scroll separately
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .wrapContentHeight()
+                                            ) {
+                                                // Titles list - LazyColumn scrolls independently
+                                                val titlesListMaxHeight = (maxHeight - 100.dp) - 250.dp // Reserve space for clarifications
+                                                LazyColumn(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .heightIn(max = titlesListMaxHeight.coerceAtLeast(150.dp))
+                                                ) {
+                                                    items(reorderedTitles) { title ->
+                                                        TitleItem(
+                                                            title = title,
+                                                            isSelected = selectedTitleId == title._id,
+                                                            onClick = {
+                                                                if (selectedTitleId == title._id) {
+                                                                    selectedTitleId = ""
+                                                                    selectedTitleName = ""
+                                                                    showApply = false
+                                                                } else {
+                                                                    selectedTitleId = title._id ?: ""
+                                                                    selectedTitleName =
+                                                                        title.title ?: ""
+                                                                    if (title.subtitles.isNullOrEmpty()) {
+                                                                        showApply = true
+                                                                    } else {
+                                                                        currentState =
+                                                                            DialogState.Subtitles(
+                                                                                title,
+                                                                                title.subtitles
+                                                                            )
+                                                                        showApply = false
+                                                                    }
+                                                                }
+                                                                keyboardController?.hide()
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                // Clarifications section - scrollable separately
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .heightIn(max = 250.dp) // Fixed max height for clarifications
+                                                ) {
+                                                    Spacer(modifier = Modifier.height(20.dp))
+                                                    DashedLine(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(3.dp)
+                                                            .padding(horizontal = 15.dp),
+                                                        strokeWidth = 3f
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 15.dp, vertical = 15.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+//                                                        Text(
+//                                                            text = context.getString(R.string.strik_right_space),
+//                                                            fontSize = 20.sp,
+//                                                            fontWeight = FontWeight.Black,
+//                                                            fontFamily = fontFamilyLato,
+//                                                            color = goldenColor
+//                                                        )
+//                                                        Spacer(modifier = Modifier.width(5.dp))
+                                                            Text(
+                                                                text = context.getString(R.string.clarifications),
+                                                                fontSize = 16.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = colorResource(id = R.color.black)
+                                                            )
+                                                        }
+                                                        Text(
+                                                            text = context.getString(R.string.hide),
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
+                                                            color = goldenColor,
+                                                            modifier = Modifier.clickable {
+                                                                isExpanded = !isExpanded
+                                                            }
+                                                        )
+                                                    }
+
+                                                    // Clarifications list - scrollable separately with fixed height
+                                                    Column(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(150.dp) // Fixed height for scrollable area
+                                                            .verticalScroll(rememberScrollState())
+                                                            .padding(horizontal = 15.dp)
+                                                    ) {
+                                                        classificationTitles.forEach { title ->
+                                                            ClassificationItem(
+                                                                title = title.title ?: "",
+                                                                description = title.decriptionTitle
+                                                                    ?: ""
+                                                            )
+                                                            Spacer(modifier = Modifier.height(2.dp))
+                                                        }
+                                                        Spacer(modifier = Modifier.height(10.dp))
+                                                    }
+                                                    Spacer(Modifier.height(25.dp))
+                                                }
+                                            }
+                                        } else {
+                                            // When clarifications are hidden or not available
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .wrapContentHeight()
+                                                    .heightIn(max = contentMaxHeight)
+                                            ) {
+                                                // Titles list - wraps content
+                                                LazyColumn(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .wrapContentHeight()
+                                                        .heightIn(max = contentMaxHeight - 200.dp)
+                                                ) {
+                                                    items(reorderedTitles) { title ->
+                                                        TitleItem(
+                                                            title = title,
+                                                            isSelected = selectedTitleId == title._id,
+                                                            onClick = {
+                                                                if (selectedTitleId == title._id) {
+                                                                    selectedTitleId = ""
+                                                                    selectedTitleName = ""
+                                                                    showApply = false
+                                                                } else {
+                                                                    selectedTitleId = title._id ?: ""
+                                                                    selectedTitleName = title.title ?: ""
+                                                                    if (title.subtitles.isNullOrEmpty()) {
+                                                                        showApply = true
+                                                                    } else {
+                                                                        currentState = DialogState.Subtitles(title, title.subtitles)
+                                                                        showApply = false
+                                                                    }
+                                                                }
+                                                                keyboardController?.hide()
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                // Clarification header - always visible if classifications exist
+                                                if (classificationTitles.isNotEmpty()) {
+                                                    Spacer(modifier = Modifier.height(20.dp))
+                                                    DashedLine(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(3.dp)
+                                                            .padding(horizontal = 15.dp),
+                                                        strokeWidth = 3f
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 15.dp, vertical = 15.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Text(
+                                                                text = context.getString(R.string.strik_right_space),
+                                                                fontSize = 20.sp,
+                                                                fontWeight = FontWeight.Black,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = goldenColor
+                                                            )
+                                                            Spacer(modifier = Modifier.width(5.dp))
+                                                            Text(
+                                                                text = context.getString(R.string.clarifications),
+                                                                fontSize = 16.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = colorResource(id = R.color.black)
+                                                            )
+                                                        }
+                                                        Text(
+                                                            text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
+                                                            color = goldenColor,
+                                                            modifier = Modifier.clickable {
+                                                                isExpanded = !isExpanded
+                                                            }
+                                                        )
+                                                    }
+
+                                                    // Clarifications list - only visible when expanded
+                                                    AnimatedVisibility(
+                                                        visible = isExpanded,
+                                                        enter = expandVertically(
+                                                            animationSpec = tween(300),
+                                                            expandFrom = Alignment.Top
+                                                        ) + fadeIn(animationSpec = tween(300)),
+                                                        exit = shrinkVertically(
+                                                            animationSpec = tween(300),
+                                                            shrinkTowards = Alignment.Top
+                                                        ) + fadeOut(animationSpec = tween(300))
+                                                    ) {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(horizontal = 15.dp)
+                                                        ) {
+                                                            classificationTitles.forEach { title ->
+                                                                ClassificationItem(
+                                                                    title = title.title ?: "",
+                                                                    description = title.decriptionTitle ?: ""
+                                                                )
+                                                                Spacer(modifier = Modifier.height(2.dp))
+                                                            }
+                                                            Spacer(modifier = Modifier.height(15.dp))
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                is DialogState.Subtitles -> {
+                                    val filteredSubtitles = if (searchQuery.isEmpty()) {
+                                        state.items
+                                    } else {
+                                        state.items.filter {
+                                            it.name?.contains(searchQuery, ignoreCase = true) == true
+                                        }
+                                    }
+
+                                    // Reorder list: move selected item (without subtitles) to top
+                                    val reorderedSubitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
+                                        val selectedTitle = filteredSubtitles.find { it.uuid == selectedTitleId }
+                                        if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
+                                            // Move selected item to top, keep others in original order
+                                            listOf(selectedTitle) + filteredSubtitles.filter { it.uuid != selectedTitleId }
+                                        } else {
+                                            filteredSubtitles
+                                        }
+                                    } else {
+                                        filteredSubtitles
+                                    }
+
+
+                                    if (reorderedSubitles.isEmpty() && searchQuery.isNotEmpty()) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = context.getString(R.string.no_results_found),
+                                                fontSize = 24.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontFamily = fontFamilyLato,
+                                                color = colorResource(id = R.color.black)
+                                            )
+                                        }
+                                    } else {
+                                        val classificationSubtitles = state.items.filter { !it.description.isNullOrEmpty() && it.name?.contains(searchQuery, ignoreCase = true) == true }
+
+                                        // Main content: Layout changes based on expanded state
+                                        if (classificationSubtitles.isNotEmpty() && isExpanded) {
+                                            // When expanded: Subtitles scroll independently, Clarifications scroll separately
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .wrapContentHeight()
+                                            ) {
+                                                // Subtitles list - LazyColumn scrolls independently
+                                                val subtitlesListMaxHeight = (maxHeight - 100.dp) - 250.dp // Reserve space for clarifications
+                                                LazyColumn(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .heightIn(max = subtitlesListMaxHeight.coerceAtLeast(150.dp))
+                                                ) {
+                                                    items(reorderedSubitles) { subtitle ->
+                                                        SubtitleItem(
+                                                            subtitle = subtitle,
+                                                            isSelected = selectedTitleId == subtitle.uuid,
+                                                            onClick = {
+//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
+                                                                if (selectedTitleId == subtitle.uuid) {
+                                                                    selectedTitleId = ""
+                                                                    selectedTitleName = ""
+                                                                    showApply = false
+                                                                } else {
+                                                                    selectedTitleId = subtitle.uuid ?: ""
+                                                                    val parentTitle = state.parentTitle.title ?: ""
+                                                                    selectedTitleName = subtitle.name ?: ""
+                                                                    showApply = true
+                                                                }
+                                                                keyboardController?.hide()
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                // Clarifications section - scrollable separately
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .heightIn(max = 250.dp) // Fixed max height for clarifications
+                                                ) {
+                                                    Spacer(modifier = Modifier.height(20.dp))
+                                                    DashedLine(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(3.dp)
+                                                            .padding(horizontal = 15.dp),
+                                                        strokeWidth = 3f
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 15.dp, vertical = 15.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+//                                                        Text(
+//                                                            text = context.getString(R.string.strik_right_space),
+//                                                            fontSize = 20.sp,
+//                                                            fontWeight = FontWeight.Black,
+//                                                            fontFamily = fontFamilyLato,
+//                                                            color = goldenColor
+//                                                        )
+//                                                        Spacer(modifier = Modifier.width(5.dp))
+                                                            Text(
+                                                                text = context.getString(R.string.clarifications),
+                                                                fontSize = 16.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = colorResource(id = R.color.black)
+                                                            )
+                                                        }
+                                                        Text(
+                                                            text = context.getString(R.string.hide),
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
+                                                            color = goldenColor,
+                                                            modifier = Modifier.clickable {
+                                                                isExpanded = !isExpanded
+                                                            }
+                                                        )
+                                                    }
+
+                                                    // Clarifications list - scrollable separately with fixed height
+                                                    Column(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(150.dp) // Fixed height for scrollable area
+                                                            .verticalScroll(rememberScrollState())
+                                                            .padding(horizontal = 15.dp)
+                                                    ) {
+                                                        classificationSubtitles.forEach { subtitle ->
+                                                            ClassificationItem(
+                                                                title = subtitle.name ?: "",
+                                                                description = subtitle.description ?: ""
+                                                            )
+                                                            Spacer(modifier = Modifier.height(2.dp))
+                                                        }
+                                                        Spacer(modifier = Modifier.height(10.dp))
+                                                    }
+                                                    Spacer(Modifier.height(25.dp))
+                                                }
+                                            }
+                                        } else {
+                                            // When clarifications are hidden or not available
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .wrapContentHeight()
+                                            ) {
+                                                // Subtitles list - wraps content
+                                                LazyColumn(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .wrapContentHeight()
+                                                ) {
+                                                    items(reorderedSubitles) { subtitle ->
+                                                        SubtitleItem(
+                                                            subtitle = subtitle,
+                                                            isSelected = selectedTitleId == subtitle.uuid,
+                                                            onClick = {
+//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
+                                                                if (selectedTitleId == subtitle.uuid) {
+                                                                    selectedTitleId = ""
+                                                                    selectedTitleName = ""
+                                                                    showApply = false
+                                                                } else {
+                                                                    selectedTitleId = subtitle.uuid ?: ""
+                                                                    val parentTitle = state.parentTitle.title ?: ""
+                                                                    selectedTitleName = subtitle.name ?: ""
+                                                                    showApply = true
+                                                                }
+                                                                keyboardController?.hide()
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                // Clarification header - always visible if classifications exist
+                                                if (classificationSubtitles.isNotEmpty()) {
+                                                    Spacer(modifier = Modifier.height(20.dp))
+                                                    DashedLine(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(3.dp)
+                                                            .padding(horizontal = 15.dp),
+                                                        strokeWidth = 3f
+                                                    )
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 15.dp, vertical = 15.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            Text(
+                                                                text = context.getString(R.string.strik_right_space),
+                                                                fontSize = 20.sp,
+                                                                fontWeight = FontWeight.Black,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = goldenColor
+                                                            )
+                                                            Spacer(modifier = Modifier.width(5.dp))
+                                                            Text(
+                                                                text = context.getString(R.string.clarifications),
+                                                                fontSize = 16.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontFamily = fontFamilyLato,
+                                                                color = colorResource(id = R.color.black)
+                                                            )
+                                                        }
+                                                        Text(
+                                                            text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontFamily = fontFamilyLato,
+                                                            color = goldenColor,
+                                                            modifier = Modifier.clickable {
+                                                                isExpanded = !isExpanded
+                                                            }
+                                                        )
+                                                    }
+
+                                                    // Clarifications list - only visible when expanded
+                                                    AnimatedVisibility(
+                                                        visible = isExpanded,
+                                                        enter = expandVertically(
+                                                            animationSpec = tween(300),
+                                                            expandFrom = Alignment.Top
+                                                        ) + fadeIn(animationSpec = tween(300)),
+                                                        exit = shrinkVertically(
+                                                            animationSpec = tween(300),
+                                                            shrinkTowards = Alignment.Top
+                                                        ) + fadeOut(animationSpec = tween(300))
+                                                    ) {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(horizontal = 15.dp)
+                                                        ) {
+                                                            classificationSubtitles.forEach { subtitle ->
+                                                                ClassificationItem(
+                                                                    title = subtitle.name ?: "",
+                                                                    description = subtitle.description ?: ""
+                                                                )
+                                                                Spacer(modifier = Modifier.height(2.dp))
+                                                            }
+                                                            Spacer(modifier = Modifier.height(15.dp))
+                                                        }
                                                     }
                                                 }
                                             }
@@ -917,7 +1486,8 @@ fun SubtitleItem(
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(horizontal = 15.dp, vertical = 2.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
     ) {
         Text(
             text = subtitle.name ?: "",
@@ -925,7 +1495,6 @@ fun SubtitleItem(
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected) Golden60 else Black,
-            modifier = Modifier.weight(1f)
         )
         if (!subtitle.description.isNullOrEmpty()) {
             Spacer(modifier = Modifier.width(8.dp))

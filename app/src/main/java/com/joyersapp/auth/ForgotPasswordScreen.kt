@@ -317,6 +317,7 @@ fun ForgotPasswordScreen(
                                 value = username,
                                 onValueChange = {
                                     username = it
+                                    verificationCode = ""
                                     usernameError = null
                                     if (showVerificationCode) {
                                         showVerificationCode = false
@@ -420,6 +421,7 @@ fun ForgotPasswordScreen(
                                     if (it.length <= 15) {
                                         phone = it
                                         phoneError = null
+                                        verificationCode = ""
                                     }
                                     if (showVerificationCode) {
                                         showVerificationCode = false
