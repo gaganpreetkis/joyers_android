@@ -5,14 +5,14 @@ plugins {
 }
 
 android {
-    namespace = "com.synapse.joyers"
+    namespace = "com.joyersapp"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.synapse.joyers"
-        minSdk = 28
+        applicationId = "com.joyersapp"
+        minSdk = 30
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
