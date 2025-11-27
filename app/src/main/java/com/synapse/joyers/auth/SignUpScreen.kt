@@ -217,7 +217,7 @@ fun SignUpScreen(
     }
 
     if (!isPasswordFocused && password.isNotEmpty() && !isValidPassword(password)) {
-        passwordError = context.getString(R.string.weak_password_1)
+        passwordError = context.getString(R.string.weak_password)
     }
 
     // Form validation
@@ -430,11 +430,11 @@ fun SignUpScreen(
 //                        gifLoaded = true
                     }
                 )
-                Image(
+                /*Image(
                     painter = painterResource(id = R.drawable.gif_loader_username),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
-                )
+                )*/
 //                CircularProgressIndicator(
 //                    modifier = Modifier.size(20.dp),
 //                    color = Golden60
@@ -446,7 +446,9 @@ fun SignUpScreen(
                     modifier = Modifier.size(20.dp)
                 )
             } else if (showUsernameError) {
-                Row {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_cancel_grey),
                         contentDescription = null,
