@@ -66,6 +66,7 @@ import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.R
+import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
 import com.joyersapp.utils.isValidUsername
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -317,11 +318,13 @@ fun ForgotPasswordScreen(
                             AppBasicTextField(
                                 value = username,
                                 onValueChange = {
-                                    username = it
-                                    verificationCode = ""
-                                    usernameError = null
-                                    if (showVerificationCode) {
-                                        showVerificationCode = false
+                                    if (username != it) {
+                                        username = it
+                                        verificationCode = ""
+                                        usernameError = null
+                                        if (showVerificationCode) {
+                                            showVerificationCode = false
+                                        }
                                     }
                                 },
                                 maxLength = 100,
@@ -419,13 +422,15 @@ fun ForgotPasswordScreen(
                             AppBasicTextField(
                                 value = phone,
                                 onValueChange = {
-                                    if (it.length <= 15) {
-                                        phone = it
-                                        phoneError = null
-                                        verificationCode = ""
-                                    }
-                                    if (showVerificationCode) {
-                                        showVerificationCode = false
+                                    if (phone != it) {
+                                        if (it.length <= 15) {
+                                            phone = it
+                                            phoneError = null
+                                            verificationCode = ""
+                                        }
+                                        if (showVerificationCode) {
+                                            showVerificationCode = false
+                                        }
                                     }
                                 },
                                 maxLength = 15,
@@ -603,7 +608,7 @@ fun ForgotPasswordScreen(
             if (showVerificationCode) {
                 Spacer(modifier = Modifier.height(20.dp))
 
-                AppBasicTextField(
+                AppBasicTextFieldForLetterSpacing(
                     value = verificationCode,
                     onValueChange = {
                         if (it.length <= 6 && it.all { char -> char.isDigit() }) {
@@ -627,6 +632,7 @@ fun ForgotPasswordScreen(
                         textAlign = TextAlign.Center,
                         platformStyle = PlatformTextStyle(includeFontPadding = false)
                     ),
+                    letterSpacing = 4.sp,
                 )
 
                 if (verificationError != null) {

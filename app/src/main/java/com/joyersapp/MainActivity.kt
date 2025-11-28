@@ -12,7 +12,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.joyersapp.utils.rememberKeyboardHider
+/*import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint*/
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

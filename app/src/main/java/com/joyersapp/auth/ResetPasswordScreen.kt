@@ -169,23 +169,25 @@ fun ResetPasswordScreen(
                 showPasswordStrength = isValidPassword(password)
             } else if (!isPasswordFocused) {
                 showPasswordStrength = false
-                if (password.isNotEmpty() && !isValidPassword(password)) {
-                    passwordError = context.getString(R.string.weak_password)
+                passwordError = if (password.isNotEmpty() && !isValidPassword(password)) {
+                    context.getString(R.string.weak_password)
                 } else {
-                    passwordError = null
+                    null
                 }
             }
         }
     }
 
     // Handle confirm password focus changes
-    LaunchedEffect(isConfirmPasswordFocused, confirmPassword, password) {
+    LaunchedEffect(isConfirmPasswordFocused, confirmPassword, password, passwordError) {
         if (!isPasswordResetSuccess) {
-            if (!isConfirmPasswordFocused && confirmPassword.isNotEmpty() && password.isNotEmpty()) {
-                if (password != confirmPassword) {
-                    confirmPasswordError = context.getString(R.string.password_does_not_match)
+            if (passwordError != null) {
+                confirmPasswordError = null
+            } else if (!isConfirmPasswordFocused && confirmPassword.isNotEmpty() && password.isNotEmpty()) {
+                confirmPasswordError = if (password != confirmPassword) {
+                    context.getString(R.string.password_does_not_match)
                 } else {
-                    confirmPasswordError = null
+                    null
                 }
             } else if (isConfirmPasswordFocused) {
                 confirmPasswordError = null
@@ -565,7 +567,7 @@ fun ResetPasswordScreen(
                             passwordVisible = isConfirmPasswordVisible,
                             onPasswordToggle = {
                                 isConfirmPasswordVisible = !isConfirmPasswordVisible
-                                //confirmPasswordError = null
+                                confirmPasswordError = null
                             },
                             modifier = Modifier
                                 .fillMaxSize()

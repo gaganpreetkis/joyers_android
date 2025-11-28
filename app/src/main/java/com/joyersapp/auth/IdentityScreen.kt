@@ -64,6 +64,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -78,6 +79,7 @@ import com.joyersapp.response.Subtitle
 import com.joyersapp.response.Title
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.DashedLine
+import com.joyersapp.common_widgets.DualViewDialog
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.common_widgets.showCCPDialog
@@ -87,8 +89,11 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray30
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.Red
+import com.joyersapp.utils.HtmlBoldText
+import com.joyersapp.utils.annotatedFromBoldTags
 import com.joyersapp.utils.containsEmoji
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.isAllowedIdentityNameChars
 import com.joyersapp.utils.isValidNameAdvanced
 import kotlinx.coroutines.launch
 @Preview
@@ -614,7 +619,12 @@ fun PageOneContent(
                 onValueChange = {
                     if (it.length <= maxLength) {
                         username = it
-                        if (containsEmoji(it)) {
+                        if (it.isEmpty()) {
+                            remainingChars = maxLength - it.length
+                            usernameError = null
+                            return@AppBasicTextField
+                        }
+                        if (containsEmoji(it) || !isAllowedIdentityNameChars(it)) {
                             remainingChars = maxLength - (it.length / 2)
                             usernameError = context.getString(R.string.username_error)
                         } else {
@@ -1010,7 +1020,7 @@ fun PageTwoContent(
                         color = lightBlackColor
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(15.dp))
 
                     // Styled text for each status
                     statusOptions.forEach { (statusKey, _) ->
@@ -1022,6 +1032,7 @@ fun PageTwoContent(
                             "Provider" -> context.getString(R.string.provider_text)
                             else -> ""
                         }
+
 
                         if (fullText.isNotEmpty()) {
                             Text(
@@ -1053,24 +1064,21 @@ fun PageTwoContent(
                     Spacer(modifier = Modifier.height(15.dp))
 
                     Text(
-                        text = context.getString(R.string.title2),
-                        fontSize = 16.sp,
-                        fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Normal,
+                        text = annotatedFromBoldTags("Based on this classification, Joyers are registered under either social or professional titles, which correspond to one of five statuses: social titles fall under the <b>Classic</b> status, while professional titles fall under <b>Celebrity, Proficient, Leader,</b> or <b>Provider</b> statuses."),
+                        fontSize = 16.sp, fontFamily = fontFamilyLato,
                         color = lightBlackColor
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Spacer(modifier = Modifier.height(15.dp))
 
                     Text(
-                        text = context.getString(R.string.title3),
-                        fontSize = 16.sp,
-                        fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Normal,
+                        text = annotatedFromBoldTags("In light of these classifications, <b>Classic</b> Joyers have access to all social and professional features of the Joyers app, with the exception of offering or selling products and services online. They can request or purchase products and services from other Joyers but are not permitted to sell them. Conversely, Joyers with the <b>Celebrity, Proficient, Leader,</b> or <b>Provider</b> status can access all social and professional features of the Joyers app, including the ability to offer and sell products and services online to other Joyers."),
+                        fontSize = 16.sp, fontFamily = fontFamilyLato,
                         color = lightBlackColor
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(15.dp))
 
                     Text(
                         text = context.getString(R.string.title4),
@@ -1349,7 +1357,7 @@ fun PageThreeContent(
     if (showTitleDialog) {
 //        selectedTitle = "Master's Student"
 //        showNextButton = true
-        CustomRoundedDialog(
+        DualViewDialog(
             titles = titles.toMutableList(),
             onDismiss = { showTitleDialog = false },
             onItemSelected = { titleId, titleName ->

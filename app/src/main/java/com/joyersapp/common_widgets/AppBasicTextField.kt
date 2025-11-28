@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joyersapp.R
@@ -192,6 +193,64 @@ fun AppBasicTextField(
     }
 }
 
+@Composable
+fun AppBasicTextFieldForLetterSpacing(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    isPassword: Boolean = false,
+    passwordVisible: Boolean = false,
+    isCentered: Boolean = false,
+    isEnabled: Boolean = true,
+    maxLength: Int = 100,
+    onPasswordToggle: (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    textStyle: TextStyle = TextStyle(fontSize = 16.sp, fontFamily = fontFamilyLato, fontWeight = FontWeight.Normal, platformStyle = PlatformTextStyle(includeFontPadding = false)),
+    containerColor: Color = Gray20,
+    contentColor: Color = Black,
+    placeholderColor: Color = Gray40,
+    letterSpacing: TextUnit = TextUnit.Unspecified
+) {
+    val focusManager = LocalFocusManager.current
+    Row(
+        modifier = modifier
+            .background(containerColor, shape = RoundedCornerShape(8.dp))
+            .padding(start = if (isCentered) 2.dp else if (keyboardOptions.keyboardType == KeyboardType.Phone) 10.dp else 15.dp, end = 0.dp)
+            .fillMaxHeight(), // No horizontal padding
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier.weight(1f)) { // Placeholder
+            if (value.isEmpty()) {
+                Text(
+                    text = placeholder,
+                    color = placeholderColor,
+                    style = textStyle,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            BasicTextField(
+                value = value,
+                onValueChange = {
+                    if (it.length <= maxLength) {
+                        onValueChange(it)
+                    }
+                },
+                singleLine = true,
+                enabled = isEnabled,
+                textStyle = textStyle.copy(color = contentColor, letterSpacing = letterSpacing),
+                visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = keyboardOptions,
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                cursorBrush = SolidColor(Black),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        } // Password eye button (optional) - only show when text is present
+        if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
+            IconButton(onClick = onPasswordToggle) { Icon(painter = painterResource(if (passwordVisible) R.drawable.show_password else R.drawable.password_hide), contentDescription = "Toggle Password") }
+        }
+    }
+}
 
 @Composable
 fun AppBasicTextFieldForPassword(
@@ -226,8 +285,9 @@ fun AppBasicTextFieldForPassword(
             BasicTextField(
                 value = value,
                 onValueChange = {
-                    if (it.length <= maxLength) {
-                        onValueChange(it)
+                    val sanitized = it.replace(" ", "")
+                    if (sanitized.length <= maxLength) {
+                        onValueChange(sanitized)
                     }
                 },
                 singleLine = true, enabled = isEnabled, textStyle = textStyle.copy(color = contentColor), visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None, keyboardOptions = keyboardOptions, keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }), cursorBrush = SolidColor(Black), modifier = Modifier.fillMaxWidth(),

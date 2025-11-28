@@ -2,6 +2,18 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    /*alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.hilt)
+
+    inside libs.versions.tomlput this also after opening this section
+    hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+    kotlin-ksp = { id = "com.google.devtools.ksp", version = "2.2.10-2.0.2" }*/
+}
+
+val javapoetCoordinate = "com.squareup:javapoet:${libs.versions.javapoet.get()}"
+
+configurations.all {
+    resolutionStrategy.force(javapoetCoordinate)
 }
 
 android {
@@ -59,4 +71,25 @@ dependencies {
     implementation(libs.ccp)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
+
+
+    //retrofit and okhttp
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.urlconnection)
+
+    // ViewModel & Lifecycle (REQUIRED)
+    implementation(libs.androidx.lifecycle.viewmodel.compose.v2100)
+    implementation(libs.androidx.lifecycle.runtime.compose.v2100)
+
+    // Coroutines (REQUIRED)
+    implementation(libs.kotlinx.coroutines.android.v1102)
+
+    // Hilt
+    /*implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+    implementation(libs.javapoet)*/
 }

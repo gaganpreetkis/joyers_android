@@ -73,6 +73,7 @@ import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
 import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.AppBasicTextFieldWithCursorHandling
 import com.joyersapp.common_widgets.CountryCodePicker
@@ -220,11 +221,22 @@ fun SignUpScreen(
         showUsernameSuggestions = false
     }
 
-    if (!isPasswordFocused && password.isNotEmpty() && !isValidPassword(password)) {
-        passwordError = context.getString(R.string.weak_password)
+    if (!isPasswordFocused) {
+        passwordError = if (password.isNotEmpty() && !isValidPassword(password)) {
+            context.getString(R.string.weak_password)
+        } else {
+            null
+        }
     }
-    if (!isConfirmPasswordFocused && confirmPassword.isNotEmpty() && !(password == confirmPassword)) {
-        confirmPasswordError = context.getString(R.string.password_does_not_match)
+
+    if (passwordError != null) {
+        confirmPasswordError = null
+    } else if (!isConfirmPasswordFocused) {
+        confirmPasswordError = if (confirmPassword.isNotEmpty() && password != confirmPassword) {
+            context.getString(R.string.password_does_not_match)
+        } else {
+            null
+        }
     }
 
     // Form validation
@@ -468,7 +480,7 @@ fun SignUpScreen(
                             .padding(start = 5.dp, end = 10.dp)
                             .clickable { username = TextFieldValue(text = "") }
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
                     Image(
                         painter = painterResource(id = R.drawable.ic_reload),
                         contentDescription = null, alignment = Alignment.Center,
@@ -829,7 +841,7 @@ fun SignUpScreen(
                 if (showVerification) {
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    AppBasicTextField(
+                    AppBasicTextFieldForLetterSpacing(
                         value = verificationCode,
                         onValueChange = {
                             if (it.length <= 6 && it.all { char -> char.isDigit() }) {
@@ -853,6 +865,7 @@ fun SignUpScreen(
                             textAlign = TextAlign.Center,
                             platformStyle = PlatformTextStyle(includeFontPadding = false)
                         ),
+                        letterSpacing = 4.sp,
                     )
                     /*TextField(
                         value = verificationCode,

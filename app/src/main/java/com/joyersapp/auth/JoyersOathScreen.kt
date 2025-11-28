@@ -221,10 +221,7 @@ fun JoyersOathScreen(
                         .size(60.dp)
                         .clip(CircleShape)
                         .background(Golden60)
-                        .clickable(
-                            interactionSource = interactionSource,
-                            onClick = { onFabClick() }
-                        ),
+                        .clickable(onClick = { onFabClick() }),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
