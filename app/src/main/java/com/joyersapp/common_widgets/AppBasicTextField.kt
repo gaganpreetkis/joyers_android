@@ -86,10 +86,12 @@ fun AppBasicTextField(
         )
     }
 
-    // Sync if external value changes
+    // Sync if external value changes - always sync to handle clearing
     LaunchedEffect(value) {
-        if (!isFocused) {
-            tfValue = tfValue.copy(text = value)
+        // Always sync tfValue with external value changes
+        // This ensures clearing works even when field is focused
+        if (tfValue.text != value) {
+            tfValue = tfValue.copy(text = value, selection = TextRange(value.length))
         }
     }
 
@@ -136,9 +138,9 @@ fun AppBasicTextField(
             }
 
             // --------------------------------------------------
-            // 2️⃣ PLACEHOLDER WHEN EMPTY
+            // 2️⃣ PLACEHOLDER WHEN EMPTY (show even when focused)
             // --------------------------------------------------
-            if (value.isEmpty() && !isFocused) {
+            if (value.isEmpty()) {
                 Text(
                     text = placeholder,
                     color = placeholderColor,

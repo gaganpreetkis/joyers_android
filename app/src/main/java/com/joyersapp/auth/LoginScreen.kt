@@ -77,7 +77,7 @@ fun LoginScreen(
                     username.length in 10..15
         } else {
             // USERNAME or EMAIL VALIDATION
-            username.isNotEmpty() && isValidUsername(username) /*|| Patterns.EMAIL_ADDRESS.matcher(username).matches()*/
+            username.isNotEmpty() && (isValidUsername(username) || Patterns.EMAIL_ADDRESS.matcher(username).matches())
         }
     }
 

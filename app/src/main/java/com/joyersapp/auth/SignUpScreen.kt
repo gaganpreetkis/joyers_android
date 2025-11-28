@@ -1032,6 +1032,13 @@ fun SignUpScreen(
                                     onValueChange = {
                                         password = it
                                         passwordError = null
+                                        if (confirmPassword.isNotEmpty()) {
+                                            if (password == confirmPassword) {
+                                                confirmPasswordError = null
+                                            } else {
+                                                confirmPasswordError = context.getString(R.string.password_does_not_match)
+                                            }
+                                        }
                                     },
                                     maxLength = 16,
                                     placeholder = stringResource(R.string.password),
@@ -1209,6 +1216,8 @@ fun SignUpScreen(
                                     onValueChange = {
                                         confirmPassword = it
                                         confirmPasswordError = null
+                                        isPasswordFocused = false
+                                        isConfirmPasswordFocused = true
                                     },
                                     maxLength = 16,
                                     placeholder = stringResource(R.string.confirm_password),

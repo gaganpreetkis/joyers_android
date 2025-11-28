@@ -116,7 +116,7 @@ fun ForgotPasswordScreen(
         if (isPhoneMode) {
             phone.isNotEmpty() && phone.all { it.isDigit() } && phone.length in 10..15
         } else {
-            username.isNotEmpty() && isValidUsername(username)/*&& Patterns.EMAIL_ADDRESS.matcher(username).matches()*/
+            username.isNotEmpty() && (isValidUsername(username) || Patterns.EMAIL_ADDRESS.matcher(username).matches())
         }
     }
 

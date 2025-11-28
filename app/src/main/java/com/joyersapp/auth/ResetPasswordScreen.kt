@@ -259,7 +259,7 @@ fun ResetPasswordScreen(
                                 value = identifierValue,
                                 onValueChange = {
                                     if (identifierValue != it) {
-                                        onBackToForgotPassword(false)
+                                        onBackToForgotPassword(isPhoneMode)
                                     }
                                 },
                                 maxLength = 100,
@@ -279,7 +279,7 @@ fun ResetPasswordScreen(
                                         .size(30.dp)
                                         .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
-                                            onBackToForgotPassword(false)
+                                            onBackToForgotPassword(isPhoneMode)
                                         }
                                 )
                             }
@@ -353,7 +353,7 @@ fun ResetPasswordScreen(
                                 value = identifierValue,
                                 onValueChange = {
                                     if (identifierValue != it) {
-                                        onBackToForgotPassword(false)
+                                        onBackToForgotPassword(isPhoneMode)
                                     }
                                 },
                                 maxLength = 15,
@@ -373,7 +373,7 @@ fun ResetPasswordScreen(
                                         .size(30.dp)
                                         .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
-                                            onBackToForgotPassword(false)
+                                            onBackToForgotPassword(isPhoneMode)
                                         }
                                 )
                             }
@@ -451,8 +451,13 @@ fun ResetPasswordScreen(
                                 if (isPasswordFocused && it.isNotEmpty()) {
                                     showPasswordStrength = isValidPassword(it)
                                 }
-                                isPasswordFocused = true
-                                isConfirmPasswordFocused = false
+                                if (confirmPassword.isNotEmpty()) {
+                                    if (password == confirmPassword) {
+                                        confirmPasswordError = null
+                                    } else {
+                                        confirmPasswordError = context.getString(R.string.password_does_not_match)
+                                    }
+                                }
                             },
                             maxLength = 16,
                             isEnabled = !isPasswordResetSuccess,
