@@ -41,6 +41,7 @@ import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isValidPassword
+import com.joyersapp.utils.isValidUsername
 import kotlin.text.isNotEmpty
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -75,9 +76,8 @@ fun LoginScreen(
                     username.all { it.isDigit() } &&
                     username.length in 10..15
         } else {
-            // EMAIL VALIDATION
-            username.isNotEmpty() &&
-                    Patterns.EMAIL_ADDRESS.matcher(username).matches()
+            // USERNAME or EMAIL VALIDATION
+            username.isNotEmpty() && isValidUsername(username) /*|| Patterns.EMAIL_ADDRESS.matcher(username).matches()*/
         }
     }
 
@@ -300,7 +300,7 @@ fun LoginScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         // REMEMBER ME + FORGOT PASSWORD
         Row(
@@ -347,7 +347,7 @@ fun LoginScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(11.dp))
+        Spacer(modifier = Modifier.height(if (emailPhoneError) 11.dp else 45.dp))
 
         if (emailPhoneError) {
             Text(
@@ -357,11 +357,9 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
-        } else {
-            Spacer(modifier = Modifier.height(20.dp))
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(if (emailPhoneError) 14.dp else 0.dp))
 
         // LOGIN BUTTON
         Button(

@@ -66,6 +66,7 @@ import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.R
+import com.joyersapp.utils.isValidUsername
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -115,7 +116,7 @@ fun ForgotPasswordScreen(
         if (isPhoneMode) {
             phone.isNotEmpty() && phone.all { it.isDigit() } && phone.length in 10..15
         } else {
-            username.isNotEmpty() /*&& Patterns.EMAIL_ADDRESS.matcher(username).matches()*/
+            username.isNotEmpty() && isValidUsername(username)/*&& Patterns.EMAIL_ADDRESS.matcher(username).matches()*/
         }
     }
 
