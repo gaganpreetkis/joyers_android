@@ -394,7 +394,12 @@ fun PageOneContent(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(270.dp),
+                .height(270.dp)
+                .border(
+                    width = 1.dp,
+                    color = GrayLightBorder,
+                    shape = RoundedCornerShape(5.dp)
+                ),
             shape = RoundedCornerShape(5.dp),
             colors = CardDefaults.cardColors(containerColor = Gray20)
         ) {
@@ -968,7 +973,11 @@ fun PageTwoContent(
             Spacer(modifier = Modifier.height(10.dp))
 
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().border(
+                    width = 1.dp,
+                    color = GrayLightBorder,
+                    shape = RoundedCornerShape(5.dp)
+                ),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
                 shape = RoundedCornerShape(5.dp)
             ) {

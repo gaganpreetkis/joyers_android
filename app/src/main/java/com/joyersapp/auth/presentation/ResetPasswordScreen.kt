@@ -422,6 +422,7 @@ fun ResetPasswordScreen(
                     text = identifierError!!,
                     color = Red,
                     fontSize = 14.sp,
+                    fontFamily = fontFamilyLato,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
@@ -498,6 +499,7 @@ fun ResetPasswordScreen(
                     text = passwordError!!,
                     color = Red,
                     fontSize = 14.sp,
+                    fontFamily = fontFamilyLato,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
@@ -597,6 +599,7 @@ fun ResetPasswordScreen(
                     text = confirmPasswordError!!,
                     color = Red,
                     fontSize = 14.sp,
+                    fontFamily = fontFamilyLato,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }

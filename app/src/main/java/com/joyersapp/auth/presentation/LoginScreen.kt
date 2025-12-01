@@ -301,6 +301,7 @@ fun LoginScreen(
                 text = "The password or username entered is incorrect. Please try again.",
                 color = Red,
                 fontSize = 14.sp,
+                fontFamily = fontFamilyLato,
                 modifier = Modifier.padding(top = 3.dp)
             )
         }
@@ -359,6 +360,7 @@ fun LoginScreen(
                 text = "Login failed. Please try again.",
                 color = Red,
                 fontSize = 14.sp,
+                fontFamily = fontFamilyLato,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )

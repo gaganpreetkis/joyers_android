@@ -502,6 +502,7 @@ fun ForgotPasswordScreen(
                     text = phoneError!!,
                     color = Red,
                     fontSize = 14.sp,
+                    fontFamily = fontFamilyLato,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
@@ -511,6 +512,7 @@ fun ForgotPasswordScreen(
                     text = usernameError!!,
                     color = Red,
                     fontSize = 14.sp,
+                    fontFamily = fontFamilyLato,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
@@ -580,7 +582,8 @@ fun ForgotPasswordScreen(
                         // Underline indicators container - 148dp wide, centered, touching
                         Row(
                             modifier = Modifier.width(148.dp),
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.Bottom
                         ) {
                             Box(
                                 modifier = Modifier
@@ -606,6 +609,7 @@ fun ForgotPasswordScreen(
                             text = tabError!!,
                             color = Red,
                             fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .fillMaxWidth(),
@@ -652,6 +656,7 @@ fun ForgotPasswordScreen(
                         text = verificationError!!,
                         color = Red,
                         fontSize = 14.sp,
+                        fontFamily = fontFamilyLato,
                         modifier = Modifier
                             .padding(top = 3.dp)
                             .align(Alignment.CenterHorizontally)

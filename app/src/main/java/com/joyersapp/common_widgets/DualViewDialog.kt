@@ -119,10 +119,79 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
     }
     val hideKeyboard = rememberKeyboardHider()
 
-    var filteredTitles: List<Title> = arrayListOf()
+    var reorderedTitles: List<Title> = arrayListOf()
     var filteredClassificationTitles : List<Title> = arrayListOf()
-    var filteredSubtitles: List<Subtitle> = arrayListOf()
+    var reorderedSubtitles: List<Subtitle> = arrayListOf()
     var filteredClassificationSubtitles : List<Subtitle> = arrayListOf()
+
+
+    when (val state = currentState) {
+        is DialogState.Titles -> {
+            var filteredTitles: List<Title> = arrayListOf()
+
+            if (searchQuery.isEmpty()) {
+                filteredTitles = state.items
+                filteredClassificationTitles = state.items.filter {
+                    !it.decriptionTitle.isNullOrEmpty()
+                }
+            } else {
+                filteredTitles = state.items.filter {
+                    it.title?.contains(searchQuery, ignoreCase = true) == true
+                }
+                filteredClassificationTitles = state.items.filter {
+                    !it.decriptionTitle.isNullOrEmpty() && it.title?.contains(
+                        searchQuery,
+                        ignoreCase = true
+                    ) == true
+                }
+            }
+
+            // Reorder list: move selected item (without subtitles) to top
+            reorderedTitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
+                val selectedTitle = filteredTitles.find { it._id == selectedTitleId }
+                if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
+                    // Move selected item to top, keep others in original order
+                    listOf(selectedTitle) + filteredTitles.filter { it._id != selectedTitleId }
+                } else {
+                    filteredTitles
+                }
+            } else {
+                filteredTitles
+            }
+        }
+
+        is DialogState.Subtitles -> {
+            var filteredSubtitles: List<Subtitle> = arrayListOf()
+
+            if (searchQuery.isEmpty()) {
+                filteredSubtitles = state.items
+                filteredClassificationSubtitles = state.items.filter {
+                    !it.description.isNullOrEmpty() }
+            } else {
+                filteredSubtitles = state.items.filter {
+                    it.name?.contains(searchQuery, ignoreCase = true) == true
+                }
+                filteredClassificationSubtitles = state.items.filter {
+                    !it.description.isNullOrEmpty() && it.name?.contains(searchQuery, ignoreCase = true) == true }
+            }
+
+            // Reorder list: move selected item (without subtitles) to top
+            reorderedSubtitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
+                val selectedTitle = filteredSubtitles.find { it.uuid == selectedTitleId }
+                if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
+                    // Move selected item to top, keep others in original order
+                    listOf(selectedTitle) + filteredSubtitles.filter { it.uuid != selectedTitleId }
+                } else {
+                    filteredSubtitles
+                }
+            } else {
+                filteredSubtitles
+            }
+
+
+        }
+    }
+
 
 
     Dialog(
@@ -180,7 +249,527 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
 
-            when (val state = currentState) {
+            // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
+            BoxWithConstraints(modifier = Modifier.padding(horizontal = 15.dp)) {
+                // Determine the maximum height each view can take (e.g., half of available height)
+                val maxHeightForViews = this.maxHeight / 2
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+
+                    // Header
+                    Row(
+                        modifier = dialogModifier
+                            .fillMaxWidth()
+                            .padding(top = 18.dp, start = 3.dp, end = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+//                                verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Back button (only visible in subtitle mode)
+                        if (currentState is DialogState.Subtitles) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_back_arrow_golden),
+                                contentDescription = null,
+                                modifier = dialogModifier
+                                    .size(20.dp, 15.dp)
+                                    .clickable {
+                                        currentState = DialogState.Titles(titles)
+                                        selectedTitleId = ""
+                                        selectedTitleName = ""
+                                        showApply = false
+                                    }
+                            )
+                        } else {
+                            Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
+                        }
+
+                        // Title or Second Title
+                        if (currentState is DialogState.Titles) {
+                            Text(
+                                text = context.getString(R.string.title),
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = fontFamilyLato,
+                                color = colorResource(id = R.color.black),
+                                modifier = dialogModifier.padding(top = 3.dp)
+                            )
+                        } else {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = dialogModifier.padding(top = 3.dp)
+                            ) {
+                                Text(
+                                    text = context.getString(R.string.title),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = fontFamilyLato,
+                                    color = colorResource(id = R.color.black),
+                                    modifier = dialogModifier
+                                )
+                                Spacer(modifier = dialogModifier.width(11.dp))
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_forward_black),
+                                    contentDescription = null,
+                                    modifier = dialogModifier.size(6.dp, 10.dp)
+                                )
+                                Spacer(modifier = dialogModifier.width(10.dp))
+                                Text(
+                                    text = (currentState as DialogState.Subtitles).parentTitle.title ?: "",
+                                    fontSize = 16.sp,
+                                    fontFamily = fontFamilyLato,
+                                    color = colorResource(id = R.color.black),
+                                    modifier = dialogModifier
+                                )
+                            }
+                        }
+
+                        // Close button
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_cross_golden),
+                            contentDescription = null,
+                            modifier = dialogModifier
+                                .size(15.dp)
+                                .clip(CircleShape)
+                                .clickable { onDismiss() }
+                        )
+                    }
+
+                    Spacer(modifier = dialogModifier.height(15.dp))
+
+                    // Search bar and buttons
+                    Row(
+                        modifier = dialogModifier
+                            .fillMaxWidth()
+                            .height(35.dp)
+                            .padding(horizontal = 15.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Search field with icons
+                        Box(
+                            modifier = dialogModifier
+                                .weight(1f)
+                                .height(35.dp)
+                                .clip(shape = RoundedCornerShape(35.dp))
+                                .background(color = Gray20, shape = RoundedCornerShape(35.dp))
+                                .border(1.dp, color = GrayLightBorder, shape = RoundedCornerShape(35.dp))
+                        ) {
+                            Row(
+                                modifier = dialogModifier
+                                    .fillMaxSize(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Leading search icon - positioned to match Material3 TextField icon spacing
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_search),
+                                    contentDescription = null,
+                                    modifier = dialogModifier
+                                        .padding(start = 16.dp, end = 0.dp)
+                                        .size(17.dp),
+                                    colorFilter = ColorFilter.tint(Gray80)
+                                )
+
+                                // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
+                                // We account for this in our layout
+                                AppBasicTextField(
+                                    value = searchQuery,
+                                    onValueChange = { query ->
+                                        searchQuery = query
+                                        showNoResults = false
+                                        if (query.isEmpty()) {
+                                            showApply = selectedTitleId.isNotEmpty()
+                                        }
+                                    },
+                                    placeholder = context.getString(R.string.search_speciality),
+                                    modifier = dialogModifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
+                                    textStyle = TextStyle(
+                                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 14.sp
+                                    ),
+                                    containerColor = Color.Transparent,
+                                    contentColor = Black,
+                                    placeholderColor = hintColor,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                    maxLength = 100
+                                )
+
+                                // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
+                                if (searchQuery.isNotEmpty()) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                        contentDescription = null,
+                                        modifier = dialogModifier
+                                            .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
+                                            .size(15.dp)
+                                            .clickable {
+                                                searchQuery = ""
+                                                keyboardController?.hide()
+                                                showApply = selectedTitleId.isNotEmpty()
+                                            }
+                                    )
+                                } else {
+                                    // Spacer to maintain consistent padding when icon is not visible
+                                    Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
+                                }
+                            }
+                        }
+
+                        // Search/Apply button
+                        if (showApply && selectedTitleId.isNotEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .width(70.dp)
+                                    .height(35.dp)
+                                    .clip(RoundedCornerShape(35.dp))
+                                    .background(color = goldenColor, shape = RoundedCornerShape(35.dp))
+                                    .clickable {
+//                                                keyboardController?.hide()
+                                        onItemSelected(selectedTitleId, selectedTitleName)
+                                        onDismiss()
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = context.getString(R.string.apply),
+                                    fontSize = 12.sp,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier
+                                )
+                            }
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .width(70.dp)
+                                    .height(35.dp)
+                                    .padding(0.dp)
+                                    .clip(RoundedCornerShape(35.dp))
+                                    .background(color = if (searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
+                                    .border(
+                                        width = 1.dp,
+                                        color = if (searchQuery.isEmpty()) GrayLightBorder else goldenColor,
+                                        shape = RoundedCornerShape(35.dp))
+                                    .clickable {
+                                        keyboardController?.hide()
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = context.getString(R.string.search),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = if (searchQuery.isEmpty()) lightBlackColor else goldenColor,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = dialogModifier.height(20.dp))
+
+                    if (currentState is DialogState.Subtitles) {
+
+//                 SubTitles Screen
+                        if (reorderedSubtitles.isEmpty() && searchQuery.isNotEmpty()) {
+                            Box(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = context.getString(R.string.no_results_found),
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = colorResource(id = R.color.black),
+                                    modifier = dialogModifier
+                                )
+                            }
+                        } else {
+
+                            // View 1: Clickable and Scrollable
+                            // This view's height is limited to either its content height or maxHeightForViews
+                            /*LazyColumn(
+                                modifier = Modifier
+                                    .heightIn(min = 0.dp, max = maxHeightForViews)
+        //                            .weight(1f) // Distributes remaining space
+                                    .background(Color.LightGray)
+                            ) {
+                                items(listOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "Honeydew")) { item ->
+                                    Text(
+                                        text = "Clickable: $item",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { println("$item clicked!") } // Clickable items
+                                            .padding(12.dp)
+                                    )
+                                }
+                            }*/
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = maxHeightForViews)
+                            ) {
+                                items(reorderedSubtitles) { subtitle ->
+                                    SubtitleItem(
+                                        modifier = Modifier,
+                                        subtitle = subtitle,
+                                        isSelected = selectedTitleId == subtitle.uuid,
+                                        onClick = {
+//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
+                                            if (selectedTitleId == subtitle.uuid) {
+                                                selectedTitleId = ""
+                                                selectedTitleName = ""
+                                                showApply = false
+                                            } else {
+                                                selectedTitleId = subtitle.uuid ?: ""
+//                                                val parentTitle = state.parentTitle.title ?: ""
+                                                selectedTitleName = subtitle.name ?: ""
+                                                showApply = true
+                                            }
+                                            keyboardController?.hide()
+                                        }
+                                    )
+                                }
+                            }
+                            Spacer(modifier = dialogModifier.height(20.dp))
+                            DashedLine(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .height(3.dp)
+                                    .padding(horizontal = 0.dp),
+                                strokeWidth = 3f
+                            )
+
+                            Spacer(modifier = dialogModifier.height(15.dp))
+
+                            Row(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 0.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = dialogModifier
+                                ) {
+                                    if (!isExpanded) {
+                                        Text(
+                                            text = context.getString(R.string.strik_right_space),
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Black,
+                                            fontFamily = fontFamilyLato,
+                                            color = goldenColor
+                                        )
+                                        Spacer(modifier = Modifier.width(1.dp))
+                                    }
+                                    Text(
+                                        text = context.getString(R.string.clarifications),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = fontFamilyLato,
+                                        color = colorResource(id = R.color.black),
+                                        modifier = dialogModifier
+                                    )
+                                }
+                                Text(
+                                    text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = fontFamilyLato,
+                                    color = goldenColor,
+                                    modifier = dialogModifier.clickable {
+                                        dialogFocusManager.clearFocus()
+                                        isExpanded = !isExpanded
+                                    }
+                                )
+                            }
+
+
+                            // View 2: Scrollable Only
+                            // This view dynamically matches the height logic of View 1
+
+                            if (filteredClassificationSubtitles.isNotEmpty() && isExpanded) {
+                                Spacer(Modifier.height(15.dp))
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .heightIn(
+                                            min = 0.dp,
+                                            max = maxHeightForViews
+                                        )// Distributes remaining space equally with View 1
+//                                .background(Color.Cyan)
+                                        .padding(bottom = 25.dp)
+                                ) {
+                                    items(filteredClassificationSubtitles) { title ->
+                                        // Scrollable only, no onClick
+                                        /*Text(
+                                        text = "Scrollable Only: $item",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(12.dp)
+                                    )*/
+                                        ClassificationItem(
+                                            title = title.name ?: "",
+                                            description = title.description
+                                                ?: "",
+                                            modifier = Modifier
+                                        )
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(25.dp))
+                        }
+                    } else {
+
+//                Titles screeen
+                        if (reorderedTitles.isEmpty() && searchQuery.isNotEmpty()) {
+                            Box(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = context.getString(R.string.no_results_found),
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = colorResource(id = R.color.black),
+                                    modifier = dialogModifier
+                                )
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = maxHeightForViews)
+                            ) {
+                                items(reorderedTitles) { title ->
+                                    TitleItem(
+                                        title = title,
+                                        isSelected = selectedTitleId == title._id,
+                                        onClick = {
+                                            if (selectedTitleId == title._id) {
+                                                selectedTitleId = ""
+                                                selectedTitleName = ""
+                                                showApply = false
+                                            } else {
+                                                selectedTitleId = title._id ?: ""
+                                                selectedTitleName =
+                                                    title.title ?: ""
+                                                if (title.subtitles.isNullOrEmpty()) {
+                                                    showApply = true
+                                                } else {
+                                                    currentState =
+                                                        DialogState.Subtitles(
+                                                            title,
+                                                            title.subtitles
+                                                        )
+                                                    showApply = false
+                                                }
+                                            }
+                                            keyboardController?.hide()
+                                        },
+                                        modifier = Modifier
+                                    )
+                                }
+                            }
+                            Spacer(modifier = dialogModifier.height(20.dp))
+                            DashedLine(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .height(3.dp)
+                                    .padding(horizontal = 0.dp),
+                                strokeWidth = 3f
+                            )
+
+                            Spacer(dialogModifier.height(15.dp))
+
+                            Row(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 0.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = dialogModifier
+                                ) {
+                                    if (!isExpanded) {
+
+                                        Text(
+                                            text = context.getString(R.string.strik_right_space),
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Black,
+                                            fontFamily = fontFamilyLato,
+                                            color = goldenColor
+                                        )
+                                        Spacer(modifier = Modifier.width(1.dp))
+                                    }
+
+                                    Text(
+                                        text = context.getString(R.string.clarifications),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = fontFamilyLato,
+                                        color = colorResource(id = R.color.black),
+                                        modifier = dialogModifier
+                                    )
+                                }
+                                Text(
+                                    text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = fontFamilyLato,
+                                    color = goldenColor,
+                                    modifier = dialogModifier.clickable {
+                                        dialogFocusManager.clearFocus()
+                                        isExpanded = !isExpanded
+                                    }
+                                )
+                            }
+
+                            // View 2: Scrollable Only
+                            // This view dynamically matches the height logic of View 1
+
+                            if (filteredClassificationTitles.isNotEmpty() && isExpanded) {
+                                Spacer(dialogModifier.height(15.dp))
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .heightIn(
+                                            min = 0.dp,
+                                            max = maxHeightForViews
+                                        ) // Distributes remaining space equally with View 1
+                                        .padding(bottom = 25.dp)
+                                ) {
+                                    items(filteredClassificationTitles) { title ->
+                                        ClassificationItem(
+                                            title = title.title ?: "",
+                                            description = title.decriptionTitle
+                                                ?: "",
+                                            modifier = Modifier
+                                        )
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                    }
+                                }
+                            }
+                            Spacer(dialogModifier.height(25.dp))
+                        }
+                    }
+                }
+            }
+
+            /*when (val state = currentState) {
                 is DialogState.Titles -> {
                     if (searchQuery.isEmpty()) {
                         filteredTitles = state.items
@@ -196,414 +785,25 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                         }
                     }
 
-
-
-                    // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
-                    BoxWithConstraints(modifier = Modifier.padding(horizontal = 15.dp)) {
-                        // Determine the maximum height each view can take (e.g., half of available height)
-                        val maxHeightForViews = this.maxHeight / 2
-
-                        Column(modifier = Modifier.fillMaxWidth()) {
-
-                            // Header
-                            Row(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .padding(top = 18.dp, start = 3.dp, end = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-//                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Back button (only visible in subtitle mode)
-                                if (currentState is DialogState.Subtitles) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_back_arrow_golden),
-                                        contentDescription = null,
-                                        modifier = dialogModifier
-                                            .size(20.dp, 15.dp)
-                                            .clickable {
-                                                currentState = DialogState.Titles(titles)
-                                                selectedTitleId = ""
-                                                selectedTitleName = ""
-                                                showApply = false
-                                            }
-                                    )
-                                } else {
-                                    Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
-                                }
-
-                                // Title or Second Title
-                                if (currentState is DialogState.Titles) {
-                                    Text(
-                                        text = context.getString(R.string.title),
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontFamily = fontFamilyLato,
-                                        color = colorResource(id = R.color.black),
-                                        modifier = dialogModifier.padding(top = 3.dp)
-                                    )
-                                } else {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = dialogModifier.padding(top = 3.dp)
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.title),
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = fontFamilyLato,
-                                            color = colorResource(id = R.color.black),
-                                            modifier = dialogModifier
-                                        )
-                                        Spacer(modifier = dialogModifier.width(11.dp))
-                                        Image(
-                                            painter = painterResource(id = R.drawable.ic_forward_black),
-                                            contentDescription = null,
-                                            modifier = dialogModifier.size(6.dp, 10.dp)
-                                        )
-                                        Spacer(modifier = dialogModifier.width(10.dp))
-                                        Text(
-                                            text = (currentState as DialogState.Subtitles).parentTitle.title ?: "",
-                                            fontSize = 16.sp,
-                                            fontFamily = fontFamilyLato,
-                                            color = colorResource(id = R.color.black),
-                                            modifier = dialogModifier
-                                        )
-                                    }
-                                }
-
-                                // Close button
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_cross_golden),
-                                    contentDescription = null,
-                                    modifier = dialogModifier
-                                        .size(15.dp)
-                                        .clip(CircleShape)
-                                        .clickable { onDismiss() }
-                                )
-                            }
-
-                            Spacer(modifier = dialogModifier.height(15.dp))
-
-                            // Search bar and buttons
-                            Row(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .height(35.dp)
-                                    .padding(horizontal = 15.dp),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                // Search field with icons
-                                Box(
-                                    modifier = dialogModifier
-                                        .weight(1f)
-                                        .height(35.dp)
-                                        .clip(shape = RoundedCornerShape(35.dp))
-                                        .background(color = Gray20, shape = RoundedCornerShape(35.dp))
-                                        .border(1.dp, color = GrayLightBorder, shape = RoundedCornerShape(35.dp))
-                                ) {
-                                    Row(
-                                        modifier = dialogModifier
-                                            .fillMaxSize(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        // Leading search icon - positioned to match Material3 TextField icon spacing
-                                        Image(
-                                            painter = painterResource(id = R.drawable.ic_search),
-                                            contentDescription = null,
-                                            modifier = dialogModifier
-                                                .padding(start = 16.dp, end = 0.dp)
-                                                .size(17.dp),
-                                            colorFilter = ColorFilter.tint(Gray80)
-                                        )
-
-                                        // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
-                                        // We account for this in our layout
-                                        AppBasicTextField(
-                                            value = searchQuery,
-                                            onValueChange = { query ->
-                                                searchQuery = query
-                                                showNoResults = false
-                                                if (query.isEmpty()) {
-                                                    showApply = selectedTitleId.isNotEmpty()
-                                                }
-                                            },
-                                            placeholder = context.getString(R.string.search_speciality),
-                                            modifier = dialogModifier
-                                                .weight(1f)
-                                                .fillMaxHeight(),
-                                            textStyle = TextStyle(
-                                                platformStyle = PlatformTextStyle(includeFontPadding = false),
-                                                fontFamily = fontFamilyLato,
-                                                fontWeight = FontWeight.Normal,
-                                                fontSize = 14.sp
-                                            ),
-                                            containerColor = Color.Transparent,
-                                            contentColor = Black,
-                                            placeholderColor = hintColor,
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                            maxLength = 100
-                                        )
-
-                                        // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
-                                        if (searchQuery.isNotEmpty()) {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_cancel_grey),
-                                                contentDescription = null,
-                                                modifier = dialogModifier
-                                                    .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
-                                                    .size(15.dp)
-                                                    .clickable {
-                                                        searchQuery = ""
-                                                        keyboardController?.hide()
-                                                        showApply = selectedTitleId.isNotEmpty()
-                                                    }
-                                            )
-                                        } else {
-                                            // Spacer to maintain consistent padding when icon is not visible
-                                            Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
-                                        }
-                                    }
-                                }
-
-                                // Search/Apply button
-                                if (showApply && selectedTitleId.isNotEmpty()) {
-                                    Box(
-                                        modifier = Modifier
-                                            .width(70.dp)
-                                            .height(35.dp)
-                                            .clip(RoundedCornerShape(35.dp))
-                                            .background(color = goldenColor, shape = RoundedCornerShape(35.dp))
-                                            .clickable {
-//                                                keyboardController?.hide()
-                                                onItemSelected(selectedTitleId, selectedTitleName)
-                                                onDismiss()
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.apply),
-                                            fontSize = 12.sp,
-                                            color = Color.White,
-                                            textAlign = TextAlign.Center,
-                                            fontFamily = fontFamilyLato,
-                                            fontWeight = FontWeight.SemiBold,
-                                            modifier = Modifier
-                                        )
-                                    }
-                                } else {
-                                    Box(
-                                        modifier = Modifier
-                                            .width(70.dp)
-                                            .height(35.dp)
-                                            .padding(0.dp)
-                                            .clip(RoundedCornerShape(35.dp))
-                                            .background(color = if (searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
-                                            .border(
-                                                width = 1.dp,
-                                                color = if (searchQuery.isEmpty()) GrayLightBorder else goldenColor,
-                                                shape = RoundedCornerShape(35.dp))
-                                            .clickable {
-                                                keyboardController?.hide()
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.search),
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontFamily = fontFamilyLato,
-                                            color = if (searchQuery.isEmpty()) lightBlackColor else goldenColor,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = dialogModifier.height(20.dp))
-
-
-                            // Reorder list: move selected item (without subtitles) to top
-                            val reorderedTitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
-                                val selectedTitle = filteredTitles.find { it._id == selectedTitleId }
-                                if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
-                                    // Move selected item to top, keep others in original order
-                                    listOf(selectedTitle) + filteredTitles.filter { it._id != selectedTitleId }
-                                } else {
-                                    filteredTitles
-                                }
-                            } else {
-                                filteredTitles
-                            }
-
-                            if (reorderedTitles.isEmpty() && searchQuery.isNotEmpty()) {
-                                Box(
-                                    modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = context.getString(R.string.no_results_found),
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontFamily = fontFamilyLato,
-                                        color = colorResource(id = R.color.black),
-                                        modifier = dialogModifier
-                                    )
-                                }
-                            } else {
-
-                                // View 1: Clickable and Scrollable
-                                // This view's height is limited to either its content height or maxHeightForViews
-                                /*LazyColumn(
-                                    modifier = Modifier
-                                        .heightIn(min = 0.dp, max = maxHeightForViews)
-            //                            .weight(1f) // Distributes remaining space
-                                        .background(Color.LightGray)
-                                ) {
-                                    items(listOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "Honeydew")) { item ->
-                                        Text(
-                                            text = "Clickable: $item",
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable { println("$item clicked!") } // Clickable items
-                                                .padding(12.dp)
-                                        )
-                                    }
-                                }*/
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(max = maxHeightForViews)
-                                ) {
-
-
-                                    items(reorderedTitles) { title ->
-                                        TitleItem(
-                                            title = title,
-                                            isSelected = selectedTitleId == title._id,
-                                            onClick = {
-                                                if (selectedTitleId == title._id) {
-                                                    selectedTitleId = ""
-                                                    selectedTitleName = ""
-                                                    showApply = false
-                                                } else {
-                                                    selectedTitleId = title._id ?: ""
-                                                    selectedTitleName =
-                                                        title.title ?: ""
-                                                    if (title.subtitles.isNullOrEmpty()) {
-                                                        showApply = true
-                                                    } else {
-                                                        currentState =
-                                                            DialogState.Subtitles(
-                                                                title,
-                                                                title.subtitles
-                                                            )
-                                                        showApply = false
-                                                    }
-                                                }
-                                                keyboardController?.hide()
-                                            },
-                                            modifier = Modifier
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = dialogModifier.height(20.dp))
-                                DashedLine(
-                                    modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        .height(3.dp)
-                                        .padding(horizontal = 0.dp),
-                                    strokeWidth = 3f
-                                )
-
-                                Spacer(dialogModifier.height(15.dp))
-
-                                Row(
-                                    modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 0.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = dialogModifier
-                                    ) {
-                                        if (!isExpanded) {
-
-                                            Text(
-                                                text = context.getString(R.string.strik_right_space),
-                                                fontSize = 20.sp,
-                                                fontWeight = FontWeight.Black,
-                                                fontFamily = fontFamilyLato,
-                                                color = goldenColor
-                                            )
-                                            Spacer(modifier = Modifier.width(1.dp))
-                                        }
-
-                                        Text(
-                                            text = context.getString(R.string.clarifications),
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = fontFamilyLato,
-                                            color = colorResource(id = R.color.black),
-                                            modifier = dialogModifier
-                                        )
-                                    }
-                                    Text(
-                                        text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = fontFamilyLato,
-                                        color = goldenColor,
-                                        modifier = dialogModifier.clickable {
-                                            dialogFocusManager.clearFocus()
-                                            isExpanded = !isExpanded
-                                        }
-                                    )
-                                }
-
-                                // View 2: Scrollable Only
-                                // This view dynamically matches the height logic of View 1
-
-                                if (filteredClassificationTitles.isNotEmpty() && isExpanded) {
-                                    Spacer(dialogModifier.height(15.dp))
-                                    LazyColumn(
-                                        modifier = Modifier
-                                            .heightIn(
-                                                min = 0.dp,
-                                                max = maxHeightForViews
-                                            ) // Distributes remaining space equally with View 1
-                                            .padding(bottom = 25.dp)
-//                                .background(Color.Cyan)
-                                    ) {
-                                        items(filteredClassificationTitles) { title ->
-                                            // Scrollable only, no onClick
-                                            /*Text(
-                                            text = "Scrollable Only: $item",
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(12.dp)
-                                        )*/
-                                            ClassificationItem(
-                                                title = title.title ?: "",
-                                                description = title.decriptionTitle
-                                                    ?: "",
-                                                modifier = Modifier
-                                            )
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                        }
-                                    }
-                                }
-
-                                Spacer(dialogModifier.height(25.dp))
-                            }
+                    // Reorder list: move selected item (without subtitles) to top
+                    val reorderedTitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
+                        val selectedTitle = filteredTitles.find { it._id == selectedTitleId }
+                        if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
+                            // Move selected item to top, keep others in original order
+                            listOf(selectedTitle) + filteredTitles.filter { it._id != selectedTitleId }
+                        } else {
+                            filteredTitles
                         }
+                    } else {
+                        filteredTitles
                     }
 
+
+
+
+
                 }
+
                 is DialogState.Subtitles -> {
 
                     if (searchQuery.isEmpty()) {
@@ -871,7 +1071,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
 
                                 // View 1: Clickable and Scrollable
                                 // This view's height is limited to either its content height or maxHeightForViews
-                                /*LazyColumn(
+                                *//*LazyColumn(
                                     modifier = Modifier
                                         .heightIn(min = 0.dp, max = maxHeightForViews)
             //                            .weight(1f) // Distributes remaining space
@@ -886,14 +1086,12 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                 .padding(12.dp)
                                         )
                                     }
-                                }*/
+                                }*//*
                                 LazyColumn(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .heightIn(max = maxHeightForViews)
                                 ) {
-
-
                                     items(reorderedSubitles) { subtitle ->
                                         SubtitleItem(
                                             modifier = Modifier,
@@ -987,12 +1185,12 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     ) {
                                         items(filteredClassificationTitles) { title ->
                                             // Scrollable only, no onClick
-                                            /*Text(
+                                            *//*Text(
                                             text = "Scrollable Only: $item",
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(12.dp)
-                                        )*/
+                                        )*//*
                                             ClassificationItem(
                                                 title = title.title ?: "",
                                                 description = title.decriptionTitle
@@ -1010,7 +1208,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
 
 
                 }
-            }
+            }*/
 
 
         }
