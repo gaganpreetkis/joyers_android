@@ -1,4 +1,3 @@
-/*
 package com.joyersapp.view_model
 
 import androidx.lifecycle.ViewModel
@@ -14,4 +13,4 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     // Check Username State
     private val _checkUsernameState = MutableStateFlow<CheckUsernameState>(CheckUsernameState.Idle)
     val checkUsernameState: StateFlow<CheckUsernameState> = _checkUsernameState.asStateFlow()
-}*/
+}

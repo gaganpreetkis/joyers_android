@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.joyersapp.R
 import androidx.compose.ui.unit.sp
-/*import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel*/
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.BottomSocialDialog
@@ -43,14 +43,14 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isValidPassword
 import com.joyersapp.utils.isValidUsername
-/*import com.joyersapp.view_model.AuthViewModel*/
+import com.joyersapp.view_model.AuthViewModel
 import kotlin.text.isNotEmpty
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable
 fun LoginScreen(
-    /*viewModel: AuthViewModel = hiltViewModel(),*/
+    viewModel: AuthViewModel = hiltViewModel(),
     onLoginClick: () -> Unit = {},
     onSignUpClick: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {},

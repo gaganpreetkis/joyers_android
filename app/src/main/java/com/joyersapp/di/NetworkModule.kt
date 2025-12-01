@@ -1,4 +1,3 @@
-/*
 package com.joyersapp.di
 
 import com.joyersapp.api.AuthApiService
@@ -48,4 +47,4 @@ object NetworkModule {
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
     }
-}*/
+}
