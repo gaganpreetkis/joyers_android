@@ -72,6 +72,7 @@ import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.AutoResizeText
 import com.joyersapp.common_widgets.CountryCodePicker
+import com.joyersapp.theme.Green
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -518,7 +519,7 @@ fun ResetPasswordScreen(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.Green,
+                        color = Green,
                         modifier = Modifier.padding()
                     )
                 }
@@ -530,7 +531,7 @@ fun ResetPasswordScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp),
-                    color = Color.Green,
+                    color = Green,
                     trackColor = Gray20
                 )
                 Spacer(modifier = Modifier.height(6.dp))

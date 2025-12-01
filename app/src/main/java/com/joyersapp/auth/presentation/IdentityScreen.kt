@@ -672,7 +672,7 @@ fun PageOneContent(
 //                    activity?.let {
                     showCCPDialog(
                         context,
-                        showPhoneCode = true
+                        showPhoneCode = false
                     ) { code, name, flag, _ ->
                         countryName = name
                         selectedCountryCode = code

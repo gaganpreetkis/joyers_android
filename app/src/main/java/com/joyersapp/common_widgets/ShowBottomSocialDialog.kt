@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.joyersapp.R
+import com.joyersapp.theme.Black
+import com.joyersapp.utils.fontFamilyLato
 
 @Composable
 fun BottomSocialDialog(
@@ -81,6 +83,8 @@ fun BottomSocialDialog(
                     Text(
                         text = context.getString(R.string.join_with),
                         fontSize = 24.sp,
+                        color = Black,
+                        fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -156,6 +160,8 @@ private fun SocialButton(
         Text(
             text = text,
             fontSize = 18.sp,
+            color = Black,
+            fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold
         )
     }

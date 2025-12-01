@@ -75,6 +75,7 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray80
 import com.joyersapp.theme.GrayBorder
 import com.joyersapp.theme.GrayLightBorder
+import com.joyersapp.theme.Green
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -297,12 +298,22 @@ fun SignUpScreen(
                 .background(
                     color = Gray20,
 //                    color = if (showUsernameError) Red else Gray20,
-                    shape = RoundedCornerShape(5.dp)
+                    shape = RoundedCornerShape(
+                        5.dp,
+                        5.dp,
+                        if (showUsernameSuggestions) 0.dp else 5.dp,
+                        if (showUsernameSuggestions) 0.dp else 5.dp
+                    )
                 )
                 .border(
                     width = 1.dp,
                     color = if (showUsernameError) Red else GrayLightBorder,
-                    shape = RoundedCornerShape(5.dp)
+                    shape = RoundedCornerShape(
+                        5.dp,
+                        5.dp,
+                        if (showUsernameSuggestions) 0.dp else 5.dp,
+                        if (showUsernameSuggestions) 0.dp else 5.dp
+                    )
                 )
                 .padding(horizontal = 19.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -667,7 +678,8 @@ fun SignUpScreen(
                             showPasswordFields = true
                         },
                         enabled = isVerificationValid,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .height(50.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Golden60,
                             disabledContainerColor = Golden60,
@@ -681,7 +693,7 @@ fun SignUpScreen(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             fontFamily = fontFamilyLato,
-                            modifier = Modifier.padding(vertical = 12.dp)
+                            modifier = Modifier.padding(vertical = 1.dp)
                         )
                     }
 
@@ -705,7 +717,8 @@ fun SignUpScreen(
 //                        )
 //                    }
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .height(50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Black),
                         shape = RoundedCornerShape(5.dp)
                     ) {
@@ -715,7 +728,7 @@ fun SignUpScreen(
                             fontWeight = FontWeight.SemiBold,
                             fontFamily = fontFamilyLato,
                             color = White,
-                            modifier = Modifier.padding(vertical = 12.dp)
+                            modifier = Modifier.padding(vertical = 1.dp)
                         )
                     }
                 } else {
@@ -807,8 +820,8 @@ fun SignUpScreen(
                             text = context.getString(R.string.strong),
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Normal,
-                            color = Color.Green,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Green,
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(top = 5.dp)
@@ -824,7 +837,7 @@ fun SignUpScreen(
                                     .weight(1f)
                                     .height(3.dp)
                                     .background(
-                                        color = Color.Green,
+                                        color = Green,
                                         shape = RoundedCornerShape(2.dp)
                                     )
                             )
@@ -1064,7 +1077,7 @@ fun SignUpScreen(
 
                                 Spacer(Modifier.width(15.dp))
                             }
-                             Box(Modifier.height(1.dp).background(GrayLightBorder))
+                            Box(Modifier.height(1.dp).background(GrayLightBorder))
                         }
                     }
                 }

@@ -19,8 +19,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -112,11 +115,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
     val hintColor = Gray40
     val whiteColor = Color.White
 
-    val configuration = LocalConfiguration.current
-    // Calculate maximum height: screen height - 100.dp (50.dp top + 50.dp bottom)
-    val maxHeight = remember(configuration) {
-        configuration.screenHeightDp.dp - 100.dp
-    }
+
     val hideKeyboard = rememberKeyboardHider()
 
     var reorderedTitles: List<Title> = arrayListOf()
@@ -214,6 +213,12 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
         val isKeyboardVisible by remember {
             derivedStateOf { imeHeight > 0 }
         }
+        val configuration = LocalConfiguration.current
+        // Calculate maximum height: screen height - 100.dp (50.dp top + 50.dp bottom)
+        val maxHeight = remember(configuration) {
+            configuration.screenHeightDp.dp - 100.dp
+
+        }
 
         // Determine the height modifier dynamically
         val dialogHeightModifier = if (isKeyBoardOpen) {
@@ -232,6 +237,9 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                     .heightIn(max = 400.dp)
                     .wrapContentHeight()*/
             modifier = dialogModifier
+//                .statusBarsPadding()
+//                .navigationBarsPadding()
+//                .systemBarsPadding()
                 .then(dialogHeightModifier) // Apply dynamic height
                 .fillMaxWidth()
 //                .imePadding()
@@ -252,7 +260,11 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
             // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
             BoxWithConstraints(modifier = Modifier.padding(horizontal = 15.dp)) {
                 // Determine the maximum height each view can take (e.g., half of available height)
-                val maxHeightForViews = this.maxHeight / 2
+
+                var maxHeightForViews = this.maxHeight - 200.dp
+                if (isExpanded) {
+                    maxHeightForViews = (this.maxHeight / 2) - 100.dp
+                }
 
                 Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -493,25 +505,6 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                 )
                             }
                         } else {
-
-                            // View 1: Clickable and Scrollable
-                            // This view's height is limited to either its content height or maxHeightForViews
-                            /*LazyColumn(
-                                modifier = Modifier
-                                    .heightIn(min = 0.dp, max = maxHeightForViews)
-        //                            .weight(1f) // Distributes remaining space
-                                    .background(Color.LightGray)
-                            ) {
-                                items(listOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "Honeydew")) { item ->
-                                    Text(
-                                        text = "Clickable: $item",
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable { println("$item clicked!") } // Clickable items
-                                            .padding(12.dp)
-                                    )
-                                }
-                            }*/
                             LazyColumn(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -625,8 +618,9 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                         Spacer(modifier = Modifier.height(2.dp))
                                     }
                                 }
+                            } else {
+                                Spacer(Modifier.height(25.dp))
                             }
-                            Spacer(Modifier.height(25.dp))
                         }
                     } else {
 
@@ -762,8 +756,9 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                         Spacer(modifier = Modifier.height(2.dp))
                                     }
                                 }
+                            } else {
+                                Spacer(Modifier.height(25.dp))
                             }
-                            Spacer(dialogModifier.height(25.dp))
                         }
                     }
                 }

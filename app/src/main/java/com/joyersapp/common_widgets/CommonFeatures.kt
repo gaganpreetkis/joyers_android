@@ -1,6 +1,7 @@
 package com.joyersapp.common_widgets
 
 import android.content.Context
+import android.view.Gravity
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.compose.foundation.layout.Row
@@ -68,6 +69,10 @@ fun showCCPDialog(context: Context, showPhoneCode: Boolean, onCodeSelected: (Str
     ccp.ccpDialogShowFlag = false
     ccp.ccpDialogShowNameCode = false
     ccp.ccpDialogShowTitle = true
+    ccp.ccpDialogShowNameCode = false
+    ccp.gravity = Gravity.CENTER
+    ccp.setShowPhoneCode(false)
+    ccp.setCcpDialogShowPhoneCode(false)
     ccp.setCcpDialogShowPhoneCode(showPhoneCode)
 
     ccp.showFullName(true)
