@@ -79,6 +79,7 @@ import com.joyersapp.theme.Black
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
+import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Red
 import com.joyersapp.utils.annotatedFromBoldTags
 import com.joyersapp.utils.containsEmoji
@@ -108,7 +109,7 @@ fun IdentityScreen(
     )
 
     val pageCounts = listOf("1/3", "2/3", "3/3")
-    val progressValues = listOf(35, 70, 100)
+    val progressValues = listOf(33, 66, 100)
 
     // Update current page when pager state changes
     LaunchedEffect(pagerState.currentPage) {
@@ -160,7 +161,7 @@ fun IdentityScreen(
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(start = 20.dp)
-                                .size(27.dp, 24.dp),
+                                .size(20.dp, 17.dp),
                             colorFilter = ColorFilter.tint(Golden60)
                         )
                     }
@@ -317,34 +318,6 @@ fun PageOneContent(
         }
     }
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            // Camera image URI would be set here
-        }
-    }
-
-    val headerImagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            headerImageUri = it
-            showHeaderPicker = false
-//            signupViewModel?.let { vm ->
-//                preferencesManager?.let { pm ->
-//                    val scope = (context as? AppCompatActivity)?.lifecycleScope
-//                    scope?.launch {
-//                        val token = pm.getAccessToken()
-//                        if (token != null) {
-//                            vm.uploadImage(it, token)
-//                        }
-//                    }
-//                }
-//            }
-        }
-    }
-
     // Observe API responses
 //    val imageUploadResponse = signupViewModel?.imageUploadResponse?.observeAsState()
 //    val setPageResponse = signupViewModel?.setPageResponse?.observeAsState()
@@ -423,7 +396,7 @@ fun PageOneContent(
                 .fillMaxWidth()
                 .height(270.dp),
             shape = RoundedCornerShape(5.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+            colors = CardDefaults.cardColors(containerColor = Gray20)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // Header/Background Image
@@ -465,7 +438,7 @@ fun PageOneContent(
                                 modifier = Modifier
                                     .size(37.dp)
                                     .background(Color.White, CircleShape)
-                                    .border(1.dp, Color(0xFFECE9E9), CircleShape),
+                                    .border(1.dp, GrayLightBorder, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Image(
@@ -501,7 +474,7 @@ fun PageOneContent(
                             .background(Color.White)
                             .border(
                                 2.dp,
-                                if (showProfilePlaceholder) Color(0xFFECE9E9) else Color.Transparent,
+                                if (showProfilePlaceholder) GrayLightBorder else Color.Transparent,
                                 CircleShape
                             )
                     ) {
@@ -594,12 +567,12 @@ fun PageOneContent(
                 .height(55.dp)
                 .background(
                     color = Gray20,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(5.dp)
                 )
                 .border(
-                    width = if (usernameError != null) 1.dp else 0.dp,
-                    color = if (usernameError != null) Red else Color.Transparent,
-                    shape = RoundedCornerShape(8.dp)
+                    width = 1.dp,
+                    color = if (usernameError != null) Red else GrayLightBorder,
+                    shape = RoundedCornerShape(5.dp)
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -688,7 +661,8 @@ fun PageOneContent(
             Modifier
                 .fillMaxWidth()
                 .height(55.dp)
-                .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
+                .background(Gray20, RoundedCornerShape(5.dp))
+                .border(1.dp,GrayLightBorder, RoundedCornerShape(5.dp))
                 .clickable {
 //                    activity?.let {
                     showCCPDialog(
@@ -716,7 +690,6 @@ fun PageOneContent(
                 horizontalArrangement = Arrangement.End
 
             ) {
-//                Spacer(modifier = Modifier.weight(0.33f))
 
                 Image(
                     painter = painterResource(id = R.drawable.drop_down),
@@ -793,7 +766,7 @@ fun PageOneContent(
                     Image(
                         painter = painterResource(id = R.drawable.ic_forward_arrow_white),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(28.dp,25.dp),
                         colorFilter = ColorFilter.tint(whiteColor)
                     )
                 }
@@ -943,12 +916,12 @@ fun PageTwoContent(
                         .height(55.dp)
                         .background(
                             color = if (isSelected) goldenColor else whiteColor,
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(5.dp)
                         )
                         .border(
                             width = 1.dp,
                             color = Gray20,
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(5.dp)
                         )
                         .clickable {
                             selectedStatus = if (selectedStatus == statusKey) null else statusKey
@@ -997,7 +970,7 @@ fun PageTwoContent(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(5.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(15.dp)
@@ -1106,7 +1079,7 @@ fun PageTwoContent(
                         painter = painterResource(id = R.drawable.ic_forward_arrow_white),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(24.dp),
+                            .size(28.dp, 25.dp),
                         alignment = Alignment.Center,
                         colorFilter = ColorFilter.tint(whiteColor)
                     )
@@ -1131,7 +1104,6 @@ fun PageThreeContent(
     val context = LocalContext.current
     val goldenColor = Golden60
     val lightBlackColor = Black
-    val hintColor = Gray40
     val whiteColor = Color.White
 
 //    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()
@@ -1165,26 +1137,6 @@ fun PageThreeContent(
         Title(_id = "10", title = "Student", decriptionTitle = "", subtitles = student),
         Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
     )
-
-    /* val subtitle = Subtitle(
-         _id = "id2",
-         uuid = "title2",
-         name = "decriptionTitle",
-         description = "decription",
-         selected = false,
-     )
-
-     val title : Title = Title(
-         _id = "id",
-         title = "title1",
-         decriptionTitle = "decriptionTitle",
-         selected = false,
-         subtitles = arrayListOf<Subtitle>(
-             subtitle,subtitle,subtitle
-         )
-     )
-
-     titles = arrayListOf(title, title, title, title)*/
 
     // Load titles
 //    LaunchedEffect(Unit) {
@@ -1231,13 +1183,11 @@ fun PageThreeContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .verticalScroll(rememberScrollState())
             .padding(horizontal = 25.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LazyColumn {
             items(2) {
-
                 Spacer(modifier = Modifier.height(15.dp))
 // Joyers Status
                 if (it == 0) {
@@ -1333,7 +1283,7 @@ fun PageThreeContent(
                     Image(
                         painter = painterResource(id = R.drawable.ic_forward_arrow_white),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(28.dp, 25.dp),
                         colorFilter = ColorFilter.tint(whiteColor)
                     )
                 }
@@ -1348,7 +1298,7 @@ fun PageThreeContent(
 //        selectedTitle = "Master's Student"
 //        showNextButton = true
         DualViewDialog(
-            titles = titles.toMutableList(),
+//            titles = titles.toMutableList(),
             onDismiss = { showTitleDialog = false },
             onItemSelected = { titleId, titleName ->
                 selectedTitle = titleName

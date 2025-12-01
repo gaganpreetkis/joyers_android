@@ -5,13 +5,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
+import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray30
+import com.joyersapp.theme.LightBlack40
 
 @Composable
 fun DashedLine(
     modifier: Modifier = Modifier,
-    strokeWidth: Float = 3f,
-    dashLength: Float = 10f,
+    strokeWidth: Float = 1f,
+    dashLength: Float = 8f,
     gapLength: Float = 7f
 ) {
     Canvas(modifier = modifier) {
@@ -20,7 +22,7 @@ fun DashedLine(
             phase = 0f
         )
         drawLine(
-            color = Gray30,
+            color = LightBlack40,
             start = Offset(0f, size.height / 2),
             end = Offset(size.width, size.height / 2),
             strokeWidth = strokeWidth,

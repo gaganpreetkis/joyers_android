@@ -1,6 +1,7 @@
 package com.joyersapp.common_widgets
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -47,6 +48,8 @@ import com.joyersapp.R
 import com.joyersapp.theme.Black
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
+import com.joyersapp.theme.GrayLightBorder
+import com.joyersapp.theme.Red
 import com.joyersapp.utils.fontFamilyLato
 
 
@@ -215,7 +218,12 @@ fun AppBasicTextFieldForLetterSpacing(
     val focusManager = LocalFocusManager.current
     Row(
         modifier = modifier
-            .background(containerColor, shape = RoundedCornerShape(8.dp))
+            .background(containerColor, shape = RoundedCornerShape(5.dp))
+            .border(
+                color = GrayLightBorder,
+                width = 1.dp,
+                shape = RoundedCornerShape(5.dp)
+            )
             .padding(start = if (isCentered) 2.dp else if (keyboardOptions.keyboardType == KeyboardType.Phone) 10.dp else 15.dp, end = 0.dp)
             .fillMaxHeight(), // No horizontal padding
         verticalAlignment = Alignment.CenterVertically

@@ -377,7 +377,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .background(color = Color(0xFFD4A038), shape = RoundedCornerShape(8.dp)),
+                .background(color = Golden60, shape = RoundedCornerShape(5.dp)),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Golden60,
                 disabledContainerColor = Golden60,
@@ -400,7 +400,7 @@ fun LoginScreen(
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.Normal,
-            color = Color(0xFF9A9A9A),
+            color = Color(0x99333333),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
@@ -411,7 +411,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .background(Color.Black, RoundedCornerShape(8.dp))
+                .background(Color.Black, RoundedCornerShape(5.dp))
                 .clickable { showSocialDialog = true },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically

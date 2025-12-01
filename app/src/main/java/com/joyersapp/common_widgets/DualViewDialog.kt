@@ -75,6 +75,8 @@ import com.joyersapp.theme.Black
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
+import com.joyersapp.theme.Gray80
+import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import com.joyersapp.utils.rememberKeyboardHider
@@ -237,12 +239,12 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                         fontWeight = FontWeight.SemiBold,
                                         fontFamily = fontFamilyLato,
                                         color = colorResource(id = R.color.black),
-                                        modifier = dialogModifier.padding(top = 6.dp)
+                                        modifier = dialogModifier.padding(top = 3.dp)
                                     )
                                 } else {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        modifier = dialogModifier.padding(top = 6.dp)
+                                        modifier = dialogModifier.padding(top = 3.dp)
                                     ) {
                                         Text(
                                             text = context.getString(R.string.title),
@@ -297,6 +299,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                         .height(35.dp)
                                         .clip(shape = RoundedCornerShape(35.dp))
                                         .background(color = Gray20, shape = RoundedCornerShape(35.dp))
+                                        .border(1.dp, color = GrayLightBorder, shape = RoundedCornerShape(35.dp))
                                 ) {
                                     Row(
                                         modifier = dialogModifier
@@ -310,7 +313,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             modifier = dialogModifier
                                                 .padding(start = 16.dp, end = 0.dp)
                                                 .size(17.dp),
-                                            colorFilter = ColorFilter.tint(Gray40)
+                                            colorFilter = ColorFilter.tint(Gray80)
                                         )
 
                                         // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
@@ -395,7 +398,10 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             .padding(0.dp)
                                             .clip(RoundedCornerShape(35.dp))
                                             .background(color = if (searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
-                                            .border(width = if (searchQuery.isEmpty()) 0.dp else 1.dp, color = if (searchQuery.isEmpty()) Gray40 else goldenColor, shape = RoundedCornerShape(35.dp))
+                                            .border(
+                                                width = 1.dp,
+                                                color = if (searchQuery.isEmpty()) GrayLightBorder else goldenColor,
+                                                shape = RoundedCornerShape(35.dp))
                                             .clickable {
                                                 keyboardController?.hide()
                                             },
@@ -1049,7 +1055,7 @@ fun TitleItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 0.dp, vertical = 2.dp),
+            .padding(top = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
     ) {
@@ -1096,7 +1102,7 @@ fun SubtitleItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 0.dp, vertical = 2.dp),
+            .padding(top = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {

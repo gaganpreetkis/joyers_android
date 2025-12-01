@@ -66,6 +66,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.ui.res.colorResource
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.AutoResizeText
@@ -115,9 +117,9 @@ fun ResetPasswordScreen(
 
     val isFormValid = remember(password, confirmPassword) {
         isValidPassword(password) &&
-        password == confirmPassword &&
-        password.isNotEmpty() &&
-        confirmPassword.isNotEmpty()
+                password == confirmPassword &&
+                password.isNotEmpty() &&
+                confirmPassword.isNotEmpty()
     }
 
     fun updateKeyboardState(frameLayout: View) {
@@ -239,11 +241,11 @@ fun ResetPasswordScreen(
                         modifier = Modifier
                             .weight(0.85f)
                             .height(50.dp)
-                            .background(Gray20, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                            .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
                             .border(
-                                color = if (identifierError != null) Red else Color.Transparent,
+                                color = if (identifierError != null) Red else colorResource(id = R.color.color_border_light),
                                 width = 1.dp,
-                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
+                                shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             ),
                     ) {
                         Row(
@@ -297,7 +299,12 @@ fun ResetPasswordScreen(
                             .clickable {
                                 onBackToForgotPassword(true)
                             }
-                            .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
+                            .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
+                            .border(
+                                color = colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -321,11 +328,11 @@ fun ResetPasswordScreen(
                     Box(
                         modifier = Modifier
                             .weight(0.85f)
-                            .background(Gray20, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                            .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
                             .border(
-                                color = if (identifierError != null) Red else Color.Transparent,
+                                color = if (identifierError != null) Red else colorResource(id = R.color.color_border_light),
                                 width = 1.dp,
-                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
+                                shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             ),
                     ) {
                         Row(
@@ -391,7 +398,12 @@ fun ResetPasswordScreen(
                             .clickable {
                                 onBackToForgotPassword(false)
                             }
-                            .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
+                            .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
+                            .border(
+                                color = colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -414,7 +426,7 @@ fun ResetPasswordScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Password Input Field
             Box(
@@ -422,11 +434,11 @@ fun ResetPasswordScreen(
                     .fillMaxWidth()
                     .height(50.dp)
                     .border(
-                        color = if (passwordError != null) Red else Color.Transparent,
+                        color = if (passwordError != null) Red else colorResource(id = R.color.color_border_light),
                         width = 1.dp,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(5.dp)
                     )
-                    .background(Gray20, RoundedCornerShape(8.dp))
+                    .background(Gray20, RoundedCornerShape(5.dp))
             ) {
                 Row(
                     modifier = Modifier.padding(start = 19.dp),
@@ -491,8 +503,8 @@ fun ResetPasswordScreen(
             }
 
             // Password strength indicator
-            if (showPasswordStrength && isPasswordFocused && password.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(6.dp))
+            if (showPasswordStrength && isPasswordFocused && password.isNotEmpty() && confirmPasswordError == null) {
+                Spacer(modifier = Modifier.height(5.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -505,7 +517,7 @@ fun ResetPasswordScreen(
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.Green,
-                        modifier = Modifier.padding(end = 3.dp)
+                        modifier = Modifier.padding()
                     )
                 }
 
@@ -519,6 +531,7 @@ fun ResetPasswordScreen(
                     color = Color.Green,
                     trackColor = Gray20
                 )
+                Spacer(modifier = Modifier.height(6.dp))
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -529,11 +542,11 @@ fun ResetPasswordScreen(
                     .fillMaxWidth()
                     .height(50.dp)
                     .border(
-                        color = if (confirmPasswordError != null) Red else Color.Transparent,
+                        color = if (confirmPasswordError != null) Red else colorResource(id = R.color.color_border_light),
                         width = 1.dp,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(5.dp)
                     )
-                    .background(Gray20, RoundedCornerShape(8.dp))
+                    .background(Gray20, RoundedCornerShape(5.dp))
             ) {
                 Row(
                     modifier = Modifier.padding(start = 19.dp),
@@ -590,46 +603,52 @@ fun ResetPasswordScreen(
 
             // Success message
             if (isPasswordResetSuccess) {
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.checkbox_checked),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Row(
+                        modifier = Modifier.wrapContentWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.checkbox_checked),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
 
-                    Spacer(modifier = Modifier.width(7.dp))
+                        Spacer(modifier = Modifier.width(7.dp))
 
-                    /*Text(
-                        text = context.getString(R.string.your_password_has_been_successfully_reset),
-                        fontSize = textSize,
-                        fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Normal,
-                        color = Black,
-                        maxLines = 1,
-                        overflow = TextOverflow.Clip,
-                        modifier = Modifier.fillMaxWidth(),
-                        onTextLayout = { layoutResult ->
-                            // Auto-size: if text overflows, reduce size (min 12sp, max 16sp, step 1sp)
-                            if (layoutResult.didOverflowWidth && textSize.value > 6f) {
-                                val newSize = (textSize.value - 1f).coerceAtLeast(6f)
-                                textSize = newSize.sp
-                            } else if (!layoutResult.didOverflowWidth && textSize.value < 16f) {
-                                // If text fits and we can increase, do so (up to 16sp)
-                                val newSize = (textSize.value + 1f).coerceAtMost(16f)
-                                textSize = newSize.sp
+                        /*Text(
+                            text = context.getString(R.string.your_password_has_been_successfully_reset),
+                            fontSize = textSize,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
+                            color = Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Clip,
+                            modifier = Modifier.fillMaxWidth(),
+                            onTextLayout = { layoutResult ->
+                                // Auto-size: if text overflows, reduce size (min 12sp, max 16sp, step 1sp)
+                                if (layoutResult.didOverflowWidth && textSize.value > 6f) {
+                                    val newSize = (textSize.value - 1f).coerceAtLeast(6f)
+                                    textSize = newSize.sp
+                                } else if (!layoutResult.didOverflowWidth && textSize.value < 16f) {
+                                    // If text fits and we can increase, do so (up to 16sp)
+                                    val newSize = (textSize.value + 1f).coerceAtMost(16f)
+                                    textSize = newSize.sp
+                                }
                             }
-                        }
-                    )*/
-                    AutoResizeText(
-                        text = context.getString(R.string.your_password_has_been_successfully_reset),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        )*/
+                        AutoResizeText(
+                            text = context.getString(R.string.your_password_has_been_successfully_reset),
+                        )
+                    }
+
                 }
             }
 
@@ -674,7 +693,7 @@ fun ResetPasswordScreen(
                     contentColor = White,
                     disabledContentColor = DisabledTextColor
                 ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(5.dp)
             ) {
                 Text(
                     text = if (isPasswordResetSuccess) {

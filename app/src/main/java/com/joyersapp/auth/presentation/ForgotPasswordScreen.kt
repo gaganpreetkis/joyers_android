@@ -46,6 +46,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -245,7 +246,7 @@ fun ForgotPasswordScreen(
             // Show message and masked email when verification code is shown
             if (showVerificationCode) {
                 /*Spacer(modifier = Modifier.height(20.dp))
-                
+
                 // "We have sent a code to your email" message
                 Text(
                     text = if (isPhoneMode) {
@@ -296,11 +297,11 @@ fun ForgotPasswordScreen(
                         modifier = Modifier
                             .weight(0.85f)
                             .height(50.dp)
-                            .background(Gray20, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                            .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
                             .border(
-                                color = if (usernameError != null) Red else Color.Transparent,
+                                color = if (usernameError != null) Red else colorResource(id = R.color.color_border_light),
                                 width = 1.dp,
-                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
+                                shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             ),
                     ) {
                         Row(
@@ -366,7 +367,12 @@ fun ForgotPasswordScreen(
                                 isPhoneMode = true
                                 showVerificationCode = false
                             }
-                            .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
+                            .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
+                            .border(
+                                color = colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -390,11 +396,11 @@ fun ForgotPasswordScreen(
                     Box(
                         modifier = Modifier
                             .weight(0.85f)
-                            .background(Gray20, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                            .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
                             .border(
-                                color = if (phoneError != null) Red else Color.Transparent,
+                                color = if (phoneError != null) Red else colorResource(id = R.color.color_border_light),
                                 width = 1.dp,
-                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
+                                shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             ),
                     ) {
                         Row(
@@ -472,7 +478,12 @@ fun ForgotPasswordScreen(
                                 isPhoneMode = false
                                 showVerificationCode = false
                             }
-                            .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)),
+                            .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                            .border(
+                                color = colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -539,7 +550,7 @@ fun ForgotPasswordScreen(
                                 text = stringResource(R.string.email),
                                 fontSize = 20.sp,
                                 fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = if (selectedTab == "Email") FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (selectedTab == "Email") Golden60 else Black,
                                 modifier = Modifier
                                     .clickable {
@@ -564,7 +575,7 @@ fun ForgotPasswordScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(6.5.dp))
+                        Spacer(modifier = Modifier.height(7.5.dp))
 
                         // Underline indicators container - 148dp wide, centered, touching
                         Row(
@@ -622,7 +633,8 @@ fun ForgotPasswordScreen(
                     modifier = Modifier
                         .width(181.dp)
                         .height(40.dp)
-                        .align(Alignment.CenterHorizontally),
+                        .align(Alignment.CenterHorizontally)
+                        .border(width = 1.dp, color = colorResource(id = R.color.color_border_light), shape = RoundedCornerShape(5.dp)),
                     containerColor = Gray20,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     textStyle = TextStyle(
@@ -680,7 +692,7 @@ fun ForgotPasswordScreen(
                         contentColor = White,
                         disabledContentColor = DisabledTextColor
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(5.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.next),
@@ -714,7 +726,7 @@ fun ForgotPasswordScreen(
                         contentColor = White,
                         disabledContentColor = DisabledTextColor
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(5.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.verify),
@@ -740,7 +752,7 @@ fun ForgotPasswordScreen(
                         containerColor = Black,
                         contentColor = White
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(5.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.resend_code),
@@ -779,8 +791,8 @@ fun ForgotPasswordScreen(
                     fontWeight = FontWeight.Bold,
                     color = Golden60,
                     modifier = Modifier
-                        .clickable { onLoginClick() }
-                        .padding(4.dp),
+                        .clickable { onLoginClick() },
+                    //.padding(4.dp),
                     textAlign = TextAlign.Center
                 )
             }
