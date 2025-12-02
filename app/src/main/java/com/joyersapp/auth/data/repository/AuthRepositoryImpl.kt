@@ -3,6 +3,7 @@ package com.joyersapp.auth.data.repository
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.auth.data.remote.AuthApi
 import com.joyersapp.auth.data.remote.dto.CheckUsernameRequestDto
+import com.joyersapp.auth.data.remote.dto.CheckUsernameResponseDto
 import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.repository.AuthRepository
 import jakarta.inject.Inject
@@ -26,10 +27,10 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
-    override suspend fun checkUsername(username: String): Result<Boolean> =
+    override suspend fun checkUsername(username: String): Result<CheckUsernameResponseDto> =
         try {
             val response = api.checkUsername(CheckUsernameRequestDto(username))
-            Result.success(response.available)
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }

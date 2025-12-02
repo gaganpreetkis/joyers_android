@@ -75,7 +75,6 @@ import com.joyersapp.theme.DisabledTextColor
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray80
-import com.joyersapp.theme.GrayBorder
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Green
 import com.joyersapp.theme.Red
@@ -99,7 +98,7 @@ fun SignUpScreen(
 
 //    isValidUsername: (String) -> Boolean,
 ) {
-//fkgjlkdfgkldfj
+
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val isKeyBoardOpen = rememberIsKeyboardOpen()
@@ -166,7 +165,7 @@ fun SignUpScreen(
 //            usernameSuggestions = emptyList()
         } else if (cleanUsername.length < 3) {
 
-            if (isUsernameFocused) {
+            if (state.isUsernameFocused) {
                 showUsernameLoader = false
                 showUsernameTick = false
                 showUsernameError = false
@@ -212,7 +211,7 @@ fun SignUpScreen(
 
 
     val cleanUsername = username.text.replace("@", "")
-    if (!isUsernameFocused && username.text.replace("@", "").isNotEmpty() && !isValidUsername(cleanUsername)) {
+    if (!state.isUsernameFocused && username.text.replace("@", "").isNotEmpty() && !isValidUsername(cleanUsername)) {
         showUsernameLoader = false
         usernameError = context.getString(R.string.username_must_be_3_15_characters_only_letters_numbers_and_underscores)
         showUsernameError = true
@@ -302,7 +301,6 @@ fun SignUpScreen(
                 .height(50.dp)
                 .background(
                     color = Gray20,
-//                    color = if (showUsernameError) Red else Gray20,
                     shape = RoundedCornerShape(
                         5.dp,
                         5.dp,
@@ -312,7 +310,7 @@ fun SignUpScreen(
                 )
                 .border(
                     width = 1.dp,
-                    color = if (showUsernameError) Red else GrayLightBorder,
+                    color = if (state.showUsernameError) Red else GrayLightBorder,
                     shape = RoundedCornerShape(
                         5.dp,
                         5.dp,
@@ -377,7 +375,7 @@ fun SignUpScreen(
                     .weight(0.71f)
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
-                        isUsernameFocused = focusState.isFocused
+                        viewModel.onEvent(SignupEvent.UsernameFocusChanged(focusState.isFocused))
                     },
                 containerColor = Color.Transparent,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
@@ -385,8 +383,7 @@ fun SignUpScreen(
 
             Spacer(modifier = Modifier.weight(0.29f))
 
-            if (state.checkingUsername) {
-                // Loader GIF would go here - using placeholder for now
+            if (state.showUsernameLoader) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data(R.drawable.gif_loader_username)
@@ -397,21 +394,19 @@ fun SignUpScreen(
                     modifier = Modifier.size(20.dp),
                     contentScale = ContentScale.FillBounds,
                     onSuccess = {
-                        // Mark GIF as loaded, then start the delay
                         //gifLoaded = true
                     },
                     onError = {
-                        // On error, still proceed after delay
 //                        gifLoaded = true
                     }
                 )
-            } else if (showUsernameTick && isUsernameFocused) {
+            } else if (state.isValidUsername && state.isUsernameFocused) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_tick_green),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
-            } else if (showUsernameError) {
+            } else if (state.showUsernameError) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -422,7 +417,13 @@ fun SignUpScreen(
                         modifier = Modifier
                             .size(30.dp)
                             .padding(start = 5.dp, end = 10.dp)
-                            .clickable { username = TextFieldValue(text = "") }
+                            .clickable {
+                                username = TextFieldValue(text = "")
+                                val clearValue = TextFieldValue(
+                                    text = "",
+                                    TextRange(0))
+                                viewModel.onEvent(SignupEvent.UsernameChanged(clearValue))
+                            }
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Image(
@@ -431,19 +432,17 @@ fun SignUpScreen(
                         modifier = Modifier
                             .size(15.dp)
                             .clickable {
+                                viewModel.onEvent(SignupEvent.UsernameChanged(state.username))
                                 val cleanUsername = username.text.replace("@", "")
-//                                if (cleanUsername.length >= 3) {
-//                                    signupViewModel.checkUserName(UsernameRequest(cleanUsername))
-//                                }
                             }
                     )
                 }
             }
         }
 
-        if (usernameError != null && showUsernameError) {
+        if (state.usernameError != null && state.showUsernameError) {
             Text(
-                text = usernameError!!,
+                text = state.usernameError?.asString(context) ?: "",
                 color = Red,
                 fontSize = 14.sp,
                 fontFamily = fontFamilyLato,
@@ -457,10 +456,6 @@ fun SignUpScreen(
         Box() {
             Column() {
 // EMAIL
-                val toggleIcon = if (!isPhoneMode) R.drawable.telephone_icon_golden else R.drawable.ic_mail_golden
-                val contactIcon = if (!isPhoneMode) R.drawable.ic_mail else R.drawable.ic_telephone_gray
-                val contactPlaceHolder = if (!isPhoneMode) "Email" else "Phone Number"
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -473,7 +468,7 @@ fun SignUpScreen(
                             .fillMaxHeight()
                             .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
                             .border(
-                                color = if ((emailError != null && !isPhoneMode) || (phoneError != null && isPhoneMode)) Red else GrayLightBorder,
+                                color = if (state.emailPhoneError != null) Red else GrayLightBorder,
                                 width = 1.dp,
                                 shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             )
@@ -482,53 +477,14 @@ fun SignUpScreen(
                             modifier = Modifier.padding(start = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (!isPhoneMode) {
-                                Image(
-                                    painter = painterResource(id = contactIcon),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    colorFilter = ColorFilter.tint(Gray80)
-                                )
-
-                                Spacer(modifier = Modifier.width(0.dp))
-
-                                AppBasicTextField(
-                                    value = email,
-                                    onValueChange = {
-                                        if (email != it) {
-                                            email = it
-                                            showVerification = false
-                                            showPasswordFields = false
-                                        }
-                                    },
-                                    maxLength = 100,
-                                    placeholder = contactPlaceHolder,
-                                    modifier = Modifier.weight(1f),
-                                    containerColor = Color.Transparent,
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                                )
-
-                                if (email.isNotEmpty()) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .padding(start = 5.dp, end = 10.dp)
-                                            .clickable {
-                                                email = ""
-                                                showVerification = false
-                                                showPasswordFields = false
-                                            }
-                                    )
-                                }
-                            } else {
-                                Image(
-                                    painter = painterResource(id = contactIcon),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    colorFilter = ColorFilter.tint(Gray80)
-                                )
+                            if (state.isPhoneMode) {
+//                                phone mode
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_telephone_gray),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp),
+                                            colorFilter = ColorFilter.tint(Gray80)
+                                        )
 
                                 Spacer(modifier = Modifier.width(7.dp))
 
@@ -537,22 +493,18 @@ fun SignUpScreen(
                                 }
 
                                 AppBasicTextField(
-                                    value = phone,
+                                    value = state.phone,
                                     onValueChange = {
-                                        if (phone != it) {
-                                            phone = it
-                                            showVerification = false
-                                            showPasswordFields = false
-                                        }
+                                        viewModel.onEvent(SignupEvent.PhoneChanged(it))
                                     },
                                     maxLength = 15,
-                                    placeholder = contactPlaceHolder,
+                                    placeholder = stringResource(R.string.phone_number),
                                     modifier = Modifier.weight(1f),
                                     containerColor = Color.Transparent,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                                 )
 
-                                if (phone.isNotEmpty()) {
+                                if (state.phone.isNotEmpty()) {
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_cancel_grey),
                                         contentDescription = null,
@@ -560,9 +512,42 @@ fun SignUpScreen(
                                             .size(30.dp)
                                             .padding(start = 5.dp, end = 10.dp)
                                             .clickable {
-                                                phone = ""
-                                                showVerification = false
-                                                showPasswordFields = false
+                                                viewModel.onEvent(SignupEvent.PhoneChanged(""))
+                                            }
+                                    )
+                                }
+                            } else {
+//                                email mode
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_mail),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp),
+                                        colorFilter = ColorFilter.tint(Gray80)
+                                    )
+
+                                Spacer(modifier = Modifier.width(0.dp))
+
+                                AppBasicTextField(
+                                    value = state.email,
+                                    onValueChange = {
+                                        viewModel.onEvent(SignupEvent.EmailChanged(it))
+                                    },
+                                    maxLength = 100,
+                                    placeholder = stringResource(R.string.email),
+                                    modifier = Modifier.weight(1f),
+                                    containerColor = Color.Transparent,
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                                )
+
+                                if (state.email.isNotEmpty()) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .padding(start = 5.dp, end = 10.dp)
+                                            .clickable {
+                                                viewModel.onEvent(SignupEvent.EmailChanged(""))
                                             }
                                     )
                                 }
@@ -576,11 +561,7 @@ fun SignUpScreen(
                     Box(
                         modifier = Modifier
                             .clickable {
-                                isPhoneMode = !isPhoneMode
-                                email = ""
-                                phone = ""
-                                showVerification = false
-                                showPasswordFields = false
+                                viewModel.onEvent(SignupEvent.TogglePhoneMode)
                             }
                             .weight(0.15f)
                             .fillMaxHeight()
@@ -593,7 +574,7 @@ fun SignUpScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(id = toggleIcon),
+                            painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_mail_golden else R.drawable.telephone_icon_golden),
                             contentDescription = "Toggle",
                             modifier = Modifier.size(24.dp),
                             colorFilter = ColorFilter.tint(Golden60)
@@ -602,19 +583,9 @@ fun SignUpScreen(
                 }
 
 // Error messages
-                if (emailError != null && !isPhoneMode) {
+                if (state.emailPhoneError != null) {
                     Text(
-                        text = emailError!!,
-                        color = Red,
-                        fontSize = 14.sp,
-                        fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Normal,
-                        modifier = Modifier.padding(top = 3.dp)
-                    )
-                }
-                if (phoneError != null && isPhoneMode) {
-                    Text(
-                        text = phoneError!!,
+                        text = state.emailPhoneError ?: "",
                         color = Red,
                         fontSize = 14.sp,
                         fontFamily = fontFamilyLato,
@@ -624,16 +595,13 @@ fun SignUpScreen(
                 }
 
 // Verification Code Input
-                if (showVerification) {
+                if (state.showVerification) {
                     Spacer(modifier = Modifier.height(20.dp))
 
                     AppBasicTextFieldForLetterSpacing(
-                        value = verificationCode,
+                        value = state.verificationCode,
                         onValueChange = {
-                            if (it.length <= 6 && it.all { char -> char.isDigit() }) {
-                                verificationCode = it
-                                verificationError = null
-                            }
+                            viewModel.onEvent(SignupEvent.VerificationCodeChanged(it))
                         },
                         maxLength = 6,
                         isCentered = true,
@@ -656,9 +624,9 @@ fun SignUpScreen(
 
                     Spacer(Modifier.height(4.dp))
 
-                    if (codeSentMessage.isNotEmpty() && verificationError == null) {
+                    if (state.codeSentMessage.asString(context).isNotEmpty() && state.verificationError == null) {
                         Text(
-                            text = codeSentMessage,
+                            text = state.codeSentMessage.asString(context),
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
@@ -669,9 +637,9 @@ fun SignUpScreen(
                         )
                     }
 
-                    if (verificationError != null) {
+                    if (state.verificationError != null) {
                         Text(
-                            text = verificationError!!,
+                            text = state.verificationError!!,
                             color = Red,
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
@@ -687,11 +655,9 @@ fun SignUpScreen(
 // Verify Button
                     Button(
                         onClick = {
-                            verificationError = null
-                            showVerification = false
-                            showPasswordFields = true
+                            viewModel.onEvent(SignupEvent.VerifyCode)
                         },
-                        enabled = isVerificationValid,
+                        enabled = state.verificationCode.length == 6,
                         modifier = Modifier.fillMaxWidth()
                             .height(50.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -716,20 +682,7 @@ fun SignUpScreen(
                     // Resend Code Button
                     Button(
                         onClick = {
-                            verificationCode = ""
-                            verificationError = null
-//                    if (isPhoneMode) {
-//                        signupViewModel.checkUserEmail(
-//                            VerifyEmailRequest(
-//                                mobile = phone,
-//                                country_code = selectedCountryCode
-//                            )
-//                        )
-//                    } else {
-//                        signupViewModel.checkUserEmail(
-//                            VerifyEmailRequest(email = email)
-//                        )
-//                    }
+                            viewModel.onEvent(SignupEvent.SendVerificationCode)
                         },
                         modifier = Modifier.fillMaxWidth()
                             .height(50.dp),
@@ -745,8 +698,6 @@ fun SignUpScreen(
                             modifier = Modifier.padding(vertical = 1.dp)
                         )
                     }
-                } else {
-                    verificationCode = ""
                 }
 
 // Password Fields
@@ -937,52 +888,16 @@ fun SignUpScreen(
 
                 Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 45.dp else 71.dp))
 
-// Sign Up  && Verification Button
-                if (!showVerification) {
+//    Sign Up  Button
+                if (!state.showVerification) {
                     Button(
                         onClick = {
-//                            onSignUpClick()
                             if (showPasswordFields) {
-
                                 onSignUpClick()
 //                    signupViewModel.signup(registerRequest)
-//                                Toast.makeText(context, "Signed In", Toast.LENGTH_SHORT).show()
                             } else {
                                 // Next step - verify email/phone
-                                if (isPhoneMode) {
-                                    if (phone.length >= 6) {
-                                        showVerification = true
-                                        codeSentMessage = if (isPhoneMode) {
-                                            context.getString(R.string.code_sent_to_phone)
-                                        } else {
-                                            context.getString(R.string.code_sent_to_email)
-                                        }
-                                        emailError = null
-                                        phoneError = null
-//                            signupViewModel.checkUserEmail(
-//                                VerifyEmailRequest(
-//                                    mobile = phone,
-//                                    country_code = selectedCountryCode
-//                                )
-//                            )
-                                    } else {
-                                        phoneError = context.getString(R.string.invaild_phone)
-                                    }
-                                } else {
-                                    if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                        showVerification = true
-                                        codeSentMessage = if (isPhoneMode) {
-                                            context.getString(R.string.code_sent_to_phone)
-                                        } else {
-                                            context.getString(R.string.code_sent_to_email)
-                                        }
-                                        emailError = null
-                                        phoneError = null
-//                            signupViewModel.checkUserEmail(VerifyEmailRequest(email = email))
-                                    } else {
-                                        emailError = context.getString(R.string.invaild_email)
-                                    }
-                                }
+                                viewModel.onEvent(SignupEvent.NextClicked(""))
                             }
                         },
                         enabled = if (showPasswordFields) isPasswordFormValid else isFormValid,
@@ -1034,7 +949,7 @@ fun SignUpScreen(
             }
 
 // Username suggestions
-            if (showUsernameSuggestions) {
+            if (state.usernameSuggestions.isNotEmpty()) {
 //        if (showUsernameSuggestions && usernameSuggestions.isNotEmpty()) {
                 Card(
                     modifier = Modifier
@@ -1047,7 +962,7 @@ fun SignUpScreen(
                     LazyColumn(
                         Modifier.height(165.dp)
                     ) {
-                        items(usernameSuggestions.size) { index ->
+                        items(state.usernameSuggestions.size) { index ->
                             Row(
                                 Modifier
                                     .height(54.dp)
@@ -1058,22 +973,12 @@ fun SignUpScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "@${usernameSuggestions[index]}",
+                                    text = "@${state.usernameSuggestions[index]}",
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .weight(1f)
                                         .clickable {
-                                            username = TextFieldValue(
-                                                text = "@${usernameSuggestions[index]}",
-                                                selection = TextRange(
-                                                    start = usernameSuggestions[index].length + 1,
-                                                    end = usernameSuggestions[index].length + 1
-                                                )
-                                            )
-                                            isSuggestionSelected = true
-                                            showUsernameSuggestions = false
-                                            showUsernameTick = true
-                                            showUsernameError = false
+                                            viewModel.onEvent(SignupEvent.UsernameSuggestionClicked(state.usernameSuggestions[index]))
                                         }
                                         .padding(horizontal = 20.dp, vertical = 12.dp),
                                     fontSize = 16.sp,
@@ -1095,14 +1000,9 @@ fun SignUpScreen(
                         }
                     }
                 }
-            } else {
-
             }
-
         }
-
     }
-
 }
 
 @Composable
