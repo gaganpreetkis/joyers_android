@@ -645,7 +645,7 @@ fun SignUpScreen(
                     if (codeSentMessage.isNotEmpty() && verificationError == null) {
                         Text(
                             text = codeSentMessage,
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
                             color = Black, textAlign = TextAlign.Center,
