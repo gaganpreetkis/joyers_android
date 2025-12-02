@@ -12,6 +12,8 @@ interface AuthRepository {
 
     suspend fun register(name: String, email: String, password: String): Result<Unit>
 
+    suspend fun forgotPassword(name: String): Result<Boolean>
+
     suspend fun logout()
 
     fun observeAuthState(): Flow<AuthState>

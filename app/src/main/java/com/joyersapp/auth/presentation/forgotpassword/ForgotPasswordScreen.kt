@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -56,6 +57,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.CountryCodePicker
 import com.joyersapp.theme.Black
@@ -67,6 +70,8 @@ import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.R
+import com.joyersapp.auth.presentation.signup.SignupEvent
+import com.joyersapp.auth.presentation.signup.SignupViewModel
 import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
 import com.joyersapp.utils.isValidUsername
 
@@ -76,19 +81,21 @@ import com.joyersapp.utils.isValidUsername
 fun ForgotPasswordScreen(
     onLoginClick: () -> Unit = {},
     onNavigateToResetPassword: (String, String, String, String) -> Unit = { _, _, _, _ -> },
-    initialPhoneMode: Boolean = false
+    initialPhoneMode: Boolean = false,
+    viewModel: ForgotPasswordViewModel = hiltViewModel()
 ) {
-    var username by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var verificationCode by remember { mutableStateOf("") }
-    var usernameError by remember { mutableStateOf<String?>(null) }
-    var phoneError by remember { mutableStateOf<String?>(null) }
-    var verificationError by remember { mutableStateOf<String?>(null) }
-    var tabError by remember { mutableStateOf<String?>(null) }
-    var isPhoneMode by remember { mutableStateOf(false) }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    //var username by remember { mutableStateOf("") }
+    //var phone by remember { mutableStateOf("") }
+    //var verificationCode by remember { mutableStateOf("") }
+    //var usernameError by remember { mutableStateOf<String?>(null) }
+    //var phoneError by remember { mutableStateOf<String?>(null) }
+    //var verificationError by remember { mutableStateOf<String?>(null) }
+    //var tabError by remember { mutableStateOf<String?>(null) }
+    //var isPhoneMode by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf("Email") } // "Email" or "SMS"
     var showVerificationCode by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
+    //var isLoading by remember { mutableStateOf(false) }
     var isKeyboardVisible by remember { mutableStateOf(false) }
     var logoSize by remember { mutableStateOf(155.dp to 59.dp) }
     var view1Height by remember { mutableStateOf(45.dp) }
@@ -100,29 +107,29 @@ fun ForgotPasswordScreen(
 
     // Update isPhoneMode and selectedTab when initialPhoneMode changes
     LaunchedEffect(initialPhoneMode) {
-        isPhoneMode = initialPhoneMode
+        viewModel.onEvent(ForgotPasswordEvent.IsPhoneModeChanged(initialPhoneMode))
         //selectedTab = if (initialPhoneMode) "SMS" else "Email"
         // Reset form fields when mode changes
-        username = ""
-        phone = ""
-        verificationCode = ""
-        usernameError = null
-        phoneError = null
-        verificationError = null
-        tabError = null
+        viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(""))
+        viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
+        viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
+        viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
+        viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+        viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+        viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged(null))
         showVerificationCode = false
     }
 
     // Form validation
-    val isFormValid = remember(username, phone, isPhoneMode) {
-        if (isPhoneMode) {
-            phone.isNotEmpty() && phone.all { it.isDigit() } && phone.length in 10..15
+    val isFormValid = remember(state.usernameEmail, state.phone, state.isPhoneMode) {
+        if (state.isPhoneMode) {
+            state.phone.isNotEmpty() && state.phone.all { it.isDigit() } && state.phone.length in 10..15
         } else {
-            username.isNotEmpty() && (isValidUsername(username) || Patterns.EMAIL_ADDRESS.matcher(username).matches())
+            state.usernameEmail.isNotEmpty() && (isValidUsername(state.usernameEmail) || Patterns.EMAIL_ADDRESS.matcher(state.usernameEmail).matches())
         }
     }
 
-    val isVerificationValid = verificationCode.length == 6 && verificationCode.all { it.isDigit() }
+    val isVerificationValid = state.verificationCode.length == 6 && state.verificationCode.all { it.isDigit() }
 
     // Function to mask email address
     fun maskEmail(email: String): String {
@@ -184,14 +191,14 @@ fun ForgotPasswordScreen(
     }
 
     // Handle navigation after successful verification with 1 second delay
-    LaunchedEffect(isLoading) {
-        if (isLoading) {
+    LaunchedEffect(state.isLoading) {
+        if (state.isLoading) {
             delay(1000) // Show loader for 1 second
-            val identifier = if (isPhoneMode) phone else username
-            val countryCode = if (isPhoneMode) selectedCountryCode else ""
-            val countryNameCode = if (isPhoneMode) selectedCountryNameCode else ""
-            onNavigateToResetPassword(identifier, countryCode, countryNameCode, verificationCode)
-            isLoading = false
+            val identifier = if (state.isPhoneMode) state.phone else state.usernameEmail
+            val countryCode = if (state.isPhoneMode) selectedCountryCode else ""
+            val countryNameCode = if (state.isPhoneMode) selectedCountryNameCode else ""
+            onNavigateToResetPassword(identifier, countryCode, countryNameCode, state.verificationCode)
+            viewModel.onEvent(ForgotPasswordEvent.LoadingChanged(false))
         }
     }
 
@@ -230,7 +237,7 @@ fun ForgotPasswordScreen(
 
             // Description text
             Text(
-                text = if (showVerificationCode) if (isPhoneMode) {
+                text = if (showVerificationCode) if (state.isPhoneMode) {
                     stringResource(R.string.number_sent)
                 } else {
                     stringResource(R.string.email_sent)
@@ -263,16 +270,16 @@ fun ForgotPasswordScreen(
 
                 // Masked email/phone display
                 Text(
-                    text = if (isPhoneMode) {
+                    text = if (state.isPhoneMode) {
                         // Mask phone number with country code
-                        val fullPhone = "$selectedCountryCode$phone"
+                        val fullPhone = "$selectedCountryCode${state.phone}"
                         if (fullPhone.length > 6) {
                             "${fullPhone.take(3)}*****${fullPhone.takeLast(2)}."
                         } else {
                             "$fullPhone."
                         }
                     } else {
-                        maskEmail("$username.")
+                        maskEmail("${state.usernameEmail}.")
                     },
                     fontSize = 16.sp,
                     fontFamily = fontFamilyLato,
@@ -286,7 +293,7 @@ fun ForgotPasswordScreen(
             }
 
             // USERNAME / EMAIL BOX (LEFT BIG + RIGHT ICON)
-            if (!isPhoneMode) {
+            if (!state.isPhoneMode) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -299,7 +306,7 @@ fun ForgotPasswordScreen(
                             .height(50.dp)
                             .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
                             .border(
-                                color = if (usernameError != null) Red else colorResource(id = R.color.color_border_light),
+                                color = if (state.usernameEmailError != null) Red else colorResource(id = R.color.color_border_light),
                                 width = 1.dp,
                                 shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             ),
@@ -317,12 +324,12 @@ fun ForgotPasswordScreen(
                             //Spacer(modifier = Modifier.width(15.dp))
 
                             AppBasicTextField(
-                                value = username,
+                                value = state.usernameEmail,
                                 onValueChange = {
-                                    if (username != it) {
-                                        username = it
-                                        verificationCode = ""
-                                        usernameError = null
+                                    if (state.usernameEmail != it) {
+                                        viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(it))
+                                        viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
+                                        viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
                                         if (showVerificationCode) {
                                             showVerificationCode = false
                                         }
@@ -337,7 +344,7 @@ fun ForgotPasswordScreen(
                                 ),
                             )
 
-                            if (username.isNotEmpty()) {
+                            if (state.usernameEmail.isNotEmpty()) {
                                 Image(
                                     painter = painterResource(id = R.drawable.ic_cancel_grey),
                                     contentDescription = null,
@@ -345,7 +352,7 @@ fun ForgotPasswordScreen(
                                         .size(30.dp)
                                         .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
-                                            username = ""
+                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(""))
                                             if (showVerificationCode) {
                                                 showVerificationCode = false
                                             }
@@ -363,8 +370,8 @@ fun ForgotPasswordScreen(
                             .weight(0.15f)
                             .fillMaxHeight()
                             .clickable {
-                                username = ""
-                                isPhoneMode = true
+                                viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(""))
+                                viewModel.onEvent(ForgotPasswordEvent.IsPhoneModeChanged(true))
                                 showVerificationCode = false
                             }
                             .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
@@ -386,7 +393,7 @@ fun ForgotPasswordScreen(
             }
 
             // PHONE INPUT FIELD
-            if (isPhoneMode) {
+            if (state.isPhoneMode) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -398,7 +405,7 @@ fun ForgotPasswordScreen(
                             .weight(0.85f)
                             .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
                             .border(
-                                color = if (phoneError != null) Red else colorResource(id = R.color.color_border_light),
+                                color = if (state.phoneError != null) Red else colorResource(id = R.color.color_border_light),
                                 width = 1.dp,
                                 shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             ),
@@ -426,13 +433,13 @@ fun ForgotPasswordScreen(
                             )
 
                             AppBasicTextField(
-                                value = phone,
+                                value = state.phone,
                                 onValueChange = {
-                                    if (phone != it) {
+                                    if (state.phone != it) {
                                         if (it.length <= 15) {
-                                            phone = it
-                                            phoneError = null
-                                            verificationCode = ""
+                                            viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
+                                            viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+                                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
                                         }
                                         if (showVerificationCode) {
                                             showVerificationCode = false
@@ -448,7 +455,7 @@ fun ForgotPasswordScreen(
                                 ),
                             )
 
-                            if (phone.isNotEmpty()) {
+                            if (state.phone.isNotEmpty()) {
                                 Image(
                                     painter = painterResource(id = R.drawable.ic_cancel_grey),
                                     contentDescription = null,
@@ -456,7 +463,7 @@ fun ForgotPasswordScreen(
                                         .size(30.dp)
                                         .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
-                                            phone = ""
+                                            viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
                                             if (showVerificationCode) {
                                                 showVerificationCode = false
                                             }
@@ -474,8 +481,8 @@ fun ForgotPasswordScreen(
                             .weight(0.15f)
                             .fillMaxHeight()
                             .clickable {
-                                phone = ""
-                                isPhoneMode = false
+                                viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
+                                viewModel.onEvent(ForgotPasswordEvent.IsPhoneModeChanged(false))
                                 showVerificationCode = false
                             }
                             .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
@@ -497,9 +504,9 @@ fun ForgotPasswordScreen(
             }
 
             // Error messages
-            if (phoneError != null && isPhoneMode) {
+            if (state.phoneError != null && state.isPhoneMode) {
                 Text(
-                    text = phoneError!!,
+                    text = state.phoneError!!,
                     color = Red,
                     fontSize = 14.sp,
                     fontFamily = fontFamilyLato,
@@ -507,9 +514,9 @@ fun ForgotPasswordScreen(
                 )
             }
 
-            if (usernameError != null && !isPhoneMode) {
+            if (state.usernameEmailError != null && !state.isPhoneMode) {
                 Text(
-                    text = usernameError!!,
+                    text = state.usernameEmailError!!,
                     color = Red,
                     fontSize = 14.sp,
                     fontFamily = fontFamilyLato,
@@ -557,7 +564,7 @@ fun ForgotPasswordScreen(
                                 modifier = Modifier
                                     .clickable {
                                         selectedTab = "Email"
-                                        tabError = null
+                                        viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged(null))
                                     }
                                     .padding(start = 12.dp, end = 15.dp)
                             )
@@ -571,7 +578,8 @@ fun ForgotPasswordScreen(
                                 modifier = Modifier
                                     .clickable {
                                         selectedTab = "SMS"
-                                        tabError = null
+                                        viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged(null))
+
                                     }
                                     .padding(start = 15.dp, end = 13.dp)
                             )
@@ -604,9 +612,9 @@ fun ForgotPasswordScreen(
                         }
                     }
 
-                    if (tabError != null) {
+                    if (state.tabError != null) {
                         Text(
-                            text = tabError!!,
+                            text = state.tabError!!,
                             color = Red,
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
@@ -624,11 +632,11 @@ fun ForgotPasswordScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 AppBasicTextFieldForLetterSpacing(
-                    value = verificationCode,
+                    value = state.verificationCode,
                     onValueChange = {
                         if (it.length <= 6 && it.all { char -> char.isDigit() }) {
-                            verificationCode = it
-                            verificationError = null
+                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(it))
+                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
                         }
                     },
                     maxLength = 6,
@@ -651,9 +659,9 @@ fun ForgotPasswordScreen(
                     letterSpacing = 4.sp,
                 )
 
-                if (verificationError != null) {
+                if (state.verificationCodeError != null) {
                     Text(
-                        text = verificationError!!,
+                        text = state.verificationCodeError!!,
                         color = Red,
                         fontSize = 14.sp,
                         fontFamily = fontFamilyLato,
@@ -672,19 +680,21 @@ fun ForgotPasswordScreen(
                     onClick = {
                         // Validate and proceed
                         if (!isFormValid) {
-                            if (isPhoneMode) {
-                                phoneError = context.getString(R.string.invaild_phone)
+                            if (state.isPhoneMode) {
+                                viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(context.getString(R.string.invaild_phone)))
                             } else {
-                                usernameError = context.getString(R.string.invaild_email)
+                                viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(context.getString(R.string.invaild_email)))
                             }
                         } else if (selectedTab.isEmpty()) {
-                            tabError = "Please select a verification method"
+                            viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged("Please select a verification method"))
                         } else {
                             // Proceed to verification code
                             showVerificationCode = true
-                            usernameError = null
-                            phoneError = null
-                            tabError = null
+                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
+                            viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                            viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged(null))
+                            viewModel.onEvent(ForgotPasswordEvent.SubmitClicked(state.usernameEmail))
                         }
                     },
                     enabled = isFormValid,
@@ -716,9 +726,9 @@ fun ForgotPasswordScreen(
                     onClick = {
                         if (isVerificationValid) {
                             // Verify code - show loader, will navigate after 1 second
-                            isLoading = true
+                            viewModel.onEvent(ForgotPasswordEvent.LoadingChanged(true))
                         } else {
-                            verificationError = "Please enter a valid 6-digit code"
+                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged("Please enter a valid 6-digit code"))
                         }
                     },
                     enabled = isVerificationValid,
@@ -746,8 +756,8 @@ fun ForgotPasswordScreen(
                 Button(
                     onClick = {
                         // Resend code
-                        verificationCode = ""
-                        verificationError = null
+                        viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
+                        viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
                         // TODO: Implement resend logic
                     },
                     modifier = Modifier
@@ -808,7 +818,7 @@ fun ForgotPasswordScreen(
         }
 
         // Progress bar overlay
-        if (isLoading) {
+        if (state.isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
