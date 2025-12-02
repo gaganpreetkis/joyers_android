@@ -58,6 +58,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
@@ -93,9 +95,12 @@ import kotlin.text.replace
 fun SignUpScreen(
     onSignUpClick: () -> Unit = {},
     onLogInClick: () -> Unit = {},
+    viewModel: SignupViewModel = hiltViewModel()
+
 //    isValidUsername: (String) -> Boolean,
 ) {
-
+//fkgjlkdfgkldfj
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val isKeyBoardOpen = rememberIsKeyboardOpen()
     var username by remember { mutableStateOf(TextFieldValue("")) }
@@ -327,11 +332,24 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.width(0.dp))
 
             AppBasicTextFieldWithCursorHandling(
-                value = username,
-                onValueChange = {
+                value = state.username,
+                onValueChange = { newValue ->
+
                     showVerification = false
                     showPasswordFields = false
-                    var updatedText = ""
+                    isSuggestionSelected = !isSuggestionSelected
+
+                    var text = newValue.text.take(15)
+                    text = when {
+                        text.isEmpty() -> ""
+                        text.startsWith("@") -> text
+                        else -> "@$text"
+                    }
+                    val fieldValue = TextFieldValue(
+                        text,
+                        TextRange(text.length))
+                    viewModel.onEvent(SignupEvent.UsernameChanged(fieldValue))
+               /*     var updatedText = ""
                     if (username.text.length <= 15) {
                         updatedText =
                             if (it.text.isEmpty() || it.text.get(0).toString().equals("@")) {
@@ -349,11 +367,7 @@ fun SignUpScreen(
                             start = updatedText.length,
                             end = updatedText.length
                         )
-                    )
-
-                    if (isSuggestionSelected) {
-                        isSuggestionSelected = false
-                    }
+                    )*/
                 },
                 maxLength = 16,
                 isEnabled = !showPasswordFields,
@@ -371,7 +385,7 @@ fun SignUpScreen(
 
             Spacer(modifier = Modifier.weight(0.29f))
 
-            if (showUsernameLoader) {
+            if (state.checkingUsername) {
                 // Loader GIF would go here - using placeholder for now
                 AsyncImage(
                     model = ImageRequest.Builder(context)

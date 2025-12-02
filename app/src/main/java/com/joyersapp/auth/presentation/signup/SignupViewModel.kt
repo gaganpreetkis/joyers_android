@@ -21,7 +21,6 @@ class SignupViewModel @Inject constructor(
     private val checkUsernameUseCase: CheckUsernameUseCase
 ) : ViewModel() {
 
-
     private val _uiState = MutableStateFlow(SignupUiState())
     val uiState: StateFlow<SignupUiState> = _uiState
 
@@ -29,20 +28,31 @@ class SignupViewModel @Inject constructor(
 
     fun onEvent(event: SignupEvent) {
         when (event) {
-            is SignupEvent.NameChanged -> _uiState.update { it.copy(name = event.value) }
+            is SignupEvent.NameChanged ->
+                _uiState.update { it.copy(name = event.value, error = null) }
 
-            is SignupEvent.EmailChanged -> _uiState.update { it.copy(email = event.value) }
+            is SignupEvent.EmailChanged ->
+                _uiState.update { it.copy(email = event.value, error = null) }
 
             is SignupEvent.UsernameChanged -> {
-                _uiState.update { it.copy(username = event.value, isUsernameAvailable = null) }
-                checkUsernameDebounced(event.value)
+                _uiState.update {
+                    it.copy(
+                        username = event.value,
+                        isUsernameAvailable = null,
+                        error = null
+                    )
+                }
+                val cleanUsername = event.value.text.removePrefix("@") // remove @ before sending request
+                if (cleanUsername.length >= 3) {
+                    checkUsernameDebounced(cleanUsername)
+                }
             }
 
             is SignupEvent.PasswordChanged ->
-                _uiState.update { it.copy(password = event.value) }
+                _uiState.update { it.copy(password = event.value, error = null) }
 
             is SignupEvent.ConfirmPasswordChanged ->
-                _uiState.update { it.copy(confirmPassword = event.value) }
+                _uiState.update { it.copy(confirmPassword = event.value, error = null) }
 
             SignupEvent.SubmitClicked -> signup()
         }
@@ -53,7 +63,7 @@ class SignupViewModel @Inject constructor(
 
         usernameJob?.cancel()
         usernameJob = viewModelScope.launch {
-            delay(600) // debounce
+            delay(600)
             _uiState.update { it.copy(checkingUsername = true) }
 
             val result = checkUsernameUseCase(username)
@@ -69,73 +79,25 @@ class SignupViewModel @Inject constructor(
 
     private fun signup() {
         val state = _uiState.value
+        val usernameText = state.username.text  // 👈 important
 
-        if (state.isUsernameAvailable != true) {
-            _uiState.update { it.copy(error = "Username not available") }
-            return
-        }
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-
-            val result = signupUseCase(
-                state.username,
-                state.email,
-                state.password
-            )
-
-            if (result.isSuccess) {
-                _uiState.update { it.copy(isLoading = false) }
-            } else {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = result.exceptionOrNull()?.message
-                    )
-                }
-            }
-        }
-    }
-/*
-    private val _uiState = MutableStateFlow(SignupUiState())
-    val uiState: StateFlow<SignupUiState> = _uiState
-
-    private val _oneShotEvents = MutableSharedFlow<String>() // snackbars, toasts
-    val oneShotEvents: SharedFlow<String> = _oneShotEvents
-
-    fun onEvent(event: SignupEvent) {
-        when (event) {
-            is SignupEvent.NameChanged ->
-                _uiState.update { it.copy(name = event.value, error = null) }
-
-            is SignupEvent.EmailChanged ->
-                _uiState.update { it.copy(email = event.value, error = null) }
-
-            is SignupEvent.PasswordChanged ->
-                _uiState.update { it.copy(password = event.value, error = null) }
-
-            is SignupEvent.ConfirmPasswordChanged ->
-                _uiState.update { it.copy(confirmPassword = event.value, error = null) }
-
-            SignupEvent.SubmitClicked ->
-                signup()
-        }
-    }
-
-    private fun signup() {
-        val current = _uiState.value
-
-        if (current.name.isBlank() ||
-            current.email.isBlank() ||
-            current.password.isBlank() ||
-            current.confirmPassword.isBlank()
+        if (state.name.isBlank() ||
+            state.email.isBlank() ||
+            usernameText.isBlank() ||
+            state.password.isBlank() ||
+            state.confirmPassword.isBlank()
         ) {
             _uiState.update { it.copy(error = "All fields are required") }
             return
         }
 
-        if (current.password != current.confirmPassword) {
+        if (state.password != state.confirmPassword) {
             _uiState.update { it.copy(error = "Passwords do not match") }
+            return
+        }
+
+        if (state.isUsernameAvailable == false) {
+            _uiState.update { it.copy(error = "Username not available") }
             return
         }
 
@@ -143,23 +105,18 @@ class SignupViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             val result = signupUseCase(
-                name = current.name,
-                email = current.email,
-                password = current.password
+//                name = state.name,
+                email = state.email,
+                password = state.password,
+                username = usernameText
             )
 
-            if (result.isSuccess) {
-                _uiState.update { it.copy(isLoading = false) }
-                // Root observes AuthState and will move to main graph automatically
-                _oneShotEvents.emit("Account created successfully")
-            } else {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = result.exceptionOrNull()?.message ?: "Signup failed"
-                    )
-                }
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    error = result.exceptionOrNull()?.message
+                )
             }
         }
-    }*/
+    }
 }
