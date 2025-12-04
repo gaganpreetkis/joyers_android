@@ -486,7 +486,7 @@ fun ForgotPasswordScreen(
                                 onValueChange = {
                                     if (state.phone != it) {
                                         if (it.length <= 15) {
-                                            viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
+                                            viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(it))
                                             viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
                                             viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
                                         }
