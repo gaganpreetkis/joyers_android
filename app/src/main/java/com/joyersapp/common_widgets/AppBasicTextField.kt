@@ -1,5 +1,6 @@
 package com.joyersapp.common_widgets
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -50,6 +52,7 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Red
+import com.joyersapp.utils.filterAscii
 import com.joyersapp.utils.fontFamilyLato
 
 
@@ -121,9 +124,9 @@ fun AppBasicTextField(
             // --------------------------------------------------
             // 1️⃣ SHOW ELLIPSIZED TEXT ONLY WHEN NOT FOCUSED
             // --------------------------------------------------
-            if (!isFocused && value.isNotEmpty()) {
+            if (!isFocused && tfValue.text.isNotEmpty()) {
                 Text(
-                    text = value,
+                    text = tfValue.text,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = textStyle.copy(color = contentColor),
@@ -144,7 +147,7 @@ fun AppBasicTextField(
             // --------------------------------------------------
             // 2️⃣ PLACEHOLDER WHEN EMPTY (show even when focused)
             // --------------------------------------------------
-            if (value.isEmpty()) {
+            if (tfValue.text.isEmpty()) {
                 Text(
                     text = placeholder,
                     color = placeholderColor,
@@ -159,7 +162,19 @@ fun AppBasicTextField(
             BasicTextField(
                 value = tfValue,
                 onValueChange = { newValue ->
-                    if (newValue.text.length <= maxLength) {
+                    val filtered = filterAscii(newValue.text, maxLength)
+                    /*if (newValue.text.length <= maxLength) {
+                        tfValue = newValue
+                        onValueChange(newValue.text)
+                    }*/
+                    if (filtered != newValue.text) {
+                        val updated = newValue.copy(
+                            text = filtered,
+                            selection = TextRange(filtered.length)
+                        )
+                        tfValue = updated
+                        onValueChange(filtered)
+                    } else {
                         tfValue = newValue
                         onValueChange(newValue.text)
                     }
@@ -183,15 +198,17 @@ fun AppBasicTextField(
         // 4️⃣ PASSWORD TOGGLE BUTTON
         // --------------------------------------------------
         if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
-            IconButton(onClick = onPasswordToggle) {
-                Icon(
-                    painter = painterResource(
-                        if (passwordVisible) R.drawable.show_password
-                        else R.drawable.password_hide
-                    ),
-                    contentDescription = "Toggle Password",
-                )
-            }
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 10.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                    } )
         }
     }
 }
@@ -239,14 +256,20 @@ fun AppBasicTextFieldForLetterSpacing(
             }
             BasicTextField(
                 value = value,
-                onValueChange = {
-                    if (it.length <= maxLength) {
-                        onValueChange(it)
+                onValueChange = { newText ->
+                    val filtered = filterAscii(newText, maxLength)
+                    /*if (newText.length <= maxLength) {
+                        onValueChange(newText)
+                    }*/
+                    if (filtered != newText) {
+                        onValueChange(filtered)
+                    } else {
+                        onValueChange(newText)
                     }
                 },
                 singleLine = true,
                 enabled = isEnabled,
-                textStyle = textStyle.copy(color = contentColor, letterSpacing = letterSpacing),
+                textStyle = textStyle.copy(fontFamily = fontFamilyLato, fontWeight = FontWeight.SemiBold, color = contentColor, letterSpacing = letterSpacing),
                 visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = keyboardOptions,
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
@@ -255,7 +278,17 @@ fun AppBasicTextFieldForLetterSpacing(
             )
         } // Password eye button (optional) - only show when text is present
         if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
-            IconButton(onClick = onPasswordToggle) { Icon(painter = painterResource(if (passwordVisible) R.drawable.show_password else R.drawable.password_hide), contentDescription = "Toggle Password") }
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 10.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                    } )
         }
     }
 }
@@ -292,17 +325,31 @@ fun AppBasicTextFieldForPassword(
             }
             BasicTextField(
                 value = value,
-                onValueChange = {
-                    val sanitized = it.replace(" ", "")
-                    if (sanitized.length <= maxLength) {
+                onValueChange = { newText ->
+                    val filtered = filterAscii(newText, maxLength)
+                    val sanitized = filtered.replace(" ", "")
+                    if (sanitized != newText) {
                         onValueChange(sanitized)
+                    } else {
+                        onValueChange(newText)
                     }
                 },
                 singleLine = true, enabled = isEnabled, textStyle = textStyle.copy(color = contentColor), visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None, keyboardOptions = keyboardOptions, keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }), cursorBrush = SolidColor(Black), modifier = Modifier.fillMaxWidth(),
             )
         } // Password eye button (optional) - only show when text is present
         if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
-            IconButton(onClick = onPasswordToggle) { Icon(painter = painterResource(if (passwordVisible) R.drawable.show_password else R.drawable.password_hide), contentDescription = "Toggle Password") }
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide
+                ),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 10.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                } )
         }
     }
 }
@@ -357,9 +404,16 @@ fun AppBasicTextFieldWithCursorHandling(
 
             BasicTextField(
                 value = value,
-                onValueChange = {
-                    if (it.text.length <= maxLength) {
-                        onValueChange(it)
+                onValueChange = { newValue ->
+                    val filtered = filterAscii(newValue.text, maxLength)
+                    if (filtered != newValue.text) {
+                        val updated = newValue.copy(
+                            text = filtered,
+                            selection = TextRange(filtered.length)
+                        )
+                        onValueChange(updated)
+                    } else {
+                        onValueChange(newValue)
                     }
                 },
                 singleLine = true,
@@ -383,15 +437,17 @@ fun AppBasicTextFieldWithCursorHandling(
 
         // Password eye button (optional) - only show when text is present
         if (isPassword && onPasswordToggle != null && value.text.trim().isNotEmpty()) {
-            IconButton(onClick = onPasswordToggle) {
-                Icon(
-                    painter = painterResource(
-                        if (passwordVisible) R.drawable.show_password
-                        else R.drawable.password_hide
-                    ),
-                    contentDescription = "Toggle Password",
-                )
-            }
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 10.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                    } )
         }
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -55,11 +56,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,6 +83,8 @@ import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.utils.annotatedFromBoldTags
 import com.joyersapp.utils.containsEmoji
@@ -173,7 +178,7 @@ fun IdentityScreen(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
-                    color = Black,
+                    color = LightBlack,
                     modifier = Modifier.weight(0.6f),
                     textAlign = TextAlign.Center
                 )
@@ -283,7 +288,7 @@ fun PageOneContent(
 
     val context = LocalContext.current
     val goldenColor = Golden60
-    val lightBlackColor = Black
+    val lightBlackColor = LightBlack
     val hintColor = Gray40
     val whiteColor = Color.White
     val redColor = Red
@@ -383,7 +388,7 @@ fun PageOneContent(
             text = context.getString(R.string.profile_picture),
             fontSize = 18.sp,
             fontFamily = fontFamilyLato,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.SemiBold,
             color = lightBlackColor,
             modifier = Modifier.fillMaxWidth()
         )
@@ -452,13 +457,13 @@ fun PageOneContent(
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(1.dp))
                             Text(
                                 text = context.getString(R.string.header),
                                 fontSize = 11.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Normal,
-                                color = hintColor
+                                color = LightBlack60
                             )
                         }
                     }
@@ -514,7 +519,7 @@ fun PageOneContent(
                                     fontSize = 15.sp,
                                     fontFamily = fontFamilyLato,
                                     fontStyle = FontStyle.Normal,
-                                    color = hintColor
+                                    color = LightBlack60
                                 )
                             }
                         }
@@ -550,7 +555,7 @@ fun PageOneContent(
             Text(
                 text = context.getString(R.string.name_only),
                 fontSize = 18.sp,
-                fontWeight = FontWeight(600),
+                fontWeight = FontWeight.SemiBold,
                 fontFamily = fontFamilyLato,
                 color = lightBlackColor
             )
@@ -584,6 +589,9 @@ fun PageOneContent(
             Spacer(modifier = Modifier.width(4.dp))
             AppBasicTextField(
                 value = username,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words
+                ),
                 onValueChange = {
                     if (it.length <= maxLength) {
                         username = it
@@ -614,7 +622,8 @@ fun PageOneContent(
                     fontWeight = if (username.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
                     fontFamily = fontFamilyLato
-                )
+                ),
+                maxLength = 45
             )
 
             Spacer(modifier = Modifier.width(4.dp))
@@ -635,6 +644,7 @@ fun PageOneContent(
                 fontSize = 14.sp,
                 fontFamily = fontFamilyLato,
                 fontStyle = FontStyle.Normal,
+                lineHeight = 20.sp,
                 modifier = Modifier.padding(top = 3.dp)
             )
         }
@@ -647,7 +657,7 @@ fun PageOneContent(
                 text = context.getString(R.string.joyer_location_only),
                 fontSize = 18.sp,
                 fontFamily = fontFamilyLato,
-                fontWeight = FontWeight(600),
+                fontWeight = FontWeight.SemiBold,
                 color = lightBlackColor
             )
             Text(
@@ -743,7 +753,7 @@ fun PageOneContent(
                     Text(
                         text = context.getString(R.string.skip),
                         fontSize = 16.sp,
-                        fontWeight = FontWeight(600),
+                        fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         color = goldenColor
                     )
@@ -777,7 +787,7 @@ fun PageOneContent(
                 }
             }
         }
-        Spacer(Modifier.height(50.dp))
+        Spacer(Modifier.height(0.dp))
     }
 
     // Image Picker Bottom Sheet
@@ -862,7 +872,7 @@ fun PageTwoContent(
     var selectedStatus by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val goldenColor = Golden60
-    val lightBlackColor = Black
+    val lightBlackColor = LightBlack
     val blackColor = colorResource(id = R.color.black)
     val whiteColor = Color.White
 
@@ -939,7 +949,7 @@ fun PageTwoContent(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                        color = if (isSelected) whiteColor else blackColor
+                        color = if (isSelected) whiteColor else lightBlackColor
                     )
                 }
                 if (statusKey != statusOptions.last().first) {
@@ -947,15 +957,15 @@ fun PageTwoContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             // Dashed line
             DashedLine(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(3.dp)
+                    //.height(2.dp)
                     .padding(horizontal = 0.dp),
-                strokeWidth = 3f
+                //strokeWidth = 1f
             )
 
             Spacer(modifier = Modifier.height(15.dp))
@@ -966,8 +976,13 @@ fun PageTwoContent(
                 fontSize = 16.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.SemiBold,
-                color = lightBlackColor,
-                modifier = Modifier.fillMaxWidth()
+                color = LightBlack,
+                modifier = Modifier.fillMaxWidth(),
+                style = TextStyle(
+                    platformStyle = PlatformTextStyle(
+                        includeFontPadding = false
+                    )
+                )
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -982,7 +997,7 @@ fun PageTwoContent(
                 shape = RoundedCornerShape(5.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(15.dp)
+                    modifier = Modifier.padding(top = 14.dp, bottom = 15.dp, start = 15.dp, end = 15.dp)
                 ) {
                     Text(
                         text = context.getString(R.string.title1),
@@ -992,7 +1007,7 @@ fun PageTwoContent(
                         color = lightBlackColor
                     )
 
-                    Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(modifier = Modifier.height(13.dp))
 
                     // Styled text for each status
                     statusOptions.forEach { (statusKey, _) ->
@@ -1112,7 +1127,7 @@ fun PageThreeContent(
     var showTitleDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val goldenColor = Golden60
-    val lightBlackColor = Black
+    val lightBlackColor = LightBlack
     val whiteColor = Color.White
 
 //    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()
@@ -1197,11 +1212,11 @@ fun PageThreeContent(
     ) {
         LazyColumn {
             items(2) {
-                Spacer(modifier = Modifier.height(15.dp))
+                Spacer(modifier = Modifier.height(25.dp))
 // Joyers Status
                 if (it == 0) {
                     Text(
-                        text = stringResource(R.string.joyer_status),
+                        text = context.getString(R.string.joyer_status),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,

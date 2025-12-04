@@ -39,6 +39,8 @@ import com.joyersapp.theme.Black
 import com.joyersapp.theme.DisabledTextColor
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -154,7 +156,7 @@ fun LoginScreen(
             fontSize = 18.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
-            color = Black
+            color = LightBlack
         )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -199,7 +201,7 @@ fun LoginScreen(
                                 rememberMe = false
                             }
                         },
-                        maxLength = if (isPhoneMode.value) 16 else 100,
+                        maxLength = if (isPhoneMode.value) 15 else 100,
                         placeholder = if (isPhoneMode.value) "Phone Number" else "Username / Email",
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(
@@ -235,6 +237,7 @@ fun LoginScreen(
                     .fillMaxHeight()
                     .clickable {
                         username = ""
+                        rememberMe = false
                         isPhoneMode.value = !isPhoneMode.value
                     }
                     .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
@@ -302,6 +305,7 @@ fun LoginScreen(
                 color = Red,
                 fontSize = 14.sp,
                 fontFamily = fontFamilyLato,
+                lineHeight = 20.sp,
                 modifier = Modifier.padding(top = 3.dp)
             )
         }
@@ -335,7 +339,7 @@ fun LoginScreen(
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
-                    color = Color(0xFF9A9A9A)
+                    color = LightBlack60
                 )
             }
 
@@ -362,6 +366,7 @@ fun LoginScreen(
                 fontSize = 14.sp,
                 fontFamily = fontFamilyLato,
                 modifier = Modifier.fillMaxWidth(),
+                lineHeight = 20.sp,
                 textAlign = TextAlign.Center,
             )
         }
@@ -427,12 +432,12 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold,
             )
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(7.dp))
 
             Image(
                 painter = painterResource(id = R.drawable.icon_awesome_caret_down),
                 contentDescription = null,
-                modifier = Modifier.width(12.dp)
+                modifier = Modifier.width(12.dp).padding(top = 2.dp)
             )
         }
 
@@ -444,7 +449,7 @@ fun LoginScreen(
             fontSize = 12.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.Normal,
-            color = Color(0xFF9A9A9A),
+            color = LightBlack60,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 

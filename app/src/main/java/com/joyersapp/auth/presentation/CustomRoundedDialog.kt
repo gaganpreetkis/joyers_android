@@ -432,9 +432,9 @@ fun CustomRoundedDialog(
                                                     DashedLine(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .height(3.dp)
+                                                            //.height(3.dp)
                                                             .padding(horizontal = 15.dp),
-                                                        strokeWidth = 3f
+                                                        //strokeWidth = 3f
                                                     )
                                                     Row(
                                                         modifier = Modifier
@@ -539,9 +539,9 @@ fun CustomRoundedDialog(
                                                     DashedLine(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .height(3.dp)
+                                                            //.height(3.dp)
                                                             .padding(horizontal = 15.dp),
-                                                        strokeWidth = 3f
+                                                        //strokeWidth = 3f
                                                     )
                                                     Row(
                                                         modifier = Modifier
@@ -700,9 +700,9 @@ fun CustomRoundedDialog(
                                                     DashedLine(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .height(3.dp)
+                                                            //.height(3.dp)
                                                             .padding(horizontal = 15.dp),
-                                                        strokeWidth = 3f
+                                                        //strokeWidth = 3f
                                                     )
                                                     Row(
                                                         modifier = Modifier
@@ -801,9 +801,9 @@ fun CustomRoundedDialog(
                                                     DashedLine(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .height(3.dp)
+                                                            //.height(3.dp)
                                                             .padding(horizontal = 15.dp),
-                                                        strokeWidth = 3f
+                                                        //strokeWidth = 3f
                                                     )
                                                     Row(
                                                         modifier = Modifier
@@ -980,9 +980,9 @@ fun CustomRoundedDialog(
                                                     DashedLine(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .height(3.dp)
+                                                            //.height(3.dp)
                                                             .padding(horizontal = 15.dp),
-                                                        strokeWidth = 3f
+                                                        //strokeWidth = 3f
                                                     )
                                                     Row(
                                                         modifier = Modifier
@@ -1087,9 +1087,9 @@ fun CustomRoundedDialog(
                                                     DashedLine(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .height(3.dp)
+                                                            //.height(3.dp)
                                                             .padding(horizontal = 15.dp),
-                                                        strokeWidth = 3f
+                                                        //strokeWidth = 3f
                                                     )
                                                     Row(
                                                         modifier = Modifier
@@ -1248,9 +1248,9 @@ fun CustomRoundedDialog(
                                                     DashedLine(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .height(3.dp)
+                                                            //.height(3.dp)
                                                             .padding(horizontal = 15.dp),
-                                                        strokeWidth = 3f
+                                                        //strokeWidth = 3f
                                                     )
                                                     Row(
                                                         modifier = Modifier
@@ -1349,9 +1349,9 @@ fun CustomRoundedDialog(
                                                     DashedLine(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .height(3.dp)
+                                                            //.height(3.dp)
                                                             .padding(horizontal = 15.dp),
-                                                        strokeWidth = 3f
+                                                        //strokeWidth = 3f
                                                     )
                                                     Row(
                                                         modifier = Modifier

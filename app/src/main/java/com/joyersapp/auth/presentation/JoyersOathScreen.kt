@@ -103,7 +103,7 @@ fun JoyersOathScreen(
                         color = colorResource(id = R.color.color_light_grey_bg),
                         shape = RoundedCornerShape(5.dp)
                     )
-                    .padding(15.dp)
+                    .padding(top = 14.dp, start = 15.dp, end = 15.dp, bottom = 15.dp)
             ) {
                 // First section (5 lines)
                 Column(

@@ -13,8 +13,8 @@ import com.joyersapp.theme.LightBlack40
 fun DashedLine(
     modifier: Modifier = Modifier,
     strokeWidth: Float = 1f,
-    dashLength: Float = 8f,
-    gapLength: Float = 7f
+    dashLength: Float = 3f,
+    gapLength: Float = 3f
 ) {
     Canvas(modifier = modifier) {
         val pathEffect = PathEffect.dashPathEffect(

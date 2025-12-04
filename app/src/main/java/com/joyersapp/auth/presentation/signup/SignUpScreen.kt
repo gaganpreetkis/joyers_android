@@ -77,6 +77,8 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray80
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Green
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -289,7 +291,7 @@ fun SignUpScreen(
             fontSize = 18.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF222222)
+            color = LightBlack
         )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -583,6 +585,10 @@ fun SignUpScreen(
                 }
 
 // Error messages
+                if (emailError != null && !isPhoneMode) {
+
+                }
+                if (phoneError != null && isPhoneMode) {
                 if (state.emailPhoneError != null) {
                     Text(
                         text = state.emailPhoneError ?: "",
@@ -590,6 +596,7 @@ fun SignUpScreen(
                         fontSize = 14.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Normal,
+                        lineHeight = 20.sp,
                         modifier = Modifier.padding(top = 3.dp)
                     )
                 }
@@ -619,7 +626,7 @@ fun SignUpScreen(
                             textAlign = TextAlign.Center,
                             platformStyle = PlatformTextStyle(includeFontPadding = false)
                         ),
-                        letterSpacing = 4.sp,
+                        letterSpacing = 3.2.sp,
                     )
 
                     Spacer(Modifier.height(4.dp))
@@ -627,10 +634,12 @@ fun SignUpScreen(
                     if (state.codeSentMessage.asString(context).isNotEmpty() && state.verificationError == null) {
                         Text(
                             text = state.codeSentMessage.asString(context),
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
-                            color = Black, textAlign = TextAlign.Center,
+                            color = LightBlack,
+                            lineHeight = 22.sp,
+                            textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .padding(bottom = 4.dp)
                                 .fillMaxWidth()
@@ -644,6 +653,7 @@ fun SignUpScreen(
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
+                            lineHeight = 20.sp,
                             modifier = Modifier
                                 .padding(top = 3.dp)
                                 .align(Alignment.CenterHorizontally)
@@ -774,6 +784,7 @@ fun SignUpScreen(
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
+                            lineHeight = 20.sp,
                             modifier = Modifier.padding(top = 3.dp)
                         )
                     }
@@ -876,6 +887,7 @@ fun SignUpScreen(
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
+                            lineHeight = 20.sp,
                             modifier = Modifier.padding(top = 3.dp)
                         )
                     }
@@ -929,14 +941,14 @@ fun SignUpScreen(
                     fontSize = 12.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF9A9A9A),
+                    color = LightBlack60,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
                 Text(
                     text = "Login",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
                     color = Golden60,
                     modifier = Modifier
