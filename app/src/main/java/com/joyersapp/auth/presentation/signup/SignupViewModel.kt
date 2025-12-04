@@ -37,28 +37,38 @@ class SignupViewModel @Inject constructor(
                 _uiState.update { it.copy(name = event.value, error = null) }
 
             is SignupEvent.EmailChanged -> {
+                val isValidEmail = uiState.value.email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(
+                    uiState.value.email
+                ).matches()
+
                 _uiState.update {
                     it.copy(
                         email = event.value,
                         emailPhoneError = null,
                         showVerification = false,
-                        showPasswordFields = false
+                        showPasswordFields = false,
+                        isValidEmail = isValidEmail
                     )
                 }
             }
 
             is SignupEvent.PhoneChanged -> {
+                val isValidPhone = (uiState.value.phone.isNotEmpty()
+                        && uiState.value.phone.all { it.isDigit() }
+                        && uiState.value.phone.length in 10..15)
+
                 _uiState.update {
                     it.copy(
                         phone = event.value,
                         emailPhoneError = null,
                         showVerification = false,
-                        showPasswordFields = false
+                        showPasswordFields = false,
+                        isValidPhone = isValidPhone
                     )
                 }
             }
 
-            SignupEvent.TogglePhoneMode -> {
+            is SignupEvent.TogglePhoneMode -> {
                 _uiState.update {
                     it.copy(
                         isPhoneMode = !uiState.value.isPhoneMode,
@@ -72,16 +82,6 @@ class SignupViewModel @Inject constructor(
             }
 
             is SignupEvent.VerificationCodeChanged -> {
-                _uiState.update {
-                    it.copy(
-                        isPhoneMode = !uiState.value.isPhoneMode,
-                        emailPhoneError = null,
-                        email = "",
-                        phone = "",
-                        showVerification = false,
-                        showPasswordFields = false
-                    )
-                }
                 if (event.value.length <= 6 && event.value.all { char -> char.isDigit() }) {
                     _uiState.update {
                         it.copy(
@@ -162,7 +162,7 @@ class SignupViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(isUsernameFocused = event.isFocused, error = null) }
 
-                if (prevFocused && !event.isFocused&& uiState.value.username.text.length < 3) {
+                if (prevFocused && !event.isFocused&& uiState.value.username.text.length < 4) {
                     _uiState.update {
                         it.copy(
                             showUsernameError = true,
@@ -177,7 +177,9 @@ class SignupViewModel @Inject constructor(
             SignupEvent.CheckUsername -> TODO()
             SignupEvent.ClearSignupError -> TODO()
             is SignupEvent.ConfirmPasswordFocusChanged -> TODO()
-            is SignupEvent.CountryCodeChanged -> TODO()
+            is SignupEvent.CountryCodeChanged -> {
+
+            }
             is SignupEvent.PasswordFocusChanged -> TODO()
             SignupEvent.SendVerificationCode -> TODO()
             is SignupEvent.SignInButtonTextChanged -> TODO()
