@@ -1,4 +1,4 @@
-package com.joyersapp.auth.presentation
+package com.joyersapp.auth.presentation.forgotpassword
 
 import android.graphics.Rect
 import android.util.Patterns
@@ -127,15 +127,15 @@ fun ForgotPasswordScreen(
     }
 
     // Form validation
-    val isFormValid = remember(username, phone, isPhoneMode) {
-        if (isPhoneMode) {
-            phone.isNotEmpty() && phone.all { it.isDigit() } && phone.length in 10..15
+    val isFormValid = remember(state.usernameEmail, state.phone, state.isPhoneMode) {
+        if (state.isPhoneMode) {
+            state.phone.isNotEmpty() && state.phone.all { it.isDigit() } && state.phone.length in 10..15
         } else {
-            username.isNotEmpty() && (isValidUsername(username) || Patterns.EMAIL_ADDRESS.matcher(username).matches())
+            state.usernameEmail.isNotEmpty() && (isValidUsername(state.usernameEmail) || Patterns.EMAIL_ADDRESS.matcher(state.usernameEmail).matches())
         }
     }
 
-    val isVerificationValid = verificationCode.length == 6 && verificationCode.all { it.isDigit() }
+    val isVerificationValid = state.verificationCode.length == 6 && state.verificationCode.all { it.isDigit() }
 
     // Function to mask email address
     fun maskEmail(email: String): String {
@@ -274,7 +274,7 @@ fun ForgotPasswordScreen(
                     fontWeight = FontWeight.Normal,
                     color = Black,
                     modifier = Modifier.fillMaxWidth(),
-                )*/
+                )
 
                 // Masked email/phone display
                 Text(
@@ -298,19 +298,19 @@ fun ForgotPasswordScreen(
                 )*/
 
                 val mainText = if (showVerificationCode) {
-                    if (isPhoneMode) stringResource(R.string.number_sent)
+                    if (state.isPhoneMode) stringResource(R.string.number_sent)
                     else stringResource(R.string.email_sent)
                 } else {
                     stringResource(R.string.reset_password_in_two_steps)
                 }
 
-                val secondaryText = if (isPhoneMode) {
-                    val fullPhone = "$selectedCountryCode$phone"
+                val secondaryText = if (state.isPhoneMode) {
+                    val fullPhone = "$selectedCountryCode${state.phone}"
                     if (fullPhone.length > 6)
                         "${fullPhone.take(3)}*****${fullPhone.takeLast(2)}."
                     else "$fullPhone."
                 } else {
-                    maskEmail("$username.")
+                    maskEmail("$state.username.")
                 }
                 Text(
                     text = buildAnnotatedString {
