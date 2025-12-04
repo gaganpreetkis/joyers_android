@@ -70,6 +70,25 @@ class ForgotPasswordViewModel @Inject constructor(
         job = viewModelScope.launch {
             val result = forgotPasswordUseCase(value)
             Log.e("forgot password api", "result is: $result")
+            result.fold(
+                onSuccess = { response ->
+                    // Access your message here
+                    Log.e("forgot msg", response.message)
+
+                    if (response.success) {
+                        // success logic
+                    } else {
+                        if (uiState.value.isPhoneMode) {
+                            onEvent(ForgotPasswordEvent.PhoneErrorChanged(response.message))
+                        } else {
+                            onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(response.message))
+                        }
+                    }
+                },
+                onFailure = { error ->
+                    Log.e("forgot error", error.message ?: "Unknown error")
+                }
+            )
         }
         onEvent(ForgotPasswordEvent.LoadingChanged(false))
     }

@@ -321,14 +321,14 @@ fun ForgotPasswordScreen(
                                 color = LightBlack
                             )
                         ) {
-                            append(mainText + " ")
+                            append("$mainText ")
                         }
 
                         // BOLD second part
                         withStyle(
                             style = SpanStyle(
                                 fontWeight = FontWeight.Bold,
-                                color = Black
+                                color = LightBlack
                             )
                         ) {
                             append(secondaryText)

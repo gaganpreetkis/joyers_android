@@ -5,6 +5,7 @@ import com.joyersapp.auth.data.remote.AuthApi
 import com.joyersapp.auth.data.remote.dto.CheckUsernameRequestDto
 import com.joyersapp.auth.data.remote.dto.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
 import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.repository.AuthRepository
 import jakarta.inject.Inject
@@ -36,10 +37,10 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
-    override suspend fun forgotPassword(name: String): Result<Boolean> =
+    override suspend fun forgotPassword(name: String): Result<ForgotPasswordResponseDto> =
         try {
             val response = api.forgotPassword(ForgotPasswordRequestDto(name))
-            Result.success(response.success)
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }
