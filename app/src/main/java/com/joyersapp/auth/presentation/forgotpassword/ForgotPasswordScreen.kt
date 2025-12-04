@@ -310,7 +310,7 @@ fun ForgotPasswordScreen(
                         "${fullPhone.take(3)}*****${fullPhone.takeLast(2)}."
                     else "$fullPhone."
                 } else {
-                    maskEmail("$state.username.")
+                    maskEmail("${state.usernameEmail}.")
                 }
                 Text(
                     text = buildAnnotatedString {
@@ -613,7 +613,8 @@ fun ForgotPasswordScreen(
                                 textAlign = TextAlign.Center,
                                 fontWeight = if (selectedTab == "Email") FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (selectedTab == "Email") Golden60 else Black,
-                                modifier = Modifier.width(74.dp)
+                                modifier = Modifier
+                                    .width(74.dp)
                                     //.padding(start = 12.dp, end = 15.dp)
                                     .clickable {
                                         selectedTab = "Email"
@@ -628,7 +629,8 @@ fun ForgotPasswordScreen(
                                 textAlign = TextAlign.Center,
                                 fontWeight = if (selectedTab == "SMS") FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (selectedTab == "SMS") Golden60 else LightBlack,
-                                modifier = Modifier.width(74.dp)
+                                modifier = Modifier
+                                    .width(74.dp)
                                     //.padding(start = 15.dp, end = 13.dp)
                                     .clickable {
                                         selectedTab = "SMS"
