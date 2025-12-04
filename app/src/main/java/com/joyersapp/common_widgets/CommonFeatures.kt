@@ -194,7 +194,7 @@ fun PasswordField(password: String = "", passwordError: String = "") {
         Spacer(modifier = Modifier.width(5.dp))
         if (password.isNotEmpty()) {
             Image(
-                painter = painterResource(id = if (isPasswordVisible) R.drawable.show_password else R.drawable.password_hide),
+                painter = painterResource(id = if (isPasswordVisible) R.drawable.show_password_new else R.drawable.password_hide_new),
                 contentDescription = null,
                 modifier = Modifier
                     .size(24.dp, 17.dp)

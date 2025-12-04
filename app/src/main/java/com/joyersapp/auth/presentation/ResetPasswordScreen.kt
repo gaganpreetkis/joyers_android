@@ -73,6 +73,7 @@ import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.AutoResizeText
 import com.joyersapp.common_widgets.CountryCodePicker
 import com.joyersapp.theme.Green
+import com.joyersapp.theme.LightBlack60
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -277,7 +278,7 @@ fun ResetPasswordScreen(
 
                             if (identifierValue.isNotEmpty()) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                    painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(30.dp)
@@ -376,7 +377,7 @@ fun ResetPasswordScreen(
 
                             if (identifierValue.isNotEmpty()) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                    painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(30.dp)
@@ -423,6 +424,7 @@ fun ResetPasswordScreen(
                     text = identifierError!!,
                     color = Red,
                     fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontFamily = fontFamilyLato,
                     modifier = Modifier.padding(top = 3.dp)
                 )
@@ -501,6 +503,7 @@ fun ResetPasswordScreen(
                     color = Red,
                     fontSize = 14.sp,
                     fontFamily = fontFamilyLato,
+                    lineHeight = 20.sp,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
@@ -600,6 +603,7 @@ fun ResetPasswordScreen(
                     text = confirmPasswordError!!,
                     color = Red,
                     fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontFamily = fontFamilyLato,
                     modifier = Modifier.padding(top = 3.dp)
                 )
@@ -719,7 +723,7 @@ fun ResetPasswordScreen(
                 fontSize = 12.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Normal,
-                color = Gray40,
+                color = LightBlack60,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),

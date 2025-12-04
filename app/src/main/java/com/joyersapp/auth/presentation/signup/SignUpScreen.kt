@@ -76,6 +76,8 @@ import com.joyersapp.theme.Gray80
 import com.joyersapp.theme.GrayBorder
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Green
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -402,7 +404,7 @@ fun SignUpScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_cancel_grey),
+                        painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                         contentDescription = null,
                         alignment = Alignment.Center,
                         modifier = Modifier
@@ -434,6 +436,7 @@ fun SignUpScreen(
                 fontSize = 14.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Normal,
+                lineHeight = 20.sp,
                 modifier = Modifier.padding(top = 3.dp)
             )
         }
@@ -496,7 +499,7 @@ fun SignUpScreen(
 
                                 if (email.isNotEmpty()) {
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(30.dp)
@@ -540,7 +543,7 @@ fun SignUpScreen(
 
                                 if (phone.isNotEmpty()) {
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(30.dp)
@@ -595,6 +598,7 @@ fun SignUpScreen(
                         fontSize = 14.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Normal,
+                        lineHeight = 20.sp,
                         modifier = Modifier.padding(top = 3.dp)
                     )
                 }
@@ -605,6 +609,7 @@ fun SignUpScreen(
                         fontSize = 14.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Normal,
+                        lineHeight = 20.sp,
                         modifier = Modifier.padding(top = 3.dp)
                     )
                 }
@@ -637,10 +642,10 @@ fun SignUpScreen(
                             textAlign = TextAlign.Center,
                             platformStyle = PlatformTextStyle(includeFontPadding = false)
                         ),
-                        letterSpacing = 4.sp,
+                        letterSpacing = 3.2.sp,
                     )
 
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(6.dp))
 
                     if (codeSentMessage.isNotEmpty() && verificationError == null) {
                         Text(
@@ -648,7 +653,9 @@ fun SignUpScreen(
                             fontSize = 16.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
-                            color = Black, textAlign = TextAlign.Center,
+                            color = LightBlack,
+                            lineHeight = 22.sp,
+                            textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .padding(bottom = 4.dp)
                                 .fillMaxWidth()
@@ -662,6 +669,7 @@ fun SignUpScreen(
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
+                            lineHeight = 20.sp,
                             modifier = Modifier
                                 .padding(top = 3.dp)
                                 .align(Alignment.CenterHorizontally)
@@ -809,6 +817,7 @@ fun SignUpScreen(
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
+                            lineHeight = 20.sp,
                             modifier = Modifier.padding(top = 3.dp)
                         )
                     }
@@ -911,6 +920,7 @@ fun SignUpScreen(
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
+                            lineHeight = 20.sp,
                             modifier = Modifier.padding(top = 3.dp)
                         )
                     }
@@ -1000,14 +1010,14 @@ fun SignUpScreen(
                     fontSize = 12.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF9A9A9A),
+                    color = LightBlack60,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
                 Text(
                     text = "Login",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
                     color = Golden60,
                     modifier = Modifier

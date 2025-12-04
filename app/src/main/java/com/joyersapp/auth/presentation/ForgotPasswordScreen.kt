@@ -68,6 +68,7 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
+import com.joyersapp.theme.LightBlack60
 import com.joyersapp.utils.isValidUsername
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -339,7 +340,7 @@ fun ForgotPasswordScreen(
 
                             if (username.isNotEmpty()) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                    painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(30.dp)
@@ -450,7 +451,7 @@ fun ForgotPasswordScreen(
 
                             if (phone.isNotEmpty()) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                    painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(30.dp)
@@ -502,6 +503,7 @@ fun ForgotPasswordScreen(
                     text = phoneError!!,
                     color = Red,
                     fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontFamily = fontFamilyLato,
                     modifier = Modifier.padding(top = 3.dp)
                 )
@@ -513,6 +515,7 @@ fun ForgotPasswordScreen(
                     color = Red,
                     fontSize = 14.sp,
                     fontFamily = fontFamilyLato,
+                    lineHeight = 20.sp,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
@@ -544,7 +547,7 @@ fun ForgotPasswordScreen(
                     ) {
                         // Tab buttons container - 165dp wide, centered
                         Row(
-                            modifier = Modifier.width(165.dp),
+                            modifier = Modifier.width(148.dp),
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -552,28 +555,30 @@ fun ForgotPasswordScreen(
                                 text = stringResource(R.string.email),
                                 fontSize = 20.sp,
                                 fontFamily = fontFamilyLato,
+                                textAlign = TextAlign.Center,
                                 fontWeight = if (selectedTab == "Email") FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (selectedTab == "Email") Golden60 else Black,
-                                modifier = Modifier
+                                modifier = Modifier.width(74.dp)
+                                    //.padding(start = 12.dp, end = 15.dp)
                                     .clickable {
                                         selectedTab = "Email"
                                         tabError = null
                                     }
-                                    .padding(start = 12.dp, end = 15.dp)
                             )
 
                             Text(
                                 text = stringResource(R.string.sms),
                                 fontSize = 20.sp,
                                 fontFamily = fontFamilyLato,
+                                textAlign = TextAlign.Center,
                                 fontWeight = if (selectedTab == "SMS") FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (selectedTab == "SMS") Golden60 else Black,
-                                modifier = Modifier
+                                modifier = Modifier.width(74.dp)
+                                    //.padding(start = 15.dp, end = 13.dp)
                                     .clickable {
                                         selectedTab = "SMS"
                                         tabError = null
                                     }
-                                    .padding(start = 15.dp, end = 13.dp)
                             )
                         }
 
@@ -610,6 +615,7 @@ fun ForgotPasswordScreen(
                             color = Red,
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
+                            lineHeight = 20.sp,
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .fillMaxWidth(),
@@ -648,7 +654,7 @@ fun ForgotPasswordScreen(
                         textAlign = TextAlign.Center,
                         platformStyle = PlatformTextStyle(includeFontPadding = false)
                     ),
-                    letterSpacing = 4.sp,
+                    letterSpacing = 3.2.sp,
                 )
 
                 if (verificationError != null) {
@@ -657,6 +663,7 @@ fun ForgotPasswordScreen(
                         color = Red,
                         fontSize = 14.sp,
                         fontFamily = fontFamilyLato,
+                        lineHeight = 20.sp,
                         modifier = Modifier
                             .padding(top = 3.dp)
                             .align(Alignment.CenterHorizontally)
@@ -776,7 +783,7 @@ fun ForgotPasswordScreen(
                 fontSize = 12.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Normal,
-                color = Gray40,
+                color = LightBlack60,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),

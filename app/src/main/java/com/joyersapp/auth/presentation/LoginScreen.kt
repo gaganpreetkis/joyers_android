@@ -39,6 +39,7 @@ import com.joyersapp.theme.Black
 import com.joyersapp.theme.DisabledTextColor
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
+import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -213,7 +214,7 @@ fun LoginScreen(
 
                     if (username.isNotEmpty()) {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_cancel_grey),
+                            painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(30.dp)
@@ -302,6 +303,7 @@ fun LoginScreen(
                 color = Red,
                 fontSize = 14.sp,
                 fontFamily = fontFamilyLato,
+                lineHeight = 20.sp,
                 modifier = Modifier.padding(top = 3.dp)
             )
         }
@@ -335,7 +337,7 @@ fun LoginScreen(
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
-                    color = Color(0xFF9A9A9A)
+                    color = LightBlack60
                 )
             }
 
@@ -362,6 +364,7 @@ fun LoginScreen(
                 fontSize = 14.sp,
                 fontFamily = fontFamilyLato,
                 modifier = Modifier.fillMaxWidth(),
+                lineHeight = 20.sp,
                 textAlign = TextAlign.Center,
             )
         }
@@ -444,7 +447,7 @@ fun LoginScreen(
             fontSize = 12.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.Normal,
-            color = Color(0xFF9A9A9A),
+            color = LightBlack60,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 

@@ -1,6 +1,8 @@
 package com.joyersapp.common_widgets
 
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,6 +38,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -336,10 +340,10 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
 
                         // Close button
                         Image(
-                            painter = painterResource(id = R.drawable.ic_cross_golden),
+                            painter = painterResource(id = R.drawable.ic_cross_golden_new),
                             contentDescription = null,
                             modifier = dialogModifier
-                                .size(15.dp)
+                                .size(15.51.dp)
                                 .clip(CircleShape)
                                 .clickable { onDismiss() }
                         )
@@ -398,7 +402,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                         platformStyle = PlatformTextStyle(includeFontPadding = false),
                                         fontFamily = fontFamilyLato,
                                         fontWeight = FontWeight.Normal,
-                                        fontSize = 14.sp
+                                        fontSize = 16.sp
                                     ),
                                     containerColor = Color.Transparent,
                                     contentColor = Black,
@@ -410,7 +414,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                 // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
                                 if (searchQuery.isNotEmpty()) {
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                                         contentDescription = null,
                                         modifier = dialogModifier
                                             .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
@@ -482,7 +486,6 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                             }
                         }
                     }
-
                     Spacer(modifier = dialogModifier.height(20.dp))
 
                     if (currentState is DialogState.Subtitles) {
@@ -491,17 +494,18 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                         if (reorderedSubtitles.isEmpty() && searchQuery.isNotEmpty()) {
                             Box(
                                 modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth(),
+                                    //.height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
+                                //contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = context.getString(R.string.no_results_found),
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     fontFamily = fontFamilyLato,
+                                    textAlign = TextAlign.Center,
                                     color = colorResource(id = R.color.black),
-                                    modifier = dialogModifier
+                                    modifier = dialogModifier.fillMaxWidth().padding(top = if (isKeyBoardOpen) 90.dp else 30.dp, bottom = if (isKeyBoardOpen) 0.dp  else 74.dp)
                                 )
                             }
                         } else {
@@ -510,8 +514,14 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     .fillMaxWidth()
                                     .heightIn(max = maxHeightForViews)
                             ) {
-                                items(reorderedSubtitles) { subtitle ->
+                                item {
+                                }
+                                itemsIndexed(reorderedSubtitles) { index, subtitle ->
+                                    val isFirst = index == 0
+                                    val isLast = index == reorderedSubtitles.lastIndex
                                     SubtitleItem(
+                                        isFirstItem = isFirst,
+                                        isLastItem = isLast,
                                         modifier = Modifier,
                                         subtitle = subtitle,
                                         isSelected = selectedTitleId == subtitle.uuid,
@@ -536,9 +546,9 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                             DashedLine(
                                 modifier = dialogModifier
                                     .fillMaxWidth()
-                                    .height(3.dp)
+                                    //.height(3.dp)
                                     .padding(horizontal = 0.dp),
-                                strokeWidth = 3f
+                                //strokeWidth = 3f
                             )
 
                             Spacer(modifier = dialogModifier.height(15.dp))
@@ -562,7 +572,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             fontFamily = fontFamilyLato,
                                             color = goldenColor
                                         )
-                                        Spacer(modifier = Modifier.width(1.dp))
+                                        Spacer(modifier = Modifier.width(0.dp))
                                     }
                                     Text(
                                         text = context.getString(R.string.clarifications),
@@ -601,7 +611,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
 //                                .background(Color.Cyan)
                                         .padding(bottom = 25.dp)
                                 ) {
-                                    items(filteredClassificationSubtitles) { title ->
+                                    itemsIndexed(filteredClassificationSubtitles) { index, title ->
                                         // Scrollable only, no onClick
                                         /*Text(
                                         text = "Scrollable Only: $item",
@@ -609,13 +619,15 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             .fillMaxWidth()
                                             .padding(12.dp)
                                     )*/
+                                        val isLast = index == filteredClassificationSubtitles.lastIndex
                                         ClassificationItem(
+                                            isLastItem = isLast,
                                             title = title.name ?: "",
                                             description = title.description
                                                 ?: "",
                                             modifier = Modifier
                                         )
-                                        Spacer(modifier = Modifier.height(2.dp))
+                                        //Spacer(modifier = Modifier.height(2.dp))
                                     }
                                 }
                             } else {
@@ -628,27 +640,35 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                         if (reorderedTitles.isEmpty() && searchQuery.isNotEmpty()) {
                             Box(
                                 modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth(),
+                                    //.height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
+                                //contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = context.getString(R.string.no_results_found),
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     fontFamily = fontFamilyLato,
+                                    textAlign = TextAlign.Center,
                                     color = colorResource(id = R.color.black),
-                                    modifier = dialogModifier
+                                    modifier = dialogModifier.fillMaxWidth().padding(top = if (isKeyBoardOpen) 90.dp else 30.dp, bottom = if (isKeyBoardOpen) 0.dp  else 74.dp)
                                 )
                             }
                         } else {
+
                             LazyColumn(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .heightIn(max = maxHeightForViews)
                             ) {
-                                items(reorderedTitles) { title ->
+                                item{
+                                }
+                                itemsIndexed(reorderedTitles) { index, title ->
+                                    val isFirst = index == 0
+                                    val isLast = index == reorderedTitles.lastIndex
                                     TitleItem(
+                                        isFirstItem = isFirst,
+                                        isLastItem = isLast,
                                         title = title,
                                         isSelected = selectedTitleId == title._id,
                                         onClick = {
@@ -677,13 +697,14 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     )
                                 }
                             }
+
                             Spacer(modifier = dialogModifier.height(20.dp))
                             DashedLine(
                                 modifier = dialogModifier
                                     .fillMaxWidth()
-                                    .height(3.dp)
+                                    //.height(3.dp)
                                     .padding(horizontal = 0.dp),
-                                strokeWidth = 3f
+                                //strokeWidth = 3f
                             )
 
                             Spacer(dialogModifier.height(15.dp))
@@ -746,14 +767,16 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                         ) // Distributes remaining space equally with View 1
                                         .padding(bottom = 25.dp)
                                 ) {
-                                    items(filteredClassificationTitles) { title ->
+                                    itemsIndexed(filteredClassificationTitles) { index, title ->
+                                        val isLast = index == filteredClassificationTitles.lastIndex
                                         ClassificationItem(
+                                            isLastItem = isLast,
                                             title = title.title ?: "",
                                             description = title.decriptionTitle
                                                 ?: "",
                                             modifier = Modifier
                                         )
-                                        Spacer(modifier = Modifier.height(2.dp))
+                                        //Spacer(modifier = Modifier.height(2.dp))
                                     }
                                 }
                             } else {
@@ -974,7 +997,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                         // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
                                         if (searchQuery.isNotEmpty()) {
                                             Image(
-                                                painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                                painter = painterResource(id = R.drawable.ic_cancel_grey_new),
                                                 contentDescription = null,
                                                 modifier = dialogModifier
                                                     .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
@@ -1113,9 +1136,9 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                 DashedLine(
                                     modifier = dialogModifier
                                         .fillMaxWidth()
-                                        .height(3.dp)
+                                        //.height(3.dp)
                                         .padding(horizontal = 0.dp),
-                                    strokeWidth = 3f
+                                    //strokeWidth = 3f
                                 )
 
                                 Spacer(modifier = dialogModifier.height(15.dp))
@@ -1238,31 +1261,34 @@ fun Modifier.tapToDismissKeyboard(): Modifier = composed {
 
 @Composable
 fun TitleItem(
+    isFirstItem: Boolean,
+    isLastItem: Boolean,
     title: Title,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
+    Log.e("is last item", "$title, islastitem: $isLastItem")
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(top = 6.dp),
+            .padding(bottom = if (isLastItem) 0.dp else 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
     ) {
         Text(
             text = title.title ?: "",
-            fontSize = 14.sp,
+            fontSize = 16.sp,
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected) Golden60 else Black,
-            modifier = modifier
+            modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
             //modifier = Modifier.weight(1f)
         )
         if (!title.subtitles.isNullOrEmpty()) {
-            Spacer( modifier = modifier.width(2.dp))
+            Spacer( modifier = modifier.width(3.dp))
             Image(
                 painter = painterResource(id = R.drawable.arrowdown_lite),
                 contentDescription = null,
@@ -1270,7 +1296,7 @@ fun TitleItem(
             )
         }
         if (!title.decriptionTitle.isNullOrEmpty()) {
-            Spacer( modifier = modifier.width(2.dp))
+            Spacer( modifier = modifier.width(3.dp))
             Text(
                 text = context.getString(R.string.strik_right_space),
                 fontSize = 20.sp,
@@ -1285,6 +1311,8 @@ fun TitleItem(
 
 @Composable
 fun SubtitleItem(
+    isFirstItem: Boolean,
+    isLastItem: Boolean,
     subtitle: Subtitle,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
@@ -1295,20 +1323,20 @@ fun SubtitleItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(top = 6.dp),
+            .padding(bottom = if (isLastItem) 0.dp else 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
         Text(
             text = subtitle.name ?: "",
-            fontSize = 14.sp,
+            fontSize = 16.sp,
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected) Golden60 else Black,
-            modifier = modifier
+            modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
         )
         if (!subtitle.description.isNullOrEmpty()) {
-            Spacer( modifier = modifier.width(2.dp))
+            Spacer( modifier = modifier.width(3.dp))
             Text(
                 text = context.getString(R.string.strik_right_space),
                 fontSize = 20.sp,
@@ -1323,6 +1351,7 @@ fun SubtitleItem(
 
 @Composable
 fun ClassificationItem(
+    isLastItem: Boolean,
     title: String,
     description: String,
     modifier: Modifier = Modifier
@@ -1347,9 +1376,10 @@ fun ClassificationItem(
                     append(description)
                 }
             },
-            fontSize = 14.sp,
+            fontSize = 16.sp,
             fontFamily = fontFamilyLato,
-            modifier = modifier
+            modifier = modifier.padding(bottom = if (isLastItem) 0.dp else 6.dp),
+            lineHeight = 22.sp,
         )
     }
 }

@@ -12,7 +12,9 @@ val Pink40 = Color(0xFF7D5260)
 
 val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
+val LightBlack = Color(0xFF333333)
 val LightBlack40 = Color(0x66333333)
+val LightBlack60 = Color(0x99333333)
 val DisabledTextColor = Color(0x99FFFFFF)
 
 val Gray80 = Color(0xCC333333)
