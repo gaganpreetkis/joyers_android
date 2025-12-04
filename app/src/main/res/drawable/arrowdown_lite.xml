@@ -4,7 +4,7 @@
     android:viewportWidth="10.494"
     android:viewportHeight="6">
     <path
-        android:fillAlpha="0.5"
+        android:fillAlpha="0.8"
         android:fillColor="#FF717171"
         android:pathData="M5.249,4.191 L9.217,0.22A0.747,0.747 135,0 1,10.276 0.22a0.756,0.756 135,0 1,-0 1.062l-4.5,4.5A0.749,0.749 0,0 1,4.746 5.8L0.219,1.286A0.75,0.75 0,1 1,1.278 0.223Z"
         android:strokeAlpha="0.35" />

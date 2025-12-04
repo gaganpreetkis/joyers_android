@@ -24,6 +24,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.joyersapp.R
 import com.joyersapp.theme.Black
+import com.joyersapp.theme.Gray20
+import com.joyersapp.theme.GrayLightBorder
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack15
 import com.joyersapp.utils.fontFamilyLato
 
 @Composable
@@ -74,7 +78,7 @@ fun BottomSocialDialog(
                             .width(58.dp)
                             .height(3.dp)
                             .background(
-                                color = colorResource(id = R.color.dash_color),
+                                color = LightBlack15,
                                 shape = RoundedCornerShape(2.dp)
                             )
                     )
@@ -83,7 +87,7 @@ fun BottomSocialDialog(
                     Text(
                         text = context.getString(R.string.join_with),
                         fontSize = 24.sp,
-                        color = Black,
+                        color = LightBlack,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center,
@@ -139,12 +143,12 @@ private fun SocialButton(
             .height(55.dp)
             .offset(x = (-5).dp)
             .background(
-                color = colorResource(id = R.color.color_light_grey_bg),
+                color = Gray20,
                 shape = RoundedCornerShape(5.dp)
             )
             .border(
                 width = 1.dp,
-                color = colorResource(id = R.color.color_border_light),
+                color = GrayLightBorder,
                 shape = RoundedCornerShape(5.dp)
             )
             .clickable { onClick() },
@@ -160,7 +164,7 @@ private fun SocialButton(
         Text(
             text = text,
             fontSize = 18.sp,
-            color = Black,
+            color = LightBlack,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold
         )

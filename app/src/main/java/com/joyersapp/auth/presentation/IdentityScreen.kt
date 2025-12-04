@@ -178,7 +178,7 @@ fun IdentityScreen(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
-                    color = Black,
+                    color = LightBlack,
                     modifier = Modifier.weight(0.6f),
                     textAlign = TextAlign.Center
                 )
@@ -872,7 +872,7 @@ fun PageTwoContent(
     var selectedStatus by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val goldenColor = Golden60
-    val lightBlackColor = Black
+    val lightBlackColor = LightBlack
     val blackColor = colorResource(id = R.color.black)
     val whiteColor = Color.White
 
@@ -949,7 +949,7 @@ fun PageTwoContent(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                        color = if (isSelected) whiteColor else blackColor
+                        color = if (isSelected) whiteColor else lightBlackColor
                     )
                 }
                 if (statusKey != statusOptions.last().first) {
@@ -1127,7 +1127,7 @@ fun PageThreeContent(
     var showTitleDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val goldenColor = Golden60
-    val lightBlackColor = Black
+    val lightBlackColor = LightBlack
     val whiteColor = Color.White
 
 //    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()

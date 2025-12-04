@@ -287,7 +287,7 @@ fun SignUpScreen(
             fontSize = 18.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF222222)
+            color = LightBlack
         )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -414,7 +414,7 @@ fun SignUpScreen(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Image(
-                        painter = painterResource(id = R.drawable.ic_reload),
+                        painter = painterResource(id = R.drawable.ic_reload_new),
                         contentDescription = null, alignment = Alignment.Center,
                         modifier = Modifier
                             .size(15.dp)
@@ -645,7 +645,7 @@ fun SignUpScreen(
                         letterSpacing = 3.2.sp,
                     )
 
-                    Spacer(Modifier.height(6.dp))
+                    Spacer(Modifier.height(4.dp))
 
                     if (codeSentMessage.isNotEmpty() && verificationError == null) {
                         Text(

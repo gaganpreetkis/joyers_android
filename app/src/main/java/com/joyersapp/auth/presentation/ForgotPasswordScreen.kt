@@ -50,10 +50,13 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joyersapp.common_widgets.AppBasicTextField
@@ -68,6 +71,8 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack35
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.utils.isValidUsername
 
@@ -223,25 +228,27 @@ fun ForgotPasswordScreen(
                 text = stringResource(R.string.forgot_password),
                 fontSize = 24.sp,
                 fontFamily = fontFamilyLato,
-                fontWeight = FontWeight.ExtraBold,
-                color = Black
+                fontWeight = FontWeight.Bold,
+                color = LightBlack
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             // Description text
-            Text(
-                text = if (showVerificationCode) if (isPhoneMode) {
-                    stringResource(R.string.number_sent)
-                } else {
-                    stringResource(R.string.email_sent)
-                } else stringResource(R.string.reset_password_in_two_steps),
-                fontSize = 16.sp,
-                fontFamily = fontFamilyLato,
-                fontWeight = FontWeight.Normal,
-                color = Black
-            )
-
+            if (!showVerificationCode) {
+                Text(
+                    text = if (showVerificationCode) if (isPhoneMode) {
+                        stringResource(R.string.number_sent)
+                    } else {
+                        stringResource(R.string.email_sent)
+                    } else stringResource(R.string.reset_password_in_two_steps),
+                    fontSize = 16.sp,
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.Normal,
+                    color = LightBlack,
+                    lineHeight = 22.sp
+                )
+            }
             Spacer(modifier = Modifier.height(if (showVerificationCode) 0.dp else 10.dp))
 
             // Show message and masked email when verification code is shown
@@ -263,7 +270,7 @@ fun ForgotPasswordScreen(
                 )*/
 
                 // Masked email/phone display
-                Text(
+                /*Text(
                     text = if (isPhoneMode) {
                         // Mask phone number with country code
                         val fullPhone = "$selectedCountryCode$phone"
@@ -281,8 +288,49 @@ fun ForgotPasswordScreen(
                     color = Black,
                     modifier = Modifier
                         .fillMaxWidth()
-                )
+                )*/
 
+                val mainText = if (showVerificationCode) {
+                    if (isPhoneMode) stringResource(R.string.number_sent)
+                    else stringResource(R.string.email_sent)
+                } else {
+                    stringResource(R.string.reset_password_in_two_steps)
+                }
+
+                val secondaryText = if (isPhoneMode) {
+                    val fullPhone = "$selectedCountryCode$phone"
+                    if (fullPhone.length > 6)
+                        "${fullPhone.take(3)}*****${fullPhone.takeLast(2)}."
+                    else "$fullPhone."
+                } else {
+                    maskEmail("$username.")
+                }
+                Text(
+                    text = buildAnnotatedString {
+                        // NORMAL first part
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.Normal,
+                                color = LightBlack
+                            )
+                        ) {
+                            append(mainText + " ")
+                        }
+
+                        // BOLD second part
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                                color = Black
+                            )
+                        ) {
+                            append(secondaryText)
+                        }
+                    },
+                    fontSize = 16.sp,
+                    fontFamily = fontFamilyLato,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
@@ -533,7 +581,7 @@ fun ForgotPasswordScreen(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.SemiBold,
-                        color = Black,
+                        color = LightBlack,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -572,7 +620,7 @@ fun ForgotPasswordScreen(
                                 fontFamily = fontFamilyLato,
                                 textAlign = TextAlign.Center,
                                 fontWeight = if (selectedTab == "SMS") FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (selectedTab == "SMS") Golden60 else Black,
+                                color = if (selectedTab == "SMS") Golden60 else LightBlack,
                                 modifier = Modifier.width(74.dp)
                                     //.padding(start = 15.dp, end = 13.dp)
                                     .clickable {
@@ -595,7 +643,7 @@ fun ForgotPasswordScreen(
                                     .weight(1f)
                                     .height(if (selectedTab == "Email") 2.dp else 1.dp)
                                     .background(
-                                        color = if (selectedTab == "Email") Golden60 else Color(0xFFADADAD)
+                                        color = if (selectedTab == "Email") Golden60 else LightBlack35
                                     )
                             )
                             Box(
@@ -603,7 +651,7 @@ fun ForgotPasswordScreen(
                                     .weight(1f)
                                     .height(if (selectedTab == "SMS") 2.dp else 1.dp)
                                     .background(
-                                        color = if (selectedTab == "SMS") Golden60 else Color(0xFFADADAD)
+                                        color = if (selectedTab == "SMS") Golden60 else LightBlack35
                                     )
                             )
                         }

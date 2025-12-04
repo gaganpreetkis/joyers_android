@@ -11,6 +11,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.joyersapp.theme.Black
+import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.fontFamilyLato
 
 @Composable
@@ -20,7 +21,7 @@ fun AutoResizeText(
     maxTextSize: TextUnit = 16.sp,
     minTextSize: TextUnit = 12.sp,
     stepSize: Float = 1f,
-    color: Color = Black,
+    color: Color = LightBlack,
     fontFamily: FontFamily = fontFamilyLato,
     fontWeight: FontWeight = FontWeight.Normal
 ) {

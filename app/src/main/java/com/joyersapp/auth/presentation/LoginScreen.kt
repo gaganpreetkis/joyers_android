@@ -39,6 +39,7 @@ import com.joyersapp.theme.Black
 import com.joyersapp.theme.DisabledTextColor
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
+import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
@@ -155,7 +156,7 @@ fun LoginScreen(
             fontSize = 18.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
-            color = Black
+            color = LightBlack
         )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -430,12 +431,12 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold,
             )
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(7.dp))
 
             Image(
                 painter = painterResource(id = R.drawable.icon_awesome_caret_down),
                 contentDescription = null,
-                modifier = Modifier.width(12.dp)
+                modifier = Modifier.width(12.dp).padding(top = 2.dp)
             )
         }
 

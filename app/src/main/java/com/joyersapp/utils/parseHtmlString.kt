@@ -9,8 +9,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import com.joyersapp.theme.Black
 import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.LightBlack
 
 // Helper function to parse HTML string with font color and bold tags
 fun parseHtmlString(htmlString: String): AnnotatedString {
@@ -37,7 +37,7 @@ fun parseHtmlString(htmlString: String): AnnotatedString {
             val composeColor = if (colorInt == goldenColor) {
                 Golden60
             } else {
-                Black
+                LightBlack
             }
 
             // Check if there's a bold style span at this position
@@ -63,13 +63,13 @@ fun parseHtmlString(htmlString: String): AnnotatedString {
         }
 
         // Default style for text without spans
-        val defaultStyle = SpanStyle(color = Black, fontWeight = FontWeight.SemiBold)
+        val defaultStyle = SpanStyle(color = LightBlack, fontWeight = FontWeight.SemiBold)
 
         // Build the annotated string character by character
         var currentStyle: Pair<androidx.compose.ui.graphics.Color, FontWeight>? = null
 
         plainText.forEachIndexed { index, char ->
-            val style = styleMap[index] ?: Pair(Black, FontWeight.SemiBold)
+            val style = styleMap[index] ?: Pair(LightBlack, FontWeight.SemiBold)
 
             if (currentStyle != style) {
                 // Style changed, pop old and push new
