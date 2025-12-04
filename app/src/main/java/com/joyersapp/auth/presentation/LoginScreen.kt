@@ -201,7 +201,7 @@ fun LoginScreen(
                                 rememberMe = false
                             }
                         },
-                        maxLength = if (isPhoneMode.value) 16 else 100,
+                        maxLength = if (isPhoneMode.value) 15 else 100,
                         placeholder = if (isPhoneMode.value) "Phone Number" else "Username / Email",
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(
@@ -237,6 +237,7 @@ fun LoginScreen(
                     .fillMaxHeight()
                     .clickable {
                         username = ""
+                        rememberMe = false
                         isPhoneMode.value = !isPhoneMode.value
                     }
                     .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
