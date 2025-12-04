@@ -215,7 +215,7 @@ fun LoginScreen(
 
                     if (username.isNotEmpty()) {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_cancel_grey_new),
+                            painter = painterResource(id = R.drawable.ic_cancel_grey),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(30.dp)

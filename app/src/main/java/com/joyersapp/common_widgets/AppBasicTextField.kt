@@ -1,5 +1,6 @@
 package com.joyersapp.common_widgets
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -197,16 +198,17 @@ fun AppBasicTextField(
         // 4️⃣ PASSWORD TOGGLE BUTTON
         // --------------------------------------------------
         if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
-            IconButton(onClick = onPasswordToggle) {
-                Icon(
-                    painter = painterResource(
-                        if (passwordVisible) R.drawable.show_password_new
-                        else R.drawable.password_hide_new
-                    ),
-                    contentDescription = "Toggle Password",
-                    Modifier.size(24.dp)
-                )
-            }
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 10.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                    } )
         }
     }
 }
@@ -276,7 +278,17 @@ fun AppBasicTextFieldForLetterSpacing(
             )
         } // Password eye button (optional) - only show when text is present
         if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
-            IconButton(onClick = onPasswordToggle) { Icon(painter = painterResource(if (passwordVisible) R.drawable.show_password_new else R.drawable.password_hide_new), contentDescription = "Toggle Password", Modifier.size(24.dp)) }
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 10.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                    } )
         }
     }
 }
@@ -326,7 +338,18 @@ fun AppBasicTextFieldForPassword(
             )
         } // Password eye button (optional) - only show when text is present
         if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
-            IconButton(onClick = onPasswordToggle) { Icon(painter = painterResource(if (passwordVisible) R.drawable.show_password_new else R.drawable.password_hide_new), contentDescription = "Toggle Password", Modifier.size(24.dp)) }
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide
+                ),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 10.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                } )
         }
     }
 }
@@ -414,16 +437,17 @@ fun AppBasicTextFieldWithCursorHandling(
 
         // Password eye button (optional) - only show when text is present
         if (isPassword && onPasswordToggle != null && value.text.trim().isNotEmpty()) {
-            IconButton(onClick = onPasswordToggle) {
-                Icon(
-                    painter = painterResource(
-                        if (passwordVisible) R.drawable.show_password_new
-                        else R.drawable.password_hide_new
-                    ),
-                    contentDescription = "Toggle Password",
-                    Modifier.size(24.dp)
-                )
-            }
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 10.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                    } )
         }
     }
 }

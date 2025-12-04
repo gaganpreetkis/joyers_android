@@ -12,7 +12,7 @@ import com.joyersapp.theme.LightBlack40
 @Composable
 fun DashedLine(
     modifier: Modifier = Modifier,
-    strokeWidth: Float = 1.5f,
+    strokeWidth: Float = 1f,
     dashLength: Float = 3f,
     gapLength: Float = 3f
 ) {

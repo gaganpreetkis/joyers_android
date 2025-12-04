@@ -404,7 +404,7 @@ fun SignUpScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_cancel_grey_new),
+                        painter = painterResource(id = R.drawable.ic_cancel_grey),
                         contentDescription = null,
                         alignment = Alignment.Center,
                         modifier = Modifier
@@ -414,7 +414,7 @@ fun SignUpScreen(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Image(
-                        painter = painterResource(id = R.drawable.ic_reload_new),
+                        painter = painterResource(id = R.drawable.ic_reload),
                         contentDescription = null, alignment = Alignment.Center,
                         modifier = Modifier
                             .size(15.dp)
@@ -499,7 +499,7 @@ fun SignUpScreen(
 
                                 if (email.isNotEmpty()) {
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_cancel_grey_new),
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(30.dp)
@@ -543,7 +543,7 @@ fun SignUpScreen(
 
                                 if (phone.isNotEmpty()) {
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_cancel_grey_new),
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(30.dp)

@@ -257,7 +257,7 @@ fun CustomRoundedDialog(
                                 // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
                                 if (searchQuery.isNotEmpty()) {
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_cancel_grey_new),
+                                        painter = painterResource(id = R.drawable.ic_cancel_grey),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
