@@ -1,9 +1,12 @@
 package com.joyersapp.auth.presentation.forgotpassword
 
 import android.util.Log
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.domain.usecase.ForgotPasswordUseCase
+import com.joyersapp.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Job
@@ -28,6 +31,10 @@ class ForgotPasswordViewModel @Inject constructor(
 
             is ForgotPasswordEvent.IsPhoneModeChanged -> {
                 _uiState.update { it.copy(isPhoneMode = event.value) }
+            }
+
+            is ForgotPasswordEvent.ShowVerificationCodeChanged -> {
+                _uiState.update { it.copy(showVerificationCode = event.value) }
             }
 
             is ForgotPasswordEvent.UsernameEmailChanged -> {
@@ -58,17 +65,37 @@ class ForgotPasswordViewModel @Inject constructor(
                 _uiState.update { it.copy(tabError = event.value) }
             }
 
-            is ForgotPasswordEvent.SubmitClicked -> forgotPassword(event.value)
+            is ForgotPasswordEvent.SelectedCountryCodeChanged -> {
+                _uiState.update { it.copy(selectedCountryCode = event.value) }
+            }
+
+            is ForgotPasswordEvent.OnNextButtonClicked -> forgotPassword()
         }
     }
 
-    private fun forgotPassword(value: String) {
-        //val state = _uiState.value
-        if (value.isBlank()) return
+    private fun forgotPassword() {
+        val state = _uiState.value
+        val params = ForgotPasswordRequestDto(
+            country_code = "",
+            mobile = "",
+            username = "",
+            email = ""
+        )
+        if (state.isPhoneMode) {
+            params.country_code = state.selectedCountryCode
+            params.mobile = state.phone
+        } else {
+            if (Patterns.EMAIL_ADDRESS.matcher(state.usernameEmail).matches()) {
+                params.email = state.usernameEmail
+            } else {
+                params.username = state.usernameEmail
+            }
+        }
+        if (params.username.isBlank() && params.email.isBlank() && params.country_code.isBlank() && params.mobile.isBlank()) return
         onEvent(ForgotPasswordEvent.LoadingChanged(true))
         job?.cancel()
         job = viewModelScope.launch {
-            val result = forgotPasswordUseCase(value)
+            val result = forgotPasswordUseCase(params)
             Log.e("forgot password api", "result is: $result")
             result.fold(
                 onSuccess = { response ->
@@ -76,20 +103,23 @@ class ForgotPasswordViewModel @Inject constructor(
                     Log.e("forgot msg", response.message)
 
                     if (response.success) {
-                        // success logic
+                        _uiState.update { it.copy(isLoading = false, showVerificationCode = true) }
                     } else {
                         if (uiState.value.isPhoneMode) {
-                            onEvent(ForgotPasswordEvent.PhoneErrorChanged(response.message))
+                            _uiState.update { it.copy(isLoading = false, phoneError = response.message) }
                         } else {
-                            onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(response.message))
+                            _uiState.update { it.copy(isLoading = false, usernameEmailError = response.message) }
                         }
                     }
                 },
                 onFailure = { error ->
-                    Log.e("forgot error", error.message ?: "Unknown error")
+                    if (uiState.value.isPhoneMode) {
+                        _uiState.update { it.copy(isLoading = false, phoneError = error.message ?: "Something went wrong") }
+                    } else {
+                        _uiState.update { it.copy(isLoading = false, usernameEmailError = error.message ?: "Something went wrong") }
+                    }
                 }
             )
         }
-        onEvent(ForgotPasswordEvent.LoadingChanged(false))
     }
 }

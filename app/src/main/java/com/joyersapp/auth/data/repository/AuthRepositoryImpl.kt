@@ -2,14 +2,18 @@ package com.joyersapp.auth.data.repository
 
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.auth.data.remote.AuthApi
+import com.joyersapp.auth.data.remote.dto.ApiErrorDto
 import com.joyersapp.auth.data.remote.dto.CheckUsernameRequestDto
 import com.joyersapp.auth.data.remote.dto.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
 import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.repository.AuthRepository
+import com.joyersapp.utils.ApiErrorException
+import com.joyersapp.utils.parseNetworkError
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import retrofit2.HttpException
 
 class AuthRepositoryImpl @Inject constructor(
     private val api: AuthApi,
@@ -37,11 +41,27 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
-    override suspend fun forgotPassword(name: String): Result<ForgotPasswordResponseDto> =
+    override suspend fun forgotPassword(params: ForgotPasswordRequestDto): Result<ForgotPasswordResponseDto> =
         try {
-            val response = api.forgotPassword(ForgotPasswordRequestDto(name))
-            Result.success(response)
-        } catch (e: Exception) {
+            val response = api.forgotPassword(params)
+            when(response.statusCode) {
+                200 -> {
+                    Result.success(response)
+                }
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            errorBody = ApiErrorDto(response.message),
+                            message = response.message
+                        )
+                    )
+                }
+                else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        }  catch (e: Exception) {
             Result.failure(e)
         }
 
