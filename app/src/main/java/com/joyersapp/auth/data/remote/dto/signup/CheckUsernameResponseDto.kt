@@ -1,4 +1,4 @@
-package com.joyersapp.auth.data.remote.dto
+package com.joyersapp.auth.data.remote.dto.signup
 
 data class CheckUsernameResponseDto(
     val available: Boolean,

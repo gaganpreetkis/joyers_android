@@ -6,8 +6,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joyersapp.R
+import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
+import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
 import com.joyersapp.auth.domain.usecase.CheckUsernameUseCase
-import com.joyersapp.auth.domain.usecase.SignupUseCase
+import com.joyersapp.auth.domain.usecase.RegisterUseCase
+import com.joyersapp.auth.domain.usecase.VerifyOtpUseCase
+import com.joyersapp.utils.ApiErrorException
 import com.joyersapp.utils.UiText
 import com.joyersapp.utils.UiText.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +25,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SignupViewModel @Inject constructor(
-    private val signupUseCase: SignupUseCase,
+    private val registerUseCase: RegisterUseCase,
+    private val verifyOtpUseCase: VerifyOtpUseCase,
     private val checkUsernameUseCase: CheckUsernameUseCase
 ) : ViewModel() {
 
@@ -37,8 +42,8 @@ class SignupViewModel @Inject constructor(
                 _uiState.update { it.copy(name = event.value, error = null) }
 
             is SignupEvent.EmailChanged -> {
-                val isValidEmail = uiState.value.email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(
-                    uiState.value.email
+                val isValidEmail = event.value.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(
+                    event.value
                 ).matches()
 
                 _uiState.update {
@@ -53,9 +58,9 @@ class SignupViewModel @Inject constructor(
             }
 
             is SignupEvent.PhoneChanged -> {
-                val isValidPhone = (uiState.value.phone.isNotEmpty()
-                        && uiState.value.phone.all { it.isDigit() }
-                        && uiState.value.phone.length in 10..15)
+                val isValidPhone = (
+                        event.value.all { it.isDigit() }
+                        && event.value.length in 10..15)
 
                 _uiState.update {
                     it.copy(
@@ -92,23 +97,12 @@ class SignupViewModel @Inject constructor(
                 }
             }
 
-            is SignupEvent.VerifyCode -> {
-                _uiState.update {
-                    it.copy(
-                        verificationError = null,
-                        showVerification = false,
-                        showPasswordFields = true,
-                    )
-                }
+            is SignupEvent.SendVerificationCode -> {
+                register()
             }
 
-            is SignupEvent.SendVerificationCode -> {
-                _uiState.update {
-                    it.copy(
-                        verificationError = null,
-                        verificationCode = "",
-                    )
-                }
+            is SignupEvent.VerifyCode -> {
+                verifyOtpRequest()
             }
 
             is SignupEvent.UsernameChanged -> {
@@ -128,8 +122,8 @@ class SignupViewModel @Inject constructor(
                     checkUsernameDebounced(cleanUsername)
                 }
             }
-            is SignupEvent.UsernameSuggestionClicked -> {
 
+            is SignupEvent.UsernameSuggestionClicked -> {
                 _uiState.update {
                     it.copy(
                         username = TextFieldValue(
@@ -146,8 +140,6 @@ class SignupViewModel @Inject constructor(
                         usernameError = null,
                     )
                 }
-
-
             }
 
             is SignupEvent.PasswordChanged ->
@@ -172,7 +164,7 @@ class SignupViewModel @Inject constructor(
                 }
             }
 
-            SignupEvent.SubmitClicked -> signup()
+            SignupEvent.SubmitClicked -> TODO()
 
             SignupEvent.CheckUsername -> TODO()
             SignupEvent.ClearSignupError -> TODO()
@@ -181,48 +173,60 @@ class SignupViewModel @Inject constructor(
 
             }
             is SignupEvent.PasswordFocusChanged -> TODO()
-            SignupEvent.SendVerificationCode -> TODO()
             is SignupEvent.SignInButtonTextChanged -> TODO()
             SignupEvent.SubmitSignup -> TODO()
             SignupEvent.ToggleConfirmPasswordVisibility -> TODO()
             SignupEvent.TogglePasswordFieldsVisibility -> TODO()
             SignupEvent.TogglePasswordVisibility -> TODO()
             is SignupEvent.UsernameCheckResult -> TODO()
-            is SignupEvent.NextClicked -> {
-                if (uiState.value.isPhoneMode) {
-                    if (uiState.value.phone.length >= 6) {
-                        _uiState.update {
-                            it.copy(
-                                showVerification = true,
-                                codeSentMessage = StringResource(R.string.code_sent_to_phone),
-                            )
-                        }
-                    } else {
-                        _uiState.update {
-                            it.copy(
-                                showVerification = false,
-                                codeSentMessage = StringResource(R.string.invaild_phone),
-                            )
-                        }
+
+        }
+    }
+
+    private fun verifyOtpRequest() {
+        val state = _uiState.value
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+
+            val result = if (state.isPhoneMode)
+            //            verify with phone number
+                verifyOtpUseCase(
+                VerifyOtpRequestDto.WithPhone(
+                    mobile = state.phone,
+                    username = state.username.text.removePrefix("@"),
+                    country_code = state.selectedCountryCode,
+                    otp_code = state.verificationCode
+                )
+            ) else
+            //            verify with email
+            verifyOtpUseCase(
+                VerifyOtpRequestDto.WithEmail(
+                    email = state.email,
+                    username = state.username.text.removePrefix("@"),
+                    otp_code = state.verificationCode
+                )
+            )
+
+            result.fold(
+                onSuccess = { response ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            showVerification = false,
+                            showPasswordFields = true,
+                            codeSentMessage = DynamicString(response.message)
+                        )
                     }
-                } else {
-                    if (Patterns.EMAIL_ADDRESS.matcher(uiState.value.email).matches()) {
-                        _uiState.update {
-                            it.copy(
-                                showVerification = true,
-                                codeSentMessage = StringResource(R.string.code_sent_to_email),
-                            )
-                        }
-                    } else {
-                        _uiState.update {
-                            it.copy(
-                                showVerification = false,
-                                codeSentMessage = StringResource(R.string.invaild_email),
-                            )
-                        }
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            verificationError = error.message,
+                        )
                     }
                 }
-            }
+            )
         }
     }
 
@@ -234,45 +238,30 @@ class SignupViewModel @Inject constructor(
             _uiState.update { it.copy(showUsernameLoader = true) }
 
             val result = checkUsernameUseCase(username)
-
             result.fold(
                 onSuccess = { response ->
-                    when (response.statusCode) {
-                        200 -> {
-                            val updatedUsername = "@${response.username}" // apply API-corrected username with @ prefix
-                            _uiState.update {
-                                it.copy(
-                                    username = TextFieldValue(
-                                        text = updatedUsername,
-                                        selection = TextRange(updatedUsername.length)
-                                    ),
-                                    showUsernameLoader = false,
-                                    isValidUsername = true,
-                                    showUsernameError = false,
-                                    usernameError = null
-                                )
-                            }
-                        }
-                        400 -> {
-                            _uiState.update {
-                                it.copy(
-                                    usernameSuggestions = response.suggestions ?: emptyList(),
-                                    showUsernameLoader = false,
-                                    isValidUsername = false,
-                                    showUsernameError = true,
-                                    usernameError = UiText.DynamicString(response.message)
-                                )
-                            }
-                        }
+                    val updatedUsername = "@${response.username}" // apply API-corrected username with @ prefix
+                    _uiState.update {
+                        it.copy(
+                            username = TextFieldValue(
+                                text = updatedUsername,
+                                selection = TextRange(updatedUsername.length)
+                            ),
+                            showUsernameLoader = false,
+                            isValidUsername = true,
+                            showUsernameError = false,
+                            usernameError = null
+                        )
                     }
                 },
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
+                            usernameSuggestions =  if (error is ApiErrorException) error.errorBody?.suggestions!! else emptyList(),
                             showUsernameLoader = false,
                             isValidUsername = false,
                             showUsernameError = true,
-                            usernameError = UiText.DynamicString(error.message ?: "Something went wrong")
+                            usernameError = DynamicString(error.message ?: "Something went wrong")
                         )
                     }
                 }
@@ -280,46 +269,48 @@ class SignupViewModel @Inject constructor(
         }
     }
 
-    private fun signup() {
+    private fun register() {
         val state = _uiState.value
-        val usernameText = state.username.text  // 👈 important
-
-        if (state.name.isBlank() ||
-            state.email.isBlank() ||
-            usernameText.isBlank() ||
-            state.password.isBlank() ||
-            state.confirmPassword.isBlank()
-        ) {
-            _uiState.update { it.copy(error = "All fields are required") }
-            return
-        }
-
-        if (state.password != state.confirmPassword) {
-            _uiState.update { it.copy(error = "Passwords do not match") }
-            return
-        }
-
-        if (state.isUsernameAvailable == false) {
-            _uiState.update { it.copy(error = "Username not available") }
-            return
-        }
-
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            val result = signupUseCase(
-//                name = state.name,
-                email = state.email,
-                password = state.password,
-                username = usernameText
+            val result = if (uiState.value.isPhoneMode)
+            //            register with phone number
+                registerUseCase(
+                RegisterRequestDto.WithPhone(
+                    mobile = state.email,
+                    username = state.username.text.removePrefix("@"),
+                    countryCode = state.selectedCountryCode
+                )
+            ) else
+                registerUseCase(
+                RegisterRequestDto.WithEmail(
+                    email = state.email,
+                    username = state.username.text.removePrefix("@")
+                )
             )
 
-            _uiState.update {
-                it.copy(
-                    isLoading = false,
-                    error = result.exceptionOrNull()?.message
-                )
-            }
+            result.fold(
+                onSuccess = { response ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            showVerification = true,
+                            verificationError = null,
+                            codeSentMessage = DynamicString(response.message),
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            showVerification = false,
+                            emailPhoneError = error.message,
+                        )
+                    }
+                }
+            )
         }
     }
 }

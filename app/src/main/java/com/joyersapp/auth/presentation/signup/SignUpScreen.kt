@@ -931,7 +931,7 @@ fun SignUpScreen(
 //                    signupViewModel.signup(registerRequest)
                                 } else {
                                     // Next step - verify email/phone
-                                    viewModel.onEvent(SignupEvent.NextClicked(""))
+                                    viewModel.onEvent(SignupEvent.SendVerificationCode)
                                 }
                             },
                             enabled = if (state.showPasswordFields) isPasswordFormValid else state.isValidUsername && (state.isValidEmail ||state.isValidPhone),
