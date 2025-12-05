@@ -4,6 +4,8 @@ import com.joyersapp.auth.data.remote.dto.CheckUsernameRequestDto
 import com.joyersapp.auth.data.remote.dto.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -24,4 +26,9 @@ interface AuthApi {
     suspend fun forgotPassword(
         @Body body: ForgotPasswordRequestDto
     ): ForgotPasswordResponseDto
+
+    @POST("auth/verify-otp")
+    suspend fun forgotPasswordVerifyOtp(
+        @Body body: ForgotPasswordVerifyOtpRequestDto
+    ): ForgotPasswordVerifyOtpResponseDto
 }

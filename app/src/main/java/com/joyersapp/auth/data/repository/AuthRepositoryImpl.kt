@@ -7,6 +7,8 @@ import com.joyersapp.auth.data.remote.dto.CheckUsernameRequestDto
 import com.joyersapp.auth.data.remote.dto.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.repository.AuthRepository
 import com.joyersapp.utils.ApiErrorException
@@ -44,6 +46,30 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun forgotPassword(params: ForgotPasswordRequestDto): Result<ForgotPasswordResponseDto> =
         try {
             val response = api.forgotPassword(params)
+            when(response.statusCode) {
+                200 -> {
+                    Result.success(response)
+                }
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            errorBody = ApiErrorDto(response.message),
+                            message = response.message
+                        )
+                    )
+                }
+                else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        }  catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun forgotPasswordVerifyOtp(params: ForgotPasswordVerifyOtpRequestDto): Result<ForgotPasswordVerifyOtpResponseDto> =
+        try {
+            val response = api.forgotPasswordVerifyOtp(params)
             when(response.statusCode) {
                 200 -> {
                     Result.success(response)

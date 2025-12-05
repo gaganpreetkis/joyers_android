@@ -15,4 +15,5 @@ sealed class ForgotPasswordEvent {
     data class TabErrorChanged(val value: String?) : ForgotPasswordEvent()
     data class SelectedCountryCodeChanged(val value: String) : ForgotPasswordEvent()
     data object OnNextButtonClicked : ForgotPasswordEvent()
+    data object OnVerifyButtonClicked : ForgotPasswordEvent()
 }

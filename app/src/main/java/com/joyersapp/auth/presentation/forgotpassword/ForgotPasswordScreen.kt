@@ -134,23 +134,6 @@ fun ForgotPasswordScreen(
 
     val isVerificationValid = state.verificationCode.length == 6 && state.verificationCode.all { it.isDigit() }
 
-    // Function to mask email address
-    fun maskEmail(email: String): String {
-        if (email.isEmpty() || !email.contains("@")) return email
-        val parts = email.split("@")
-        val localPart = parts[0]
-        val domain = parts[1]
-
-        return when {
-            localPart.length <= 2 -> "$localPart*****@$domain"
-            else -> {
-                val firstChar = localPart[0]
-                val lastChar = localPart[localPart.length - 1]
-                "$firstChar*****$lastChar@$domain"
-            }
-        }
-    }
-
     fun updateKeyboardState(frameLayout: View) {
         val rect = Rect()
         frameLayout.getWindowVisibleDisplayFrame(rect)
@@ -195,13 +178,11 @@ fun ForgotPasswordScreen(
 
     // Handle navigation after successful verification with 1 second delay
     LaunchedEffect(state.isLoading) {
-        if (state.isLoading) {
-            //delay(1000) // Show loader for 1 second
-            //val identifier = if (state.isPhoneMode) state.phone else state.usernameEmail
-            //val countryCode = if (state.isPhoneMode) state.selectedCountryCode else ""
-            //val countryNameCode = if (state.isPhoneMode) selectedCountryNameCode else ""
-            //onNavigateToResetPassword(identifier, countryCode, countryNameCode, state.verificationCode)
-            //viewModel.onEvent(ForgotPasswordEvent.LoadingChanged(false))
+        if (state.isVerificationSuccess) {
+            val identifier = if (state.isPhoneMode) state.phone else state.usernameEmail
+            val countryCode = if (state.isPhoneMode) state.selectedCountryCode else ""
+            val countryNameCode = if (state.isPhoneMode) selectedCountryNameCode else ""
+            onNavigateToResetPassword(identifier, countryCode, countryNameCode, state.verificationCode)
         }
     }
 
@@ -257,22 +238,6 @@ fun ForgotPasswordScreen(
 
             // Show message and masked email when verification code is shown
             if (state.showVerificationCode) {
-
-                val mainText = if (state.showVerificationCode) {
-                    if (state.isPhoneMode) stringResource(R.string.number_sent)
-                    else stringResource(R.string.email_sent)
-                } else {
-                    stringResource(R.string.reset_password_in_two_steps)
-                }
-
-                val secondaryText = if (state.isPhoneMode) {
-                    val fullPhone = "${state.selectedCountryCode}${state.phone}"
-                    if (fullPhone.length > 6)
-                        "${fullPhone.take(3)}*****${fullPhone.takeLast(2)}."
-                    else "$fullPhone."
-                } else {
-                    maskEmail("${state.usernameEmail}.")
-                }
                 Text(
                     text = buildAnnotatedString {
                         // NORMAL first part
@@ -282,7 +247,7 @@ fun ForgotPasswordScreen(
                                 color = LightBlack
                             )
                         ) {
-                            append("$mainText ")
+                            append("${state.mainText} ")
                         }
 
                         // BOLD second part
@@ -292,7 +257,7 @@ fun ForgotPasswordScreen(
                                 color = LightBlack
                             )
                         ) {
-                            append(secondaryText)
+                            append(state.secondaryText)
                         }
                     },
                     fontSize = 16.sp,
@@ -340,8 +305,10 @@ fun ForgotPasswordScreen(
                                         viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(it))
                                         viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
                                         viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
+                                        viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
                                         if (state.showVerificationCode) {
                                             viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
                                         }
                                     }
                                 },
@@ -366,6 +333,7 @@ fun ForgotPasswordScreen(
                                             viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
                                             if (state.showVerificationCode) {
                                                 viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
                                             }
                                         }
                                 )
@@ -385,6 +353,7 @@ fun ForgotPasswordScreen(
                                 viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
                                 viewModel.onEvent(ForgotPasswordEvent.IsPhoneModeChanged(true))
                                 viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
                             }
                             .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
                             .border(
@@ -455,6 +424,7 @@ fun ForgotPasswordScreen(
                                         }
                                         if (state.showVerificationCode) {
                                             viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
                                         }
                                     }
                                 },
@@ -476,8 +446,10 @@ fun ForgotPasswordScreen(
                                         .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
                                             viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
+                                            viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
                                             if (state.showVerificationCode) {
                                                 viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
                                             }
                                         }
                                 )
@@ -740,7 +712,7 @@ fun ForgotPasswordScreen(
                     onClick = {
                         if (isVerificationValid) {
                             // Verify code - show loader, will navigate after 1 second
-                            viewModel.onEvent(ForgotPasswordEvent.LoadingChanged(true))
+                            viewModel.onEvent(ForgotPasswordEvent.OnVerifyButtonClicked)
                         } else {
                             viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged("Please enter a valid 6-digit code"))
                         }
