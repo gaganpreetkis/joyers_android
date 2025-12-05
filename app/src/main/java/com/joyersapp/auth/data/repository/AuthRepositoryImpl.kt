@@ -172,7 +172,7 @@ class AuthRepositoryImpl @Inject constructor(
     ): Result<RegisterResponseDto> =
         try {
         val response = api.register(
-            RegisterRequestDto.WithPhone(username = username, mobile = mobile, countryCode = countryCode)
+            RegisterRequestDto.WithPhone(username = username, mobile = mobile, country_code = countryCode)
         )
             when (response.statusCode) {
                 200 -> {

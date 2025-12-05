@@ -20,7 +20,7 @@ class RegisterUseCase @Inject constructor(
                 authRepository.registerWithPhone(
                     username = params.username,
                     mobile = params.mobile,
-                    countryCode = params.countryCode
+                    countryCode = params.country_code
                 )
         }
     }

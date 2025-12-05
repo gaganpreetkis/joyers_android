@@ -51,6 +51,8 @@ class SignupViewModel @Inject constructor(
                         email = event.value,
                         emailPhoneError = null,
                         showVerification = false,
+                        verificationCode = "",
+                        verificationError = null,
                         showPasswordFields = false,
                         isValidEmail = isValidEmail
                     )
@@ -67,6 +69,8 @@ class SignupViewModel @Inject constructor(
                         phone = event.value,
                         emailPhoneError = null,
                         showVerification = false,
+                        verificationCode = "",
+                        verificationError = null,
                         showPasswordFields = false,
                         isValidPhone = isValidPhone
                     )
@@ -112,6 +116,8 @@ class SignupViewModel @Inject constructor(
                         username = event.value,
                         isUsernameAvailable = null,
                         showUsernameError = false,
+                        verificationCode = "",
+                        verificationError = null,
                         usernameError = null,
                         isSuggestionSelected = false,
                         usernameSuggestions = emptyList(),
@@ -278,9 +284,9 @@ class SignupViewModel @Inject constructor(
             //            register with phone number
                 registerUseCase(
                 RegisterRequestDto.WithPhone(
-                    mobile = state.email,
+                    mobile = state.phone,
                     username = state.username.text.removePrefix("@"),
-                    countryCode = state.selectedCountryCode
+                    country_code = state.selectedCountryCode
                 )
             ) else
                 registerUseCase(

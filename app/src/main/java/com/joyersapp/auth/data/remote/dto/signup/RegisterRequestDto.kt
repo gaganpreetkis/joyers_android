@@ -10,6 +10,6 @@ sealed class RegisterRequestDto {
     data class WithPhone(
         val username: String,
         val mobile: String,
-        val countryCode: String
+        val country_code: String
     ) : RegisterRequestDto()
 }
