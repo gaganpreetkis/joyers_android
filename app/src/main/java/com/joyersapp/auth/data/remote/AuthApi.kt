@@ -4,6 +4,8 @@ import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
@@ -49,4 +51,9 @@ interface AuthApi {
     suspend fun forgotPassword(
         @Body body: ForgotPasswordRequestDto
     ): ForgotPasswordResponseDto
+
+    @POST("auth/verify-otp")
+    suspend fun forgotPasswordVerifyOtp(
+        @Body body: ForgotPasswordVerifyOtpRequestDto
+    ): ForgotPasswordVerifyOtpResponseDto
 }

@@ -686,8 +686,7 @@ fun PageOneContent(
                 .height(55.dp)
                 .background(Gray20, RoundedCornerShape(5.dp))
                 .border(1.dp,GrayLightBorder, RoundedCornerShape(5.dp))
-                .clickable {
-//                    activity?.let {
+                .clickable(enabled = countryName.isEmpty()) {
                     showCCPDialog(
                         context,
                         showPhoneCode = false
@@ -695,7 +694,6 @@ fun PageOneContent(
                         countryName = name
                         selectedCountryCode = code
                     }
-//                    }
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -715,9 +713,21 @@ fun PageOneContent(
             ) {
 
                 Image(
-                    painter = painterResource(id = R.drawable.drop_down),
+                    painter = painterResource(id = if (countryName.isEmpty()) R.drawable.drop_down else R.drawable.ic_cross_round_border_grey),
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 15.dp).size(30.dp)
+                    modifier = Modifier.padding(end = 15.dp).size(30.dp).clickable {
+                        if (countryName.isEmpty()) {
+                            showCCPDialog(
+                                context,
+                                showPhoneCode = false
+                            ) { code, name, flag, _ ->
+                                countryName = name
+                                selectedCountryCode = code
+                            }
+                        } else {
+                            countryName = ""
+                        }
+                    }
                 )
             }
         }
@@ -1005,7 +1015,7 @@ fun PageTwoContent(
                 shape = RoundedCornerShape(5.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(top = 14.dp, bottom = 15.dp, start = 15.dp, end = 15.dp)
+                    modifier = Modifier.padding(top = 12.dp, bottom = 14.dp, start = 15.dp, end = 15.dp)
                 ) {
                     Text(
                         text = context.getString(R.string.title1),
@@ -1015,7 +1025,7 @@ fun PageTwoContent(
                         color = lightBlackColor
                     )
 
-                    Spacer(modifier = Modifier.height(13.dp))
+                    Spacer(modifier = Modifier.height(11.dp))
 
                     // Styled text for each status
                     statusOptions.forEach { (statusKey, _) ->
