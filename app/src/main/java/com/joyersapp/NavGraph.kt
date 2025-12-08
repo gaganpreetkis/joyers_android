@@ -10,7 +10,7 @@ import androidx.navigation.navArgument
 import com.joyersapp.auth.presentation.forgotpassword.ForgotPasswordScreen
 import com.joyersapp.auth.presentation.IdentityScreen
 import com.joyersapp.auth.presentation.JoyersOathScreen
-import com.joyersapp.auth.presentation.LoginScreen
+import com.joyersapp.auth.presentation.login.LoginScreen
 import com.joyersapp.auth.presentation.resetpassword.ResetPasswordScreen
 import com.joyersapp.auth.presentation.signup.SignUpScreen
 import com.joyersapp.auth.presentation.SplashVideoScreen
@@ -34,7 +34,7 @@ sealed class Routes(val route: String) {
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.Splash.route
+        startDestination = Routes.Identity.route
     ) {
 
         composable(Routes.Splash.route) {
