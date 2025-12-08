@@ -715,8 +715,13 @@ fun ResetPasswordScreen(
                                 }
                             }
                         )*/
-                        AutoResizeText(
+                        Text(
                             text = state.passwordResetErrorMessage,
+                            color = Red,
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            fontFamily = fontFamilyLato,
+                            modifier = Modifier.padding(top = 3.dp)
                         )
                     }
 

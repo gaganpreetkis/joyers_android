@@ -81,22 +81,25 @@ class ResetPasswordViewModel @Inject constructor (
     private fun resetPassword() {
         val state = _uiState.value
         val params = ResetPasswordRequestDto(
+            email = "",
             username = "",
+            country_code = "",
+            mobile = "",
             otp_code = state.verificationCode,
             new_password = state.password,
             confirm_password = state.confirmPassword
         )
         if (state.isPhoneMode) {
-            //params.country_code = state.selectedCountryCode
-            //params.mobile = state.identifierValue
+            params.country_code = state.selectedCountryCode
+            params.mobile = state.identifierValue
         } else {
             if (Patterns.EMAIL_ADDRESS.matcher(state.identifierValue).matches()) {
-                //params.email = state.identifierValue
+                params.email = state.identifierValue
             } else {
                 params.username = state.identifierValue
             }
         }
-        if (params.username.isBlank()) return
+        if (params.username.isBlank() && params.email.isBlank() && params.country_code.isBlank() && params.mobile.isBlank()) return
         onEvent(ResetPasswordEvent.LoadingChanged(true))
         job?.cancel()
         job = viewModelScope.launch {
