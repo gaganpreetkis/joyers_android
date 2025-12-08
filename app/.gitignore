@@ -1,1 +1,61 @@
 /build
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Local configuration files
+local.properties
+gradle.properties.local
+
+# Log files
+*.log
+
+# Android Studio
+.idea/
+*.iml
+out/
+
+# Jetpack Compose compiler artifacts
+compose-compiler/
+compose-metrics/
+compose-reports/
+
+# Kotlin
+*.kotlin_module
+
+# Generated files
+captures/
+output.json
+
+# Translations
+*.mo
+
+# Keystore files (DO NOT COMMIT)
+*.jks
+*.keystore
+
+# Firebase / Google Services (usually ignored)
+google-services.json
+GoogleService-Info.plist
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# JetBrains caches
+.cxx/
+
+# NDK
+**/.externalNativeBuild/
+.externalNativeBuild/
+
+# Gradle Wrapper Jars (optional—if you check wrapper into git, remove this)
+gradle/wrapper/gradle-wrapper.jar
+
+# App bundle / APK artifacts
+*.apk
+*.aab
+
+# Misc
+*.orig
