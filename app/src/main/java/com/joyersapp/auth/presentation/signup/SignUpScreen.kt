@@ -339,8 +339,8 @@ fun SignUpScreen(
                     shape = RoundedCornerShape(
                         5.dp,
                         5.dp,
-                        if (state.showUsernameSuggestions) 0.dp else 5.dp,
-                        if (state.showUsernameSuggestions) 0.dp else 5.dp
+                        if (state.usernameSuggestions.isNotEmpty()) 0.dp else 5.dp,
+                        if (state.usernameSuggestions.isNotEmpty()) 0.dp else 5.dp
                     )
                 )
                 .border(
@@ -349,8 +349,8 @@ fun SignUpScreen(
                     shape = RoundedCornerShape(
                         5.dp,
                         5.dp,
-                        if (state.showUsernameSuggestions) 0.dp else 5.dp,
-                        if (state.showUsernameSuggestions) 0.dp else 5.dp
+                        if (state.usernameSuggestions.isNotEmpty()) 0.dp else 5.dp,
+                        if (state.usernameSuggestions.isNotEmpty()) 0.dp else 5.dp
                     )
                 )
                 .padding(horizontal = 19.dp),
@@ -464,6 +464,7 @@ fun SignUpScreen(
                 fontSize = 14.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Normal,
+                lineHeight = 20.sp,
                 modifier = Modifier.padding(top = 3.dp)
             )
         }
@@ -578,7 +579,7 @@ fun SignUpScreen(
 
                     Spacer(Modifier.width(5.dp))
 
-                    // RIGHT TOGGLE ICON PART
+// RIGHT TOGGLE ICON PART
                     Box(
                         modifier = Modifier
                             .clickable {
@@ -930,10 +931,10 @@ fun SignUpScreen(
 //                    signupViewModel.signup(registerRequest)
                                 } else {
                                     // Next step - verify email/phone
-                                    viewModel.onEvent(SignupEvent.NextClicked(""))
+                                    viewModel.onEvent(SignupEvent.SendVerificationCode)
                                 }
                             },
-                            enabled = if (state.showPasswordFields) isPasswordFormValid else state.isValidEmail && state.isValidPhone,
+                            enabled = if (state.showPasswordFields) isPasswordFormValid else state.isValidUsername && (state.isValidEmail ||state.isValidPhone),
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Golden60,

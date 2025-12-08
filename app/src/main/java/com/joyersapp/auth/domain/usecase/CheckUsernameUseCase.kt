@@ -1,6 +1,6 @@
 package com.joyersapp.auth.domain.usecase
 
-import com.joyersapp.auth.data.remote.dto.CheckUsernameResponseDto
+import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameResponseDto
 import com.joyersapp.auth.domain.repository.AuthRepository
 import jakarta.inject.Inject
 
