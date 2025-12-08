@@ -4,6 +4,8 @@ import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
+import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationRequestDto
+import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
@@ -29,6 +31,14 @@ interface AuthApi {
     suspend fun verifyOtp(
         @Body body: VerifyOtpRequestDto.WithPhone
     ): VerifyOtpResponseDto
+    @POST("auth/complete-registration")
+    suspend fun completeRegistrationWithEmail(
+        @Body body: CompleteRegistrationRequestDto.WithEmail
+    ): CompleteRegistrationResponseDto
+    @POST("auth/complete-registration")
+    suspend fun completeRegistrationWithPhone(
+        @Body body: CompleteRegistrationRequestDto.WithPhone
+    ): CompleteRegistrationResponseDto
 
     @POST("auth/register")
     suspend fun register(@Body body: RegisterRequestDto.WithEmail): RegisterResponseDto

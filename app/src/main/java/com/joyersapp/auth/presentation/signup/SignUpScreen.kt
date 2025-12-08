@@ -29,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -112,196 +113,18 @@ fun SignUpScreen(
             }
             .build()
     }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
-    var showPasswordFields by remember { mutableStateOf(false) }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    var isConfirmPasswordVisible by remember { mutableStateOf(false) }
-    var isPasswordFocused by remember { mutableStateOf(false) }
-    var isConfirmPasswordFocused by remember { mutableStateOf(false) }
 
-    val isPasswordFormValid = remember(password, confirmPassword) {
-        isValidPassword(password)
-                && password == confirmPassword
-    }
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when(event) {
+                SignupNavigationEvent.RegistrationCompleted -> {
+                    onSignUpClick()
+                    }
 
-   /* var username by remember { mutableStateOf(TextFieldValue("")) }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var showUsernameLoader by remember { mutableStateOf(false) }
-    var showUsernameTick by remember { mutableStateOf(false) }
-    var showUsernameError by remember { mutableStateOf(false) }
-    var showUsernameSuggestions by remember { mutableStateOf(false) }
-    var usernameError by remember { mutableStateOf<String?>(null) }
-    var usernameSuggestions by remember {
-        mutableStateOf<List<String>>(
-            arrayListOf(
-                "test123",
-                "test256",
-                "test478",
-            )
-        )
-    }
-
-    var isPhoneMode by remember { mutableStateOf(false) }
-    var email by remember { mutableStateOf("") }
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var phone by remember { mutableStateOf("") }
-    var phoneError by remember { mutableStateOf<String?>(null) }
-    var verificationError by remember { mutableStateOf<String?>(null) }
-    var showVerification by remember { mutableStateOf(false) }
-    var verificationCode by remember { mutableStateOf("") }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
-    var showPasswordFields by remember { mutableStateOf(false) }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    var isConfirmPasswordVisible by remember { mutableStateOf(false) }
-    var selectedCountryCode by remember { mutableStateOf("+1") }
-    var signupError by remember { mutableStateOf<String?>(null) }
-    var codeSentMessage by remember { mutableStateOf("") }
-    var signInButtonText by remember { mutableStateOf(context.getString(R.string.sign_up)) }
-    val focusRequester = remember { FocusRequester() }
-    var isPasswordFocused by remember { mutableStateOf(false) }
-    var isConfirmPasswordFocused by remember { mutableStateOf(false) }
-    var isUsernameFocused by remember { mutableStateOf(true) }
-    val imageLoader = remember {
-        ImageLoader.Builder(context)
-            .components {
-                add(GifDecoder.Factory())
+                SignupNavigationEvent.NavigateToLogin -> {}
             }
-            .build()
-    }
-//    tempp====================
-    var isSuggestionSelected by remember { mutableStateOf(false) }
-*/
-
-/*
-    // Debounced username validation
-    LaunchedEffect(username) {
-        val cleanUsername = username.text.replace("@", "")
-
-        if (cleanUsername.isEmpty() || cleanUsername == "@") {
-            showUsernameLoader = false
-            showUsernameTick = false
-            showUsernameError = false
-            showUsernameSuggestions = false
-//            temp=======================================
-//            usernameSuggestions = emptyList()
-        } else if (cleanUsername.length < 3) {
-
-            if (state.isUsernameFocused) {
-                showUsernameLoader = false
-                showUsernameTick = false
-                showUsernameError = false
-                showUsernameSuggestions = false
-            } else {
-                showUsernameLoader = false
-                showUsernameTick = false
-                usernameError =
-                    context.getString(R.string.username_must_be_3_15_characters_only_letters_numbers_and_underscores)
-                showUsernameError = true
-                showUsernameSuggestions = false
-            }
-
-        } else {
-            //        temp=====================
-            if (cleanUsername.length >= 6 && !isSuggestionSelected) {
-                showUsernameLoader = false
-                showUsernameSuggestions = true
-                showUsernameTick = false
-                usernameError = context.getString(R.string.username_is_already_taken)
-                showUsernameError = true
-            } else {
-                showUsernameLoader = true
-                delay(400)
-
-                // API call would go here - for now, simulate validation  ====temp=====
-                if (isValidUsername(cleanUsername)) {
-//            if (true) {
-                    showUsernameLoader = false
-                    showUsernameTick = true
-                    showUsernameError = false
-                    usernameError = null
-                    showUsernameSuggestions = false
-                } else {
-                    showUsernameLoader = false
-                    showUsernameTick = false
-                    showUsernameError = true
-                    usernameError =
-                        context.getString(R.string.username_must_be_3_15_characters_only_letters_numbers_and_underscores)
-                    showUsernameSuggestions = false
-                }
             }
         }
-    }
-
-
-    val cleanUsername = username.text.replace("@", "")
-    if (!state.isUsernameFocused && username.text.replace("@", "").isNotEmpty() && !isValidUsername(
-            cleanUsername
-        )
-    ) {
-        showUsernameLoader = false
-        usernameError =
-            context.getString(R.string.username_must_be_3_15_characters_only_letters_numbers_and_underscores)
-        showUsernameError = true
-        showUsernameSuggestions = false
-    }
-
-    if (!isPasswordFocused) {
-        passwordError = if (password.isNotEmpty() && !isValidPassword(password)) {
-            context.getString(R.string.weak_password)
-        } else {
-            null
-        }
-    }
-
-    if (passwordError != null) {
-        confirmPasswordError = null
-    } else if (!isConfirmPasswordFocused) {
-        confirmPasswordError = if (confirmPassword.isNotEmpty() && password != confirmPassword) {
-            context.getString(R.string.password_does_not_match)
-        } else {
-            null
-        }
-    }
-
-    // Form validation
-    val isFormValid = remember(username, email, phone, isPhoneMode) {
-        val cleanUsername = username.text.replace("@", "")
-        if (isPhoneMode) {
-            cleanUsername.isNotEmpty() && isValidUsername(cleanUsername) && phone.isNotEmpty() &&
-                    phone.all { it.isDigit() } &&
-                    phone.length in 10..15
-        } else {
-            cleanUsername.isNotEmpty() && isValidUsername(cleanUsername) && email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(
-                email
-            ).matches()
-        }
-    }
-
-    val isPasswordFormValid = remember(password, confirmPassword) {
-        isValidPassword(password)
-                && password == confirmPassword
-    }
-
-    val isPasswordValid = remember(password) {
-        password.length >= 8 &&
-                password.any { it.isUpperCase() } &&
-                password.any { !it.isLetterOrDigit() }
-    }
-
-    val isVerificationValid = verificationCode.length == 6
-
-    if (isFormValid && !showPasswordFields) {
-        signInButtonText = context.getString(R.string.next)
-    } else {
-        signInButtonText = context.getString(R.string.sign_up)
-    }
-*/
-
 
     Column(
         modifier = Modifier
@@ -406,7 +229,7 @@ fun SignUpScreen(
                         .decoderFactory(GifDecoder.Factory())
                         .build(),
                     imageLoader = imageLoader,
-                    contentDescription = "Splash GIF",
+                    contentDescription = "Loader GIF",
                     modifier = Modifier.size(20.dp),
                     contentScale = ContentScale.FillBounds,
                     onSuccess = {
@@ -509,10 +332,15 @@ fun SignUpScreen(
 
                                 Spacer(modifier = Modifier.width(7.dp))
 
-                                CountryCodePicker { code ->
-                                    viewModel.onEvent(SignupEvent.CountryCodeChanged(code))
-//                                    state.selectedCountryCode = code
-                                }
+                                CountryCodePicker(
+                                    defaultCountry = state.selectedCountryNameCode,
+                                    onCountrySelected = { code ->
+                                        viewModel.onEvent(SignupEvent.CountryCodeChanged(code))
+                                                        },
+                                    onCountryNameCodeSelected = {nameCode ->
+                                        viewModel.onEvent(SignupEvent.CountryNameCodeChanged(nameCode))
+                                    }
+                                )
 
                                 AppBasicTextField(
                                     value = state.phone,
@@ -764,30 +592,20 @@ fun SignUpScreen(
                                     AppBasicTextFieldForPassword(
                                         value = state.password,
                                         onValueChange = {
-                                            password = it
-                                            passwordError = null
-                                            if (confirmPassword.isNotEmpty()) {
-                                                if (password == confirmPassword) {
-                                                    confirmPasswordError = null
-                                                } else {
-                                                    confirmPasswordError =
-                                                        context.getString(R.string.password_does_not_match)
-                                                }
-                                            }
+                                            viewModel.onEvent(SignupEvent.PasswordChanged(it))
                                         },
                                         maxLength = 16,
                                         placeholder = stringResource(R.string.password),
                                         isPassword = true,
-                                        passwordVisible = isPasswordVisible,
+                                        passwordVisible = state.isPasswordVisible,
                                         onPasswordToggle = {
-                                            isPasswordVisible = !isPasswordVisible
-                                            //passwordError = null
+                                            viewModel.onEvent(SignupEvent.TogglePasswordVisibility)
                                         },
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .focusRequester(focusRequester)
                                             .onFocusChanged { focusState ->
-                                                isPasswordFocused = focusState.isFocused
+                                                viewModel.onEvent(SignupEvent.PasswordFocusChanged(focusState.isFocused))
                                             },
                                         containerColor = Color.Transparent,
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
@@ -796,9 +614,9 @@ fun SignUpScreen(
                             }
                         }
 
-                        if (passwordError != null) {
+                        if (state.passwordError != null) {
                             Text(
-                                text = passwordError!!,
+                                text = state.passwordError?.asString(context)!!,
                                 color = Red,
                                 fontSize = 14.sp,
                                 fontFamily = fontFamilyLato,
@@ -809,8 +627,8 @@ fun SignUpScreen(
                         }
 
                         // Password strength indicator
-                        if (password.isNotEmpty() && isValidPassword(password) && isPasswordFocused && confirmPasswordError == null) {
-
+                        if (state.isValidPassword && state.isPasswordFocused && state.confirmPasswordError == null) {
+//                        if (password.isNotEmpty() && isValidPassword(password) && isPasswordFocused && confirmPasswordError == null) {
                             Text(
                                 text = context.getString(R.string.strong),
                                 fontSize = 14.sp,
@@ -821,7 +639,6 @@ fun SignUpScreen(
                                     .align(Alignment.End)
                                     .padding(top = 5.dp)
                             )
-
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth(),
@@ -848,7 +665,7 @@ fun SignUpScreen(
                                 .fillMaxWidth()
                                 .height(50.dp)
                                 .border(
-                                    color = if (confirmPasswordError != null) Red else GrayLightBorder,
+                                    color = if (state.confirmPasswordError != null) Red else GrayLightBorder,
                                     width = 1.dp,
                                     shape = RoundedCornerShape(5.dp)
                                 )
@@ -871,25 +688,21 @@ fun SignUpScreen(
                                     Spacer(modifier = Modifier.width(0.dp))
 
                                     AppBasicTextFieldForPassword(
-                                        value = confirmPassword,
+                                        value = state.confirmPassword,
                                         onValueChange = {
-                                            confirmPassword = it
-                                            confirmPasswordError = null
-                                            isPasswordFocused = false
-                                            isConfirmPasswordFocused = true
+                                            viewModel.onEvent(SignupEvent.ConfirmPasswordChanged(it))
                                         },
                                         maxLength = 16,
                                         placeholder = stringResource(R.string.confirm_password),
                                         isPassword = true,
-                                        passwordVisible = isConfirmPasswordVisible,
+                                        passwordVisible = state.isConfirmPasswordVisible,
                                         onPasswordToggle = {
-                                            isConfirmPasswordVisible = !isConfirmPasswordVisible
-                                            //confirmPasswordError = null
+                                            viewModel.onEvent(SignupEvent.ToggleConfirmPasswordVisibility)
                                         },
                                         modifier = Modifier.fillMaxSize()
                                             .focusRequester(focusRequester)
                                             .onFocusChanged { focusState ->
-                                                isConfirmPasswordFocused = focusState.isFocused
+                                                viewModel.onEvent(SignupEvent.ConfirmPasswordFocusChanged(focusState.isFocused))
                                             },
                                         containerColor = Color.Transparent,
                                         keyboardOptions = KeyboardOptions(
@@ -901,10 +714,9 @@ fun SignUpScreen(
                             }
                         }
 
-
-                        if (confirmPasswordError != null) {
+                        if (state.confirmPasswordError != null) {
                             Text(
-                                text = confirmPasswordError!!,
+                                text = state.confirmPasswordError?.asString(context)!!,
                                 color = Red,
                                 fontSize = 14.sp,
                                 fontFamily = fontFamilyLato,
@@ -913,28 +725,42 @@ fun SignUpScreen(
                                 modifier = Modifier.padding(top = 3.dp)
                             )
                         }
-                    } else {
-                        password = ""
-                        confirmPassword = ""
-                        passwordError = null
-                        confirmPasswordError = null
                     }
 
+                if (state.error == null) {
                     Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 45.dp else 71.dp))
+                } else {
+                    Spacer(modifier = Modifier.height(11.dp))
+                    Text(
+                        text = state.error!!,
+                        color = Red,
+                        fontSize = 14.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
+                        lineHeight = 20.sp,
+//                        modifier = Modifier.padding(top = 3.dp)
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
 
-//    Sign Up  Button
                     if (!state.showVerification) {
+                        //    Sign Up  Button
                         Button(
                             onClick = {
                                 if (state.showPasswordFields) {
-                                    onSignUpClick()
-//                    signupViewModel.signup(registerRequest)
+                             // Complete Registration
+//                                    onSignUpClick()
+                                    viewModel.onEvent(SignupEvent.SubmitClicked)
                                 } else {
                                     // Next step - verify email/phone
                                     viewModel.onEvent(SignupEvent.SendVerificationCode)
                                 }
                             },
-                            enabled = if (state.showPasswordFields) isPasswordFormValid else state.isValidUsername && (state.isValidEmail ||state.isValidPhone),
+                            enabled = state.isSignupButtonEnabled,
+//                                if (state.showPasswordFields)
+//                                    state.isValidPassword && state.confirmPassword == state.password
+//                                else
+//                                    state.isValidUsername && (state.isValidEmail ||state.isValidPhone),
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Golden60,
@@ -1056,6 +882,21 @@ fun SignUpScreen(
             }
         }
     }
+
+    if (state.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = Golden60,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+    }
+
 }
 
 @Composable

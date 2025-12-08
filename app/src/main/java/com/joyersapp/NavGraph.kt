@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.joyersapp.auth.presentation.forgotpassword.ForgotPasswordScreen
-import com.joyersapp.auth.presentation.IdentityScreen
+import com.joyersapp.auth.presentation.identity.IdentityScreen
 import com.joyersapp.auth.presentation.JoyersOathScreen
 import com.joyersapp.auth.presentation.LoginScreen
 import com.joyersapp.auth.presentation.ResetPasswordScreen

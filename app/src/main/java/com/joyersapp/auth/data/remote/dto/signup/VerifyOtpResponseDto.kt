@@ -1,9 +1,9 @@
 package com.joyersapp.auth.data.remote.dto.signup
 
 data class VerifyOtpResponseDto(
-    val available: Boolean,
+    val user_id: String?,
     val username: String,
     val message: String,
-    val suggestions: List<String>?,
+    val purpose: String?,
     val statusCode: Int?
 )

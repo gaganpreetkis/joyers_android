@@ -3,8 +3,6 @@ package com.joyersapp.auth.presentation.signup
 import androidx.compose.ui.text.input.TextFieldValue
 
 sealed class SignupEvent {
-
-    data class NameChanged(val value: String) : SignupEvent()
     object SubmitClicked : SignupEvent()
     data class UsernameChanged(val value: TextFieldValue) : SignupEvent()
     data class EmailChanged(val value: String) : SignupEvent()
@@ -44,6 +42,8 @@ sealed class SignupEvent {
 
     // Country code
     data class CountryCodeChanged(val code: String) : SignupEvent()
+
+    data class CountryNameCodeChanged(val nameCode: String) : SignupEvent()
 
     // Button text / general UI triggers (optional)
     data class SignInButtonTextChanged(val text: String) : SignupEvent()

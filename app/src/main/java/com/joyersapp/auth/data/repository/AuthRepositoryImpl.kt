@@ -6,6 +6,8 @@ import com.joyersapp.auth.data.remote.dto.ApiErrorDto
 import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
+import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationRequestDto
+import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
@@ -125,6 +127,86 @@ class AuthRepositoryImpl @Inject constructor(
         }  catch (e: Exception) {
             Result.failure(e)
         }
+
+    override suspend fun completeRegistrationWithPhone(
+        username: String,
+        mobile: String,
+        countryCode: String,
+        otpCode: String,
+        password: String,
+        confirmPassword: String
+    ): Result<CompleteRegistrationResponseDto> =
+        try {
+            TODO("Not yet implemented")
+//            val response = api.completeRegistration(
+//                CompleteRegistrationRequestDto.WithPhone(username = username, mobile = mobile, country_code= countryCode, otp_code = otpCode)
+//            )
+//            when (response.statusCode) {
+//                200 -> {
+//                    Result.success(response)
+//                }
+//                400 -> {
+//                    Result.failure(
+//                        ApiErrorException(
+//                            message = response.message
+//                        )
+//                    )
+//                }
+//                else -> Result.failure(
+//                    ApiErrorException(
+//                        message = response.message
+//                    ))
+//            }
+        }catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        }  catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun completeRegistrationWithEmail(
+        username: String,
+        email: String,
+        otpCode: String,
+        password: String,
+        confirmPassword: String
+    ): Result<CompleteRegistrationResponseDto> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun completeRegistration(
+        params: CompleteRegistrationRequestDto
+    ): Result<CompleteRegistrationResponseDto> =
+        try {
+            val response = when(params) {
+                is CompleteRegistrationRequestDto.WithPhone -> api.completeRegistrationWithPhone(params)
+                is CompleteRegistrationRequestDto.WithEmail -> api.completeRegistrationWithEmail(params)
+            }
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response)
+                }
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            message = response.message ?: ""
+                        )
+                    )
+                }
+                else -> Result.failure(
+                    ApiErrorException(
+                        message = response.message ?: ""
+                    ))
+            }
+    }catch (e: HttpException) {
+        val errorMsg = parseNetworkError(e)
+        Result.failure(IllegalArgumentException(errorMsg, e))
+    }  catch (e: Exception) {
+        Result.failure(e)
+    }
+
+
+
 
     override suspend fun forgotPassword(name: String): Result<Boolean> =
         try {

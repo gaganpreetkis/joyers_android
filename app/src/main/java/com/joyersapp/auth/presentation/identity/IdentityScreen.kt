@@ -1,6 +1,7 @@
-package com.joyersapp.auth.presentation
+package com.joyersapp.auth.presentation.identity
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -78,7 +79,6 @@ import com.joyersapp.common_widgets.DualViewDialog
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.common_widgets.showCCPDialog
-import com.joyersapp.theme.Black
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
@@ -102,6 +102,7 @@ fun IdentityScreen(
     onNavigateBack: () -> Unit = {},
     onNavigateToNext: () -> Unit = {}
 ) {
+
     val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = initialPage) { 3 }
     var currentPage by remember { mutableStateOf(initialPage) }
@@ -128,6 +129,13 @@ fun IdentityScreen(
         }
     }
 
+    BackHandler(enabled = true) {
+        if (currentPage > 0) {
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(currentPage - 1)
+            }
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1314,7 +1322,6 @@ fun PageThreeContent(
             }
         }
     }
-
 
 
     // Title Selection Dialog

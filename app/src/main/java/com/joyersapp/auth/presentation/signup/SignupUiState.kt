@@ -16,17 +16,19 @@ data class SignupUiState(
     val confirmPassword: String = "",
 
     val showUsernameLoader: Boolean = false,
-    val isValidUsername: Boolean = false,
     val showUsernameError: Boolean = false,
     val showUsernameSuggestions: Boolean = false,
     val usernameError: UiText? = null,
     val usernameSuggestions: List<String> = emptyList(),
 
+    val isValidUsername: Boolean = false,
+    val isValidEmail: Boolean = false,
+    val isValidPhone: Boolean = false,
+    val isValidPassword: Boolean = false,
+
     val isPhoneMode: Boolean = false,
     val email: String = "",
     val emailError: String? = null,
-    val isValidEmail: Boolean = false,
-    val isValidPhone: Boolean = false,
     val phone: String = "",
     val emailPhoneError: String? = null,
 
@@ -35,20 +37,34 @@ data class SignupUiState(
     val verificationCode: String = "",
     val codeSentMessage: UiText = UiText.StringResource(R.string.code_sent_to_email),
 
-    val passwordError: String? = null,
-    val confirmPasswordError: String? = null,
+    val passwordError: UiText? = null,
+    val confirmPasswordError: UiText? = null,
     val showPasswordFields: Boolean = false,
     val isPasswordVisible: Boolean = false,
     val isConfirmPasswordVisible: Boolean = false,
 
     val selectedCountryCode: String = "+1",
+    val selectedCountryNameCode: String = "US",
     val signupError: String? = null,
 
-    val signInButtonText: String = "Sign up", // you can override from VM using strings
+
 
     val isPasswordFocused: Boolean = false,
     val isConfirmPasswordFocused: Boolean = false,
     val isUsernameFocused: Boolean = false,
 
     val isSuggestionSelected: Boolean = false
-)
+) {
+    val isSignupButtonEnabled: Boolean
+        get() = if (showPasswordFields) {
+            isValidPassword && confirmPassword == password
+        } else {
+            isValidUsername && (isValidEmail || isValidPhone)
+        }
+    val signInButtonText: String
+        get() = if (!showPasswordFields && isSignupButtonEnabled) {
+            "Next"
+        } else {
+            "Sign up"
+        }
+}
