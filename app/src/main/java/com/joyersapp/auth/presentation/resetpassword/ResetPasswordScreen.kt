@@ -477,6 +477,7 @@ fun ResetPasswordScreen(
                             onValueChange = {
                                 viewModel.onEvent(ResetPasswordEvent.PasswordChanged(it.take(16)))
                                 viewModel.onEvent(ResetPasswordEvent.PasswordErrorChanged(null))
+                                viewModel.onEvent(ResetPasswordEvent.PasswordResetErrorMessageChanged(""))
                                 if (state.isPasswordFocused && it.isNotEmpty()) {
                                     showPasswordStrength = isValidPassword(it)
                                 }
@@ -589,6 +590,7 @@ fun ResetPasswordScreen(
                                 viewModel.onEvent(ResetPasswordEvent.ConfirmPasswordErrorChanged(null))
                                 viewModel.onEvent(ResetPasswordEvent.IsPasswordFocusedChanged(false))
                                 viewModel.onEvent(ResetPasswordEvent.IsConfirmPasswordFocusedChanged(true))
+                                viewModel.onEvent(ResetPasswordEvent.PasswordResetErrorMessageChanged(""))
                             },
                             maxLength = 16,
                             isEnabled = !state.isPasswordResetSuccess,
