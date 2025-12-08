@@ -1,4 +1,4 @@
-package com.joyersapp.auth.presentation
+package com.joyersapp.auth.presentation.forgotpassword
 
 import android.graphics.Rect
 import android.util.Patterns
@@ -65,7 +65,6 @@ import com.joyersapp.theme.Black
 import com.joyersapp.theme.DisabledTextColor
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
-import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato

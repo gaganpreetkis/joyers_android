@@ -7,7 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.joyersapp.auth.presentation.ForgotPasswordScreen
+import com.joyersapp.auth.presentation.forgotpassword.ForgotPasswordScreen
 import com.joyersapp.auth.presentation.IdentityScreen
 import com.joyersapp.auth.presentation.JoyersOathScreen
 import com.joyersapp.auth.presentation.LoginScreen
