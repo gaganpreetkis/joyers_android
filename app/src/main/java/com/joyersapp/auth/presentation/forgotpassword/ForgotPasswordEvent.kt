@@ -1,7 +1,5 @@
 package com.joyersapp.auth.presentation.forgotpassword
 
-import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
-
 sealed class ForgotPasswordEvent {
     data class LoadingChanged(val value: Boolean) : ForgotPasswordEvent()
     data class IsPhoneModeChanged(val value: Boolean) : ForgotPasswordEvent()

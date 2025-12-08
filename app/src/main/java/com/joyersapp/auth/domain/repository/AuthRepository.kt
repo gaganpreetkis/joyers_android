@@ -5,6 +5,8 @@ import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
+import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
+import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
@@ -28,6 +30,8 @@ interface AuthRepository {
     suspend fun forgotPassword(params: ForgotPasswordRequestDto): Result<ForgotPasswordResponseDto>
 
     suspend fun forgotPasswordVerifyOtp(params: ForgotPasswordVerifyOtpRequestDto): Result<ForgotPasswordVerifyOtpResponseDto>
+
+    suspend fun resetPasswordVerifyOtp(params: ResetPasswordRequestDto): Result<ResetPasswordResponseDto>
 
     suspend fun logout()
 

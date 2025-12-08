@@ -159,8 +159,7 @@ class ForgotPasswordViewModel @Inject constructor(
                     Log.e("forgot msg", response.message)
 
                     if (response.statusCode == 200) {
-                        //val (mainText, secondaryText) = parseForgotPasswordMessage(response.message)
-                        //_uiState.update { it.copy(isLoading = false, showVerificationCode = true, mainText = mainText, secondaryText = secondaryText) }
+                        _uiState.update { it.copy(isLoading = false, isVerificationSuccess = true) }
                     } else {
                         _uiState.update { it.copy(isLoading = false, verificationCodeError = response.message) }
                     }

@@ -9,6 +9,8 @@ import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
+import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
+import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
@@ -46,6 +48,7 @@ class AuthRepositoryImpl @Inject constructor(
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -57,13 +60,14 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
             }
 
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -80,6 +84,7 @@ class AuthRepositoryImpl @Inject constructor(
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -87,15 +92,17 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
-                    ))
+                    )
+                )
             }
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -107,12 +114,13 @@ class AuthRepositoryImpl @Inject constructor(
     ): Result<VerifyOtpResponseDto> =
         try {
             val response = api.verifyOtp(
-                VerifyOtpRequestDto.WithPhone(username = username, mobile = mobile, country_code= countryCode, otp_code = otpCode)
+                VerifyOtpRequestDto.WithPhone(username = username, mobile = mobile, country_code = countryCode, otp_code = otpCode)
             )
             when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -120,25 +128,28 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
-                    ))
+                    )
+                )
             }
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
     override suspend fun forgotPassword(params: ForgotPasswordRequestDto): Result<ForgotPasswordResponseDto> =
         try {
             val response = api.forgotPassword(params)
-            when(response.statusCode) {
+            when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -147,22 +158,24 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
             }
         } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
     override suspend fun forgotPasswordVerifyOtp(params: ForgotPasswordVerifyOtpRequestDto): Result<ForgotPasswordVerifyOtpResponseDto> =
         try {
             val response = api.forgotPasswordVerifyOtp(params)
-            when(response.statusCode) {
+            when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -171,12 +184,39 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
             }
         } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun resetPasswordVerifyOtp(params: ResetPasswordRequestDto): Result<ResetPasswordResponseDto> =
+        try {
+            val response = api.resetPassword(params)
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            errorBody = ApiErrorDto(response.message),
+                            message = response.message
+                        )
+                    )
+                }
+
+                else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -192,6 +232,7 @@ class AuthRepositoryImpl @Inject constructor(
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -199,15 +240,17 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
-                    ))
+                    )
+                )
             }
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -217,13 +260,14 @@ class AuthRepositoryImpl @Inject constructor(
         countryCode: String
     ): Result<RegisterResponseDto> =
         try {
-        val response = api.register(
-            RegisterRequestDto.WithPhone(username = username, mobile = mobile, country_code = countryCode)
-        )
+            val response = api.register(
+                RegisterRequestDto.WithPhone(username = username, mobile = mobile, country_code = countryCode)
+            )
             when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -231,15 +275,17 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
-                    ))
+                    )
+                )
             }
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 

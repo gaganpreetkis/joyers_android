@@ -177,7 +177,7 @@ fun ForgotPasswordScreen(
     }
 
     // Handle navigation after successful verification with 1 second delay
-    LaunchedEffect(state.isLoading) {
+    LaunchedEffect(state.isVerificationSuccess) {
         if (state.isVerificationSuccess) {
             val identifier = if (state.isPhoneMode) state.phone else state.usernameEmail
             val countryCode = if (state.isPhoneMode) state.selectedCountryCode else ""
