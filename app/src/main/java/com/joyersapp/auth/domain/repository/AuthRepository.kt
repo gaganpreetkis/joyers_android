@@ -1,11 +1,10 @@
 package com.joyersapp.auth.domain.repository
 
-import com.joyersapp.auth.data.remote.dto.CheckUsernameResponseDto
+import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
-import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState

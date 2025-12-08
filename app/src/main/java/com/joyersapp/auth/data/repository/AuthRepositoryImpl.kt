@@ -2,13 +2,24 @@ package com.joyersapp.auth.data.repository
 
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.auth.data.remote.AuthApi
-import com.joyersapp.auth.data.remote.dto.CheckUsernameRequestDto
-import com.joyersapp.auth.data.remote.dto.CheckUsernameResponseDto
+import com.joyersapp.auth.data.remote.dto.ApiErrorDto
+import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameRequestDto
+import com.joyersapp.auth.data.remote.dto.signup.CheckUsernameResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
+import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
+import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
+import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
+import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
+import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.repository.AuthRepository
+import com.joyersapp.utils.ApiErrorException
+import com.joyersapp.utils.parseNetworkError
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import retrofit2.HttpException
 
 class AuthRepositoryImpl @Inject constructor(
     private val api: AuthApi,
@@ -38,7 +49,10 @@ class AuthRepositoryImpl @Inject constructor(
                 400 -> {
                     Result.failure(
                         ApiErrorException(
-                            errorBody = ApiErrorDto(response.message, suggestions = response.suggestions ?: emptyList()),
+                            errorBody = ApiErrorDto(
+                                response.message,
+                                suggestions = response.suggestions ?: emptyList()
+                            ),
                             message = response.message
                         )
                     )
