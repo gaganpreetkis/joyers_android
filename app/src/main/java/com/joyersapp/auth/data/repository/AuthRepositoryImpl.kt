@@ -13,6 +13,8 @@ import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
 import com.joyersapp.auth.data.remote.dto.LoginRequestDto
 import com.joyersapp.auth.data.remote.dto.LoginResponseDto
+import com.joyersapp.auth.data.remote.dto.MultiStepRegisterRequestDto
+import com.joyersapp.auth.data.remote.dto.MultiStepRegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
@@ -295,6 +297,32 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(params: LoginRequestDto): Result<LoginResponseDto> =
         try {
             val response = api.login(params)
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            errorBody = ApiErrorDto(response.message),
+                            message = response.message
+                        )
+                    )
+                }
+
+                else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun multiStepRegister(params: MultiStepRegisterRequestDto): Result<MultiStepRegisterResponseDto> =
+        try {
+            val response = api.multiStepRegister(params)
             when (response.statusCode) {
                 200 -> {
                     Result.success(response)

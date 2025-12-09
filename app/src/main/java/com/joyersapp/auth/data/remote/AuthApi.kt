@@ -8,6 +8,8 @@ import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
 import com.joyersapp.auth.data.remote.dto.LoginRequestDto
 import com.joyersapp.auth.data.remote.dto.LoginResponseDto
+import com.joyersapp.auth.data.remote.dto.MultiStepRegisterRequestDto
+import com.joyersapp.auth.data.remote.dto.MultiStepRegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationRequestDto
@@ -16,8 +18,11 @@ import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
+import okhttp3.MultipartBody
 import retrofit2.http.Body
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 
 interface AuthApi {
 
@@ -72,4 +77,12 @@ interface AuthApi {
     suspend fun login(
         @Body body: LoginRequestDto
     ): LoginResponseDto
+
+    @Multipart
+    @POST("auth/multistep-register")
+    suspend fun multiStepRegister(
+        @Part body: MultiStepRegisterRequestDto/*,
+        @Part profilePicture: MultipartBody.Part,
+        @Part backgroundPicture: MultipartBody.Part*/
+    ): MultiStepRegisterResponseDto
 }

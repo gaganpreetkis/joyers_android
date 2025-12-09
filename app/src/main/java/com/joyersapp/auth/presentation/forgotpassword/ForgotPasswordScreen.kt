@@ -637,7 +637,7 @@ fun ForgotPasswordScreen(
                         .width(181.dp)
                         .height(40.dp)
                         .align(Alignment.CenterHorizontally)
-                        .border(width = 1.dp, color = colorResource(id = R.color.color_border_light), shape = RoundedCornerShape(5.dp)),
+                        .border(width = 1.dp, color = if (state.verificationCodeError != null) Red else colorResource(id = R.color.color_border_light), shape = RoundedCornerShape(5.dp)),
                     containerColor = Gray20,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     textStyle = TextStyle(
