@@ -32,19 +32,6 @@ class AuthRepositoryImpl @Inject constructor(
     private val sessionLocalDataSource: SessionLocalDataSource
 ) : AuthRepository {
 
-    override suspend fun login(email: String, password: String): Result<Unit> =
-        try {
-//            val response = api.login(LoginRequestDto(email, password))
-//            sessionLocalDataSource.storeSession(
-//                userId = response.userId,
-//                email = response.email,
-//                accessToken = response.accessToken
-//            )
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-
     override suspend fun checkUsername(username: String): Result<CheckUsernameResponseDto> =
         try {
             val response = api.checkUsername(CheckUsernameRequestDto(username))
