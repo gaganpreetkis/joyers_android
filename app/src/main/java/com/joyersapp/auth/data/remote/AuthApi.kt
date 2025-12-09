@@ -33,6 +33,7 @@ interface AuthApi {
     suspend fun verifyOtp(
         @Body body: VerifyOtpRequestDto.WithEmail
     ): VerifyOtpResponseDto
+
     @POST("auth/verify-otp")
     suspend fun verifyOtp(
         @Body body: VerifyOtpRequestDto.WithPhone
@@ -48,6 +49,7 @@ interface AuthApi {
 
     @POST("auth/register")
     suspend fun register(@Body body: RegisterRequestDto.WithEmail): RegisterResponseDto
+
     @POST("auth/register")
     suspend fun register(@Body body: RegisterRequestDto.WithPhone): RegisterResponseDto
 

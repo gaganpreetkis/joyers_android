@@ -32,6 +32,19 @@ class AuthRepositoryImpl @Inject constructor(
     private val sessionLocalDataSource: SessionLocalDataSource
 ) : AuthRepository {
 
+    override suspend fun login(email: String, password: String): Result<Unit> =
+        try {
+//            val response = api.login(LoginRequestDto(email, password))
+//            sessionLocalDataSource.storeSession(
+//                userId = response.userId,
+//                email = response.email,
+//                accessToken = response.accessToken
+//            )
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
     override suspend fun checkUsername(username: String): Result<CheckUsernameResponseDto> =
         try {
             val response = api.checkUsername(CheckUsernameRequestDto(username))
@@ -39,6 +52,7 @@ class AuthRepositoryImpl @Inject constructor(
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -50,13 +64,14 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
             }
 
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -73,6 +88,7 @@ class AuthRepositoryImpl @Inject constructor(
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -80,15 +96,17 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
-                    ))
+                    )
+                )
             }
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -100,12 +118,13 @@ class AuthRepositoryImpl @Inject constructor(
     ): Result<VerifyOtpResponseDto> =
         try {
             val response = api.verifyOtp(
-                VerifyOtpRequestDto.WithPhone(username = username, mobile = mobile, country_code= countryCode, otp_code = otpCode)
+                VerifyOtpRequestDto.WithPhone(username = username, mobile = mobile, country_code = countryCode, otp_code = otpCode)
             )
             when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -113,15 +132,17 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
-                    ))
+                    )
+                )
             }
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -209,10 +230,11 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun forgotPassword(params: ForgotPasswordRequestDto): Result<ForgotPasswordResponseDto> =
         try {
             val response = api.forgotPassword(params)
-            when(response.statusCode) {
+            when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -221,22 +243,24 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
             }
         } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
     override suspend fun forgotPasswordVerifyOtp(params: ForgotPasswordVerifyOtpRequestDto): Result<ForgotPasswordVerifyOtpResponseDto> =
         try {
             val response = api.forgotPasswordVerifyOtp(params)
-            when(response.statusCode) {
+            when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -245,12 +269,13 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
             }
         } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -318,6 +343,7 @@ class AuthRepositoryImpl @Inject constructor(
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -325,15 +351,17 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
-                    ))
+                    )
+                )
             }
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
@@ -343,13 +371,14 @@ class AuthRepositoryImpl @Inject constructor(
         countryCode: String
     ): Result<RegisterResponseDto> =
         try {
-        val response = api.register(
-            RegisterRequestDto.WithPhone(username = username, mobile = mobile, country_code = countryCode)
-        )
+            val response = api.register(
+                RegisterRequestDto.WithPhone(username = username, mobile = mobile, country_code = countryCode)
+            )
             when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
+
                 400 -> {
                     Result.failure(
                         ApiErrorException(
@@ -357,15 +386,17 @@ class AuthRepositoryImpl @Inject constructor(
                         )
                     )
                 }
+
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
-                    ))
+                    )
+                )
             }
-        }catch (e: HttpException) {
+        } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 

@@ -17,10 +17,6 @@ import com.joyersapp.auth.domain.model.AuthState
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
-
-    suspend fun login(params: LoginRequestDto): Result<LoginResponseDto>
-
-
     suspend fun checkUsername(username: String): Result<CheckUsernameResponseDto>
 
     suspend fun registerWithEmail(username: String, email: String): Result<RegisterResponseDto>
@@ -38,7 +34,10 @@ interface AuthRepository {
     suspend fun forgotPassword(params: ForgotPasswordRequestDto): Result<ForgotPasswordResponseDto>
 
     suspend fun forgotPasswordVerifyOtp(params: ForgotPasswordVerifyOtpRequestDto): Result<ForgotPasswordVerifyOtpResponseDto>
+
     suspend fun resetPasswordVerifyOtp(params: ResetPasswordRequestDto): Result<ResetPasswordResponseDto>
+
+    suspend fun login(params: LoginRequestDto): Result<LoginResponseDto>
 
     suspend fun logout()
 
