@@ -658,7 +658,7 @@ fun ForgotPasswordScreen(
                         fontFamily = fontFamilyLato,
                         lineHeight = 20.sp,
                         modifier = Modifier
-                            .padding(top = 3.dp)
+                            .padding(top = 4.dp)
                             .align(Alignment.CenterHorizontally)
                     )
                 }

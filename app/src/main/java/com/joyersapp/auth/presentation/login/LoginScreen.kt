@@ -238,6 +238,7 @@ fun LoginScreen(
                                     viewModel.onEvent(LoginEvent.ApiErrorMessageChanged(""))
                                     viewModel.onEvent(LoginEvent.ApiFailedErrorMessageChanged(""))
                                     viewModel.onEvent(LoginEvent.ApiOnlyUsernameErrorMessageChanged(""))
+                                    viewModel.onEvent(LoginEvent.RememberMeChanged(false))
                                 }
                         )
                     }
