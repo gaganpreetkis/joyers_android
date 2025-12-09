@@ -134,20 +134,23 @@ class ForgotPasswordViewModel @Inject constructor(
         val state = _uiState.value
         val params = ForgotPasswordVerifyOtpRequestDto(
             purpose = "password_reset",
+            email = "",
             username = "",
+            mobile = "",
+            country_code = "",
             otp_code = state.verificationCode
         )
         if (state.isPhoneMode) {
-            //params.country_code = state.selectedCountryCode
-            //params.mobile = state.phone
+            params.country_code = state.selectedCountryCode
+            params.mobile = state.phone
         } else {
             if (Patterns.EMAIL_ADDRESS.matcher(state.usernameEmail).matches()) {
-                //params.email = state.usernameEmail
+                params.email = state.usernameEmail
             } else {
                 params.username = state.usernameEmail
             }
         }
-        if (params.username.isBlank() /*&& params.email.isBlank() && params.country_code.isBlank() && params.mobile.isBlank()*/) return
+        if (params.username.isBlank() && params.email.isBlank() && params.country_code.isBlank() && params.mobile.isBlank()) return
         onEvent(ForgotPasswordEvent.LoadingChanged(true))
         job?.cancel()
         job = viewModelScope.launch {
@@ -159,8 +162,7 @@ class ForgotPasswordViewModel @Inject constructor(
                     Log.e("forgot msg", response.message)
 
                     if (response.statusCode == 200) {
-                        //val (mainText, secondaryText) = parseForgotPasswordMessage(response.message)
-                        //_uiState.update { it.copy(isLoading = false, showVerificationCode = true, mainText = mainText, secondaryText = secondaryText) }
+                        _uiState.update { it.copy(isLoading = false, isVerificationSuccess = true) }
                     } else {
                         _uiState.update { it.copy(isLoading = false, verificationCodeError = response.message) }
                     }

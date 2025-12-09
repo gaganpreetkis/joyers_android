@@ -11,6 +11,10 @@ import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
+import com.joyersapp.auth.data.remote.dto.LoginRequestDto
+import com.joyersapp.auth.data.remote.dto.LoginResponseDto
+import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
+import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
@@ -27,19 +31,6 @@ class AuthRepositoryImpl @Inject constructor(
     private val api: AuthApi,
     private val sessionLocalDataSource: SessionLocalDataSource
 ) : AuthRepository {
-
-    override suspend fun login(email: String, password: String): Result<Unit> =
-        try {
-//            val response = api.login(LoginRequestDto(email, password))
-//            sessionLocalDataSource.storeSession(
-//                userId = response.userId,
-//                email = response.email,
-//                accessToken = response.accessToken
-//            )
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
 
     override suspend fun checkUsername(username: String): Result<CheckUsernameResponseDto> =
         try {
@@ -214,7 +205,7 @@ class AuthRepositoryImpl @Inject constructor(
 
 
 
-    override suspend fun forgotPassword(name: String): Result<Boolean> =
+//    override suspend fun forgotPassword(name: String): Result<Boolean> =
     override suspend fun forgotPassword(params: ForgotPasswordRequestDto): Result<ForgotPasswordResponseDto> =
         try {
             val response = api.forgotPassword(params)
@@ -260,6 +251,58 @@ class AuthRepositoryImpl @Inject constructor(
             val errorMsg = parseNetworkError(e)
             Result.failure(IllegalArgumentException(errorMsg, e))
         }  catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun resetPasswordVerifyOtp(params: ResetPasswordRequestDto): Result<ResetPasswordResponseDto> =
+        try {
+            val response = api.resetPassword(params)
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            errorBody = ApiErrorDto(response.message),
+                            message = response.message
+                        )
+                    )
+                }
+
+                else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun login(params: LoginRequestDto): Result<LoginResponseDto> =
+        try {
+            val response = api.login(params)
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            errorBody = ApiErrorDto(response.message),
+                            message = response.message
+                        )
+                    )
+                }
+
+                else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
             Result.failure(e)
         }
 

@@ -10,8 +10,8 @@ import androidx.navigation.navArgument
 import com.joyersapp.auth.presentation.forgotpassword.ForgotPasswordScreen
 import com.joyersapp.auth.presentation.identity.IdentityScreen
 import com.joyersapp.auth.presentation.JoyersOathScreen
-import com.joyersapp.auth.presentation.LoginScreen
-import com.joyersapp.auth.presentation.ResetPasswordScreen
+import com.joyersapp.auth.presentation.login.LoginScreen
+import com.joyersapp.auth.presentation.resetpassword.ResetPasswordScreen
 import com.joyersapp.auth.presentation.signup.SignUpScreen
 import com.joyersapp.auth.presentation.SplashVideoScreen
 import com.synapse.joyers.ui.screens.SplashScreen

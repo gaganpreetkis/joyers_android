@@ -7,6 +7,10 @@ import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpResponseDto
+import com.joyersapp.auth.data.remote.dto.LoginRequestDto
+import com.joyersapp.auth.data.remote.dto.LoginResponseDto
+import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
+import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
@@ -14,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
 
-    suspend fun login(email: String, password: String): Result<Unit>
+    suspend fun login(params: LoginRequestDto): Result<LoginResponseDto>
 
 
     suspend fun checkUsername(username: String): Result<CheckUsernameResponseDto>
@@ -31,10 +35,10 @@ interface AuthRepository {
     suspend fun completeRegistrationWithEmail(username: String, email: String, otpCode: String, password: String, confirmPassword: String): Result<CompleteRegistrationResponseDto>
     suspend fun completeRegistration(params: CompleteRegistrationRequestDto): Result<CompleteRegistrationResponseDto>
 
-    suspend fun forgotPassword(name: String): Result<Boolean>
     suspend fun forgotPassword(params: ForgotPasswordRequestDto): Result<ForgotPasswordResponseDto>
 
     suspend fun forgotPasswordVerifyOtp(params: ForgotPasswordVerifyOtpRequestDto): Result<ForgotPasswordVerifyOtpResponseDto>
+    suspend fun resetPasswordVerifyOtp(params: ResetPasswordRequestDto): Result<ResetPasswordResponseDto>
 
     suspend fun logout()
 
