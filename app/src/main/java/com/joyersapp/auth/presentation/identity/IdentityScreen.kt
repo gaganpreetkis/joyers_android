@@ -91,18 +91,25 @@ import com.joyersapp.utils.containsEmoji
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isAllowedIdentityNameChars
 import com.joyersapp.utils.isValidNameAdvanced
+import com.joyersapp.utils.uriToFile
 import kotlinx.coroutines.launch
-@Preview
+//@Preview
 @Composable
 fun IdentityScreen(
+    userId: String,
+    token: String,
     initialPage: Int = 0,
     viewmodel: IdentityViewModel = hiltViewModel(),
+    viewModel2: IdentityViewModel2 = hiltViewModel(),
 //    preferencesManager: PreferencesManager,
 //    activity: AppCompatActivity,
     onNavigateBack: () -> Unit = {},
     onNavigateToNext: () -> Unit = {}
 ) {
 
+    val state by viewModel2.uiState.collectAsStateWithLifecycle()
+    viewModel2.onEvent(IdentityEvent.UserIdChanged(userId))
+    viewModel2.onEvent(IdentityEvent.TokenChanged(token))
     val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = initialPage) { 3 }
     var currentPage by remember { mutableStateOf(initialPage) }
@@ -228,6 +235,7 @@ fun IdentityScreen(
             ) { page ->
                 when (page) {
                     0 -> PageOneContent(
+                        viewModel2 = viewModel2,
                         onNext = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page + 1)
@@ -239,6 +247,7 @@ fun IdentityScreen(
 //                        activity = activity
                     )
                     1 -> PageTwoContent(
+                        viewModel2 = viewModel2,
                         onNext = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page + 1)
@@ -254,6 +263,7 @@ fun IdentityScreen(
 ////                        activity = activity
                     )
                     2 -> PageThreeContent(
+                        viewModel2 = viewModel2,
                         onBack = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page - 1)
@@ -275,6 +285,7 @@ fun IdentityScreen(
 
 @Composable
 fun PageOneContent(
+    viewModel2: IdentityViewModel2,
     onNext: () -> Unit,
     onNavigateToNext: () -> Unit,
 //    signupViewModel: SignupViewModel? = null,
@@ -318,6 +329,10 @@ fun PageOneContent(
         uri?.let {
             profileImageUri = it
             showProfilePlaceholder = false
+            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri!!)
+                viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    val scope = (context as? AppCompatActivity)?.lifecycleScope
@@ -438,6 +453,7 @@ fun PageOneContent(
                                 headerImageUri = null
                                 showHeaderPicker = true
                                 headerPath = null
+                                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(""))
                             }
                     )
                 } else {
@@ -547,6 +563,7 @@ fun PageOneContent(
                                     profileImageUri = null
                                     showProfilePlaceholder = true
                                     imagePath = null
+                                    viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(""))
                                 }
                         )
                     }
@@ -604,6 +621,7 @@ fun PageOneContent(
                 onValueChange = {
                     if (it.length <= maxLength) {
                         username = it
+                        viewModel2.onEvent(IdentityEvent.NameChanged(it))
                         if (it.isEmpty()) {
                             remainingChars = maxLength - it.length
                             usernameError = null
@@ -694,6 +712,7 @@ fun PageOneContent(
                     ) { code, name, flag, _ ->
                         countryName = name
                         selectedCountryCode = code
+                        viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
                     }
                 },
             contentAlignment = Alignment.Center
@@ -724,9 +743,11 @@ fun PageOneContent(
                             ) { code, name, flag, _ ->
                                 countryName = name
                                 selectedCountryCode = code
+                                viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
                             }
                         } else {
                             countryName = ""
+                            viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
                         }
                     }
                 )
@@ -817,6 +838,10 @@ fun PageOneContent(
         onImagesPicked = { uris ->
             profileImageUri = uris[0]
             showProfilePlaceholder = false
+            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri!!)
+                viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    activity?.lifecycleScope?.launch {
@@ -831,6 +856,10 @@ fun PageOneContent(
         onCameraImagePicked = { uri ->
             profileImageUri = uri
             showProfilePlaceholder = false
+            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri!!)
+                viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    activity?.lifecycleScope?.launch {
@@ -852,6 +881,10 @@ fun PageOneContent(
         onImagesPicked = { uris ->
             headerImageUri = uris[0]
             showHeaderPicker = false
+            if (headerImageUri != null && headerImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, headerImageUri!!)
+                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    activity?.lifecycleScope?.launch {
@@ -866,6 +899,10 @@ fun PageOneContent(
         onCameraImagePicked = { uri ->
             headerImageUri = uri
             showHeaderPicker = false
+            if (headerImageUri != null && headerImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, headerImageUri!!)
+                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    activity?.lifecycleScope?.launch {
@@ -882,6 +919,7 @@ fun PageOneContent(
 
 @Composable
 fun PageTwoContent(
+    viewModel2: IdentityViewModel2,
     onNext: () -> Unit,
     onBack: () -> Unit,
 //    signupViewModel: SignupViewModel? = null,
@@ -960,6 +998,7 @@ fun PageTwoContent(
                         )
                         .clickable {
                             selectedStatus = if (selectedStatus == statusKey) null else statusKey
+                            viewModel2.onEvent(IdentityEvent.JoyerStatusChanged(selectedStatus ?: ""))
                         }
                         .padding(17.dp),
                     contentAlignment = Alignment.Center
@@ -1135,6 +1174,7 @@ fun PageTwoContent(
 
 @Composable
 fun PageThreeContent(
+    viewModel2: IdentityViewModel2,
     onBack: () -> Unit,
     onNavigateToNext: () -> Unit,
     viewmodel: IdentityViewModel,
@@ -1142,6 +1182,7 @@ fun PageThreeContent(
 //    activity: AppCompatActivity? = null
 ) {
     val state by viewmodel.uiState.collectAsStateWithLifecycle()
+    val state2 by viewModel2.uiState.collectAsStateWithLifecycle()
     var selectedTitle by remember { mutableStateOf<String?>(null) }
     var selectedTitleId by remember { mutableStateOf<String?>(null) }
     var showNextButton by remember { mutableStateOf(false) }
@@ -1150,6 +1191,12 @@ fun PageThreeContent(
     val goldenColor = Golden60
     val lightBlackColor = LightBlack
     val whiteColor = Color.White
+
+    LaunchedEffect(state2.isMultiSelectRegisterApiSuccess) {
+        if (state2.isMultiSelectRegisterApiSuccess) {
+            onNavigateToNext()
+        }
+    }
 /*
 
 //    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()
@@ -1323,7 +1370,8 @@ fun PageThreeContent(
                         .background(goldenColor, CircleShape)
                         .clickable {
                             // API call would go here
-                            onNavigateToNext()
+                            viewModel2.onEvent(IdentityEvent.OnMultiStepRegister)
+                            //onNavigateToNext()
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -1348,6 +1396,7 @@ fun PageThreeContent(
                 selectedTitleId = titleId
                 showNextButton = true
                 showTitleDialog = false
+                viewModel2.onEvent(IdentityEvent.TitleIdChanged(selectedTitleId ?: ""))
             },
             viewmodel = viewmodel,
         )

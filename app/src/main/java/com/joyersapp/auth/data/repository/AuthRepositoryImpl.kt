@@ -1,5 +1,7 @@
 package com.joyersapp.auth.data.repository
 
+import android.util.Log
+import com.google.gson.Gson
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.auth.data.remote.AuthApi
 import com.joyersapp.auth.data.remote.dto.ApiErrorDto
@@ -18,7 +20,6 @@ import com.joyersapp.auth.data.remote.dto.MultiStepRegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
 import com.joyersapp.auth.data.remote.dto.identity.Title
-import com.joyersapp.auth.data.remote.dto.identity.TitlesResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
@@ -26,10 +27,18 @@ import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.repository.AuthRepository
 import com.joyersapp.utils.ApiErrorException
+import com.joyersapp.utils.emptyPart
 import com.joyersapp.utils.parseNetworkError
+import java.io.File
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
+import java.net.URLConnection
 
 class AuthRepositoryImpl @Inject constructor(
     private val api: AuthApi,
@@ -322,11 +331,39 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
-    override suspend fun multiStepRegister(params: MultiStepRegisterRequestDto): Result<MultiStepRegisterResponseDto> =
+    override suspend fun multiStepRegister(params: MultiStepRegisterRequestDto, profilePicturePath: String, backgroundPicturePath: String): Result<MultiStepRegisterResponseDto> =
         try {
-            val response = api.multiStepRegister(params)
+            Log.e("multi step", "params: ${Gson().toJson(params)}")
+            fun String.toRequestBody() = toRequestBody("text/plain".toMediaTypeOrNull())
+            val profilePicture = if (profilePicturePath.isNotBlank()) {
+                val file = File(profilePicturePath)
+                val mime = URLConnection.guessContentTypeFromName(file.name) ?: "image/jpeg"
+                val reqFile = file.asRequestBody(mime.toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("profile_picture", file.name, reqFile)
+            } else {
+                emptyPart("profile_picture")
+            }
+            val backgroundPicture = if (backgroundPicturePath.isNotBlank()) {
+                val file = File(backgroundPicturePath)
+                val mime = URLConnection.guessContentTypeFromName(file.name) ?: "image/jpeg"
+                val reqFile = file.asRequestBody(mime.toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("background_picture", file.name, reqFile)
+            } else {
+                emptyPart("background_picture")
+            }
+            val response = api.multiStepRegister(
+                "Bearer ${params.token}",
+                params.id.toRequestBody(),
+                params.name.toRequestBody(),
+                params.joyer_location.toRequestBody(),
+                params.joyer_status.toRequestBody(),
+                params.title.toRequestBody(),
+                profilePicture,
+                backgroundPicture,
+            )
             when (response.statusCode) {
                 200 -> {
+                    Log.e("multi step", "params: ${Gson().toJson(params)}")
                     Result.success(response)
                 }
 

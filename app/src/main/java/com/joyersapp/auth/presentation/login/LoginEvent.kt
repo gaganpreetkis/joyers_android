@@ -13,6 +13,7 @@ sealed class LoginEvent {
     data class IsPhoneModeChanged(val value: Boolean) : LoginEvent()
     data class ShowSocialDialogChanged(val value: Boolean) : LoginEvent()
     data class RememberMeChanged(val value: Boolean) : LoginEvent()
+    data class IsLoginApiSuccessChanged(val value: Boolean) : LoginEvent()
     data class SelectedCountryCodeChanged(val value: String) : LoginEvent()
     data class SelectedCountryNameCodeChanged(val value: String) : LoginEvent()
     data object OnLoginButtonClicked : LoginEvent()

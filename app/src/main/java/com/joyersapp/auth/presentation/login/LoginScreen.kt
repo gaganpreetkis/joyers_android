@@ -58,6 +58,7 @@ fun LoginScreen(
     onLoginClick: () -> Unit = {},
     onSignUpClick: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {},
     onJoinWithClick: () -> Unit = {},
     viewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -112,6 +113,11 @@ fun LoginScreen(
         }
     }
 
+    LaunchedEffect(state.isLoginApiSuccess) {
+        if (state.isLoginApiSuccess) {
+            onLoginSuccess()
+        }
+    }
     DisposableEffect(Unit) {
         val activity = context as? ComponentActivity
         val frameLayout = activity?.window?.decorView?.rootView

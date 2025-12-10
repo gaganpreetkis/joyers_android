@@ -62,6 +62,9 @@ class LoginViewModel @Inject constructor(
             is LoginEvent.RememberMeChanged -> {
                 _uiState.update { it.copy(rememberMe = event.value) }
             }
+            is LoginEvent.IsLoginApiSuccessChanged -> {
+                _uiState.update { it.copy(isLoginApiSuccess = event.value) }
+            }
             is LoginEvent.SelectedCountryCodeChanged -> {
                 _uiState.update { it.copy(selectedCountryCode = event.value) }
             }
@@ -105,7 +108,7 @@ class LoginViewModel @Inject constructor(
                     Log.e("login msg", response.message)
 
                     if (response.statusCode == 200) {
-                        _uiState.update { it.copy(isLoading = false, apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = ""/*, isVerificationSuccess = true*/) }
+                        _uiState.update { it.copy(isLoading = false, apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = "", isLoginApiSuccess = true/*, isVerificationSuccess = true*/) }
                     } else {
                         _uiState.update { it.copy(isLoading = false, apiErrorMessage = response.message/*, verificationCodeError = response.message*/) }
                     }
