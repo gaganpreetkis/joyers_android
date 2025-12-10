@@ -50,7 +50,7 @@ class SignupViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         username = event.value,
-                        isUsernameAvailable = null,
+                        isValidUsername = false,
                         showUsernameError = false,
                         verificationCode = "",
                         verificationError = null,
@@ -192,7 +192,7 @@ class SignupViewModel @Inject constructor(
                 val state = _uiState.value
                 var confirmPasswordError: UiText? = null
                 if (state.confirmPassword.isNotEmpty()) {
-                    if (state.password == state.confirmPassword) {
+                    if (event.value == state.confirmPassword) {
                         confirmPasswordError = null
                     } else {
                         confirmPasswordError =

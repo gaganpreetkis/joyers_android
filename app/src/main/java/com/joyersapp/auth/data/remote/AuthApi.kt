@@ -10,6 +10,7 @@ import com.joyersapp.auth.data.remote.dto.LoginRequestDto
 import com.joyersapp.auth.data.remote.dto.LoginResponseDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
+import com.joyersapp.auth.data.remote.dto.identity.TitlesResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
@@ -67,6 +68,9 @@ interface AuthApi {
     suspend fun resetPassword(
         @Body body: ResetPasswordRequestDto
     ): ResetPasswordResponseDto
+
+    @POST("auth/title-type")
+    suspend fun titleType(): TitlesResponseDto
 
     @POST("auth/login")
     suspend fun login(

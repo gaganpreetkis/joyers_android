@@ -2,7 +2,6 @@ package com.joyersapp.common_widgets
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,20 +19,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContent
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,12 +34,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -59,13 +50,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
@@ -75,15 +64,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
-import com.joyersapp.response.Subtitle
-import com.joyersapp.response.Title
-import com.joyersapp.theme.Black
+import com.joyersapp.auth.data.remote.dto.identity.SubTitle
+import com.joyersapp.auth.data.remote.dto.identity.Title
+import com.joyersapp.auth.presentation.identity.IdentityViewModel
+import com.joyersapp.auth.presentation.identity.TitlesDialogEvent
+import com.joyersapp.auth.presentation.identity.TitleEvent
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
@@ -92,32 +84,54 @@ import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.rememberIsKeyboardOpen
-import com.joyersapp.utils.rememberKeyboardHider
 
 
 sealed class DialogState {
-    data class Titles(val items: MutableList<Title>) : DialogState()
-    data class Subtitles(val parentTitle: Title, val items: MutableList<Subtitle>) : DialogState()
+    data class Titles(val items: List<Title>) : DialogState()
+    data class Subtitles(val parentTitle: String?, val items: List<SubTitle>) : DialogState()
 }
-@Preview
+//@Preview
 @Composable
-fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
-                   titles: MutableList<Title> =  getTitles(),
+fun DualViewDialog(
                    onDismiss: () -> Unit = {},
-                   onItemSelected: (titleId: String, titleName: String) -> Unit = { a,b -> }
+                   onItemSelected: (
+                       titleId: String?,
+                       titleName: String?,
+                       subTitleName: String?,
+                       subTitleId: String?
+                           ) -> Unit = { a, b, c, d -> },
+                   viewmodel: IdentityViewModel
 ) {
 
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val isKeyBoardOpen = rememberIsKeyboardOpen()
-    var searchQuery by remember { mutableStateOf("") }
+ /*   var searchQuery by remember { mutableStateOf("") }
     var isExpanded by remember { mutableStateOf(false) }
     var currentState by remember { mutableStateOf<DialogState>(DialogState.Titles(titles)) }
     var selectedTitleId by remember { mutableStateOf("") }
     var selectedTitleName by remember { mutableStateOf("") }
     var showApply by remember { mutableStateOf(false) }
-    var showNoResults by remember { mutableStateOf(false) }
+    var showNoResults by remember { mutableStateOf(false) }*/
 
+    val state by viewmodel.uiState.collectAsState()
+    viewmodel.onEvent(TitleEvent.SearchQueryChanged(state.searchQuery))
+
+    LaunchedEffect(Unit) {
+        viewmodel.events.collect { event ->
+            when (event) {
+                is TitlesDialogEvent.SelectionConfirmed -> {
+                    onItemSelected(
+                        event.titleId,
+                        event.titleName,
+                        event.subTitleName,
+                        event.subTitleId
+                    )
+                    onDismiss()
+                }
+            }
+        }
+    }
 
 
     val goldenColor = Golden60
@@ -126,7 +140,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
     val whiteColor = Color.White
 
 
-    val hideKeyboard = rememberKeyboardHider()
+  /*  val hideKeyboard = rememberKeyboardHider()
 
     var reorderedTitles: List<Title> = arrayListOf()
     var filteredClassificationTitles : List<Title> = arrayListOf()
@@ -196,10 +210,8 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
             } else {
                 filteredSubtitles
             }
-
-
         }
-    }
+    }*/
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -258,7 +270,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                 // Determine the maximum height each view can take (e.g., half of available height)
 
                 var maxHeightForViews = this.maxHeight
-                if (isExpanded) {
+                if (state.isExpanded) {
                     maxHeightForViews = (this.maxHeight / 2)
                 }
 //                var maxHeightForViews = this.maxHeight - 200.dp
@@ -276,17 +288,14 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
 //                                verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Back button (only visible in subtitle mode)
-                        if (currentState is DialogState.Subtitles) {
+                        if (state.dialogState is DialogState.Subtitles) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_back_arrow_golden),
                                 contentDescription = null,
                                 modifier = dialogModifier
                                     .size(20.dp, 15.dp)
                                     .clickable {
-                                        currentState = DialogState.Titles(titles)
-                                        selectedTitleId = ""
-                                        selectedTitleName = ""
-                                        showApply = false
+                                        viewmodel.onEvent(TitleEvent.NavigateToAllTitles)
                                     }
                             )
                         } else {
@@ -294,7 +303,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                         }
 
                         // Title or Second Title
-                        if (currentState is DialogState.Titles) {
+                        if (state.dialogState is DialogState.Titles) {
                             Text(
                                 text = context.getString(R.string.title),
                                 fontSize = 24.sp,
@@ -324,7 +333,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                 )
                                 Spacer(modifier = dialogModifier.width(10.dp))
                                 Text(
-                                    text = (currentState as DialogState.Subtitles).parentTitle.title ?: "",
+                                    text = (state.dialogState as DialogState.Subtitles).parentTitle ?: "",
                                     fontSize = 16.sp,
                                     fontFamily = fontFamilyLato,
                                     color = lightBlackColor,
@@ -346,9 +355,9 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
 
                     Spacer(modifier = dialogModifier.height(15.dp))
 
-                    if (currentState is DialogState.Subtitles) {
+                    if (state.dialogState is DialogState.Subtitles) {
 
-//                 SubTitles Screen
+//                 SubTitle Screen
                         /*  if (reorderedSubtitles.isEmpty() && searchQuery.isNotEmpty()) {
                               Box(
                                   modifier = dialogModifier
@@ -408,13 +417,9 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
                                             // We account for this in our layout
                                             AppBasicTextField(
-                                                value = searchQuery,
+                                                value = state.searchQuery,
                                                 onValueChange = { query ->
-                                                    searchQuery = query
-                                                    showNoResults = false
-                                                    if (query.isEmpty()) {
-                                                        showApply = selectedTitleId.isNotEmpty()
-                                                    }
+                                                    viewmodel.onEvent(TitleEvent.SearchQueryChanged(query))
                                                 },
                                                 placeholder = context.getString(R.string.search_speciality),
                                                 modifier = dialogModifier
@@ -434,7 +439,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             )
 
                                             // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
-                                            if (searchQuery.isNotEmpty()) {
+                                            if (state.searchQuery.isNotEmpty()) {
                                                 Image(
                                                     painter = painterResource(id = R.drawable.ic_cancel_grey),
                                                     contentDescription = null,
@@ -442,9 +447,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                         .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
                                                         .size(15.dp)
                                                         .clickable {
-                                                            searchQuery = ""
-                                                            keyboardController?.hide()
-                                                            showApply = selectedTitleId.isNotEmpty()
+                                                            viewmodel.onEvent(TitleEvent.SearchQueryChanged(""))
                                                         }
                                                 )
                                             } else {
@@ -455,7 +458,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     }
 
                                     // Search/Apply button
-                                    if (showApply && selectedTitleId.isNotEmpty()) {
+                                    if (state.showApply) {
                                         Box(
                                             modifier = Modifier
                                                 .width(70.dp)
@@ -463,9 +466,10 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                 .clip(RoundedCornerShape(35.dp))
                                                 .background(color = goldenColor, shape = RoundedCornerShape(35.dp))
                                                 .clickable {
-//                                                keyboardController?.hide()
-                                                    onItemSelected(selectedTitleId, selectedTitleName)
-                                                    onDismiss()
+                                                    viewmodel.onEvent(TitleEvent.ConfirmSelection)
+////                                                keyboardController?.hide()
+//                                                    onItemSelected(selectedTitleId, selectedTitleName)
+//                                                    onDismiss()
                                                 },
                                             contentAlignment = Alignment.Center
                                         ) {
@@ -486,10 +490,10 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                 .height(35.dp)
                                                 .padding(0.dp)
                                                 .clip(RoundedCornerShape(35.dp))
-                                                .background(color = if (searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
+                                                .background(color = if (state.searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
                                                 .border(
                                                     width = 1.dp,
-                                                    color = if (searchQuery.isEmpty()) GrayLightBorder else goldenColor,
+                                                    color = if (state.searchQuery.isEmpty()) GrayLightBorder else goldenColor,
                                                     shape = RoundedCornerShape(35.dp))
                                                 .clickable {
                                                     keyboardController?.hide()
@@ -501,7 +505,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.SemiBold,
                                                 fontFamily = fontFamilyLato,
-                                                color = if (searchQuery.isEmpty()) lightBlackColor else goldenColor,
+                                                color = if (state.searchQuery.isEmpty()) lightBlackColor else goldenColor,
                                                 textAlign = TextAlign.Center,
                                                 modifier = Modifier
                                             )
@@ -510,7 +514,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                 }
                                 Spacer(modifier = dialogModifier.height(20.dp))
                             }
-                            if (reorderedSubtitles.isEmpty() && searchQuery.isNotEmpty()) {
+                            if (state.reorderedSubtitles.isEmpty() && state.searchQuery.isNotEmpty()) {
                                 item {
                                     Box(
                                         modifier = dialogModifier
@@ -530,34 +534,23 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     }
                                 }
                             } else {
-                                itemsIndexed(reorderedSubtitles) { index, subtitle ->
+                                itemsIndexed(state.reorderedSubtitles) { index, subtitle ->
                                     val isFirst = index == 0
-                                    val isLast = index == reorderedSubtitles.lastIndex
+                                    val isLast = index == state.reorderedSubtitles.lastIndex
                                     SubtitleItem(
                                         isFirstItem = isFirst,
                                         isLastItem = isLast,
                                         modifier = Modifier,
                                         subtitle = subtitle,
-                                        isSelected = selectedTitleId == subtitle.uuid,
+                                        isSelected = state.selectedTitleId == subtitle.id,
                                         onClick = {
-//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
-                                            if (selectedTitleId == subtitle.uuid) {
-                                                selectedTitleId = ""
-                                                selectedTitleName = ""
-                                                showApply = false
-                                            } else {
-                                                selectedTitleId = subtitle.uuid ?: ""
-//                                                val parentTitle = state.parentTitle.title ?: ""
-                                                selectedTitleName = subtitle.name ?: ""
-                                                showApply = true
-                                            }
-                                            keyboardController?.hide()
+                                            viewmodel.onEvent(TitleEvent.SubtitleClicked(subtitle.id))
                                         }
                                     )
                                 }
                             }
                         }
-                        if (filteredClassificationSubtitles.isNotEmpty()) {
+                        if (state.classificationSubtitles.isNotEmpty()) {
                             Spacer(modifier = dialogModifier.height(20.dp))
                             DashedLine(
                                 modifier = dialogModifier
@@ -580,7 +573,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = dialogModifier
                                 ) {
-                                    if (!isExpanded) {
+                                    if (!state.isExpanded) {
                                         Text(
                                             text = context.getString(R.string.strik_right_space),
                                             fontSize = 20.sp,
@@ -600,14 +593,14 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     )
                                 }
                                 Text(
-                                    text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                    text = if (state.isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = fontFamilyLato,
                                     color = goldenColor,
                                     modifier = dialogModifier.clickable {
                                         dialogFocusManager.clearFocus()
-                                        isExpanded = !isExpanded
+                                        viewmodel.onEvent(TitleEvent.ExpandClassifications(state.isExpanded))
                                     }
                                 )
                             }
@@ -616,7 +609,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                             // View 2: Scrollable Only
                             // This view dynamically matches the height logic of View 1
 
-                            if (filteredClassificationSubtitles.isNotEmpty() && isExpanded) {
+                            if (state.classificationSubtitles.isNotEmpty() && state.isExpanded) {
                                 Spacer(Modifier.height(15.dp))
                                 LazyColumn(
                                     modifier = Modifier
@@ -624,17 +617,10 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             min = 0.dp,
                                             max = maxHeightForViews
                                         )// Distributes remaining space equally with View 1
-//                                .background(Color.Cyan)
                                 ) {
-                                    itemsIndexed(filteredClassificationSubtitles) { index, title ->
+                                    itemsIndexed(state.classificationSubtitles) { index, title ->
                                         // Scrollable only, no onClick
-                                        /*Text(
-                                        text = "Scrollable Only: $item",
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(12.dp)
-                                    )*/
-                                        val isLast = index == filteredClassificationSubtitles.lastIndex
+                                        val isLast = index == state.classificationSubtitles.lastIndex
                                         ClassificationItem(
                                             isLastItem = isLast,
                                             title = title.name ?: "",
@@ -642,12 +628,10 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                 ?: "",
                                             modifier = Modifier
                                         )
-                                        //Spacer(modifier = Modifier.height(2.dp))
                                     }
                                 }
                             }
                         }
-//                        }
                     } else {
 
 //                Titles screeen
@@ -708,13 +692,9 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
                                             // We account for this in our layout
                                             AppBasicTextField(
-                                                value = searchQuery,
+                                                value = state.searchQuery,
                                                 onValueChange = { query ->
-                                                    searchQuery = query
-                                                    showNoResults = false
-                                                    if (query.isEmpty()) {
-                                                        showApply = selectedTitleId.isNotEmpty()
-                                                    }
+                                                    viewmodel.onEvent(TitleEvent.SearchQueryChanged(query))
                                                 },
                                                 placeholder = context.getString(R.string.search_speciality),
                                                 modifier = dialogModifier
@@ -734,7 +714,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             )
 
                                             // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
-                                            if (searchQuery.isNotEmpty()) {
+                                            if (state.searchQuery.isNotEmpty()) {
                                                 Image(
                                                     painter = painterResource(id = R.drawable.ic_cancel_grey),
                                                     contentDescription = null,
@@ -742,9 +722,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                         .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
                                                         .size(15.dp)
                                                         .clickable {
-                                                            searchQuery = ""
-                                                            keyboardController?.hide()
-                                                            showApply = selectedTitleId.isNotEmpty()
+                                                           viewmodel.onEvent(TitleEvent.SearchQueryChanged(""))
                                                         }
                                                 )
                                             } else {
@@ -755,7 +733,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     }
 
                                     // Search/Apply button
-                                    if (showApply && selectedTitleId.isNotEmpty()) {
+                                    if (state.showApply) {
                                         Box(
                                             modifier = Modifier
                                                 .width(70.dp)
@@ -763,9 +741,10 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                 .clip(RoundedCornerShape(35.dp))
                                                 .background(color = goldenColor, shape = RoundedCornerShape(35.dp))
                                                 .clickable {
-//                                                keyboardController?.hide()
-                                                    onItemSelected(selectedTitleId, selectedTitleName)
-                                                    onDismiss()
+                                                    viewmodel.onEvent(TitleEvent.ConfirmSelection)
+////                                                keyboardController?.hide()
+//                                                    onItemSelected(selectedTitleId, selectedTitleName)
+//                                                    onDismiss()
                                                 },
                                             contentAlignment = Alignment.Center
                                         ) {
@@ -786,10 +765,10 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                 .height(35.dp)
                                                 .padding(0.dp)
                                                 .clip(RoundedCornerShape(35.dp))
-                                                .background(color = if (searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
+                                                .background(color = if (state.searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
                                                 .border(
                                                     width = 1.dp,
-                                                    color = if (searchQuery.isEmpty()) GrayLightBorder else goldenColor,
+                                                    color = if (state.searchQuery.isEmpty()) GrayLightBorder else goldenColor,
                                                     shape = RoundedCornerShape(35.dp))
                                                 .clickable {
                                                     keyboardController?.hide()
@@ -801,7 +780,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.SemiBold,
                                                 fontFamily = fontFamilyLato,
-                                                color = if (searchQuery.isEmpty()) lightBlackColor else goldenColor,
+                                                color = if (state.searchQuery.isEmpty()) lightBlackColor else goldenColor,
                                                 textAlign = TextAlign.Center,
                                                 modifier = Modifier
                                             )
@@ -810,7 +789,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                 }
                                 Spacer(modifier = dialogModifier.height(20.dp))
                             }
-                            if (reorderedTitles.isEmpty() && searchQuery.isNotEmpty()) {
+                            if (state.reorderedTitles.isEmpty() /*&& state.searchQuery.isNotEmpty()*/) {
                                 item {
                                     Box(
                                         modifier = dialogModifier
@@ -831,34 +810,16 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     }
                                 }
                             } else {
-                                itemsIndexed(reorderedTitles) { index, title ->
+                                itemsIndexed(state.reorderedTitles) { index, title ->
                                     val isFirst = index == 0
-                                    val isLast = index == reorderedTitles.lastIndex
+                                    val isLast = index == state.reorderedTitles.lastIndex
                                     TitleItem(
                                         isFirstItem = isFirst,
                                         isLastItem = isLast,
                                         title = title,
-                                        isSelected = selectedTitleId == title._id,
+                                        isSelected = state.selectedTitleId == title.id,
                                         onClick = {
-                                            if (selectedTitleId == title._id) {
-                                                selectedTitleId = ""
-                                                selectedTitleName = ""
-                                                showApply = false
-                                            } else {
-                                                selectedTitleId = title._id ?: ""
-                                                selectedTitleName =
-                                                    title.title ?: ""
-                                                if (title.subtitles.isNullOrEmpty()) {
-                                                    showApply = true
-                                                } else {
-                                                    currentState =
-                                                        DialogState.Subtitles(
-                                                            title,
-                                                            title.subtitles
-                                                        )
-                                                    showApply = false
-                                                }
-                                            }
+                                            viewmodel.onEvent(TitleEvent.TitleClicked(title))
                                             keyboardController?.hide()
                                         },
                                         modifier = Modifier
@@ -867,7 +828,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                             }
                         }
 
-                        if (filteredClassificationTitles.isNotEmpty()) {
+                        if (state.classificationTitles.isNotEmpty()) {
                             Spacer(modifier = dialogModifier.height(20.dp))
                             DashedLine(
                                 modifier = dialogModifier
@@ -890,7 +851,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = dialogModifier
                                 ) {
-                                    if (!isExpanded) {
+                                    if (!state.isExpanded) {
 
                                         Text(
                                             text = context.getString(R.string.strik_right_space),
@@ -912,14 +873,14 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                     )
                                 }
                                 Text(
-                                    text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                    text = if (state.isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = fontFamilyLato,
                                     color = goldenColor,
                                     modifier = dialogModifier.clickable {
                                         dialogFocusManager.clearFocus()
-                                        isExpanded = !isExpanded
+                                        viewmodel.onEvent(TitleEvent.ExpandClassifications(state.isExpanded))
                                     }
                                 )
                             }
@@ -927,7 +888,7 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                             // View 2: Scrollable Only
                             // This view dynamically matches the height logic of View 1
 
-                            if (filteredClassificationTitles.isNotEmpty() && isExpanded) {
+                            if (state.classificationTitles.isNotEmpty() && state.isExpanded) {
                                 Spacer(dialogModifier.height(15.dp))
                                 LazyColumn(
                                     modifier = Modifier
@@ -936,12 +897,12 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                                             max = maxHeightForViews
                                         ) // Distributes remaining space equally with View 1
                                 ) {
-                                    itemsIndexed(filteredClassificationTitles) { index, title ->
-                                        val isLast = index == filteredClassificationTitles.lastIndex
+                                    itemsIndexed(state.classificationTitles) { index, title ->
+                                        val isLast = index == state.classificationTitles.lastIndex
                                         ClassificationItem(
                                             isLastItem = isLast,
-                                            title = title.title ?: "",
-                                            description = title.decriptionTitle
+                                            title = title.name ?: "",
+                                            description = title.description
                                                 ?: "",
                                             modifier = Modifier
                                         )
@@ -954,449 +915,6 @@ fun DualViewDialog(/*onDismissRequest: () -> Unit,*/
                     }
                 }
             }
-
-            /*when (val state = currentState) {
-                is DialogState.Titles -> {
-                    if (searchQuery.isEmpty()) {
-                        filteredTitles = state.items
-                        filteredClassificationTitles = state.items.filter {
-                            !it.decriptionTitle.isNullOrEmpty()
-                        }
-                    } else {
-                        filteredTitles = state.items.filter {
-                            it.title?.contains(searchQuery, ignoreCase = true) == true
-                        }
-                        filteredClassificationTitles = state.items.filter {
-                            !it.decriptionTitle.isNullOrEmpty() && it.title?.contains(searchQuery, ignoreCase = true) == true
-                        }
-                    }
-
-                    // Reorder list: move selected item (without subtitles) to top
-                    val reorderedTitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
-                        val selectedTitle = filteredTitles.find { it._id == selectedTitleId }
-                        if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
-                            // Move selected item to top, keep others in original order
-                            listOf(selectedTitle) + filteredTitles.filter { it._id != selectedTitleId }
-                        } else {
-                            filteredTitles
-                        }
-                    } else {
-                        filteredTitles
-                    }
-
-
-
-
-
-                }
-
-                is DialogState.Subtitles -> {
-
-                    if (searchQuery.isEmpty()) {
-                        filteredSubtitles = state.items
-                        filteredClassificationSubtitles = state.items.filter {
-                            !it.description.isNullOrEmpty() }
-                    } else {
-                        filteredSubtitles = state.items.filter {
-                            it.name?.contains(searchQuery, ignoreCase = true) == true
-                        }
-                        filteredClassificationSubtitles = state.items.filter {
-                            !it.description.isNullOrEmpty() && it.name?.contains(searchQuery, ignoreCase = true) == true }
-                    }
-
-                    // Reorder list: move selected item (without subtitles) to top
-                    val reorderedSubitles = if (searchQuery.isEmpty() && selectedTitleId.isNotEmpty()) {
-                        val selectedTitle = filteredSubtitles.find { it.uuid == selectedTitleId }
-                        if (selectedTitle != null && selectedTitle.subtitles.isNullOrEmpty()) {
-                            // Move selected item to top, keep others in original order
-                            listOf(selectedTitle) + filteredSubtitles.filter { it.uuid != selectedTitleId }
-                        } else {
-                            filteredSubtitles
-                        }
-                    } else {
-                        filteredSubtitles
-                    }
-
-                    // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
-                    BoxWithConstraints(modifier = Modifier.padding(horizontal = 15.dp)) {
-                        // Determine the maximum height each view can take (e.g., half of available height)
-                        val maxHeightForViews = this.maxHeight / 2
-
-                        Column(modifier = Modifier.fillMaxWidth()) {
-
-                            // Header
-                            Row(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .padding(top = 18.dp, start = 3.dp, end = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Back button (only visible in subtitle mode)
-                                if (currentState is DialogState.Subtitles) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_back_arrow_golden),
-                                        contentDescription = null,
-                                        modifier = dialogModifier
-                                            .size(20.dp, 15.dp)
-                                            .clickable {
-                                                currentState = DialogState.Titles(titles)
-                                                selectedTitleId = ""
-                                                selectedTitleName = ""
-                                                showApply = false
-                                            }
-                                    )
-                                } else {
-                                    Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
-                                }
-
-                                // Title or Second Title
-                                if (currentState is DialogState.Titles) {
-                                    Text(
-                                        text = context.getString(R.string.title),
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontFamily = fontFamilyLato,
-                                        color = colorResource(id = R.color.black),
-                                        modifier = dialogModifier.padding(top = 6.dp)
-                                    )
-                                } else {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = dialogModifier.padding(top = 6.dp)
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.title),
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = fontFamilyLato,
-                                            color = colorResource(id = R.color.black),
-                                            modifier = dialogModifier
-                                        )
-                                        Spacer(modifier = dialogModifier.width(11.dp))
-                                        Image(
-                                            painter = painterResource(id = R.drawable.ic_forward_black),
-                                            contentDescription = null,
-                                            modifier = dialogModifier.size(6.dp, 10.dp)
-                                        )
-                                        Spacer(modifier = dialogModifier.width(10.dp))
-                                        Text(
-                                            text = (currentState as DialogState.Subtitles).parentTitle.title ?: "",
-                                            fontSize = 16.sp,
-                                            fontFamily = fontFamilyLato,
-                                            color = colorResource(id = R.color.black),
-                                            modifier = dialogModifier
-                                        )
-                                    }
-                                }
-
-                                // Close button
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_cross_golden),
-                                    contentDescription = null,
-                                    modifier = dialogModifier
-                                        .size(15.dp)
-                                        .clip(CircleShape)
-                                        .clickable { onDismiss() }
-                                )
-                            }
-
-                            Spacer(modifier = dialogModifier.height(15.dp))
-
-                            // Search bar and buttons
-                            Row(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .height(35.dp)
-                                    .padding(horizontal = 15.dp),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                // Search field with icons
-                                Box(
-                                    modifier = dialogModifier
-                                        .weight(1f)
-                                        .height(35.dp)
-                                        .clip(shape = RoundedCornerShape(35.dp))
-                                        .background(color = Gray20, shape = RoundedCornerShape(35.dp))
-                                ) {
-                                    Row(
-                                        modifier = dialogModifier
-                                            .fillMaxSize(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        // Leading search icon - positioned to match Material3 TextField icon spacing
-                                        Image(
-                                            painter = painterResource(id = R.drawable.ic_search),
-                                            contentDescription = null,
-                                            modifier = dialogModifier
-                                                .padding(start = 16.dp, end = 0.dp)
-                                                .size(17.dp),
-                                            colorFilter = ColorFilter.tint(Gray40)
-                                        )
-
-                                        // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
-                                        // We account for this in our layout
-                                        AppBasicTextField(
-                                            value = searchQuery,
-                                            onValueChange = { query ->
-                                                searchQuery = query
-                                                showNoResults = false
-                                                if (query.isEmpty()) {
-                                                    showApply = selectedTitleId.isNotEmpty()
-                                                }
-                                            },
-                                            placeholder = context.getString(R.string.search_speciality),
-                                            modifier = dialogModifier
-                                                .weight(1f)
-                                                .fillMaxHeight(),
-                                            textStyle = TextStyle(
-                                                platformStyle = PlatformTextStyle(includeFontPadding = false),
-                                                fontFamily = fontFamilyLato,
-                                                fontWeight = FontWeight.Normal,
-                                                fontSize = 14.sp
-                                            ),
-                                            containerColor = Color.Transparent,
-                                            contentColor = Black,
-                                            placeholderColor = hintColor,
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                            maxLength = 100
-                                        )
-
-                                        // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
-                                        if (searchQuery.isNotEmpty()) {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_cancel_grey),
-                                                contentDescription = null,
-                                                modifier = dialogModifier
-                                                    .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
-                                                    .size(15.dp)
-                                                    .clickable {
-                                                        searchQuery = ""
-                                                        keyboardController?.hide()
-                                                        showApply = selectedTitleId.isNotEmpty()
-                                                    }
-                                            )
-                                        } else {
-                                            // Spacer to maintain consistent padding when icon is not visible
-                                            Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
-                                        }
-                                    }
-                                }
-
-                                // Search/Apply button
-                                if (showApply && selectedTitleId.isNotEmpty()) {
-                                    Box(
-                                        modifier = Modifier
-                                            .width(70.dp)
-                                            .height(35.dp)
-                                            .clip(RoundedCornerShape(35.dp))
-                                            .background(color = goldenColor, shape = RoundedCornerShape(35.dp))
-                                            .clickable {
-                                                keyboardController?.hide()
-                                                onItemSelected(selectedTitleId, selectedTitleName)
-                                                onDismiss()
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.apply),
-                                            fontSize = 12.sp,
-                                            color = Color.White,
-                                            textAlign = TextAlign.Center,
-                                            fontFamily = fontFamilyLato,
-                                            fontWeight = FontWeight.SemiBold,
-                                            modifier = Modifier
-                                        )
-                                    }
-                                } else {
-                                    Box(
-                                        modifier = Modifier
-                                            .width(70.dp)
-                                            .height(35.dp)
-                                            .padding(0.dp)
-                                            .clip(RoundedCornerShape(35.dp))
-                                            .background(color = if (searchQuery.isEmpty()) Gray20 else whiteColor, shape = RoundedCornerShape(35.dp))
-                                            .border(width = if (searchQuery.isEmpty()) 0.dp else 1.dp, color = if (searchQuery.isEmpty()) Gray40 else goldenColor, shape = RoundedCornerShape(35.dp))
-                                            .clickable {
-                                                keyboardController?.hide()
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.search),
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontFamily = fontFamilyLato,
-                                            color = if (searchQuery.isEmpty()) lightBlackColor else goldenColor,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = dialogModifier.height(20.dp))
-
-                            if (reorderedSubitles.isEmpty() && searchQuery.isNotEmpty()) {
-                                Box(
-                                    modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        .height(if (isKeyBoardOpen) maxHeight else 200.dp).imePadding(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = context.getString(R.string.no_results_found),
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontFamily = fontFamilyLato,
-                                        color = colorResource(id = R.color.black),
-                                        modifier = dialogModifier
-                                    )
-                                }
-                            } else {
-
-                                // View 1: Clickable and Scrollable
-                                // This view's height is limited to either its content height or maxHeightForViews
-                                *//*LazyColumn(
-                                    modifier = Modifier
-                                        .heightIn(min = 0.dp, max = maxHeightForViews)
-            //                            .weight(1f) // Distributes remaining space
-                                        .background(Color.LightGray)
-                                ) {
-                                    items(listOf("Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "Honeydew")) { item ->
-                                        Text(
-                                            text = "Clickable: $item",
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable { println("$item clicked!") } // Clickable items
-                                                .padding(12.dp)
-                                        )
-                                    }
-                                }*//*
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(max = maxHeightForViews)
-                                ) {
-                                    items(reorderedSubitles) { subtitle ->
-                                        SubtitleItem(
-                                            modifier = Modifier,
-                                            subtitle = subtitle,
-                                            isSelected = selectedTitleId == subtitle.uuid,
-                                            onClick = {
-//                                                            onItemSelected(subtitle._id ?: "", subtitle.name ?: "")
-                                                if (selectedTitleId == subtitle.uuid) {
-                                                    selectedTitleId = ""
-                                                    selectedTitleName = ""
-                                                    showApply = false
-                                                } else {
-                                                    selectedTitleId = subtitle.uuid ?: ""
-                                                    val parentTitle = state.parentTitle.title ?: ""
-                                                    selectedTitleName = subtitle.name ?: ""
-                                                    showApply = true
-                                                }
-                                                keyboardController?.hide()
-                                            }
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = dialogModifier.height(20.dp))
-                                DashedLine(
-                                    modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        //.height(3.dp)
-                                        .padding(horizontal = 0.dp),
-                                    //strokeWidth = 3f
-                                )
-
-                                Spacer(modifier = dialogModifier.height(15.dp))
-
-                                Row(
-                                    modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 0.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = dialogModifier
-                                    ) {
-                                        if (!isExpanded) {
-                                            Text(
-                                                text = context.getString(R.string.strik_right_space),
-                                                fontSize = 20.sp,
-                                                fontWeight = FontWeight.Black,
-                                                fontFamily = fontFamilyLato,
-                                                color = goldenColor
-                                            )
-                                            Spacer(modifier = Modifier.width(1.dp))
-                                        }
-                                        Text(
-                                            text = context.getString(R.string.clarifications),
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            fontFamily = fontFamilyLato,
-                                            color = colorResource(id = R.color.black),
-                                            modifier = dialogModifier
-                                        )
-                                    }
-                                    Text(
-                                        text = if (isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = fontFamilyLato,
-                                        color = goldenColor,
-                                        modifier = dialogModifier.clickable {
-                                            dialogFocusManager.clearFocus()
-                                            isExpanded = !isExpanded
-                                        }
-                                    )
-                                }
-
-
-                                // View 2: Scrollable Only
-                                // This view dynamically matches the height logic of View 1
-
-                                if (filteredClassificationTitles.isNotEmpty() && isExpanded) {
-                                    Spacer(Modifier.height(15.dp))
-                                    LazyColumn(
-                                        modifier = Modifier
-                                            .heightIn(
-                                                min = 0.dp,
-                                                max = maxHeightForViews
-                                            )// Distributes remaining space equally with View 1
-//                                .background(Color.Cyan)
-                                            .padding(bottom = 25.dp)
-                                    ) {
-                                        items(filteredClassificationTitles) { title ->
-                                            // Scrollable only, no onClick
-                                            *//*Text(
-                                            text = "Scrollable Only: $item",
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(12.dp)
-                                        )*//*
-                                            ClassificationItem(
-                                                title = title.title ?: "",
-                                                description = title.decriptionTitle
-                                                    ?: "",
-                                                modifier = Modifier
-                                            )
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                        }
-                                    }
-                                }
-                                Spacer(Modifier.height(25.dp))
-                            }
-                        }
-                    }
-
-
-                }
-            }*/
-
-
         }
     }
 }
@@ -1447,7 +965,7 @@ fun TitleItem(
         horizontalArrangement = Arrangement.Start,
     ) {
         Text(
-            text = title.title ?: "",
+            text = title.name ?: "",
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
@@ -1455,7 +973,7 @@ fun TitleItem(
             modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
             //modifier = Modifier.weight(1f)
         )
-        if (!title.subtitles.isNullOrEmpty()) {
+        if (!title.subTitles.isNullOrEmpty()) {
             Spacer( modifier = modifier.width(3.dp))
             Image(
                 painter = painterResource(id = R.drawable.arrowdown_lite),
@@ -1463,7 +981,7 @@ fun TitleItem(
                 modifier = modifier.size(11.dp)
             )
         }
-        if (!title.decriptionTitle.isNullOrEmpty()) {
+        if (!title.description.isNullOrEmpty()) {
             Spacer( modifier = modifier.width(3.dp))
             Text(
                 text = context.getString(R.string.strik_right_space),
@@ -1481,7 +999,7 @@ fun TitleItem(
 fun SubtitleItem(
     isFirstItem: Boolean,
     isLastItem: Boolean,
-    subtitle: Subtitle,
+    subtitle: SubTitle,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
@@ -1553,24 +1071,25 @@ fun ClassificationItem(
 }
 
 
-@Composable
+//@Composable
+/*
 fun getTitles(): MutableList<Title> {
 
     var titles by remember { mutableStateOf<MutableList<Title>>(arrayListOf()) }
 
     val student = arrayListOf<Subtitle>(
-        Subtitle(uuid = "12", name = "Associate's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "13", name = "Bachelor's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "14", name = "Diploma Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "15", name = "Doctoral Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "16", name = "Elementary School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "17", name = "High School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "18", name = "Kindergartener", description = "Refers to children (5 years).", subtitles = arrayListOf()),
-        Subtitle(uuid = "19", name = "Master's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "20", name = "Middle School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "21", name = "Postgraduate Diploma Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "22", name = "Preschooler", description = "Refers to children (3-4 years).", subtitles = arrayListOf()),
-        Subtitle(uuid = "23", name = "Other Student", description = "", subtitles = arrayListOf())
+        SubTitle(id = "12", name = "Associate's Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "13", name = "Bachelor's Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "14", name = "Diploma Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "15", name = "Doctoral Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "16", name = "Elementary School Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "17", name = "High School Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "18", name = "Kindergartener", description = "Refers to children (5 years).", subtitles = arrayListOf()),
+        SubTitle(id = "19", name = "Master's Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "20", name = "Middle School Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "21", name = "Postgraduate Diploma Student", description = "", subtitles = arrayListOf()),
+        SubTitle(id = "22", name = "Preschooler", description = "Refers to children (3-4 years).", subtitles = arrayListOf()),
+        SubTitle(id = "23", name = "Other Student", description = "", subtitles = arrayListOf())
     )
     titles = arrayListOf(
         Title(_id = "1", title = "Baby Joyers", decriptionTitle = "Refers to infants and toddlers (0-2 years).", subtitles = arrayListOf()),
@@ -1586,4 +1105,4 @@ fun getTitles(): MutableList<Title> {
         Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
     )
     return titles
-}
+}*/

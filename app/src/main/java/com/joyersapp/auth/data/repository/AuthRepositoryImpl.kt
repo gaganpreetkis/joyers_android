@@ -15,6 +15,8 @@ import com.joyersapp.auth.data.remote.dto.LoginRequestDto
 import com.joyersapp.auth.data.remote.dto.LoginResponseDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
+import com.joyersapp.auth.data.remote.dto.identity.Title
+import com.joyersapp.auth.data.remote.dto.identity.TitlesResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
@@ -377,6 +379,35 @@ class AuthRepositoryImpl @Inject constructor(
                 else -> Result.failure(
                     ApiErrorException(
                         message = response.message
+                    )
+                )
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun fetchTitles(): Result<List<Title>> =
+        try {
+            val response = api.titleType()
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response.data)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            message = response.message ?: "Something went wrong"
+                        )
+                    )
+                }
+
+                else -> Result.failure(
+                    ApiErrorException(
+                        message = response.message ?: "Something went wrong"
                     )
                 )
             }
