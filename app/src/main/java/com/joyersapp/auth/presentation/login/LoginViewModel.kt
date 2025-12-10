@@ -35,8 +35,14 @@ class LoginViewModel @Inject constructor(
             is LoginEvent.PasswordChanged -> {
                 _uiState.update { it.copy(password = event.value) }
             }
+            is LoginEvent.ApiOnlyUsernameErrorMessageChanged -> {
+                _uiState.update { it.copy(apiOnlyUsernameErrorMessage = event.value) }
+            }
             is LoginEvent.ApiErrorMessageChanged -> {
                 _uiState.update { it.copy(apiErrorMessage = event.value) }
+            }
+            is LoginEvent.ApiFailedErrorMessageChanged -> {
+                _uiState.update { it.copy(apiFailedErrorMessage = event.value) }
             }
             is LoginEvent.PasswordVisibleChanged -> {
                 _uiState.update { it.copy(passwordVisible = event.value) }
@@ -99,13 +105,22 @@ class LoginViewModel @Inject constructor(
                     Log.e("login msg", response.message)
 
                     if (response.statusCode == 200) {
-                        _uiState.update { it.copy(isLoading = false, apiErrorMessage = response.message/*, isVerificationSuccess = true*/) }
+                        _uiState.update { it.copy(isLoading = false, apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = ""/*, isVerificationSuccess = true*/) }
                     } else {
                         _uiState.update { it.copy(isLoading = false, apiErrorMessage = response.message/*, verificationCodeError = response.message*/) }
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update { it.copy(isLoading = false, apiErrorMessage = error.message ?: "Something went wrong"/*, verificationCodeError = error.message ?: "Something went wrong"*/) }
+                    if (error.message != null) {
+                        if (error.message!!.contains("password", true)) {
+                            _uiState.update { it.copy(isLoading = false, apiErrorMessage = error.message ?: "Something went wrong"/*, verificationCodeError = error.message ?: "Something went wrong"*/) }
+                        } else {
+                            _uiState.update { it.copy(isLoading = false, apiOnlyUsernameErrorMessage = error.message ?: "Something went wrong"/*, verificationCodeError = error.message ?: "Something went wrong"*/) }
+                        }
+                    } else {
+                        _uiState.update { it.copy(isLoading = false, apiFailedErrorMessage = "Login failed. Please try again."/*, verificationCodeError = error.message ?: "Something went wrong"*/) }
+                    }
+
                 }
             )
         }

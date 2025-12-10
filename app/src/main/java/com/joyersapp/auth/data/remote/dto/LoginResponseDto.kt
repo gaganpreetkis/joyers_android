@@ -8,7 +8,7 @@ data class LoginResponseDto(
 )
 
 data class User(
-    var id: Int,
+    var id: String,
     var username: String?,
     var email: String?,
     var mobile: String?,

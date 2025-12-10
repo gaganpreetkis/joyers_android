@@ -501,7 +501,6 @@ fun SignUpScreen(
                                 fontWeight = FontWeight.Normal,
                                 lineHeight = 20.sp,
                                 modifier = Modifier
-                                    .padding(top = 0.dp)
                                     .align(Alignment.CenterHorizontally)
                             )
                         }
