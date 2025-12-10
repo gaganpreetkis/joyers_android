@@ -13,6 +13,8 @@ import com.joyersapp.auth.data.remote.dto.MultiStepRegisterRequestDto
 import com.joyersapp.auth.data.remote.dto.MultiStepRegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordResponseDto
+import com.joyersapp.auth.data.remote.dto.identity.Title
+import com.joyersapp.auth.data.remote.dto.identity.TitlesResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
@@ -40,6 +42,7 @@ interface AuthRepository {
     suspend fun resetPasswordVerifyOtp(params: ResetPasswordRequestDto): Result<ResetPasswordResponseDto>
 
     suspend fun login(params: LoginRequestDto): Result<LoginResponseDto>
+    suspend fun fetchTitles(): Result<List<Title>>
 
     suspend fun multiStepRegister(params: MultiStepRegisterRequestDto): Result<MultiStepRegisterResponseDto>
 

@@ -69,10 +69,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
-import com.joyersapp.response.Subtitle
-import com.joyersapp.response.Title
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.common_widgets.DualViewDialog
@@ -96,7 +96,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun IdentityScreen(
     initialPage: Int = 0,
-//    signupViewModel: SignupViewModel,
+    viewmodel: IdentityViewModel = hiltViewModel(),
 //    preferencesManager: PreferencesManager,
 //    activity: AppCompatActivity,
     onNavigateBack: () -> Unit = {},
@@ -259,7 +259,8 @@ fun IdentityScreen(
                                 pagerState.animateScrollToPage(page - 1)
                             }
                         },
-                        onNavigateToNext = {onNavigateToNext()}
+                        onNavigateToNext = {onNavigateToNext()},
+                        viewmodel = viewmodel
 ////                        signupViewModel = signupViewModel,
 ////                        preferencesManager = preferencesManager,
 ////                        activity = activity
@@ -887,6 +888,7 @@ fun PageTwoContent(
 //    preferencesManager: PreferencesManager? = null,
 //    activity: AppCompatActivity? = null
 ) {
+
     var selectedStatus by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val goldenColor = Golden60
@@ -1135,18 +1137,20 @@ fun PageTwoContent(
 fun PageThreeContent(
     onBack: () -> Unit,
     onNavigateToNext: () -> Unit,
-//    signupViewModel: SignupViewModel? = null,
+    viewmodel: IdentityViewModel,
 //    preferencesManager: PreferencesManager? = null,
 //    activity: AppCompatActivity? = null
 ) {
+    val state by viewmodel.uiState.collectAsStateWithLifecycle()
     var selectedTitle by remember { mutableStateOf<String?>(null) }
-    var selectedTitleId by remember { mutableStateOf("") }
+    var selectedTitleId by remember { mutableStateOf<String?>(null) }
     var showNextButton by remember { mutableStateOf(false) }
     var showTitleDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val goldenColor = Golden60
     val lightBlackColor = LightBlack
     val whiteColor = Color.White
+/*
 
 //    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()
 //    val userInfoResponse = signupViewModel?.userInfoResponse?.observeAsState()
@@ -1179,6 +1183,7 @@ fun PageThreeContent(
         Title(_id = "10", title = "Student", decriptionTitle = "", subtitles = student),
         Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
     )
+*/
 
     // Load titles
 //    LaunchedEffect(Unit) {
@@ -1336,20 +1341,18 @@ fun PageThreeContent(
 
     // Title Selection Dialog
     if (showTitleDialog) {
-//        selectedTitle = "Master's Student"
-//        showNextButton = true
         DualViewDialog(
-//            titles = titles.toMutableList(),
             onDismiss = { showTitleDialog = false },
-            onItemSelected = { titleId, titleName ->
+            onItemSelected = { titleId, titleName, subTitleId, subTitleName ->
                 selectedTitle = titleName
                 selectedTitleId = titleId
                 showNextButton = true
                 showTitleDialog = false
-            }
+            },
+            viewmodel = viewmodel,
         )
-    } else {
-//        selectedTitle = null
-//        showNextButton = false
     }
+
+
+
 }
