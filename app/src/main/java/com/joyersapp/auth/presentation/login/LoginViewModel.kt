@@ -128,7 +128,11 @@ class LoginViewModel @Inject constructor(
             if (Patterns.EMAIL_ADDRESS.matcher(state.username).matches()) {
                 params.email = state.username
             } else {
-                params.username = state.username
+                if (state.username.startsWith("@")) {
+                    params.username = state.username.removePrefix("@")
+                } else {
+                    params.username = state.username
+                }
             }
         }
         if (params.username.isBlank() && params.email.isBlank() && params.country_code.isBlank() && params.mobile.isBlank()) return

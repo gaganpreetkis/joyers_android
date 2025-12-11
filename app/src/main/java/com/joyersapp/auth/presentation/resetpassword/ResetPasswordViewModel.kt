@@ -151,7 +151,11 @@ class ResetPasswordViewModel @Inject constructor (
             if (Patterns.EMAIL_ADDRESS.matcher(state.identifierValue).matches()) {
                 params.email = state.identifierValue
             } else {
-                params.username = state.identifierValue
+                if (state.identifierValue.startsWith("@")) {
+                    params.username = state.identifierValue.removePrefix("@")
+                } else {
+                    params.username = state.identifierValue
+                }
             }
         }
         if (params.username.isBlank() && params.email.isBlank() && params.country_code.isBlank() && params.mobile.isBlank()) return
