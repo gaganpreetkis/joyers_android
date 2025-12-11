@@ -2,12 +2,15 @@ package com.joyersapp.auth.presentation.login
 
 import android.util.Log
 import android.util.Patterns
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.LoginRequestDto
 import com.joyersapp.auth.domain.usecase.LoginUseCase
 import com.joyersapp.auth.presentation.forgotpassword.ForgotPasswordEvent
+import com.joyersapp.utils.isValidPassword
+import com.joyersapp.utils.isValidUsername
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Job
@@ -30,10 +33,30 @@ class LoginViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = event.value) }
             }
             is LoginEvent.UsernameChanged -> {
-                _uiState.update { it.copy(username = event.value) }
+                val state = _uiState.value
+                _uiState.update {
+                    it.copy(
+                        username = event.value,
+//                        apiErrorMessage = "",
+//                        apiFailedErrorMessage = "",
+//                        apiOnlyUsernameErrorMessage = "",
+                    ) }
+                if (state.isFormValid && isValidPassword(state.password) && state.rememberMe) {
+                    onEvent(LoginEvent.RememberMeChanged(false))
+                }
             }
             is LoginEvent.PasswordChanged -> {
-                _uiState.update { it.copy(password = event.value) }
+                val state = _uiState.value
+                _uiState.update {
+                    it.copy(
+                        password = event.value,
+//                        apiErrorMessage = "",
+//                        apiFailedErrorMessage = "",
+//                        apiOnlyUsernameErrorMessage = "",
+                    ) }
+                if (state.isFormValid && isValidPassword(state.password) && state.rememberMe) {
+                    onEvent(LoginEvent.RememberMeChanged(false))
+                }
             }
             is LoginEvent.ApiOnlyUsernameErrorMessageChanged -> {
                 _uiState.update { it.copy(apiOnlyUsernameErrorMessage = event.value) }
@@ -54,7 +77,16 @@ class LoginViewModel @Inject constructor(
                 _uiState.update { it.copy(passwordError = event.value) }
             }
             is LoginEvent.IsPhoneModeChanged -> {
-                _uiState.update { it.copy(isPhoneMode = event.value) }
+                _uiState.update {
+                    it.copy(
+                        isPhoneMode = event.value,
+                        username = "",
+                        rememberMe = false,
+                        apiErrorMessage = "",
+                        apiFailedErrorMessage = "",
+                        apiOnlyUsernameErrorMessage = "",
+                    )
+                }
             }
             is LoginEvent.ShowSocialDialogChanged -> {
                 _uiState.update { it.copy(showSocialDialog = event.value) }
@@ -76,6 +108,7 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
 
     private fun login() {
         val state = _uiState.value
@@ -108,7 +141,7 @@ class LoginViewModel @Inject constructor(
                     Log.e("login msg", response.message)
 
                     if (response.statusCode == 200) {
-                        _uiState.update { it.copy(isLoading = false, apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = "", isLoginApiSuccess = true/*, isVerificationSuccess = true*/) }
+                        _uiState.update { it.copy(isLoading = false, apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = "", /*isLoginApiSuccess = true*//*, isVerificationSuccess = true*/) }
                     } else {
                         _uiState.update { it.copy(isLoading = false, apiErrorMessage = response.message/*, verificationCodeError = response.message*/) }
                     }

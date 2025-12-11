@@ -166,7 +166,7 @@ class ResetPasswordViewModel @Inject constructor (
                     Log.e("login msg", response.message)
 
                     if (response.statusCode == 200) {
-                        _uiState.update { it.copy(isLoading = false, /*apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = "",*/ isLoginApiSuccess = true/*, isVerificationSuccess = true*/) }
+                        _uiState.update { it.copy(isLoading = false, /*apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = "",*/ /*isLoginApiSuccess = true*//*, isVerificationSuccess = true*/) }
                     } else {
                         _uiState.update { it.copy(isLoading = false, /*apiErrorMessage = response.message*//*, verificationCodeError = response.message*/) }
                     }
