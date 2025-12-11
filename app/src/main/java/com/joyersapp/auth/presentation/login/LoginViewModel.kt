@@ -37,10 +37,11 @@ class LoginViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         username = event.value,
-//                        apiErrorMessage = "",
-//                        apiFailedErrorMessage = "",
-//                        apiOnlyUsernameErrorMessage = "",
-                    ) }
+                        apiErrorMessage = "",
+                        apiFailedErrorMessage = "",
+                        apiOnlyUsernameErrorMessage = "",
+                    )
+                }
                 if (state.isFormValid && isValidPassword(state.password) && state.rememberMe) {
                     onEvent(LoginEvent.RememberMeChanged(false))
                 }
@@ -50,10 +51,11 @@ class LoginViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         password = event.value,
-//                        apiErrorMessage = "",
-//                        apiFailedErrorMessage = "",
-//                        apiOnlyUsernameErrorMessage = "",
-                    ) }
+                        apiErrorMessage = "",
+                        apiFailedErrorMessage = "",
+                        apiOnlyUsernameErrorMessage = "",
+                    )
+                }
                 if (state.isFormValid && isValidPassword(state.password) && state.rememberMe) {
                     onEvent(LoginEvent.RememberMeChanged(false))
                 }
