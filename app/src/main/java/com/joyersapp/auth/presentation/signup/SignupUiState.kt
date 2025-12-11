@@ -30,7 +30,7 @@ data class SignupUiState(
     val email: String = "",
     val emailError: String? = null,
     val phone: String = "",
-    val emailPhoneError: String? = null,
+    val emailPhoneError: UiText? = null,
 
     val verificationError: String? = null,
     val showVerification: Boolean = false,
@@ -52,6 +52,8 @@ data class SignupUiState(
     val isPasswordFocused: Boolean = false,
     val isConfirmPasswordFocused: Boolean = false,
     val isUsernameFocused: Boolean = false,
+    val isEmailFocused: Boolean = false,
+    val isPhoneFocused: Boolean = false,
 
     val isSuggestionSelected: Boolean = false
 ) {

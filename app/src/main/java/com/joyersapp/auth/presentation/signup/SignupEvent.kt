@@ -15,6 +15,8 @@ sealed class SignupEvent {
     data class UsernameFocusChanged(val isFocused: Boolean) : SignupEvent()
     data class PasswordFocusChanged(val isFocused: Boolean) : SignupEvent()
     data class ConfirmPasswordFocusChanged(val isFocused: Boolean) : SignupEvent()
+    data class EmailFocusChanged(val isFocused: Boolean) : SignupEvent()
+    data class PhoneFocusChanged(val isFocused: Boolean) : SignupEvent()
 
     // Mode toggles
     data object TogglePhoneMode : SignupEvent()          // switch email <-> phone

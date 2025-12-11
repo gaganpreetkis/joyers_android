@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -349,7 +350,11 @@ fun SignUpScreen(
                                     },
                                     maxLength = 15,
                                     placeholder = stringResource(R.string.phone_number),
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier.weight(1f)
+                                        .focusRequester(focusRequester)
+                                        .onFocusChanged { focusState ->
+                                            viewModel.onEvent(SignupEvent.PhoneFocusChanged(focusState.isFocused))
+                                        },
                                     containerColor = Color.Transparent,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                                 )
@@ -384,7 +389,11 @@ fun SignUpScreen(
                                     },
                                     maxLength = 100,
                                     placeholder = stringResource(R.string.email),
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier.weight(1f)
+                                        .focusRequester(focusRequester)
+                                        .onFocusChanged { focusState ->
+                                            viewModel.onEvent(SignupEvent.EmailFocusChanged(focusState.isFocused))
+                                        },
                                     containerColor = Color.Transparent,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                 )
@@ -435,7 +444,7 @@ fun SignUpScreen(
 // Error messages
                     if (state.emailPhoneError != null) {
                         Text(
-                            text = state.emailPhoneError ?: "",
+                            text = state.emailPhoneError?.asString(context) ?: "",
                             color = Red,
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
@@ -460,7 +469,8 @@ fun SignUpScreen(
                             modifier = Modifier
                                 .width(181.dp)
                                 .height(40.dp)
-                                .align(Alignment.CenterHorizontally),
+                                .align(Alignment.CenterHorizontally)
+                                .border(width = 1.dp, color = if (state.verificationError != null) Red else colorResource(id = R.color.color_border_light), shape = RoundedCornerShape(5.dp)),
                             containerColor = Gray20,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             textStyle = TextStyle(
@@ -506,7 +516,7 @@ fun SignUpScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(15.dp))
+                        Spacer(modifier = Modifier.height(if (state.verificationError != null) 40.dp else 37.dp))
 
 // Verify Button
                         Button(

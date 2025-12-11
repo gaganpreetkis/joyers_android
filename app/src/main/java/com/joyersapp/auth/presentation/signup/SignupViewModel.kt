@@ -122,6 +122,26 @@ class SignupViewModel @Inject constructor(
                 }
             }
 
+            is SignupEvent.EmailFocusChanged -> {
+                val state = _uiState.value
+                val isValidEmail = state.email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(
+                    state.email
+                ).matches()
+                val prevFocused = _uiState.value.isEmailFocused
+
+                _uiState.update {
+                    it.copy(isEmailFocused = event.isFocused, error = null)
+                }
+
+                if (prevFocused && !event.isFocused && !isValidEmail) {
+                    _uiState.update {
+                        it.copy(
+                            emailPhoneError = StringResource(R.string.invaild_email),
+                        )
+                    }
+                }
+            }
+
             is SignupEvent.PhoneChanged -> {
                 val isValidPhone = (
                         event.value.all { it.isDigit() }
@@ -137,6 +157,26 @@ class SignupViewModel @Inject constructor(
                         showPasswordFields = false,
                         isValidPhone = isValidPhone
                     )
+                }
+            }
+
+            is SignupEvent.PhoneFocusChanged -> {
+                val state = _uiState.value
+                val isValidPhone = (
+                        state.phone.all { it.isDigit() }
+                                && state.phone.length in 10..15)
+                val prevFocused = _uiState.value.isPhoneFocused
+
+                _uiState.update {
+                    it.copy(isPhoneFocused = event.isFocused, error = null)
+                }
+
+                if (prevFocused && !event.isFocused && !isValidPhone) {
+                    _uiState.update {
+                        it.copy(
+                            emailPhoneError = StringResource(R.string.invaild_phone),
+                        )
+                    }
                 }
             }
 
@@ -377,7 +417,7 @@ class SignupViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             showVerification = false,
-                            emailPhoneError = error.message,
+                            emailPhoneError = DynamicString(error.message ?: "Something went wrong"),
                         )
                     }
                 }
