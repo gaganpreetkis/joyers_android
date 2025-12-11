@@ -806,7 +806,7 @@ fun SignUpScreen(
                     Text(
                         text = "Login",
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                         fontFamily = fontFamilyLato,
                         color = Golden60,
                         modifier = Modifier
