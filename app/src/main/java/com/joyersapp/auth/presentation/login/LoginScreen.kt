@@ -79,18 +79,6 @@ fun LoginScreen(
     var showGapView by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val isFormValid = remember(state.username, state.isPhoneMode) {
-        if (state.isPhoneMode) {
-            // PHONE VALIDATION
-            state.username.isNotEmpty() &&
-                    state.username.all { it.isDigit() } &&
-                    state.username.length in 10..15
-        } else {
-            // USERNAME or EMAIL VALIDATION
-            state.username.isNotEmpty() && (isValidUsername(state.username) || Patterns.EMAIL_ADDRESS.matcher(state.username).matches())
-        }
-    }
-
     // Function to check keyboard visibility and update UI
     fun updateKeyboardState(frameLayout: View) {
         val rect = Rect()
@@ -182,7 +170,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .weight(0.85f)
                     .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
-                    .border(color = if (state.apiOnlyUsernameErrorMessage.isNotEmpty() || state.apiErrorMessage.isNotEmpty()) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
+                    .border(color = if (state.password.isNotEmpty() && state.username.isNotEmpty() && (state.apiOnlyUsernameErrorMessage.isNotEmpty() || state.apiErrorMessage.isNotEmpty())) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
             ) {
                 Row(
                     modifier = Modifier.padding(start = 20.dp),
@@ -213,12 +201,6 @@ fun LoginScreen(
                         value = state.username,
                         onValueChange = {
                             viewModel.onEvent(LoginEvent.UsernameChanged(it))
-                            viewModel.onEvent(LoginEvent.ApiErrorMessageChanged(""))
-                            viewModel.onEvent(LoginEvent.ApiFailedErrorMessageChanged(""))
-                            viewModel.onEvent(LoginEvent.ApiOnlyUsernameErrorMessageChanged(""))
-                            if (isFormValid && isValidPassword(state.password) && state.rememberMe) {
-                                viewModel.onEvent(LoginEvent.RememberMeChanged(false))
-                            }
                         },
                         maxLength = if (state.isPhoneMode) 15 else 100,
                         placeholder = if (state.isPhoneMode) "Phone Number" else "Username / Email",
@@ -241,10 +223,10 @@ fun LoginScreen(
                                 .padding(start = 5.dp, end = 10.dp)
                                 .clickable {
                                     viewModel.onEvent(LoginEvent.UsernameChanged(""))
-                                    viewModel.onEvent(LoginEvent.ApiErrorMessageChanged(""))
+                                    /*viewModel.onEvent(LoginEvent.ApiErrorMessageChanged(""))
                                     viewModel.onEvent(LoginEvent.ApiFailedErrorMessageChanged(""))
                                     viewModel.onEvent(LoginEvent.ApiOnlyUsernameErrorMessageChanged(""))
-                                    viewModel.onEvent(LoginEvent.RememberMeChanged(false))
+                                    viewModel.onEvent(LoginEvent.RememberMeChanged(false))*/
                                 }
                         )
                     }
@@ -259,12 +241,12 @@ fun LoginScreen(
                     .weight(0.15f)
                     .fillMaxHeight()
                     .clickable {
-                        viewModel.onEvent(LoginEvent.UsernameChanged(""))
-                        viewModel.onEvent(LoginEvent.RememberMeChanged(false))
                         viewModel.onEvent(LoginEvent.IsPhoneModeChanged(!state.isPhoneMode))
+                        /*viewModel.onEvent(LoginEvent.UsernameChanged(""))
+                        viewModel.onEvent(LoginEvent.RememberMeChanged(false))
                         viewModel.onEvent(LoginEvent.ApiErrorMessageChanged(""))
                         viewModel.onEvent(LoginEvent.ApiFailedErrorMessageChanged(""))
-                        viewModel.onEvent(LoginEvent.ApiOnlyUsernameErrorMessageChanged(""))
+                        viewModel.onEvent(LoginEvent.ApiOnlyUsernameErrorMessageChanged(""))*/
                     }
                     .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
                     .border(color = colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)),
@@ -279,7 +261,7 @@ fun LoginScreen(
             }
         }
 
-        if (state.apiOnlyUsernameErrorMessage.isNotBlank()) {
+        if (state.apiOnlyUsernameErrorMessage.isNotBlank() && state.username.isNotEmpty()) {
             Text(
                 text = state.apiOnlyUsernameErrorMessage,
                 color = Red,
@@ -297,7 +279,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .border(color = if (state.passwordError || state.apiErrorMessage.isNotEmpty()) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(5.dp))
+                .border(color = if (state.password.isNotEmpty() && (state.passwordError || state.apiErrorMessage.isNotEmpty())) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(5.dp))
                 .background(Gray20, RoundedCornerShape(5.dp))
         ) {
             Row(
@@ -321,12 +303,12 @@ fun LoginScreen(
                         value = state.password,
                         onValueChange = {
                             viewModel.onEvent(LoginEvent.PasswordChanged(it))
-                            viewModel.onEvent(LoginEvent.ApiErrorMessageChanged(""))
+                            /*viewModel.onEvent(LoginEvent.ApiErrorMessageChanged(""))
                             viewModel.onEvent(LoginEvent.ApiFailedErrorMessageChanged(""))
                             viewModel.onEvent(LoginEvent.ApiOnlyUsernameErrorMessageChanged(""))
-                            if (isFormValid && isValidPassword(state.password) && state.rememberMe) {
+                            if (state.isFormValid && isValidPassword(state.password) && state.rememberMe) {
                                 viewModel.onEvent(LoginEvent.RememberMeChanged(false))
-                            }
+                            }*/
                         },
                         maxLength = 16,
                         placeholder = "Password",
@@ -352,7 +334,7 @@ fun LoginScreen(
             )
         }
 
-        if (state.apiErrorMessage.isNotEmpty()) {
+        if (state.apiErrorMessage.isNotEmpty() && state.password.isNotEmpty()) {
             Text(
                 text = state.apiErrorMessage,
                 color = Red,
@@ -376,9 +358,9 @@ fun LoginScreen(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable(
-                    enabled = isFormValid && isValidPassword(state.password)
+                    enabled = state.isFormValid && isValidPassword(state.password)
                 ) {
-                    if (isFormValid && isValidPassword(state.password)) {
+                    if (state.isFormValid && isValidPassword(state.password)) {
                         viewModel.onEvent(LoginEvent.RememberMeChanged(!state.rememberMe))
                     }
                 }
@@ -441,7 +423,7 @@ fun LoginScreen(
                 //emailPhoneError = !emailPhoneError
                 viewModel.onEvent(LoginEvent.OnLoginButtonClicked)
             },
-            enabled = isFormValid && isValidPassword(state.password),
+            enabled = state.isFormValid && isValidPassword(state.password),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
