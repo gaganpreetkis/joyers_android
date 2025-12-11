@@ -780,7 +780,7 @@ fun ResetPasswordScreen(
                     contentColor = White,
                     disabledContentColor = DisabledTextColor
                 ),
-                shape = RoundedCornerShape(5.dp)
+                shape = RoundedCornerShape(4.dp)
             ) {
                 Text(
                     text = if (state.isPasswordResetSuccess) {

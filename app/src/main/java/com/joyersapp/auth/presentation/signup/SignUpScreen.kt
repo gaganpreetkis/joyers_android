@@ -532,7 +532,7 @@ fun SignUpScreen(
                                 contentColor = White,
                                 disabledContentColor = DisabledTextColor
                             ),
-                            shape = RoundedCornerShape(5.dp)
+                            shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
                                 text = context.getString(R.string.verify),
@@ -553,7 +553,7 @@ fun SignUpScreen(
                             modifier = Modifier.fillMaxWidth()
                                 .height(50.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Black),
-                            shape = RoundedCornerShape(5.dp)
+                            shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
                                 text = context.getString(R.string.resend_code),
@@ -778,13 +778,13 @@ fun SignUpScreen(
                                 contentColor = White,
                                 disabledContentColor = DisabledTextColor
                             ),
-                            shape = RoundedCornerShape(5.dp)
+                            shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
                                 text = state.signInButtonText,
                                 fontSize = 16.sp,
                                 fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
+                                fontWeight = FontWeight.Bold,
                                 /*modifier = Modifier.padding(vertical = 12.dp)*/
                             )
                         }

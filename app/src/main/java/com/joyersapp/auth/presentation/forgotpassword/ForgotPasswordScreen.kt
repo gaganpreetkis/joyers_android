@@ -693,7 +693,7 @@ fun ForgotPasswordScreen(
                         contentColor = White,
                         disabledContentColor = DisabledTextColor
                     ),
-                    shape = RoundedCornerShape(5.dp)
+                    shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.next),
@@ -727,7 +727,7 @@ fun ForgotPasswordScreen(
                         contentColor = White,
                         disabledContentColor = DisabledTextColor
                     ),
-                    shape = RoundedCornerShape(5.dp)
+                    shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.verify),
@@ -760,7 +760,7 @@ fun ForgotPasswordScreen(
                         containerColor = Black,
                         contentColor = White
                     ),
-                    shape = RoundedCornerShape(5.dp)
+                    shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.resend_code),

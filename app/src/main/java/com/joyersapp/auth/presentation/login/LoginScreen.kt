@@ -427,7 +427,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .background(color = Golden60, shape = RoundedCornerShape(5.dp)),
+                .background(color = Golden60, shape = RoundedCornerShape(4.dp)),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Golden60,
                 disabledContainerColor = Golden60,
@@ -461,7 +461,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .background(Color.Black, RoundedCornerShape(5.dp))
+                .background(Color.Black, RoundedCornerShape(4.dp))
                 .clickable {
                     viewModel.onEvent(LoginEvent.ShowSocialDialogChanged(true))
                 },
