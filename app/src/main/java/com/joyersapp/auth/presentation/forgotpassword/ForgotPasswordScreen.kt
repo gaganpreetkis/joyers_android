@@ -741,10 +741,17 @@ fun ForgotPasswordScreen(
 
                 Button(
                     onClick = {
-                        // Resend code
-                        viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
-                        viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
-                        // TODO: Implement resend logic
+                        if (!isFormValid) {
+                            if (state.isPhoneMode) {
+                                viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(context.getString(R.string.invaild_phone)))
+                            } else {
+                                viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(context.getString(R.string.invaild_email)))
+                            }
+                        } else if (selectedTab.isEmpty()) {
+                            viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged("Please select a verification method"))
+                        } else {
+                            viewModel.onEvent(ForgotPasswordEvent.OnNextButtonClicked)
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

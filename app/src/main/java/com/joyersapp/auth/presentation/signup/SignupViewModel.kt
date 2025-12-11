@@ -75,7 +75,7 @@ class SignupViewModel @Inject constructor(
                     it.copy(isUsernameFocused = event.isFocused, error = null)
                 }
 
-                if (prevFocused && !event.isFocused && uiState.value.username.text.length < 4) {
+                if (prevFocused && !event.isFocused && _uiState.value.username.text.isNotEmpty() && _uiState.value.username.text.length < 4) {
                     _uiState.update {
                         it.copy(
                             showUsernameError = true,
@@ -133,7 +133,7 @@ class SignupViewModel @Inject constructor(
                     it.copy(isEmailFocused = event.isFocused, error = null)
                 }
 
-                if (prevFocused && !event.isFocused && !isValidEmail) {
+                if (prevFocused && !event.isFocused && state.email.isNotEmpty() &&  !isValidEmail) {
                     _uiState.update {
                         it.copy(
                             emailPhoneError = StringResource(R.string.invaild_email),
@@ -171,7 +171,7 @@ class SignupViewModel @Inject constructor(
                     it.copy(isPhoneFocused = event.isFocused, error = null)
                 }
 
-                if (prevFocused && !event.isFocused && !isValidPhone) {
+                if (prevFocused && !event.isFocused && state.email.isNotEmpty() && !isValidPhone) {
                     _uiState.update {
                         it.copy(
                             emailPhoneError = StringResource(R.string.invaild_phone),

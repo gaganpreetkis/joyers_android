@@ -84,6 +84,7 @@ class LoginViewModel @Inject constructor(
                         isPhoneMode = event.value,
                         username = "",
                         rememberMe = false,
+                        password = "",
                         apiErrorMessage = "",
                         apiFailedErrorMessage = "",
                         apiOnlyUsernameErrorMessage = "",
