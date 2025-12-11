@@ -88,6 +88,7 @@ fun ResetPasswordScreen(
     countryNameCode: String = "",
     verificationCode: String = "",
     onLoginClick: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {},
     onVerifyClick: (String, String) -> Unit = { _, _ -> },
     onBackToForgotPassword: (Boolean) -> Unit = { _ -> },
     viewModel: ResetPasswordViewModel = hiltViewModel()
@@ -207,6 +208,12 @@ fun ResetPasswordScreen(
             } else if (state.isConfirmPasswordFocused) {
                 viewModel.onEvent(ResetPasswordEvent.ConfirmPasswordErrorChanged(null))
             }
+        }
+    }
+
+    LaunchedEffect(state.isLoginApiSuccess) {
+        if (state.isLoginApiSuccess) {
+            onLoginSuccess()
         }
     }
 
@@ -737,7 +744,8 @@ fun ResetPasswordScreen(
                 onClick = {
                     if (state.isPasswordResetSuccess) {
                         // Navigate to login
-                        onLoginClick()
+                        //onLoginClick()
+                        viewModel.onEvent(ResetPasswordEvent.OnGetStartedButtonClicked)
                     } else {
                         // Verify password reset
                         if (isFormValid) {

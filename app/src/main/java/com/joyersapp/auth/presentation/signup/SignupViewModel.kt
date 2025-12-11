@@ -472,7 +472,7 @@ class SignupViewModel @Inject constructor(
                             error = null
                         )
                     }
-                    _navigationEvents.emit(SignupNavigationEvent.RegistrationCompleted)
+                    _navigationEvents.emit(SignupNavigationEvent.RegistrationCompleted(response.token ?: "", response.user?.id ?: ""))
                 },
                 onFailure = { error ->
                     _uiState.update {

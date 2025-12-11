@@ -10,5 +10,5 @@ import jakarta.inject.Inject
 class MultiStepRegisterUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(params: MultiStepRegisterRequestDto): Result<MultiStepRegisterResponseDto> = authRepository.multiStepRegister(params)
+    suspend operator fun invoke(params: MultiStepRegisterRequestDto, profilePicturePath: String, backgroundPicturePath: String): Result<MultiStepRegisterResponseDto> = authRepository.multiStepRegister(params, profilePicturePath, backgroundPicturePath)
 }

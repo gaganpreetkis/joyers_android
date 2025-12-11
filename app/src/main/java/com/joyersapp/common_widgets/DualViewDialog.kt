@@ -93,14 +93,16 @@ sealed class DialogState {
 //@Preview
 @Composable
 fun DualViewDialog(
-                   onDismiss: () -> Unit = {},
-                   onItemSelected: (
-                       titleId: String?,
-                       titleName: String?,
-                       subTitleName: String?,
-                       subTitleId: String?
-                           ) -> Unit = { a, b, c, d -> },
-                   viewmodel: IdentityViewModel
+    selectedTitle: Title? = null,
+    viewmodel: IdentityViewModel,
+    dialogState: DialogState,
+    onDismiss: () -> Unit = {},
+       onItemSelected: (
+           titleId: String?,
+           titleName: String?,
+           subTitleId: String?,
+           subTitleName: String?
+               ) -> Unit = { a, b, c, d -> },
 ) {
 
     val context = LocalContext.current
@@ -118,14 +120,21 @@ fun DualViewDialog(
     viewmodel.onEvent(TitleEvent.SearchQueryChanged(state.searchQuery))
 
     LaunchedEffect(Unit) {
+        viewmodel.onEvent(TitleEvent.InitTitleSelection(selectedTitle))
+
+        when(dialogState) {
+            is DialogState.Subtitles -> viewmodel.onEvent(TitleEvent.ShowSubtitles(dialogState.items))
+            is DialogState.Titles -> viewmodel.onEvent(TitleEvent.ShowTitles(dialogState.items))
+        }
+
         viewmodel.events.collect { event ->
             when (event) {
                 is TitlesDialogEvent.SelectionConfirmed -> {
                     onItemSelected(
                         event.titleId,
                         event.titleName,
-                        event.subTitleName,
-                        event.subTitleId
+                        event.subTitleId,
+                        event.subTitleName
                     )
                     onDismiss()
                 }
@@ -542,9 +551,9 @@ fun DualViewDialog(
                                         isLastItem = isLast,
                                         modifier = Modifier,
                                         subtitle = subtitle,
-                                        isSelected = state.selectedTitleId == subtitle.id,
+                                        isSelected = state.selectedSubTitleId == subtitle.id,
                                         onClick = {
-                                            viewmodel.onEvent(TitleEvent.SubtitleClicked(subtitle.id))
+                                            viewmodel.onEvent(TitleEvent.SubtitleClicked(subtitle))
                                         }
                                     )
                                 }
@@ -968,8 +977,8 @@ fun TitleItem(
             text = title.name ?: "",
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (isSelected) Golden60 else LightBlack,
+            fontWeight = if (isSelected && title.subTitles.isNullOrEmpty()) FontWeight.SemiBold else FontWeight.Normal,
+            color = if (isSelected && title.subTitles.isNullOrEmpty()) Golden60 else LightBlack,
             modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
             //modifier = Modifier.weight(1f)
         )

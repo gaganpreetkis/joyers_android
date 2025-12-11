@@ -6,6 +6,7 @@ data class ResetPasswordUiState (
     val isPhoneMode: Boolean = false,
     val isPasswordFocused: Boolean = false,
     val isConfirmPasswordFocused: Boolean = false,
+    val isLoginApiSuccess: Boolean = false,
     val identifierValue: String = "",
     val selectedCountryCode: String = "",
     val selectedCountryNameCode: String = "",

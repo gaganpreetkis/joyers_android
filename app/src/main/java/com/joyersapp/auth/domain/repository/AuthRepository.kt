@@ -44,7 +44,7 @@ interface AuthRepository {
     suspend fun login(params: LoginRequestDto): Result<LoginResponseDto>
     suspend fun fetchTitles(): Result<List<Title>>
 
-    suspend fun multiStepRegister(params: MultiStepRegisterRequestDto): Result<MultiStepRegisterResponseDto>
+    suspend fun multiStepRegister(params: MultiStepRegisterRequestDto, profilePicturePath: String, backgroundPicturePath: String): Result<MultiStepRegisterResponseDto>
 
     suspend fun logout()
 

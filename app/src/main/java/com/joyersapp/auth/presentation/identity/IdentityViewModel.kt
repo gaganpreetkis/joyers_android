@@ -36,8 +36,60 @@ class IdentityViewModel @Inject constructor(
                 loadTitles()
             }
 
+            is TitleEvent.InitTitleSelection -> {
+                val title = event.title
+                var selectedSubTitleId: String? = null
+                var selectedSubTitleName: String? = null
+                if (title?.subTitles != null && title.subTitles.isNotEmpty()) {
+                    selectedSubTitleId = title.subTitles.first().id
+                    selectedSubTitleName = title.subTitles.first().name
+                }
+                _uiState.update {
+                    it.copy(
+                        selectedTitleId = title?.id,
+                        selectedTitleName = title?.name,
+                        selectedSubTitleName = selectedSubTitleName,
+                        selectedSubTitleId = selectedSubTitleId
+                    )
+                }
+            }
+
             is TitleEvent.TitleClicked -> {
                 val title = event.title!!
+                if (title.subTitles.size > 0) {
+                    _uiState.update {
+                        it.copy(
+                            selectedTitleId = title.id,
+                            selectedTitleName = title.name,
+                            selectedSubTitleName = null,
+                            selectedSubTitleId = null,
+                            dialogState = DialogState.Subtitles(title.name, title.subTitles)
+                        )
+                    }
+                    onEvent(TitleEvent.ShowSubtitles(title.subTitles))
+                } else {
+                    if (title.id == _uiState.value.selectedTitleId) {
+                        _uiState.update {
+                            it.copy(
+                                selectedTitleId = null,
+                                selectedTitleName = null,
+                                selectedSubTitleName = null,
+                                selectedSubTitleId = null
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                selectedTitleId = title.id,
+                                selectedTitleName = title.name,
+                                selectedSubTitleName = null,
+                                selectedSubTitleId = null
+                            )
+                        }
+                    }
+                    //recalcTitles(_uiState.value,_uiState.value.titles)
+                }
+                /*val title = event.title!!
                 if (title.subTitles.size > 0) {
                     _uiState.update {
                         it.copy(
@@ -68,7 +120,33 @@ class IdentityViewModel @Inject constructor(
                             )
                         }
                     }
+                }*/
+            }
+
+            is TitleEvent.SubtitleClicked -> {
+                val subTitle = event.subtitle!!
+                if (subTitle.id == _uiState.value.selectedSubTitleId) {
+                    _uiState.update {
+                        it.copy(
+                            selectedSubTitleId = null,
+                            selectedSubTitleName = null
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            selectedSubTitleId = subTitle.id,
+                            selectedSubTitleName = subTitle.name,
+                        )
+                    }
                 }
+                /*_uiState.update { old ->
+                    val newState = old.copy(
+                        selectedTitleId = event.subtitleId, // or separate selectedSubtitleId if you prefer
+//                        showApply = true
+                    )
+                    recalc(newState)
+                }*/
             }
 
             is TitleEvent.SelectionClicked -> {
@@ -113,22 +191,12 @@ class IdentityViewModel @Inject constructor(
                 }
             }
 
-            is TitleEvent.SubtitleClicked -> {
-                _uiState.update { old ->
-                    val newState = old.copy(
-                        selectedTitleId = event.subtitleId, // or separate selectedSubtitleId if you prefer
-//                        showApply = true
-                    )
-                    recalc(newState)
-                }
-            }
-
             is TitleEvent.ShowTitles -> {
                 _uiState.update {
                     recalc(
                         it.copy(
                             dialogState = DialogState.Titles(event.items),
-                            selectedTitleId = it.selectedTitleId, // keep selection if needed
+                            selectedTitleId = null, // keep selection if needed
                         )
                     )
                 }
@@ -224,10 +292,10 @@ class IdentityViewModel @Inject constructor(
             }
 
         val reordered =
-            if (!state.selectedTitleId.isNullOrEmpty()) {
-                val selected = filteredSubtitles.find { it.id == state.selectedTitleId }
+            if (!state.selectedSubTitleId.isNullOrEmpty()) {
+                val selected = filteredSubtitles.find { it.id == state.selectedSubTitleId }
                 if (selected != null/* && (selected.subtitles == null || selected.subtitles.isEmpty())*/) {
-                    listOf(selected) + filteredSubtitles.filter { it.id != state.selectedTitleId }
+                    listOf(selected) + filteredSubtitles.filter { it.id != state.selectedSubTitleId }
                 } else {
                     filteredSubtitles
                 }
@@ -279,12 +347,20 @@ class IdentityViewModel @Inject constructor(
     private fun confirmSelection() {
         val state = _uiState.value
         viewModelScope.launch {
+            if (state.dialogState is DialogState.Subtitles) {
+                _uiState.update {
+                    it.copy(
+                        subTitles = state.dialogState.items
+                    )
+                }
+            }
+
             _events.emit(
                 TitlesDialogEvent.SelectionConfirmed(
                     titleId = state.selectedTitleId,
                     titleName = state.selectedTitleName,
                     subTitleId = state.selectedSubTitleId,
-                    subTitleName = state.selectedSubTitleName
+                    subTitleName = state.selectedSubTitleName,
                 )
             )
         }

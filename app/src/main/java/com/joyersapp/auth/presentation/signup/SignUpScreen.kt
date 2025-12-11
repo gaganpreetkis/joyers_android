@@ -66,6 +66,7 @@ import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.joyersapp.R
+import com.joyersapp.auth.presentation.signup.SignupNavigationEvent.*
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
 import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
@@ -95,7 +96,7 @@ import kotlin.text.replace
 @Preview
 @Composable
 fun SignUpScreen(
-    onSignUpClick: () -> Unit = {},
+    onSignUpClick: (token: String, userId: String) -> Unit = { _, _ -> },
     onLogInClick: () -> Unit = {},
     viewModel: SignupViewModel = hiltViewModel()
 
@@ -117,11 +118,10 @@ fun SignUpScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvents.collect { event ->
             when(event) {
-                SignupNavigationEvent.RegistrationCompleted -> {
-                    onSignUpClick()
-                    }
-
-                SignupNavigationEvent.NavigateToLogin -> {}
+                is SignupNavigationEvent.NavigateToLogin -> {}
+                is SignupNavigationEvent.RegistrationCompleted -> {
+                    onSignUpClick(event.token, event.userId)
+                }
             }
             }
         }
@@ -501,6 +501,7 @@ fun SignUpScreen(
                                 fontWeight = FontWeight.Normal,
                                 lineHeight = 20.sp,
                                 modifier = Modifier
+                                    .padding(top = 0.dp)
                                     .align(Alignment.CenterHorizontally)
                             )
                         }

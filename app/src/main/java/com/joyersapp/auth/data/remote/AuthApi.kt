@@ -20,7 +20,9 @@ import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -85,8 +87,14 @@ interface AuthApi {
     @Multipart
     @POST("auth/multistep-register")
     suspend fun multiStepRegister(
-        @Part body: MultiStepRegisterRequestDto/*,
+        @Header("Authorization") token: String,
+        @Part("id") id: RequestBody,
+        @Part("name") name: RequestBody,
+        @Part("joyer_location") joyerLocation: RequestBody,
+        @Part("joyer_status") joyerStatus: RequestBody,
+        @Part("title") title: RequestBody,
+        @Part("sub_title") subTitle: RequestBody,
         @Part profilePicture: MultipartBody.Part,
-        @Part backgroundPicture: MultipartBody.Part*/
+        @Part backgroundPicture: MultipartBody.Part
     ): MultiStepRegisterResponseDto
 }

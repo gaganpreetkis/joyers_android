@@ -35,6 +35,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,8 +74,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
+import com.joyersapp.auth.data.remote.dto.identity.SubTitle
+import com.joyersapp.auth.data.remote.dto.identity.Title
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.DashedLine
+import com.joyersapp.common_widgets.DialogState
 import com.joyersapp.common_widgets.DualViewDialog
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
@@ -91,18 +95,26 @@ import com.joyersapp.utils.containsEmoji
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isAllowedIdentityNameChars
 import com.joyersapp.utils.isValidNameAdvanced
+import com.joyersapp.utils.uriToFile
 import kotlinx.coroutines.launch
-@Preview
+//@Preview
 @Composable
 fun IdentityScreen(
+    userId: String,
+    token: String,
     initialPage: Int = 0,
     viewmodel: IdentityViewModel = hiltViewModel(),
+    viewModel2: IdentityViewModel2 = hiltViewModel(),
 //    preferencesManager: PreferencesManager,
 //    activity: AppCompatActivity,
     onNavigateBack: () -> Unit = {},
     onNavigateToNext: () -> Unit = {}
 ) {
 
+    val stateTitle by viewmodel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel2.uiState.collectAsStateWithLifecycle()
+    viewModel2.onEvent(IdentityEvent.UserIdChanged(userId))
+    viewModel2.onEvent(IdentityEvent.TokenChanged(token))
     val context = LocalContext.current
     val pagerState = rememberPagerState(initialPage = initialPage) { 3 }
     var currentPage by remember { mutableStateOf(initialPage) }
@@ -228,6 +240,7 @@ fun IdentityScreen(
             ) { page ->
                 when (page) {
                     0 -> PageOneContent(
+                        viewModel2 = viewModel2,
                         onNext = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page + 1)
@@ -239,6 +252,7 @@ fun IdentityScreen(
 //                        activity = activity
                     )
                     1 -> PageTwoContent(
+                        viewModel2 = viewModel2,
                         onNext = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page + 1)
@@ -254,6 +268,7 @@ fun IdentityScreen(
 ////                        activity = activity
                     )
                     2 -> PageThreeContent(
+                        viewModel2 = viewModel2,
                         onBack = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(page - 1)
@@ -269,12 +284,29 @@ fun IdentityScreen(
             }
         }
     }
+
+    // Progress bar overlay
+    if (state.isLoading || stateTitle.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = Golden60,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+    }
+
 }
 
 
 
 @Composable
 fun PageOneContent(
+    viewModel2: IdentityViewModel2,
     onNext: () -> Unit,
     onNavigateToNext: () -> Unit,
 //    signupViewModel: SignupViewModel? = null,
@@ -318,6 +350,10 @@ fun PageOneContent(
         uri?.let {
             profileImageUri = it
             showProfilePlaceholder = false
+            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri!!)
+                viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    val scope = (context as? AppCompatActivity)?.lifecycleScope
@@ -438,6 +474,7 @@ fun PageOneContent(
                                 headerImageUri = null
                                 showHeaderPicker = true
                                 headerPath = null
+                                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(""))
                             }
                     )
                 } else {
@@ -547,6 +584,7 @@ fun PageOneContent(
                                     profileImageUri = null
                                     showProfilePlaceholder = true
                                     imagePath = null
+                                    viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(""))
                                 }
                         )
                     }
@@ -604,6 +642,7 @@ fun PageOneContent(
                 onValueChange = {
                     if (it.length <= maxLength) {
                         username = it
+                        viewModel2.onEvent(IdentityEvent.NameChanged(it))
                         if (it.isEmpty()) {
                             remainingChars = maxLength - it.length
                             usernameError = null
@@ -694,6 +733,7 @@ fun PageOneContent(
                     ) { code, name, flag, _ ->
                         countryName = name
                         selectedCountryCode = code
+                        viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
                     }
                 },
             contentAlignment = Alignment.Center
@@ -724,9 +764,11 @@ fun PageOneContent(
                             ) { code, name, flag, _ ->
                                 countryName = name
                                 selectedCountryCode = code
+                                viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
                             }
                         } else {
                             countryName = ""
+                            viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
                         }
                     }
                 )
@@ -817,6 +859,10 @@ fun PageOneContent(
         onImagesPicked = { uris ->
             profileImageUri = uris[0]
             showProfilePlaceholder = false
+            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri!!)
+                viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    activity?.lifecycleScope?.launch {
@@ -831,6 +877,10 @@ fun PageOneContent(
         onCameraImagePicked = { uri ->
             profileImageUri = uri
             showProfilePlaceholder = false
+            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri!!)
+                viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    activity?.lifecycleScope?.launch {
@@ -852,6 +902,10 @@ fun PageOneContent(
         onImagesPicked = { uris ->
             headerImageUri = uris[0]
             showHeaderPicker = false
+            if (headerImageUri != null && headerImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, headerImageUri!!)
+                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    activity?.lifecycleScope?.launch {
@@ -866,6 +920,10 @@ fun PageOneContent(
         onCameraImagePicked = { uri ->
             headerImageUri = uri
             showHeaderPicker = false
+            if (headerImageUri != null && headerImageUri?.path!!.isNotEmpty()) {
+                val file = uriToFile(context, headerImageUri!!)
+                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
+            }
 //            signupViewModel?.let { vm ->
 //                preferencesManager?.let { pm ->
 //                    activity?.lifecycleScope?.launch {
@@ -882,6 +940,7 @@ fun PageOneContent(
 
 @Composable
 fun PageTwoContent(
+    viewModel2: IdentityViewModel2,
     onNext: () -> Unit,
     onBack: () -> Unit,
 //    signupViewModel: SignupViewModel? = null,
@@ -960,6 +1019,7 @@ fun PageTwoContent(
                         )
                         .clickable {
                             selectedStatus = if (selectedStatus == statusKey) null else statusKey
+                            viewModel2.onEvent(IdentityEvent.JoyerStatusChanged(selectedStatus ?: ""))
                         }
                         .padding(17.dp),
                     contentAlignment = Alignment.Center
@@ -1135,6 +1195,7 @@ fun PageTwoContent(
 
 @Composable
 fun PageThreeContent(
+    viewModel2: IdentityViewModel2,
     onBack: () -> Unit,
     onNavigateToNext: () -> Unit,
     viewmodel: IdentityViewModel,
@@ -1142,7 +1203,9 @@ fun PageThreeContent(
 //    activity: AppCompatActivity? = null
 ) {
     val state by viewmodel.uiState.collectAsStateWithLifecycle()
-    var selectedTitle by remember { mutableStateOf<String?>(null) }
+    val state2 by viewModel2.uiState.collectAsStateWithLifecycle()
+    var dialogState by remember { mutableStateOf(state.dialogState) }
+    var selectedTitle by remember { mutableStateOf<Title?>(null) }
     var selectedTitleId by remember { mutableStateOf<String?>(null) }
     var showNextButton by remember { mutableStateOf(false) }
     var showTitleDialog by remember { mutableStateOf(false) }
@@ -1150,82 +1213,25 @@ fun PageThreeContent(
     val goldenColor = Golden60
     val lightBlackColor = LightBlack
     val whiteColor = Color.White
-/*
 
-//    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()
-//    val userInfoResponse = signupViewModel?.userInfoResponse?.observeAsState()
-    var titles by remember { mutableStateOf<List<Title>>(emptyList()) }
+    // ----- state helpers -----
+    val hasTitleSelected = selectedTitle?.id != null
+    val selectedSubTitle = selectedTitle?.subTitles?.firstOrNull()
+    val hasSubTitleSelected = selectedSubTitle?.id != null
 
-    val student = arrayListOf<Subtitle>(
-        Subtitle(uuid = "12", name = "Associate's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "13", name = "Bachelor's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "14", name = "Diploma Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "15", name = "Doctoral Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "16", name = "Elementary School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "17", name = "High School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "18", name = "Kindergartener", description = "Refers to children (5 years).", subtitles = arrayListOf()),
-        Subtitle(uuid = "19", name = "Master's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "20", name = "Middle School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "21", name = "Postgraduate Diploma Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "22", name = "Preschooler", description = "Refers to children (3-4 years).", subtitles = arrayListOf()),
-        Subtitle(uuid = "23", name = "Other Student", description = "", subtitles = arrayListOf())
-    )
-    titles = arrayListOf(
-        Title(_id = "1", title = "Baby Joyers", decriptionTitle = "Refers to infants and toddlers (0-2 years).", subtitles = arrayListOf()),
-        Title(_id = "2", title = "Couple", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "3", title = "Family", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "4", title = "Friends", decriptionTitle = "Two or more Joyers who share their activities with other Joyers.", subtitles = arrayListOf()),
-        Title(_id = "5", title = "Ghost", decriptionTitle = "Only the account owner can see the followers and following of a Ghost Joyer. This information is completely hidden from everyone else.", subtitles = arrayListOf()),
-        Title(_id = "6", title = "Nickname", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "7", title = "Pet", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "8", title = "Royalty & Nobility", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "9", title = "Special Needs Joyer", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "10", title = "Student", decriptionTitle = "", subtitles = student),
-        Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
-    )
-*/
+    val itemCount = if (hasTitleSelected && hasSubTitleSelected) {
+        // Joyer status + title + subtitle
+        3
+    } else {
+        // Joyer status + title only
+        2
+    }
 
-    // Load titles
-//    LaunchedEffect(Unit) {
-//        preferencesManager?.let { pm ->
-//            activity?.lifecycleScope?.launch {
-//                val token = pm.getAccessToken()
-//                if (token != null) {
-//                    signupViewModel?.getTitles(token)
-//                }
-//            }
-//        }
-//    }
-
-//    LaunchedEffect(titlesApiResponse?.value) {
-//        titlesApiResponse?.value?.let { response ->
-//            val apiResultHandler = ApiResultHandler<com.synapse.joyers.apiData.response.TitlesApiResponse>(
-//                context as AppCompatActivity,
-//                onLoading = { },
-//                onSuccess = {
-//                    titles = response.data?.data?.data ?: emptyList()
-//                },
-//                onFailure = { }
-//            )
-//            apiResultHandler.handleApiResult(response)
-//        }
-//    }
-
-//    LaunchedEffect(userInfoResponse?.value) {
-//        userInfoResponse?.value?.let { response ->
-//            val apiResultHandler = ApiResultHandler<BaseResponse>(
-//                context as AppCompatActivity,
-//                onLoading = { },
-//                onSuccess = {
-//                    val intent = Intent(context, com.synapse.joyers.ui.auth.JoyersAuthActivity::class.java)
-//                    context.startActivity(intent)
-//                    (context as AppCompatActivity).finish()
-//                },
-//                onFailure = { }
-//            )
-//            apiResultHandler.handleApiResult(response)
-//        }
-//    }
+    LaunchedEffect(state2.isMultiSelectRegisterApiSuccess) {
+        if (state2.isMultiSelectRegisterApiSuccess) {
+            onNavigateToNext()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -1234,10 +1240,10 @@ fun PageThreeContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LazyColumn {
-            items(2) {
+            items(itemCount) {
                 Spacer(modifier = Modifier.height(25.dp))
 // Joyers Status
-                if (it == 0) {
+                /*if (it == 0) {
                     Text(
                         text = context.getString(R.string.joyer_status),
                         fontSize = 18.sp,
@@ -1305,6 +1311,121 @@ fun PageThreeContent(
                             color = if (selectedTitle != null) whiteColor else goldenColor
                         )
                     }
+                }*/
+                when (it) {
+                    0 -> {
+                        // Joyers Status
+                        Text(
+                            text = context.getString(R.string.joyer_status),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor
+                        )
+                        Spacer(Modifier.height(5.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(55.dp)
+                                .background(
+                                    color = goldenColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.classic),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = fontFamilyLato,
+                                color = whiteColor
+                            )
+                        }
+                    }
+                    1 -> {
+                        //Title selection
+                        Text(
+                            text = stringResource(R.string.title),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor
+                        )
+                        Spacer(Modifier.height(5.dp))
+// Title selection button
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(55.dp)
+                                .background(
+                                    color = if (hasTitleSelected) goldenColor else whiteColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .border(
+                                    width = if (hasTitleSelected) 0.dp else 1.dp,
+                                    color = goldenColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .clickable {
+//                                    selectedTitle = null
+                                    dialogState = DialogState.Titles(state.titles)
+                                    showTitleDialog = !showTitleDialog
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = selectedTitle?.name
+                                    ?: context.getString(R.string.select_title),
+                                fontSize = 16.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = if (hasTitleSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                color = if (hasTitleSelected) whiteColor else goldenColor
+                            )
+                        }
+                    }
+                    2 -> {
+                        //Title selection
+                        Text(
+                            text = stringResource(R.string.sub_title),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor
+                        )
+                        Spacer(Modifier.height(5.dp))
+
+// SubTitle selection button
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(55.dp)
+                                .background(
+                                    color = if (hasSubTitleSelected) goldenColor else whiteColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .border(
+                                    width = if (hasSubTitleSelected) 0.dp else 1.dp,
+                                    color = goldenColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .clickable {
+//                                    selectedTitle = selectedTitle?.copy(
+//                                        subTitles = arrayListOf()
+//                                    )
+                                    dialogState = DialogState.Subtitles(selectedSubTitle?.id, state.subTitles)
+                                    showTitleDialog = !showTitleDialog
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = selectedSubTitle?.name ?: context.getString(R.string.select_title),
+                                fontSize = 16.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = if (hasSubTitleSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                color = if (hasSubTitleSelected) whiteColor else goldenColor
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -1323,7 +1444,8 @@ fun PageThreeContent(
                         .background(goldenColor, CircleShape)
                         .clickable {
                             // API call would go here
-                            onNavigateToNext()
+                            viewModel2.onEvent(IdentityEvent.OnMultiStepRegister)
+                            //onNavigateToNext()
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -1342,14 +1464,33 @@ fun PageThreeContent(
     // Title Selection Dialog
     if (showTitleDialog) {
         DualViewDialog(
+            selectedTitle = selectedTitle,
+            dialogState = dialogState,
+            viewmodel = viewmodel,
             onDismiss = { showTitleDialog = false },
             onItemSelected = { titleId, titleName, subTitleId, subTitleName ->
-                selectedTitle = titleName
+                /*selectedTitle = titleName
                 selectedTitleId = titleId
                 showNextButton = true
                 showTitleDialog = false
+                viewModel2.onEvent(IdentityEvent.TitleIdChanged(selectedTitleId ?: ""))
+                viewModel2.onEvent(IdentityEvent.SubTitleIdChanged(subTitleId ?: ""))*/
+                selectedTitle = Title(          // or selectedTitle?.copy(...)
+                    id = titleId,
+                    name = titleName,
+                    subTitles = arrayListOf(
+                        SubTitle(
+                            id = subTitleId,
+                            name = subTitleName,
+                        )
+                    )
+                )
+                showNextButton = true
+                showTitleDialog = false
+
+                viewModel2.onEvent(IdentityEvent.TitleIdChanged(titleId ?: ""))
+                viewModel2.onEvent(IdentityEvent.SubTitleIdChanged(subTitleId ?: ""))
             },
-            viewmodel = viewmodel,
         )
     }
 

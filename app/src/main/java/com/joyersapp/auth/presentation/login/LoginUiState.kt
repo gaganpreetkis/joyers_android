@@ -13,6 +13,7 @@ data class LoginUiState (
     val isPhoneMode: Boolean = false,
     val showSocialDialog: Boolean = false,
     val rememberMe: Boolean = false,
+    val isLoginApiSuccess: Boolean = false,
     val selectedCountryCode: String = "+1",
     val selectedCountryNameCode: String = "US",
 )

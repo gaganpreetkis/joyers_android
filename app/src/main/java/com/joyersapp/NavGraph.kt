@@ -34,7 +34,7 @@ sealed class Routes(val route: String) {
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.Identity.route
+        startDestination = Routes.Splash.route
     ) {
 
         composable(Routes.Splash.route) {
@@ -50,6 +50,11 @@ fun AppNavGraph(navController: NavHostController) {
                 navController.navigate(Routes.SignUp.route)
             }, onForgotPasswordClick = {
                 navController.navigate(Routes.ForgotPassword.route)
+            }, onLoginSuccess = {
+                navController.navigate(Routes.SplashVideo.route) {
+                    popUpTo(0)
+                    launchSingleTop = true
+                }
             })
 
         }
@@ -57,8 +62,11 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Routes.SignUp.route) {
             SignUpScreen(
 //                isValidUsername = { isValidUsername(it) },
-                onSignUpClick = {
-                    navController.navigate(Routes.Identity.route)
+                onSignUpClick = { token, userId ->
+                    val encodedUserId = URLEncoder.encode(userId, "UTF-8")
+                    val encodedToken = URLEncoder.encode(token, "UTF-8")
+
+                    navController.navigate("${Routes.Identity.route}/$encodedUserId/$encodedToken")
                 },
                 onLogInClick = {
                     navController.navigate(Routes.Login.route) {
@@ -69,14 +77,42 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        composable(Routes.Identity.route) {
+        composable(
+            route = "${Routes.Identity.route}/{userId}/{token}",
+            arguments = listOf(
+                navArgument("userId") { type = NavType.StringType },
+                navArgument("token") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+
+            val userId = backStackEntry.arguments?.getString("userId")?.let {
+                URLDecoder.decode(it, "UTF-8")
+            } ?: ""
+
+            val token = backStackEntry.arguments?.getString("token")?.let {
+                URLDecoder.decode(it, "UTF-8")
+            } ?: ""
+
+            IdentityScreen(
+                userId = userId,
+                token = token,
+                onNavigateToNext = {
+                    navController.navigate(Routes.JoyersOath.route) {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        /*composable(Routes.Identity.route) {
             IdentityScreen(0, onNavigateToNext = {
                 navController.navigate(Routes.JoyersOath.route) {
                     popUpTo(0)
                     launchSingleTop = true
                 }
             })
-        }
+        }*/
 
         composable(Routes.ForgotPassword.route) {
             ForgotPasswordScreen(
@@ -162,6 +198,12 @@ fun AppNavGraph(navController: NavHostController) {
                 verificationCode = verificationCode,
                 onLoginClick = {
                     navController.navigate(Routes.Login.route) {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
+                },
+                onLoginSuccess = {
+                    navController.navigate(Routes.SplashVideo.route) {
                         popUpTo(0)
                         launchSingleTop = true
                     }
