@@ -151,7 +151,11 @@ class ForgotPasswordViewModel @Inject constructor(
             if (Patterns.EMAIL_ADDRESS.matcher(state.usernameEmail).matches()) {
                 params.email = state.usernameEmail
             } else {
-                params.username = state.usernameEmail
+                if (state.usernameEmail.startsWith("@")) {
+                    params.username = state.usernameEmail.removePrefix("@")
+                } else {
+                    params.username = state.usernameEmail
+                }
             }
         }
         if (params.username.isBlank() && params.email.isBlank() && params.country_code.isBlank() && params.mobile.isBlank()) return
