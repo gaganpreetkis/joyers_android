@@ -10,6 +10,7 @@ data class TitlesDialogUiState(
 
     val dialogState: DialogState = DialogState.Titles(emptyList()),
     val titles: List<Title> = emptyList(),
+    val subTitles: List<SubTitle> = emptyList(),
 
     val selectedTitleId: String? = null,
     val selectedSubTitleId: String? = null,
@@ -30,7 +31,7 @@ data class TitlesDialogUiState(
     val showNoResults: Boolean = false
 ) {
     val showApply = when(dialogState) {
-        is DialogState.Titles -> { !selectedTitleId.isNullOrEmpty() && reorderedTitles.find { it.id == selectedTitleId } != null }
+        is DialogState.Titles -> { !selectedTitleId.isNullOrEmpty() && reorderedTitles.find { it.id == selectedTitleId } != null && reorderedTitles.find { it.id == selectedTitleId }?.subTitles?.isEmpty() == true}
         is DialogState.Subtitles -> { !selectedSubTitleId.isNullOrEmpty() && reorderedSubtitles.find { it.id == selectedSubTitleId } != null }
     }
 }

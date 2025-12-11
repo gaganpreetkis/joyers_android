@@ -15,7 +15,8 @@ sealed class TitleEvent {
 
     data class ExpandClassifications(val isExpanded: Boolean) : TitleEvent()
     data class TitleClicked(val title : Title?) : TitleEvent()
-    data class SubtitleClicked(val subtitleId: String?) : TitleEvent()
+    data class SubtitleClicked(val subtitle: SubTitle?) : TitleEvent()
+    data class InitTitleSelection(val title : Title?) : TitleEvent()
 
     data class ShowTitles(val items: List<Title>) : TitleEvent()
     data class ShowSubtitles(val items: List<SubTitle>) : TitleEvent()

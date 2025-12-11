@@ -35,6 +35,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,8 +74,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
+import com.joyersapp.auth.data.remote.dto.identity.SubTitle
+import com.joyersapp.auth.data.remote.dto.identity.Title
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.DashedLine
+import com.joyersapp.common_widgets.DialogState
 import com.joyersapp.common_widgets.DualViewDialog
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
@@ -107,6 +111,7 @@ fun IdentityScreen(
     onNavigateToNext: () -> Unit = {}
 ) {
 
+    val stateTitle by viewmodel.uiState.collectAsStateWithLifecycle()
     val state by viewModel2.uiState.collectAsStateWithLifecycle()
     viewModel2.onEvent(IdentityEvent.UserIdChanged(userId))
     viewModel2.onEvent(IdentityEvent.TokenChanged(token))
@@ -279,6 +284,22 @@ fun IdentityScreen(
             }
         }
     }
+
+    // Progress bar overlay
+    if (state.isLoading || stateTitle.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = Golden60,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+    }
+
 }
 
 
@@ -1183,7 +1204,8 @@ fun PageThreeContent(
 ) {
     val state by viewmodel.uiState.collectAsStateWithLifecycle()
     val state2 by viewModel2.uiState.collectAsStateWithLifecycle()
-    var selectedTitle by remember { mutableStateOf<String?>(null) }
+    var dialogState by remember { mutableStateOf(state.dialogState) }
+    var selectedTitle by remember { mutableStateOf<Title?>(null) }
     var selectedTitleId by remember { mutableStateOf<String?>(null) }
     var showNextButton by remember { mutableStateOf(false) }
     var showTitleDialog by remember { mutableStateOf(false) }
@@ -1192,87 +1214,24 @@ fun PageThreeContent(
     val lightBlackColor = LightBlack
     val whiteColor = Color.White
 
+    // ----- state helpers -----
+    val hasTitleSelected = selectedTitle?.id != null
+    val selectedSubTitle = selectedTitle?.subTitles?.firstOrNull()
+    val hasSubTitleSelected = selectedSubTitle?.id != null
+
+    val itemCount = if (hasTitleSelected && hasSubTitleSelected) {
+        // Joyer status + title + subtitle
+        3
+    } else {
+        // Joyer status + title only
+        2
+    }
+
     LaunchedEffect(state2.isMultiSelectRegisterApiSuccess) {
         if (state2.isMultiSelectRegisterApiSuccess) {
             onNavigateToNext()
         }
     }
-/*
-
-//    val titlesApiResponse = signupViewModel?.titlesApiResponse?.observeAsState()
-//    val userInfoResponse = signupViewModel?.userInfoResponse?.observeAsState()
-    var titles by remember { mutableStateOf<List<Title>>(emptyList()) }
-
-    val student = arrayListOf<Subtitle>(
-        Subtitle(uuid = "12", name = "Associate's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "13", name = "Bachelor's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "14", name = "Diploma Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "15", name = "Doctoral Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "16", name = "Elementary School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "17", name = "High School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "18", name = "Kindergartener", description = "Refers to children (5 years).", subtitles = arrayListOf()),
-        Subtitle(uuid = "19", name = "Master's Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "20", name = "Middle School Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "21", name = "Postgraduate Diploma Student", description = "", subtitles = arrayListOf()),
-        Subtitle(uuid = "22", name = "Preschooler", description = "Refers to children (3-4 years).", subtitles = arrayListOf()),
-        Subtitle(uuid = "23", name = "Other Student", description = "", subtitles = arrayListOf())
-    )
-    titles = arrayListOf(
-        Title(_id = "1", title = "Baby Joyers", decriptionTitle = "Refers to infants and toddlers (0-2 years).", subtitles = arrayListOf()),
-        Title(_id = "2", title = "Couple", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "3", title = "Family", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "4", title = "Friends", decriptionTitle = "Two or more Joyers who share their activities with other Joyers.", subtitles = arrayListOf()),
-        Title(_id = "5", title = "Ghost", decriptionTitle = "Only the account owner can see the followers and following of a Ghost Joyer. This information is completely hidden from everyone else.", subtitles = arrayListOf()),
-        Title(_id = "6", title = "Nickname", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "7", title = "Pet", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "8", title = "Royalty & Nobility", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "9", title = "Special Needs Joyer", decriptionTitle = "", subtitles = arrayListOf()),
-        Title(_id = "10", title = "Student", decriptionTitle = "", subtitles = student),
-        Title(_id = "11", title = "Typical Joyer", decriptionTitle = "Represents the regular Joyers.", subtitles = arrayListOf()),
-    )
-*/
-
-    // Load titles
-//    LaunchedEffect(Unit) {
-//        preferencesManager?.let { pm ->
-//            activity?.lifecycleScope?.launch {
-//                val token = pm.getAccessToken()
-//                if (token != null) {
-//                    signupViewModel?.getTitles(token)
-//                }
-//            }
-//        }
-//    }
-
-//    LaunchedEffect(titlesApiResponse?.value) {
-//        titlesApiResponse?.value?.let { response ->
-//            val apiResultHandler = ApiResultHandler<com.synapse.joyers.apiData.response.TitlesApiResponse>(
-//                context as AppCompatActivity,
-//                onLoading = { },
-//                onSuccess = {
-//                    titles = response.data?.data?.data ?: emptyList()
-//                },
-//                onFailure = { }
-//            )
-//            apiResultHandler.handleApiResult(response)
-//        }
-//    }
-
-//    LaunchedEffect(userInfoResponse?.value) {
-//        userInfoResponse?.value?.let { response ->
-//            val apiResultHandler = ApiResultHandler<BaseResponse>(
-//                context as AppCompatActivity,
-//                onLoading = { },
-//                onSuccess = {
-//                    val intent = Intent(context, com.synapse.joyers.ui.auth.JoyersAuthActivity::class.java)
-//                    context.startActivity(intent)
-//                    (context as AppCompatActivity).finish()
-//                },
-//                onFailure = { }
-//            )
-//            apiResultHandler.handleApiResult(response)
-//        }
-//    }
 
     Column(
         modifier = Modifier
@@ -1281,10 +1240,10 @@ fun PageThreeContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LazyColumn {
-            items(2) {
+            items(itemCount) {
                 Spacer(modifier = Modifier.height(25.dp))
 // Joyers Status
-                if (it == 0) {
+                /*if (it == 0) {
                     Text(
                         text = context.getString(R.string.joyer_status),
                         fontSize = 18.sp,
@@ -1352,6 +1311,121 @@ fun PageThreeContent(
                             color = if (selectedTitle != null) whiteColor else goldenColor
                         )
                     }
+                }*/
+                when (it) {
+                    0 -> {
+                        // Joyers Status
+                        Text(
+                            text = context.getString(R.string.joyer_status),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor
+                        )
+                        Spacer(Modifier.height(5.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(55.dp)
+                                .background(
+                                    color = goldenColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.classic),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = fontFamilyLato,
+                                color = whiteColor
+                            )
+                        }
+                    }
+                    1 -> {
+                        //Title selection
+                        Text(
+                            text = stringResource(R.string.title),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor
+                        )
+                        Spacer(Modifier.height(5.dp))
+// Title selection button
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(55.dp)
+                                .background(
+                                    color = if (hasTitleSelected) goldenColor else whiteColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .border(
+                                    width = if (hasTitleSelected) 0.dp else 1.dp,
+                                    color = goldenColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .clickable {
+//                                    selectedTitle = null
+                                    dialogState = DialogState.Titles(state.titles)
+                                    showTitleDialog = !showTitleDialog
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = selectedTitle?.name
+                                    ?: context.getString(R.string.select_title),
+                                fontSize = 16.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = if (hasTitleSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                color = if (hasTitleSelected) whiteColor else goldenColor
+                            )
+                        }
+                    }
+                    2 -> {
+                        //Title selection
+                        Text(
+                            text = stringResource(R.string.sub_title),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor
+                        )
+                        Spacer(Modifier.height(5.dp))
+
+// SubTitle selection button
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(55.dp)
+                                .background(
+                                    color = if (hasSubTitleSelected) goldenColor else whiteColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .border(
+                                    width = if (hasSubTitleSelected) 0.dp else 1.dp,
+                                    color = goldenColor,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .clickable {
+//                                    selectedTitle = selectedTitle?.copy(
+//                                        subTitles = arrayListOf()
+//                                    )
+                                    dialogState = DialogState.Subtitles(selectedSubTitle?.id, state.subTitles)
+                                    showTitleDialog = !showTitleDialog
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = selectedSubTitle?.name ?: context.getString(R.string.select_title),
+                                fontSize = 16.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = if (hasSubTitleSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                color = if (hasSubTitleSelected) whiteColor else goldenColor
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -1390,16 +1464,33 @@ fun PageThreeContent(
     // Title Selection Dialog
     if (showTitleDialog) {
         DualViewDialog(
+            selectedTitle = selectedTitle,
+            dialogState = dialogState,
+            viewmodel = viewmodel,
             onDismiss = { showTitleDialog = false },
             onItemSelected = { titleId, titleName, subTitleId, subTitleName ->
-                selectedTitle = titleName
+                /*selectedTitle = titleName
                 selectedTitleId = titleId
                 showNextButton = true
                 showTitleDialog = false
                 viewModel2.onEvent(IdentityEvent.TitleIdChanged(selectedTitleId ?: ""))
+                viewModel2.onEvent(IdentityEvent.SubTitleIdChanged(subTitleId ?: ""))*/
+                selectedTitle = Title(          // or selectedTitle?.copy(...)
+                    id = titleId,
+                    name = titleName,
+                    subTitles = arrayListOf(
+                        SubTitle(
+                            id = subTitleId,
+                            name = subTitleName,
+                        )
+                    )
+                )
+                showNextButton = true
+                showTitleDialog = false
+
+                viewModel2.onEvent(IdentityEvent.TitleIdChanged(titleId ?: ""))
                 viewModel2.onEvent(IdentityEvent.SubTitleIdChanged(subTitleId ?: ""))
             },
-            viewmodel = viewmodel,
         )
     }
 
