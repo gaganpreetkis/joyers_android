@@ -358,6 +358,7 @@ class AuthRepositoryImpl @Inject constructor(
                 params.joyer_location.toRequestBody(),
                 params.joyer_status.toRequestBody(),
                 params.title.toRequestBody(),
+                params.sub_title.toRequestBody(),
                 profilePicture,
                 backgroundPicture,
             )

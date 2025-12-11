@@ -9,6 +9,7 @@ data class IdentityUiState(
     val joyerLocation: String = "",
     val joyerStatus: String = "",
     val titleId: String = "",
+    val subTitleId: String = "",
     val profilePicturePath: String = "",
     val backgroundPicturePath: String = "",
 )

@@ -51,6 +51,10 @@ class IdentityViewModel2 @Inject constructor(
                 _uiState.update { it.copy(titleId = event.value) }
             }
 
+            is IdentityEvent.SubTitleIdChanged -> {
+                _uiState.update { it.copy(subTitleId = event.value) }
+            }
+
             is IdentityEvent.ProfilePicturePathChanged -> {
                 _uiState.update { it.copy(profilePicturePath = event.value) }
             }
@@ -72,6 +76,7 @@ class IdentityViewModel2 @Inject constructor(
             joyer_location = state.joyerLocation,
             joyer_status = state.joyerStatus,
             title = state.titleId,
+            sub_title = state.subTitleId,
         )
         /*if (state.isPhoneMode) {
             params.country_code = state.selectedCountryCode

@@ -7,4 +7,5 @@ data class MultiStepRegisterRequestDto(
     var joyer_location: String = "",
     var joyer_status: String = "",
     var title: String = "",
+    var sub_title: String = "",
 )

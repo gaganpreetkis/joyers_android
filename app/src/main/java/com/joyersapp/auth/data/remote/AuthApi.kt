@@ -93,6 +93,7 @@ interface AuthApi {
         @Part("joyer_location") joyerLocation: RequestBody,
         @Part("joyer_status") joyerStatus: RequestBody,
         @Part("title") title: RequestBody,
+        @Part("sub_title") subTitle: RequestBody,
         @Part profilePicture: MultipartBody.Part,
         @Part backgroundPicture: MultipartBody.Part
     ): MultiStepRegisterResponseDto

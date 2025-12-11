@@ -1397,6 +1397,7 @@ fun PageThreeContent(
                 showNextButton = true
                 showTitleDialog = false
                 viewModel2.onEvent(IdentityEvent.TitleIdChanged(selectedTitleId ?: ""))
+                viewModel2.onEvent(IdentityEvent.SubTitleIdChanged(subTitleId ?: ""))
             },
             viewmodel = viewmodel,
         )
