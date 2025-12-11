@@ -18,4 +18,5 @@ sealed class ResetPasswordEvent {
     data class PasswordResetSuccessMessageChanged(val value: String) : ResetPasswordEvent()
     data class PasswordResetErrorMessageChanged(val value: String) : ResetPasswordEvent()
     data object OnVerifyButtonClicked : ResetPasswordEvent()
+    data object OnGetStartedButtonClicked : ResetPasswordEvent()
 }

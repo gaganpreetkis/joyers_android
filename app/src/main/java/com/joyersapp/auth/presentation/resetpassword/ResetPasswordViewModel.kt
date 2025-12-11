@@ -4,8 +4,11 @@ import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.joyersapp.auth.data.remote.dto.LoginRequestDto
 import com.joyersapp.auth.data.remote.dto.ResetPasswordRequestDto
+import com.joyersapp.auth.domain.usecase.LoginUseCase
 import com.joyersapp.auth.domain.usecase.ResetPasswordUseCase
+import com.joyersapp.auth.presentation.login.LoginEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Job
@@ -17,6 +20,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ResetPasswordViewModel @Inject constructor (
     private val resetPasswordUseCase: ResetPasswordUseCase,
+    private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ResetPasswordUiState())
     val uiState: StateFlow<ResetPasswordUiState> = _uiState
@@ -75,6 +79,9 @@ class ResetPasswordViewModel @Inject constructor (
             is ResetPasswordEvent.OnVerifyButtonClicked -> {
                 resetPassword()
             }
+            is ResetPasswordEvent.OnGetStartedButtonClicked -> {
+                login()
+            }
         }
     }
 
@@ -123,6 +130,58 @@ class ResetPasswordViewModel @Inject constructor (
                 },
                 onFailure = { error ->
                     _uiState.update { it.copy(isLoading = false, passwordResetErrorMessage = error.message ?: "Something went wrong") }
+                }
+            )
+        }
+    }
+
+    private fun login() {
+        val state = _uiState.value
+        val params = LoginRequestDto(
+            country_code = "",
+            mobile = "",
+            email = "",
+            username = "",
+            password = state.password
+        )
+        if (state.isPhoneMode) {
+            params.country_code = state.selectedCountryCode
+            params.mobile = state.identifierValue
+        } else {
+            if (Patterns.EMAIL_ADDRESS.matcher(state.identifierValue).matches()) {
+                params.email = state.identifierValue
+            } else {
+                params.username = state.identifierValue
+            }
+        }
+        if (params.username.isBlank() && params.email.isBlank() && params.country_code.isBlank() && params.mobile.isBlank()) return
+        onEvent(ResetPasswordEvent.LoadingChanged(true))
+        job?.cancel()
+        job = viewModelScope.launch {
+            val result = loginUseCase(params)
+            Log.e("login api", "result is: $result")
+            result.fold(
+                onSuccess = { response ->
+                    // Access your message here
+                    Log.e("login msg", response.message)
+
+                    if (response.statusCode == 200) {
+                        _uiState.update { it.copy(isLoading = false, /*apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = "",*/ isLoginApiSuccess = true/*, isVerificationSuccess = true*/) }
+                    } else {
+                        _uiState.update { it.copy(isLoading = false, /*apiErrorMessage = response.message*//*, verificationCodeError = response.message*/) }
+                    }
+                },
+                onFailure = { error ->
+                    if (error.message != null) {
+                        if (error.message!!.contains("password", true)) {
+                            _uiState.update { it.copy(isLoading = false, /*apiErrorMessage = error.message ?: "Something went wrong"*//*, verificationCodeError = error.message ?: "Something went wrong"*/) }
+                        } else {
+                            _uiState.update { it.copy(isLoading = false, /*apiOnlyUsernameErrorMessage = error.message ?: "Something went wrong"*//*, verificationCodeError = error.message ?: "Something went wrong"*/) }
+                        }
+                    } else {
+                        _uiState.update { it.copy(isLoading = false, /*apiFailedErrorMessage = "Login failed. Please try again."*//*, verificationCodeError = error.message ?: "Something went wrong"*/) }
+                    }
+
                 }
             )
         }

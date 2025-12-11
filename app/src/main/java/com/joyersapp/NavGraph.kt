@@ -202,6 +202,12 @@ fun AppNavGraph(navController: NavHostController) {
                         launchSingleTop = true
                     }
                 },
+                onLoginSuccess = {
+                    navController.navigate(Routes.SplashVideo.route) {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
+                },
                 onVerifyClick = { newPassword, confirmPassword ->
                     // TODO: Call API to reset password
                     // loginViewModel.resetPassword(...)
