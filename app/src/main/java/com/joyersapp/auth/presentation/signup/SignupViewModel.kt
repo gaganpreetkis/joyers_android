@@ -226,7 +226,19 @@ class SignupViewModel @Inject constructor(
                 }
             }
 
-            is SignupEvent.VerifyCode -> { verifyOtpRequest() }
+            is SignupEvent.VerifyCode -> {
+                val state = _uiState.value
+                if (state.isPhoneMode) {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            verificationError = "Validation code is incorrect or has expired.",
+                        )
+                    }
+                } else {
+                    verifyOtpRequest()
+                }
+            }
 
             is SignupEvent.PasswordChanged -> {
                 val state = _uiState.value
