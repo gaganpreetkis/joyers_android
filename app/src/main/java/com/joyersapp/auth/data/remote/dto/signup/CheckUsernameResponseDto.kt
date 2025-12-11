@@ -5,5 +5,5 @@ data class CheckUsernameResponseDto(
     val username: String,
     val message: String,
     val suggestions: List<String>?,
-    val statusCode: Int?
+    val statusCode: Boolean
 )

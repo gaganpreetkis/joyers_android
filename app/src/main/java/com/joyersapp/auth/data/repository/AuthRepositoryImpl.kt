@@ -48,7 +48,20 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun checkUsername(username: String): Result<CheckUsernameResponseDto> =
         try {
             val response = api.checkUsername(CheckUsernameRequestDto(username))
-            when (response.statusCode) {
+            if (response.statusCode) {
+                Result.success(response)
+            } else {
+                Result.failure(
+                    ApiErrorException(
+                        errorBody = ApiErrorDto(
+                            response.message,
+                            suggestions = response.suggestions ?: emptyList()
+                        ),
+                        message = response.message
+                    )
+                )
+            }
+        /*    when (response.statusCode) {
                 200 -> {
                     Result.success(response)
                 }
@@ -66,7 +79,7 @@ class AuthRepositoryImpl @Inject constructor(
                 }
 
                 else -> Result.failure(IllegalArgumentException("Something went wrong", Exception()))
-            }
+            }*/
 
         } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
