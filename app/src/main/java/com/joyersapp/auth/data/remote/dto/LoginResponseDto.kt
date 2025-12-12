@@ -24,9 +24,10 @@ data class User(
     var is_identity_verified: Boolean?,
     var is_status_verified: Boolean?,
     var admin_role: String?,
-    var profilePicture: String?,
-    var backgroundPicture: String?,
-    var stats: Stats?
+    var profile_picture: String?,
+    var background_picture: String?,
+    var stats: Stats?,
+    var recentType: String?
 )
 
 data class Stats(

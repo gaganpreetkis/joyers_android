@@ -21,6 +21,6 @@ object DataStoreModule {
         @ApplicationContext context: Context
     ): DataStore<Preferences> =
         PreferenceDataStoreFactory.create {
-            context.dataStoreFile("session_prefs")
+            context.dataStoreFile("session_prefs.preferences_pb")
         }
 }
