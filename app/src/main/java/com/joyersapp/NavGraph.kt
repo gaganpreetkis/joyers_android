@@ -36,7 +36,7 @@ sealed class Routes(val route: String) {
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.Splash.route
+        startDestination = Routes.Dashboard.route
     ) {
 
         composable(Routes.Splash.route) {
@@ -237,8 +237,10 @@ fun AppNavGraph(navController: NavHostController) {
             SplashVideoScreen(
                 onNavigateToDashboard = { context ->
                     // Show toast message
-                    Toast.makeText(context, "Navigating to Dashboard", Toast.LENGTH_SHORT).show()
-
+                    //Toast.makeText(context, "Navigating to Dashboard", Toast.LENGTH_SHORT).show()
+                    navController.navigate(Routes.Dashboard.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                     // Navigate to DashboardActivity (Activity, not Compose screen)
                     /*val intent = android.content.Intent(context, com.synapse.joyers.ui.dashboard.DashboardActivity::class.java)
                     context.startActivity(intent)

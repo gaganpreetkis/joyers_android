@@ -563,43 +563,48 @@ fun LoginScreen(
             // RECENT USERS DROPDOWN LIST
             if (isUsernameFieldFocused && !state.isPhoneMode && state.recentUsersList.isNotEmpty()) {
                 if (state.filteredList.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(White, RoundedCornerShape(5.dp))
-                            .border(
-                                color = colorResource(id = R.color.color_border_light),
-                                width = 1.dp,
-                                shape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
-                            )
-                    ) {
+                    Column() {
+
                         Spacer(modifier = Modifier.height(3.dp))
-                        state.filteredList.forEachIndexed { index, user ->
-                            val isFirst = index == 0
-                            val isLast = index == state.filteredList.size - 1
-                            val displayValue = if (user.recentType.equals("email", true)) {
-                                user.email.orEmpty()
-                            } else {
-                                "@${user.username.orEmpty()}"
-                            }
-                            RecentUserItem(
-                                isFirst = isFirst,
-                                isLast = isLast,
-                                user = user,
-                                onItemClick = {
-                                    viewModel.onEvent(LoginEvent.UsernameChanged(displayValue))
-                                    focusManager.clearFocus()
-                                },
-                                onRemoveClick = {
-                                    val updatedList = state.recentUsersList.toMutableList()
-                                    updatedList.remove(user)
-                                    viewModel.saveUserNames(updatedList)
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(White, RoundedCornerShape(5.dp))
+                                .border(
+                                    color = colorResource(id = R.color.color_border_light),
+                                    width = 1.dp,
+                                    shape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
+                                )
+                        ) {
+                            state.filteredList.forEachIndexed { index, user ->
+                                val isFirst = index == 0
+                                val isLast = index == state.filteredList.size - 1
+                                val displayValue = if (user.recentType.equals("email", true)) {
+                                    user.email.orEmpty()
+                                } else {
+                                    "@${user.username.orEmpty()}"
                                 }
-                            )
-                            /*if (index < filteredList.size - 1) {
-                                Spacer(modifier = Modifier.height(0.dp))
-                            }*/
+                                RecentUserItem(
+                                    isFirst = isFirst,
+                                    isLast = isLast,
+                                    user = user,
+                                    onItemClick = {
+                                        viewModel.onEvent(LoginEvent.UsernameChanged(displayValue))
+                                        focusManager.clearFocus()
+                                    },
+                                    onRemoveClick = {
+                                        val updatedList = state.recentUsersList.toMutableList()
+                                        updatedList.remove(user)
+                                        viewModel.saveUserNames(updatedList)
+                                    }
+                                )
+                                /*if (index < filteredList.size - 1) {
+                                    Spacer(modifier = Modifier.height(0.dp))
+                                }*/
+                            }
                         }
+
                     }
                 }
             }
