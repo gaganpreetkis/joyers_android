@@ -14,6 +14,7 @@ import com.joyersapp.auth.presentation.login.LoginScreen
 import com.joyersapp.auth.presentation.resetpassword.ResetPasswordScreen
 import com.joyersapp.auth.presentation.signup.SignUpScreen
 import com.joyersapp.auth.presentation.SplashVideoScreen
+import com.joyersapp.feature.dashboard.AppScaffoldRoot
 import com.synapse.joyers.ui.screens.SplashScreen
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -27,6 +28,7 @@ sealed class Routes(val route: String) {
     data object ResetPassword : Routes("resetPassword")
     data object JoyersOath : Routes("joyersOath")
     data object SplashVideo : Routes("splashVideo")
+    data object Dashboard : Routes("dashboard")
 
 }
 
@@ -243,6 +245,10 @@ fun AppNavGraph(navController: NavHostController) {
                     (context as? android.app.Activity)?.finish()*/
                 }
             )
+        }
+
+        composable(Routes.Dashboard.route) {
+            AppScaffoldRoot()
         }
     }
 }
