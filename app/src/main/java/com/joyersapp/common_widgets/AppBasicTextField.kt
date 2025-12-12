@@ -77,7 +77,8 @@ fun AppBasicTextField(
     ),
     containerColor: Color = Gray20,
     contentColor: Color = Black,
-    placeholderColor: Color = Gray40
+    placeholderColor: Color = Gray40,
+    onFocusChanged: ((Boolean) -> Unit)? = null
 ) {
 
     val focusRequester = remember { FocusRequester() }
@@ -118,7 +119,10 @@ fun AppBasicTextField(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .onFocusChanged { isFocused = it.isFocused }
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                    onFocusChanged?.invoke(focusState.isFocused)
+                }
         ) {
 
             // --------------------------------------------------

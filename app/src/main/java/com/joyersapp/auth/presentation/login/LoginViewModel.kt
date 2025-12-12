@@ -5,8 +5,10 @@ import android.util.Patterns
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.auth.data.remote.dto.ForgotPasswordVerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.LoginRequestDto
+import com.joyersapp.auth.data.remote.dto.User
 import com.joyersapp.auth.domain.usecase.LoginUseCase
 import com.joyersapp.auth.presentation.forgotpassword.ForgotPasswordEvent
 import com.joyersapp.utils.isValidPassword
@@ -15,17 +17,35 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
+    private val sessionLocalDataSource: SessionLocalDataSource
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
     private var job: Job? = null
+
+    init{
+        viewModelScope.launch {
+            sessionLocalDataSource.getUserNames().collect { list ->
+                _uiState.update { it.copy(recentUsersList = list.toMutableList()) }
+                Log.e("saved user", "saved user list size at init: ${list.size}")
+            }
+        }
+    }
+
+    fun saveUserNames(names: MutableList<User>) {
+        viewModelScope.launch {
+            sessionLocalDataSource.saveUserNames(names)
+        }
+    }
 
     fun onEvent(event: LoginEvent) {
         when (event) {
@@ -148,7 +168,50 @@ class LoginViewModel @Inject constructor(
                     Log.e("login msg", response.message)
 
                     if (response.statusCode == 200) {
-                        _uiState.update { it.copy(isLoading = false, apiErrorMessage = "", apiFailedErrorMessage = "", apiOnlyUsernameErrorMessage = "", /*isLoginApiSuccess = true*//*, isVerificationSuccess = true*/) }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                apiErrorMessage = "",
+                                apiFailedErrorMessage = "",
+                                apiOnlyUsernameErrorMessage = "",
+                                /*isLoginApiSuccess = true*//*,
+                                 isVerificationSuccess = true*/
+                            )
+                        }
+                        if (state.rememberMe && !state.isPhoneMode) {
+                            response.user?.let { apiUser ->
+                                val isEmailInput = Patterns.EMAIL_ADDRESS.matcher(state.username).matches()
+                                val cleanedUsername = state.username.removePrefix("@")
+                                val userToSave = apiUser.copy(
+                                    username = if (isEmailInput) apiUser.username ?: cleanedUsername else cleanedUsername,
+                                    email = if (isEmailInput) state.username else apiUser.email,
+                                    recentType = if (isEmailInput) "email" else "username"
+                                )
+
+                                val existingIndex = state.recentUsersList.indexOfFirst { savedUser ->
+                                    if (isEmailInput) {
+                                        savedUser.recentType.equals("email", true) &&
+                                                savedUser.email.equals(state.username, true)
+                                    } else {
+                                        savedUser.recentType.equals("username", true) &&
+                                                savedUser.username.equals(cleanedUsername, true)
+                                    }
+                                }
+
+                                if (existingIndex >= 0) {
+                                    state.recentUsersList.removeAt(existingIndex)
+                                }
+
+                                state.recentUsersList.add(0, userToSave)
+
+                                while (state.recentUsersList.size > 5) {
+                                    state.recentUsersList.removeAt(state.recentUsersList.lastIndex)
+                                }
+
+                                saveUserNames(state.recentUsersList)
+                                Log.e("saved user", "saved user list size at login success: ${state.recentUsersList.size}")
+                            }
+                        }
                     } else {
                         _uiState.update { it.copy(isLoading = false, apiErrorMessage = response.message/*, verificationCodeError = response.message*/) }
                     }
