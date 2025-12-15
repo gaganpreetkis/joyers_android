@@ -126,13 +126,13 @@ fun ForgotPasswordScreen(
     // Form validation
     val isFormValid = remember(state.usernameEmail, state.phone, state.isPhoneMode) {
         if (state.isPhoneMode) {
-            state.phone.isNotEmpty() && state.phone.all { it.isDigit() } && state.phone.length in 10..15
+            state.phone.isNotEmpty() /*&& state.phone.all { it.isDigit() } && state.phone.length in 10..15*/
         } else {
-            state.usernameEmail.isNotEmpty() && (isValidUsername(state.usernameEmail) || Patterns.EMAIL_ADDRESS.matcher(state.usernameEmail).matches())
+            state.usernameEmail.isNotEmpty() /*&& (isValidUsername(state.usernameEmail) || Patterns.EMAIL_ADDRESS.matcher(state.usernameEmail).matches())*/
         }
     }
 
-    val isVerificationValid = state.verificationCode.length == 6 && state.verificationCode.all { it.isDigit() }
+    val isVerificationValid = state.verificationCode.isNotEmpty()/*state.verificationCode.length == 6 && state.verificationCode.all { it.isDigit() }*/
 
     fun updateKeyboardState(frameLayout: View) {
         val rect = Rect()
