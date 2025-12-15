@@ -756,7 +756,14 @@ fun PageOneContent(
                 Image(
                     painter = painterResource(id = if (countryName.isEmpty()) R.drawable.drop_down else R.drawable.ic_cross_round_border_grey),
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 15.dp).size(30.dp).clickable {
+                    modifier = Modifier
+                        .padding(end = 15.dp)
+                        .size(30.dp)
+                        .clip(shape = CircleShape)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
                         if (countryName.isEmpty()) {
                             showCCPDialog(
                                 context,
@@ -1239,9 +1246,10 @@ fun PageThreeContent(
             .padding(horizontal = 25.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(10.dp))
         LazyColumn {
             items(itemCount) {
-                Spacer(modifier = Modifier.height(25.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 // Joyers Status
                 /*if (it == 0) {
                     Text(
@@ -1322,7 +1330,7 @@ fun PageThreeContent(
                             fontFamily = fontFamilyLato,
                             color = lightBlackColor
                         )
-                        Spacer(Modifier.height(5.dp))
+                        Spacer(Modifier.height(10.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1351,7 +1359,7 @@ fun PageThreeContent(
                             fontFamily = fontFamilyLato,
                             color = lightBlackColor
                         )
-                        Spacer(Modifier.height(5.dp))
+                        Spacer(Modifier.height(10.dp))
 // Title selection button
                         Box(
                             modifier = Modifier
@@ -1392,7 +1400,7 @@ fun PageThreeContent(
                             fontFamily = fontFamilyLato,
                             color = lightBlackColor
                         )
-                        Spacer(Modifier.height(5.dp))
+                        Spacer(Modifier.height(10.dp))
 
 // SubTitle selection button
                         Box(

@@ -382,7 +382,7 @@ fun LoginScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // REMEMBER ME + FORGOT PASSWORD
                 Row(
@@ -405,7 +405,7 @@ fun LoginScreen(
                         Image(
                             painter = painterResource(id = if (state.rememberMe) R.drawable.checkbox_checked else R.drawable.checkbox_unchecked),
                             contentDescription = null,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(

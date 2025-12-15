@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -83,6 +84,7 @@ import com.joyersapp.theme.Gray80
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
 
 
@@ -303,7 +305,7 @@ fun DualViewDialog(
                                 contentDescription = null,
                                 modifier = dialogModifier
                                     .size(20.dp, 15.dp)
-                                    .clickable {
+                                    .noRippleClickable {
                                         viewmodel.onEvent(TitleEvent.NavigateToAllTitles)
                                     }
                             )
@@ -319,12 +321,12 @@ fun DualViewDialog(
                                 fontWeight = FontWeight.SemiBold,
                                 fontFamily = fontFamilyLato,
                                 color = lightBlackColor,
-                                modifier = dialogModifier.padding(top = 3.dp)
+                                modifier = dialogModifier.padding(top = 0.dp)
                             )
                         } else {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = dialogModifier.padding(top = 3.dp)
+                                modifier = dialogModifier.padding(top = 2.dp)
                             ) {
                                 Text(
                                     text = context.getString(R.string.title),
@@ -357,8 +359,7 @@ fun DualViewDialog(
                             contentDescription = null,
                             modifier = dialogModifier
                                 .size(15.51.dp)
-                                .clip(CircleShape)
-                                .clickable { onDismiss() }
+                                .noRippleClickable { onDismiss() }
                         )
                     }
 

@@ -36,7 +36,8 @@ sealed class Routes(val route: String) {
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.Dashboard.route
+        startDestination = Routes.Splash.route
+//        startDestination = "${Routes.Identity.route}/test/test"
     ) {
 
         composable(Routes.Splash.route) {

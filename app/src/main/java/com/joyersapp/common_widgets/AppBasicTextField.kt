@@ -208,7 +208,7 @@ fun AppBasicTextField(
                     else R.drawable.password_hide),
                 contentDescription = "Toggle Password",
                 Modifier
-                    .padding(start = 5.dp, end = 10.dp)
+                    .padding(start = 5.dp, end = 15.dp)
                     .size(24.dp)
                     .clickable {
                         onPasswordToggle()
@@ -288,7 +288,7 @@ fun AppBasicTextFieldForLetterSpacing(
                     else R.drawable.password_hide),
                 contentDescription = "Toggle Password",
                 Modifier
-                    .padding(start = 5.dp, end = 10.dp)
+                    .padding(start = 5.dp, end = 15.dp)
                     .size(24.dp)
                     .clickable {
                         onPasswordToggle()
@@ -349,7 +349,7 @@ fun AppBasicTextFieldForPassword(
                 ),
                 contentDescription = "Toggle Password",
                 Modifier
-                    .padding(start = 5.dp, end = 10.dp)
+                    .padding(start = 5.dp, end = 15.dp)
                     .size(24.dp)
                     .clickable {
                         onPasswordToggle()
@@ -447,7 +447,7 @@ fun AppBasicTextFieldWithCursorHandling(
                     else R.drawable.password_hide),
                 contentDescription = "Toggle Password",
                 Modifier
-                    .padding(start = 5.dp, end = 10.dp)
+                    .padding(start = 5.dp, end = 15.dp)
                     .size(24.dp)
                     .clickable {
                         onPasswordToggle()
