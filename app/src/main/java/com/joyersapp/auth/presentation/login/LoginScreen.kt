@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -75,6 +76,7 @@ import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isValidPassword
+import java.time.format.TextStyle
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -388,6 +390,7 @@ fun LoginScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(16.dp)
                         .padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -413,7 +416,8 @@ fun LoginScreen(
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
                             fontSize = 12.sp,
-                            color = LightBlack60
+                            color = LightBlack60,
+                            lineHeight = 12.sp,
                         )
                     }
 
@@ -425,6 +429,7 @@ fun LoginScreen(
                         color = Golden60,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
+                        lineHeight = 12.sp,
                         modifier = Modifier.clickable {
                             viewModel.onEvent(LoginEvent.UsernameChanged(""))
                             viewModel.onEvent(LoginEvent.PasswordChanged(""))
@@ -432,7 +437,7 @@ fun LoginScreen(
                             viewModel.onEvent(LoginEvent.ApiFailedErrorMessageChanged(""))
                             viewModel.onEvent(LoginEvent.ApiOnlyUsernameErrorMessageChanged(""))
                             onForgotPasswordClick()
-                        }
+                        },
                     )
                 }
 

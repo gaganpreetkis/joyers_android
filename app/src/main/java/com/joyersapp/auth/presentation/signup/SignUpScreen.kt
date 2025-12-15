@@ -148,8 +148,7 @@ fun SignUpScreen(
             fontSize = 18.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
-            color = LightBlack,
-            modifier = Modifier.height(22.dp)
+            color = LightBlack
         )
 
         Spacer(modifier = Modifier.height(15.dp))
