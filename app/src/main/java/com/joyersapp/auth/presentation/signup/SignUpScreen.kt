@@ -523,7 +523,7 @@ fun SignUpScreen(
                             onClick = {
                                 viewModel.onEvent(SignupEvent.VerifyCode)
                             },
-                            enabled = state.verificationCode.length == 6,
+                            enabled = state.verificationCode.isNotEmpty(),
                             modifier = Modifier.fillMaxWidth()
                                 .height(50.dp),
                             colors = ButtonDefaults.buttonColors(
