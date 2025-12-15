@@ -148,7 +148,8 @@ fun SignUpScreen(
             fontSize = 18.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
-            color = LightBlack
+            color = LightBlack,
+            modifier = Modifier.height(22.dp)
         )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -737,23 +738,24 @@ fun SignUpScreen(
                         }
                     }
 
-                if (state.error == null) {
-                    Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 45.dp else 71.dp))
-                } else {
-                    Spacer(modifier = Modifier.height(11.dp))
-                    Text(
-                        text = state.error!!,
-                        color = Red,
-                        fontSize = 14.sp,
-                        fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Normal,
-                        lineHeight = 20.sp,
-//                        modifier = Modifier.padding(top = 3.dp)
-                    )
-                    Spacer(modifier = Modifier.height(14.dp))
-                }
+
 
                     if (!state.showVerification) {
+                        if (state.error == null) {
+                            Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 45.dp else 71.dp))
+                    } else {
+                        Spacer(modifier = Modifier.height(11.dp))
+                        Text(
+                            text = state.error!!,
+                            color = Red,
+                            fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
+                            lineHeight = 20.sp,
+//                        modifier = Modifier.padding(top = 3.dp)
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                    }
                         //    Sign Up  Button
                         Button(
                             onClick = {
