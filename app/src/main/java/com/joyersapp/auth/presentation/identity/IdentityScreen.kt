@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -67,7 +68,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -275,7 +275,8 @@ fun IdentityScreen(
                             }
                         },
                         onNavigateToNext = {onNavigateToNext()},
-                        viewmodel = viewmodel
+                        viewmodel = viewmodel,
+                        pagerState
 ////                        signupViewModel = signupViewModel,
 ////                        preferencesManager = preferencesManager,
 ////                        activity = activity
@@ -1206,6 +1207,7 @@ fun PageThreeContent(
     onBack: () -> Unit,
     onNavigateToNext: () -> Unit,
     viewmodel: IdentityViewModel,
+    pagerState: PagerState,
 //    preferencesManager: PreferencesManager? = null,
 //    activity: AppCompatActivity? = null
 ) {
@@ -1232,6 +1234,12 @@ fun PageThreeContent(
     } else {
         // Joyer status + title only
         2
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        if (pagerState.currentPage == 2)
+            viewmodel.onEvent(TitleEvent.Load)
+
     }
 
     LaunchedEffect(state2.isMultiSelectRegisterApiSuccess) {

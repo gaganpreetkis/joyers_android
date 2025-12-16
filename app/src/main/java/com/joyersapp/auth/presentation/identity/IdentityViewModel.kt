@@ -25,9 +25,9 @@ class IdentityViewModel @Inject constructor(
     private val _events = MutableSharedFlow<TitlesDialogEvent>()
     val events = _events
 
-    init {
-        loadTitles()
-    }
+//    init {
+//        loadTitles()
+//    }
 
     fun onEvent(event: TitleEvent) {
         when (event) {

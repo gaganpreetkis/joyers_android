@@ -184,7 +184,7 @@ fun DualViewDialog(
 
         Card(
             modifier = dialogModifier
-                .animateContentSize( animationSpec = tween(durationMillis = 0, delayMillis = 10))
+
                 .windowInsetsPadding(WindowInsets.systemBars)
                 .then(dialogHeightModifier) // Apply dynamic height
                 .fillMaxWidth()
@@ -195,6 +195,81 @@ fun DualViewDialog(
             ,shape = RoundedCornerShape(25.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
+
+            // Header
+            Row(
+                modifier = dialogModifier
+                    .fillMaxWidth()
+                    .padding(top = 18.dp, start = 18.dp, end = 23.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // Back button (only visible in subtitle mode)
+                if (state.dialogState is DialogState.Subtitles) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_back_arrow_golden),
+                        contentDescription = null,
+                        modifier = dialogModifier
+                            .size(20.dp, 15.dp)
+                            .noRippleClickable {
+                                viewmodel.onEvent(TitleEvent.NavigateToAllTitles)
+                            }
+                    )
+                } else {
+                    Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
+                }
+
+                // Title or Second Title
+                if (state.dialogState is DialogState.Titles) {
+                    Text(
+                        text = context.getString(R.string.title),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        color = lightBlackColor,
+                        modifier = dialogModifier.padding(top = 0.dp)
+                    )
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp)
+                    ) {
+                        Text(
+                            text = context.getString(R.string.title),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor,
+                            modifier = dialogModifier
+                        )
+                        Spacer(modifier = dialogModifier.width(11.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_forward_black),
+                            contentDescription = null,
+                            modifier = dialogModifier.size(6.dp, 10.dp)
+                        )
+                        Spacer(modifier = dialogModifier.width(10.dp))
+                        Text(
+                            text = (state.dialogState as DialogState.Subtitles).parentTitle ?: "",
+                            fontSize = 16.sp,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor,
+                            modifier = dialogModifier
+                        )
+                    }
+                }
+
+                // Close button
+                Image(
+                    painter = painterResource(id = R.drawable.ic_cross_golden),
+                    contentDescription = null,
+                    modifier = dialogModifier
+                        .size(15.51.dp)
+                        .noRippleClickable { onDismiss() }
+                )
+            }
+
+            Spacer(modifier = dialogModifier.height(15.dp))
+
             // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
             BoxWithConstraints(modifier = Modifier
                 .padding(start = 15.dp, end = 15.dp, bottom = 25.dp)
@@ -206,90 +281,17 @@ fun DualViewDialog(
 //                val titleModifer = if (state.isExpanded) {
 //                    Modifier.weight(1f, true)
 //                }
-//                if (state.isExpanded) {
+//                if (state.isExpanded) {z
 //                    maxHeightForViews = (this.maxHeight / 2)
 //                }
-//                var maxHeightForTitles = if (state.isExpanded) {
-//
-//                }
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    // Header
-                    Row(
-                        modifier = dialogModifier
-                            .fillMaxWidth()
-                            .padding(top = 18.dp, start = 3.dp, end = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        // Back button (only visible in subtitle mode)
-                        if (state.dialogState is DialogState.Subtitles) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_back_arrow_golden),
-                                contentDescription = null,
-                                modifier = dialogModifier
-                                    .size(20.dp, 15.dp)
-                                    .noRippleClickable {
-                                        viewmodel.onEvent(TitleEvent.NavigateToAllTitles)
-                                    }
-                            )
-                        } else {
-                            Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
-                        }
+                val maxHeightForSubTitles = maxHeightForViews - 35.dp - 179.dp - 70.dp
+                Column(modifier = Modifier
+                    .animateContentSize( animationSpec = tween(durationMillis = 3, delayMillis = 10))
+                    .fillMaxWidth()) {
 
-                        // Title or Second Title
-                        if (state.dialogState is DialogState.Titles) {
-                            Text(
-                                text = context.getString(R.string.title),
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                fontFamily = fontFamilyLato,
-                                color = lightBlackColor,
-                                modifier = dialogModifier.padding(top = 0.dp)
-                            )
-                        } else {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = dialogModifier.padding(top = 2.dp)
-                            ) {
-                                Text(
-                                    text = context.getString(R.string.title),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = fontFamilyLato,
-                                    color = lightBlackColor,
-                                    modifier = dialogModifier
-                                )
-                                Spacer(modifier = dialogModifier.width(11.dp))
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_forward_black),
-                                    contentDescription = null,
-                                    modifier = dialogModifier.size(6.dp, 10.dp)
-                                )
-                                Spacer(modifier = dialogModifier.width(10.dp))
-                                Text(
-                                    text = (state.dialogState as DialogState.Subtitles).parentTitle ?: "",
-                                    fontSize = 16.sp,
-                                    fontFamily = fontFamilyLato,
-                                    color = lightBlackColor,
-                                    modifier = dialogModifier
-                                )
-                            }
-                        }
-
-                        // Close button
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_cross_golden),
-                            contentDescription = null,
-                            modifier = dialogModifier
-                                .size(15.51.dp)
-                                .noRippleClickable { onDismiss() }
-                        )
-                    }
-
-                    Spacer(modifier = dialogModifier.height(15.dp))
-
-//                    if (state.dialogState is DialogState.Subtitles) {
-                        LazyColumn(
-                            modifier = Modifier
+                    // First Scrollable
+                     LazyColumn(
+                            modifier = Modifier.animateContentSize( animationSpec = tween(durationMillis = 3, delayMillis = 10))
                                 .weight(1f, fill = false)
                                 .fillMaxWidth()
                         ) {
@@ -568,13 +570,14 @@ fun DualViewDialog(
                                 )
                             }
 
+                            // Second scrollable
                             if (clarificationItems.isNotEmpty() && state.isExpanded) {
                                 Spacer(Modifier.height(15.dp))
                                 LazyColumn(
                                     modifier = Modifier
                                         .heightIn(
                                             min = 0.dp,
-                                            max = maxHeightForViews - 179.dp
+                                            max = maxHeightForSubTitles
                                         )// Distributes remaining space equally with View 1
                                 ) {
                                     when (state.dialogState) {
@@ -592,7 +595,7 @@ fun DualViewDialog(
                                             }
                                         }
                                         is DialogState.Titles -> {
-                                            itemsIndexed(state.classificationTitles + state.classificationTitles) { index, title ->
+                                            itemsIndexed(state.classificationTitles) { index, title ->
                                                 val isLast = index == state.classificationTitles.lastIndex
                                                 ClassificationItem(
                                                     isLastItem = isLast,
