@@ -25,26 +25,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joyersapp.R
 import com.joyersapp.theme.White
+import com.joyersapp.utils.fontFamilyLato
 
-
+@Preview
 @Composable
 fun ProfileTopHeader(
-    username: String,
-    badgeCount: Int?,
-    onBack: () -> Unit,
-    onMenu: () -> Unit,
+    username: String = "Sara_99",
+//    badgeCount: Int?,
+    onBack: () -> Unit = {},
+    onMenu: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val sideWidth = 56.dp
-    Surface(modifier = modifier.fillMaxWidth(), color = White) {
-        Column {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(63.dp),
+        color = White) {
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .fillMaxHeight()
             ) {
                 // left back image
                 Box(
@@ -58,7 +63,7 @@ fun ProfileTopHeader(
                         painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
                         contentDescription = "Back",
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(20.dp, 17.dp)
                             .clickable { onBack() }
                     )
                 }
@@ -70,14 +75,14 @@ fun ProfileTopHeader(
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // lock + badge
+                    // lock
                     Box(contentAlignment = Alignment.TopEnd) {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
+                            painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace
                             contentDescription = "Lock",
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(13.39.dp, 20.dp)
                         )
-                        if (badgeCount != null && badgeCount > 0) {
+                    /*    if (badgeCount != null && badgeCount > 0) {
                             Box(
                                 modifier = Modifier
                                     .offset(x = (-6).dp, y = 6.dp)
@@ -93,24 +98,25 @@ fun ProfileTopHeader(
                                     fontWeight = FontWeight.Bold
                                 )
                             }
-                        }
+                        }*/
                     }
 
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(7.01.dp))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = username,
-                            fontSize = 20.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(Modifier.width(4.dp))
+                        Spacer(Modifier.width(7.dp))
                         Image(
-                            painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
+                            painter = painterResource(id = R.drawable.arrowdown_lite),
                             contentDescription = "Dropdown",
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(14.dp, 8.dp)
                         )
                     }
                 }
@@ -124,20 +130,14 @@ fun ProfileTopHeader(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
+                        painter = painterResource(id = R.drawable.ic_menu_dots_horizontal),
                         contentDescription = "Menu",
                         modifier = Modifier
-                            .size(22.dp)
+                            .size(18.dp, 4.dp)
                             .clickable { onMenu() }
                     )
                 }
             }
 
-            // divider
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Color(0xFFE6E6E6)))
-        }
     }
 }

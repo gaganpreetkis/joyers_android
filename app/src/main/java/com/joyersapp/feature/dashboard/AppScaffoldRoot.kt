@@ -18,10 +18,9 @@ fun AppScaffoldRoot(
 
     FloatingBottomNavHost(
         topBar = {
-            CenteredHeader(
-                username = uiState.headerTitle!!,
-
-            )
+//            CenteredHeader(
+//                username = uiState.headerTitle!!,
+//            )
 //            TitleHeader(
 //                title = uiState.headerTitle,
 //                subtitle = uiState.headerSubtitle,

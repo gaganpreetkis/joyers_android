@@ -28,7 +28,6 @@ fun UserProfileScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileTopHeader(
                 username = state.username,
-                badgeCount = 7,
                 onBack = onBack,
                 onMenu = onMenu
             )

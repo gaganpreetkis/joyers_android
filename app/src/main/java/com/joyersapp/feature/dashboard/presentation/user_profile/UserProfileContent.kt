@@ -2,6 +2,7 @@ package com.joyersapp.feature.dashboard.presentation.user_profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,133 +38,229 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.joyersapp.R
+import com.joyersapp.theme.Black
+import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Gray20
+import com.joyersapp.theme.Gray30
+import com.joyersapp.theme.GrayBorder
+import com.joyersapp.theme.GrayLightBorder
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack60
+import com.joyersapp.theme.White
+import com.joyersapp.utils.fontFamilyLato
 
 // ---- Profile Content ----
+@Preview
 @Composable
 fun UserProfileContent(
-    state: UserProfileUiState,
-    onEditProfile: () -> Unit,
-    onMessage: () -> Unit,
-    onNotify: () -> Unit,
-    onBookmark: () -> Unit,
+    state: UserProfileUiState = UserProfileUiState(),
+    onEditProfile: () -> Unit = {},
+    onMessage: () -> Unit = {},
+    onNotify: () -> Unit = {},
+    onBookmark: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // main scrollable column content (scrolls under fixed header)
     Column(modifier = modifier.fillMaxSize()) {
-        // Banner + Avatar stack
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(160.dp)) {
 
-            if (!state.bannerUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(state.bannerUrl)
-                        .crossfade(true).build(),
-                    contentDescription = "banner",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFD0942F))) // gold placeholder
-            }
+        val gold = Golden60
+        val lightBlackText = LightBlack
 
-            // Avatar overlay with double ring
-            val avatarSize = 110.dp
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(241.dp)
+        ) {
+
+            /** ---------------- Banner ---------------- */
             Box(
                 modifier = Modifier
-                    .size(avatarSize)
-                    .align(Alignment.BottomStart)
-                    .offset(x = 20.dp, y = (avatarSize / 2) * -1)
-                    .clip(CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                // outer ring
-                Box(modifier = Modifier
-                    .size(avatarSize)
-                    .clip(CircleShape)
-                    .background(Color(0xFFF6E9DC))) {
-                    // inner white ring
-                    Box(modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .background(Color.White)
-                    ) {
-                        // actual avatar
-                        if (!state.avatarUrl.isNullOrEmpty()) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(state.avatarUrl)
-                                    .crossfade(true).build(),
-                                contentDescription = "avatar",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape)
-                            )
-                        } else {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
-                                contentDescription = "avatar",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            )
-                        }
-                    }
-                }
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(gold)
+            )
 
-                // small circular action (refresh/edit) at bottom-right of avatar
+            /** ---------------- Avatar ---------------- */
+
+                // Avatar content
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
-                        .align(Alignment.BottomEnd)
-                        .offset(x = 8.dp, y = 8.dp)
+                        .offset(x = 20.dp, y = 87.dp)
+                        .border(width = 3.dp, color = White, shape = CircleShape)
+                        .padding(3.dp)
+                        .border(width = 3.dp, color = Golden60, shape = CircleShape)
+                        .padding(3.dp)
+                        .border(width = 3.dp, color = White, shape = CircleShape)
+                        .size(115.dp)
+                        .clip(CircleShape)
+                        .background(Gray20),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_nav_joyers_home), // your J icon
+                        contentDescription = "avatar",
+                        modifier = Modifier.size(66.dp)
+                    )
+                }
+
+                /** Refresh badge */
+                Box(
+                    modifier = Modifier
+                        .offset(x = 106.dp, y = 183.dp)
+                        .size(25.dp)
                         .clip(CircleShape)
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_reload), // replace
-                        contentDescription = "action",
-                        modifier = Modifier.size(18.dp)
+                        painter = painterResource(id = R.drawable.ic_refresh_golden),
+                        contentDescription = "refresh",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+
+            /** ---------------- Text Content ---------------- */
+            // Name, subtitle, location
+            Column(
+                modifier = Modifier
+                    .offset(x = 154.dp, y = 130.dp)
+            ) {
+
+                Text(
+                    text = state.displayName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamilyLato,
+                    color = lightBlackText,
+                    lineHeight = 22.sp
+                )
+
+                Spacer(Modifier.height(4.dp))
+
+                Text(
+                    text = state.title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = fontFamilyLato,
+                    color = gold,
+                    lineHeight = 17.sp
+                )
+
+                Spacer(Modifier.height(4.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = state.location,
+                        fontSize = 13.sp,
+                        color = Color.Gray
+                    )
+
+                    Spacer(Modifier.width(5.dp))
+
+                    Image(
+                        painter = painterResource(id = com.hbb20.R.drawable.flag_united_states_of_america),
+                        contentDescription = "flag",
+                        modifier = Modifier.size(18.76.dp, 12.22.dp)
                     )
                 }
             }
         }
 
-        // Spacer to account for overlapping avatar
-        Spacer(modifier = Modifier.height(56.dp))
+        // action button and stats
+        Column {
 
-        // Name, subtitle, location, action button and stats
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = state.displayName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = state.title, fontSize = 14.sp, color = Color(0xFFCF9A3B), fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = state.location, fontSize = 12.sp, color = Color.Gray)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Image(painter = painterResource(id = com.hbb20.R.drawable.flag_united_states_of_america), contentDescription = "flag", modifier = Modifier.size(18.dp))
-                    }
+            // Stats row
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Likes",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack60,
+                        lineHeight = 22.sp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = state.likes,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = lightBlackText,
+                        lineHeight = 22.sp
+                    )
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Following",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack60,
+                        lineHeight = 22.sp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = state.following,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = lightBlackText,
+                        lineHeight = 22.sp
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Followers",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack60,
+                        lineHeight = 22.sp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = state.followers,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = lightBlackText,
+                        lineHeight = 22.sp
+                    )
+                }
+            }
 
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp
+                    )
+            ) {
+                // Action card (Edit Magnetics 80%)
+                Card(
+                    modifier = Modifier.wrapContentWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF333333))
+                ) {
+                    Text(
+                        text = "Edit Magnetics   80%",
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
+                    )
+                }
                 // Right side quick icons column (message, bell, bookmark)
-                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row() {
                     IconButton(onClick = onMessage, modifier = Modifier.size(44.dp)) {
-                        Image(painter = painterResource(id = R.drawable.ic_back_arrow_golden), contentDescription = "msg", modifier = Modifier.size(22.dp))
+                        Image(painter = painterResource(id = R.drawable.ic_mail_golden), contentDescription = "msg", modifier = Modifier.size(22.dp))
                     }
                     IconButton(onClick = onNotify, modifier = Modifier.size(44.dp)) {
-                        Image(painter = painterResource(id = R.drawable.ic_back_arrow_golden), contentDescription = "notify", modifier = Modifier.size(22.dp))
+                        Image(painter = painterResource(id = R.drawable.ic_notification_bell_golden), contentDescription = "notify", modifier = Modifier.size(22.dp))
                     }
                     IconButton(onClick = onBookmark, modifier = Modifier.size(44.dp)) {
                         Image(painter = painterResource(id = R.drawable.ic_back_arrow_golden), contentDescription = "bookmark", modifier = Modifier.size(22.dp))
@@ -171,41 +268,7 @@ fun UserProfileContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
 
-            // Stats row
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Likes", color = Color.Gray)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = state.likes, fontWeight = FontWeight.Bold)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Following", color = Color.Gray)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = state.following, fontWeight = FontWeight.Bold)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Followers", color = Color.Gray)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = state.followers, fontWeight = FontWeight.Bold)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Action card (Edit Magnetics 80%)
-            Card(
-                modifier = Modifier.wrapContentWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF333333))
-            ) {
-                Text(
-                    text = "Edit Magnetics   80%",
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
-                )
-            }
 
             Spacer(modifier = Modifier.height(18.dp))
 

@@ -205,7 +205,7 @@ fun SignUpScreen(
 
                 },
                 maxLength = 16,
-                isEnabled = !state.showPasswordFields,
+                isEnabled = !state.showPasswordFields && !state.showVerification,
                 placeholder = "@username",
                 modifier = Modifier
                     .fillMaxWidth()
