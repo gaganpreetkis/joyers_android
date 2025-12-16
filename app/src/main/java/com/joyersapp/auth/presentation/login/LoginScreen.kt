@@ -398,9 +398,9 @@ fun LoginScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable(
-                            enabled = state.isFormValid && isValidPassword(state.password)
+                            enabled = state.username.isNotEmpty() && state.password.isNotEmpty()/*state.isFormValid && isValidPassword(state.password)*/
                         ) {
-                            if (state.isFormValid && isValidPassword(state.password)) {
+                            if (state.username.isNotEmpty() && state.password.isNotEmpty()/*state.isFormValid && isValidPassword(state.password)*/) {
                                 viewModel.onEvent(LoginEvent.RememberMeChanged(!state.rememberMe))
                             }
                         }
@@ -465,7 +465,7 @@ fun LoginScreen(
                         //emailPhoneError = !emailPhoneError
                         viewModel.onEvent(LoginEvent.OnLoginButtonClicked)
                     },
-                    enabled = state.isFormValid && isValidPassword(state.password),
+                    enabled = state.username.isNotEmpty() && state.password.isNotEmpty()/*state.isFormValid && isValidPassword(state.password)*/,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
