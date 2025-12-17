@@ -2,6 +2,7 @@ package com.joyersapp.feature.dashboard.presentation.user_profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.joyersapp.auth.presentation.signup.SignupEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +31,21 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
                     // optionally update fields from real data
                 )
             }
+        }
+    }
+
+    fun onEvent(event: UserProfileEvent) {
+        when (event) {
+
+            is UserProfileEvent.TabSelected -> {
+                _uiState.update {
+                    it.copy(
+                        selectedTab = event.tab,
+                    )
+                }
+            }
+
+            UserProfileEvent.SubmitClicked -> TODO()
         }
     }
 
