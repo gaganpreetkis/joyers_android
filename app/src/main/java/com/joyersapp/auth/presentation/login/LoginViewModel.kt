@@ -174,8 +174,8 @@ class LoginViewModel @Inject constructor(
                                 apiErrorMessage = "",
                                 apiFailedErrorMessage = "",
                                 apiOnlyUsernameErrorMessage = "",
-                                /*isLoginApiSuccess = true*//*,
-                                 isVerificationSuccess = true*/
+                                isLoginApiSuccess = true,
+                                 /*isVerificationSuccess = true*/
                             )
                         }
                         if (state.rememberMe && !state.isPhoneMode) {

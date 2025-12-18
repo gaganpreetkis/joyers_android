@@ -54,7 +54,7 @@ fun AppNavGraph(navController: NavHostController) {
             }, onForgotPasswordClick = {
                 navController.navigate(Routes.ForgotPassword.route)
             }, onLoginSuccess = {
-                navController.navigate(Routes.SplashVideo.route) {
+                navController.navigate(Routes.Dashboard.route) {
                     popUpTo(0)
                     launchSingleTop = true
                 }

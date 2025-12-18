@@ -207,7 +207,7 @@ fun LoginScreen(
                     Image(
                         painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_telephone_gray else R.drawable.user_icon),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.height(if (state.isPhoneMode) 24.17.dp else 24.dp).width(if (state.isPhoneMode) 24.dp else 22.34.dp)
                     )
 
                     Spacer(modifier = Modifier.width(0.dp))
@@ -285,7 +285,7 @@ fun LoginScreen(
                 Image(
                     painter = painterResource(id = if (state.isPhoneMode) R.drawable.user_icon_golden else R.drawable.ic_telephone_golden),
                     contentDescription = "Toggle",
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.height(if (state.isPhoneMode) 24.dp else 24.17.dp).width(if (state.isPhoneMode) 22.34.dp else 24.dp)
                 )
             }
         }
@@ -330,7 +330,7 @@ fun LoginScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.password_icon),
                                 contentDescription = null,
-                                modifier = Modifier.height(26.dp).width(24.dp)
+                                modifier = Modifier.height(26.dp).width(22.62.dp)
                             )
 
                             Spacer(modifier = Modifier.width(0.dp))

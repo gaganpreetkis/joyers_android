@@ -270,7 +270,7 @@ fun ResetPasswordScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.user_icon),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(24.dp).width(22.34.dp)
                             )
 
                             AppBasicTextField(
@@ -325,7 +325,7 @@ fun ResetPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.ic_telephone_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.height(24.17.dp).width(24.dp)
                         )
                     }
                 }
@@ -356,7 +356,7 @@ fun ResetPasswordScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.ic_telephone_gray),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(24.17.dp).width(24.dp)
                             )
 
                             Spacer(modifier = Modifier.width(7.dp))
@@ -423,7 +423,7 @@ fun ResetPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.user_icon_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.height(24.dp).width(22.34.dp)
                         )
                     }
                 }
@@ -466,7 +466,7 @@ fun ResetPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.password_icon),
                             contentDescription = null,
-                            modifier = Modifier.height(26.dp).width(24.dp)
+                            modifier = Modifier.height(26.dp).width(22.6.dp)
                         )
 
                         Spacer(modifier = Modifier.width(0.dp))
@@ -577,7 +577,7 @@ fun ResetPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.password_icon),
                             contentDescription = null,
-                            modifier = Modifier.height(26.dp).width(24.dp)
+                            modifier = Modifier.height(26.dp).width(22.6.dp)
                         )
 
                         Spacer(modifier = Modifier.width(0.dp))

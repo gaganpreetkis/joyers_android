@@ -289,7 +289,7 @@ fun ForgotPasswordScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.user_icon),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(24.dp).width(22.34.dp)
                             )
 
                             //Spacer(modifier = Modifier.width(15.dp))
@@ -362,7 +362,7 @@ fun ForgotPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.ic_telephone_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.height(24.17.dp).width(24.dp)
                         )
                     }
                 }
@@ -393,7 +393,7 @@ fun ForgotPasswordScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.ic_telephone_gray),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(24.17.dp).width(24.dp)
                             )
 
                             Spacer(modifier = Modifier.width(7.dp))
@@ -475,7 +475,7 @@ fun ForgotPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.user_icon_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.height(24.dp).width(22.34.dp)
                         )
                     }
                 }
