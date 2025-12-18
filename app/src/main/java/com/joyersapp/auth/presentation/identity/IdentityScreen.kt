@@ -88,7 +88,9 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack13
 import com.joyersapp.theme.LightBlack60
+import com.joyersapp.theme.LightBlack9
 import com.joyersapp.theme.Red
 import com.joyersapp.utils.annotatedFromBoldTags
 import com.joyersapp.utils.containsEmoji
@@ -444,7 +446,7 @@ fun PageOneContent(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(270.dp)
+                .height(240.dp)
                 .border(
                     width = 1.dp,
                     color = GrayLightBorder,
@@ -494,7 +496,7 @@ fun PageOneContent(
                                 modifier = Modifier
                                     .size(37.dp)
                                     .background(Color.White, CircleShape)
-                                    .border(1.dp, GrayLightBorder, CircleShape),
+                                    .border(1.dp, LightBlack13, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Image(
@@ -509,7 +511,8 @@ fun PageOneContent(
                                 fontSize = 11.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Normal,
-                                color = LightBlack60
+                                color = LightBlack60,
+                                lineHeight = 20.sp,
                             )
                         }
                     }
@@ -530,7 +533,7 @@ fun PageOneContent(
                             .background(Color.White)
                             .border(
                                 2.dp,
-                                if (showProfilePlaceholder) GrayLightBorder else Color.Transparent,
+                                if (showProfilePlaceholder) LightBlack9 else Color.Transparent,
                                 CircleShape
                             )
                     ) {
@@ -565,7 +568,8 @@ fun PageOneContent(
                                     fontSize = 15.sp,
                                     fontFamily = fontFamilyLato,
                                     fontStyle = FontStyle.Normal,
-                                    color = LightBlack60
+                                    color = LightBlack60,
+                                    lineHeight = 21.sp,
                                 )
                             }
                         }
