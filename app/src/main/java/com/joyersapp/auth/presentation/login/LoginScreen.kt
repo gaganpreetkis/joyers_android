@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -48,7 +49,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -75,8 +75,6 @@ import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
-import com.joyersapp.utils.isValidPassword
-import java.time.format.TextStyle
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -202,7 +200,7 @@ fun LoginScreen(
                     .border(color = if (state.password.isNotEmpty() && state.username.isNotEmpty() && (state.apiOnlyUsernameErrorMessage.isNotEmpty() || state.apiErrorMessage.isNotEmpty())) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 20.dp),
+                    modifier = Modifier.padding(start = 19.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -285,10 +283,9 @@ fun LoginScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = if (state.isPhoneMode) R.drawable.user_icon_golden else R.drawable.telephone_icon_golden),
+                    painter = painterResource(id = if (state.isPhoneMode) R.drawable.user_icon_golden else R.drawable.ic_telephone_golden),
                     contentDescription = "Toggle",
                     modifier = Modifier.size(24.dp),
-                    colorFilter = ColorFilter.tint(Golden60)
                 )
             }
         }
@@ -322,7 +319,7 @@ fun LoginScreen(
                         .background(Gray20, RoundedCornerShape(5.dp))
                 ) {
                     Row(
-                        modifier = Modifier.padding(start = 20.dp),
+                        modifier = Modifier.padding(start = 19.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
@@ -333,7 +330,7 @@ fun LoginScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.password_icon),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(26.dp).width(24.dp)
                             )
 
                             Spacer(modifier = Modifier.width(0.dp))
@@ -503,7 +500,7 @@ fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
-                        .background(Black, RoundedCornerShape(4.dp))
+                        .background(LightBlack, RoundedCornerShape(4.dp))
                         .clickable {
                             viewModel.onEvent(LoginEvent.ShowSocialDialogChanged(true))
                         },
@@ -659,7 +656,7 @@ fun RecentUserItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = if (isFirst) 9.dp else 0.dp, bottom = if (isLast) 10.dp else 0.dp)
+            .padding(top = if (isFirst) 6.5.dp else 0.dp, bottom = if (isLast) 8.5.dp else 0.dp)
             .clickable { onItemClick() }
             .padding(horizontal = 17.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -699,7 +696,6 @@ fun RecentUserItem(
                 painter = painterResource(id = R.drawable.ic_mail),
                 contentDescription = null,
                 modifier = Modifier.size(width = 28.dp, height = 17.12.dp),
-                colorFilter = ColorFilter.tint(LightBlack60)
             )
         }
 
@@ -713,6 +709,7 @@ fun RecentUserItem(
             fontWeight = FontWeight.Normal,
             color = LightBlack,
             modifier = Modifier.weight(1f),
+            lineHeight = 24.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -724,7 +721,7 @@ fun RecentUserItem(
             painter = painterResource(id = R.drawable.close_1),
             contentDescription = "Remove",
             modifier = Modifier
-                .size(11.dp)
+                .alpha(0.55f)
                 .clickable { onRemoveClick() }
         )
     }

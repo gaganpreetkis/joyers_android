@@ -332,7 +332,6 @@ fun DualViewDialog(
                                                 modifier = dialogModifier
                                                     .padding(start = 16.dp, end = 0.dp)
                                                     .size(17.dp),
-                                                colorFilter = ColorFilter.tint(Gray80)
                                             )
 
                                             // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
@@ -951,7 +950,7 @@ fun TitleItem(
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected && title.subTitles.isNullOrEmpty()) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected && title.subTitles.isNullOrEmpty()) Golden60 else LightBlack,
-            modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
+            //modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
             //modifier = Modifier.weight(1f)
         )
         if (!title.subTitles.isNullOrEmpty()) {
@@ -1000,7 +999,7 @@ fun SubtitleItem(
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected) Golden60 else LightBlack,
-            modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
+            //modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
         )
         if (!subtitle.description.isNullOrEmpty()) {
             Spacer( modifier = modifier.width(3.dp))

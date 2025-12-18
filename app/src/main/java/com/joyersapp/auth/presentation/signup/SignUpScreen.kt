@@ -1,6 +1,5 @@
 package com.joyersapp.auth.presentation.signup
 
-import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,9 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -81,16 +78,11 @@ import com.joyersapp.theme.Gray80
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Green
 import com.joyersapp.theme.LightBlack
-import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
-import com.joyersapp.utils.isValidPassword
-import com.joyersapp.utils.isValidUsername
 import com.joyersapp.utils.rememberIsKeyboardOpen
-import kotlinx.coroutines.delay
 import kotlin.text.isNotEmpty
-import kotlin.text.replace
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -328,7 +320,6 @@ fun SignUpScreen(
                                     painter = painterResource(id = R.drawable.ic_telephone_gray),
                                     contentDescription = null,
                                     modifier = Modifier.size(24.dp),
-                                    colorFilter = ColorFilter.tint(Gray80)
                                 )
 
                                 Spacer(modifier = Modifier.width(7.dp))
@@ -377,7 +368,6 @@ fun SignUpScreen(
                                     painter = painterResource(id = R.drawable.ic_mail),
                                     contentDescription = null,
                                     modifier = Modifier.size(24.dp),
-                                    colorFilter = ColorFilter.tint(Gray80)
                                 )
 
                                 Spacer(modifier = Modifier.width(0.dp))
@@ -433,10 +423,9 @@ fun SignUpScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_mail_golden else R.drawable.telephone_icon_golden),
+                            painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_mail_golden else R.drawable.ic_telephone_golden),
                             contentDescription = "Toggle",
                             modifier = Modifier.size(24.dp),
-                            colorFilter = ColorFilter.tint(Golden60)
                         )
                     }
                 }
@@ -537,7 +526,7 @@ fun SignUpScreen(
                             Text(
                                 text = context.getString(R.string.verify),
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
                                 modifier = Modifier.padding(vertical = 1.dp)
                             )
@@ -552,13 +541,13 @@ fun SignUpScreen(
                             },
                             modifier = Modifier.fillMaxWidth()
                                 .height(50.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Black),
+                            colors = ButtonDefaults.buttonColors(containerColor = LightBlack),
                             shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
                                 text = context.getString(R.string.resend_code),
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
                                 color = White,
                                 modifier = Modifier.padding(vertical = 1.dp)
@@ -594,7 +583,7 @@ fun SignUpScreen(
                                     Image(
                                         painter = painterResource(id = R.drawable.password_icon),
                                         contentDescription = null,
-                                        modifier = Modifier.size(24.dp)
+                                        modifier = Modifier.height(26.dp).width(24.dp)
                                     )
 
                                     Spacer(modifier = Modifier.width(0.dp))
@@ -692,7 +681,7 @@ fun SignUpScreen(
                                     Image(
                                         painter = painterResource(id = R.drawable.password_icon),
                                         contentDescription = null,
-                                        modifier = Modifier.size(24.dp)
+                                        modifier = Modifier.height(26.dp).width(24.dp)
                                     )
 
                                     Spacer(modifier = Modifier.width(0.dp))

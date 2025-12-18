@@ -1,7 +1,6 @@
 package com.joyersapp.auth.presentation.forgotpassword
 
 import android.graphics.Rect
-import android.util.Patterns
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
@@ -33,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,12 +69,10 @@ import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.R
-import com.joyersapp.auth.data.remote.dto.ForgotPasswordRequestDto
 import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack35
 import com.joyersapp.theme.LightBlack60
-import com.joyersapp.utils.isValidUsername
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -287,7 +283,7 @@ fun ForgotPasswordScreen(
                             ),
                     ) {
                         Row(
-                            modifier = Modifier.padding(start = 20.dp),
+                            modifier = Modifier.padding(start = 19.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
@@ -364,10 +360,9 @@ fun ForgotPasswordScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.telephone_icon_golden),
+                            painter = painterResource(id = R.drawable.ic_telephone_golden),
                             contentDescription = "Toggle",
                             modifier = Modifier.size(24.dp),
-                            colorFilter = ColorFilter.tint(Golden60)
                         )
                     }
                 }
@@ -392,7 +387,7 @@ fun ForgotPasswordScreen(
                             ),
                     ) {
                         Row(
-                            modifier = Modifier.padding(start = 20.dp),
+                            modifier = Modifier.padding(start = 19.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
@@ -481,7 +476,6 @@ fun ForgotPasswordScreen(
                             painter = painterResource(id = R.drawable.user_icon_golden),
                             contentDescription = "Toggle",
                             modifier = Modifier.size(24.dp),
-                            colorFilter = ColorFilter.tint(Golden60)
                         )
                     }
                 }
@@ -757,7 +751,7 @@ fun ForgotPasswordScreen(
                         .fillMaxWidth()
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Black,
+                        containerColor = LightBlack,
                         contentColor = White
                     ),
                     shape = RoundedCornerShape(4.dp)

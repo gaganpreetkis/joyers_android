@@ -187,7 +187,6 @@ fun IdentityScreen(
                             modifier = Modifier
                                 .padding(start = 20.dp)
                                 .size(20.dp, 17.dp),
-                            colorFilter = ColorFilter.tint(Golden60)
                         )
                     }
                 }
@@ -680,9 +679,9 @@ fun PageOneContent(
                 text = remainingChars.toString(),
                 fontSize = 12.sp,
                 color = if (remainingChars == 0) redColor else hintColor,
-                modifier = Modifier.fillMaxHeight().padding(top = 5.dp, end = 7.dp),
+                modifier = Modifier.fillMaxHeight().padding(top = 4.dp, end = 6.dp),
                 fontFamily = fontFamilyLato,
-                fontWeight = FontWeight.Normal,
+                fontWeight = FontWeight.SemiBold,
             )
         }
 
