@@ -1,4 +1,4 @@
-package com.joyersapp.feature.dashboard.presentation.user_profile
+package com.joyersapp.feature.profile.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,31 +18,38 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
-import com.joyersapp.feature.dashboard.presentation.user_profile.status.ProfileStatusSection
+import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
+import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
@@ -66,7 +74,9 @@ fun UserProfileContent(
     // main scrollable column content (scrolls under fixed header)
 
     Surface() {
-        Column(modifier = modifier.fillMaxSize().background(White)) {
+        Column(modifier = modifier
+            .fillMaxSize()
+            .background(White)) {
 
             val gold = Golden60
             val lightBlackText = LightBlack
@@ -179,7 +189,8 @@ fun UserProfileContent(
 
                 // Stats row
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -313,64 +324,16 @@ fun UserProfileContent(
                 Spacer(modifier = Modifier.height(11.dp))
 
                 // Tabs row
-                ScrollableTabRow(
-                    modifier = Modifier.fillMaxWidth().height(28.dp),
-                    containerColor = White,
-                    contentColor = gold,
-                    selectedTabIndex = state.selectedTab,
-                    edgePadding = 0.dp,
-                    indicator = { tabPositions ->
-                        val currentTab = tabPositions[state.selectedTab]
-                        val textWidth = state.textWidths[state.selectedTab] ?: 0.dp
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentSize(Alignment.BottomStart)
-                                .offset(
-                                    x = currentTab.left + (currentTab.width - textWidth) / 2
-                                )
-                                .width(textWidth)
-                                .height(3.dp)
-                                .background(
-                                    color = gold,
-                                )
-                        )
+                CustomScrollableTabRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(28.dp),
+                    tabs = state.tabs,
+                    onTabClick = { index ->
+                        viewModel.onEvent(UserProfileEvent.TabSelected(index))
                     },
-                    divider = {}
-                ) {
-                    state.tabs.forEachIndexed { idx, title ->
-                        val isTabSelected = state.selectedTab == idx
-                        Box(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .padding(horizontal = 0.dp) // 🔥 EXACT spacing between tabs
-                                .noRippleClickable() {
-                                    viewModel.onEvent(UserProfileEvent.TabSelected(idx))
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            val localDensity = LocalDensity.current
-                            Text(
-                                text = title,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = fontFamilyLato,
-                                color = if (isTabSelected) lightBlackText else LightBlack60,
-                                lineHeight = 22.sp,
-                                modifier = Modifier
-                                    .padding(1.dp)
-                                    .padding(bottom = 6.dp)
-                                    .height(19.dp)
-                                    .onSizeChanged { size ->
-                                        state.textWidths[idx] = with(localDensity) {
-                                            size.width.toDp()
-                                        }
-                                    }
-                            )
-                        }
-                    }
-                }
+                    selectedTabIndex = state.selectedTab,
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -378,31 +341,93 @@ fun UserProfileContent(
                 when (state.selectedTab) {
                     0 -> Column {
                         ProfileStatusSection()
-//                    repeat(6) { i ->
-//                        Card(modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(vertical = 8.dp), shape = RoundedCornerShape(8.dp)
-//                        ) {
-//                            Column(modifier = Modifier.padding(12.dp)) {
-//                                Text("Status item #$i", fontWeight = FontWeight.Medium)
-//                                Spacer(modifier = Modifier.height(6.dp))
-//                                Text("Shared • 2h ago", color = Color.Gray, fontSize = 12.sp)
-//                            }
-//                        }
-//                    }
+                    }
+                    1 -> Column {
+                        ProfileIdentitySection()
                     }
 
                     else -> Box(
-                        modifier = Modifier.fillMaxWidth().height(120.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("Content for ${state.tabs[state.selectedTab]}")
                     }
                 }
-
-                Spacer(modifier = Modifier.height(88.dp)) // ensure space for floating bottom nav
             }
         }
     }
 }
 
+
+@Composable
+fun CustomScrollableTabRow(
+    modifier: Modifier,
+    tabs: List<String>,
+    onTabClick: (Int) -> Unit,
+    selectedTabIndex: Int,
+) {
+    // Custom LazyRow for tabs (replaces ScrollableTabRow)
+    LazyRow(
+        modifier = modifier.padding(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp),  // 🔥 Zero spacing between items
+        contentPadding = PaddingValues(horizontal = 0.dp),  // No edge padding
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        itemsIndexed(tabs) { idx, title ->
+            val isTabSelected = selectedTabIndex == idx
+            var textWidth by remember { mutableStateOf(0.dp) }
+            val localDensity = LocalDensity.current
+
+            Column (
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .height(28.dp)
+                    .noRippleClickable() {
+                        onTabClick(idx)
+                    },
+//                horizontalAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamilyLato,
+                    color = if (isTabSelected) LightBlack else LightBlack60,
+                    lineHeight = 22.sp,
+                    modifier = Modifier
+                        .padding(start = 0.dp, end = 0.dp, top = 0.dp, bottom = 0.dp)  // No horizontal padding
+                        .height(19.dp)
+                        .onGloballyPositioned { layoutCoordinates ->
+                            textWidth = with(localDensity) { layoutCoordinates.size.width.toDp() }
+
+                        }
+                )
+                Spacer(Modifier.height(6.dp))
+                if (isTabSelected) {
+                    Box(
+                        modifier = Modifier
+                            .width(textWidth)
+                            .height(3.dp)
+                            .background(Golden60)
+                    )
+                }
+            }
+        }
+    }
+/*
+// Custom indicator (place this below the LazyRow, e.g., in a Box overlay)
+    val tabPositions = remember { mutableStateListOf<TabPosition>() }  // You'll need to track positions manually
+// ... (implement position tracking similar to ScrollableTabRow's internal logic, or use a library)
+// Then draw the indicator as before:
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.BottomStart)
+            .offset(x = *//* calculate based on tabPositions *//*)
+            .width(state.textWidths[state.selectedTab] ?: edgePadding)
+            .height(3.dp)
+            .background(color = gold)
+    )*/
+}

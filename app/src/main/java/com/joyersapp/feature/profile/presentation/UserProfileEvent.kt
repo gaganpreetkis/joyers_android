@@ -1,6 +1,4 @@
-package com.joyersapp.feature.dashboard.presentation.user_profile
-
-import androidx.compose.ui.text.input.TextFieldValue
+package com.joyersapp.feature.profile.presentation
 
 sealed class UserProfileEvent {
     object SubmitClicked : UserProfileEvent()

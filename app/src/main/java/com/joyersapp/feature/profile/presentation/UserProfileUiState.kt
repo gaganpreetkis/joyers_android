@@ -1,4 +1,4 @@
-package com.joyersapp.feature.dashboard.presentation.user_profile
+package com.joyersapp.feature.profile.presentation
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.unit.Dp
