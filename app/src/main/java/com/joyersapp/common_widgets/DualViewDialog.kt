@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,6 +43,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -86,6 +88,7 @@ import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
+import kotlinx.coroutines.launch
 
 
 sealed class DialogState {
@@ -285,12 +288,16 @@ fun DualViewDialog(
 //                    maxHeightForViews = (this.maxHeight / 2)
 //                }
                 val maxHeightForSubTitles = maxHeightForViews - 35.dp - 179.dp - 70.dp
+                val listState = rememberLazyListState()
+                val coroutineScope = rememberCoroutineScope()
+
                 Column(modifier = Modifier
                     .animateContentSize( animationSpec = tween(durationMillis = 3, delayMillis = 10))
                     .fillMaxWidth()) {
 
                     // First Scrollable
                      LazyColumn(
+                         state = listState,
                             modifier = Modifier.animateContentSize( animationSpec = tween(durationMillis = 3, delayMillis = 10))
                                 .weight(1f, fill = false)
                                 .fillMaxWidth()
@@ -485,6 +492,9 @@ fun DualViewDialog(
                                                 subtitle = subtitle,
                                                 isSelected = state.selectedSubTitleId == subtitle.id,
                                                 onClick = {
+                                                    coroutineScope.launch {
+                                                        listState.animateScrollToItem(0)
+                                                    }
                                                     viewmodel.onEvent(TitleEvent.SubtitleClicked(subtitle))
                                                 }
                                             )
@@ -500,6 +510,9 @@ fun DualViewDialog(
                                                 title = title,
                                                 isSelected = state.selectedTitleId == title.id,
                                                 onClick = {
+                                                    coroutineScope.launch {
+                                                        listState.animateScrollToItem(0)
+                                                    }
                                                     viewmodel.onEvent(TitleEvent.TitleClicked(title))
                                                     keyboardController?.hide()
                                                 },
