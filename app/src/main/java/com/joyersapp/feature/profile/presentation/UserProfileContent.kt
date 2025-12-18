@@ -76,7 +76,8 @@ fun UserProfileContent(
     Surface() {
         Column(modifier = modifier
             .fillMaxSize()
-            .background(White)) {
+            .background(White)
+        ) {
 
             val gold = Golden60
             val lightBlackText = LightBlack
@@ -337,7 +338,7 @@ fun UserProfileContent(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Tab content (sample)
+                // Tab content
                 when (state.selectedTab) {
                     0 -> Column {
                         ProfileStatusSection(

@@ -1,4 +1,4 @@
-package com.joyersapp.feature.common
+package com.joyersapp.feature.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
