@@ -1,4 +1,7 @@
-package com.joyersapp.feature.dashboard.presentation.user_profile
+package com.joyersapp.feature.profile.presentation
+
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.ui.unit.Dp
 
 data class UserProfileUiState(
     val username: String = "Sara_99",
@@ -9,9 +12,14 @@ data class UserProfileUiState(
     val following: String = "599",
     val followers: String = "155M",
 
+    val tabs: List<String> = listOf("Status", "Identity", "Sparks", "Cards", "Gallery"),
+    var selectedTab: Int = 0,
+    val textWidths: MutableMap<Int, Dp> = mutableStateMapOf(),
+
     val bannerUrl: String? = null,
     val avatarUrl: String? = null,
 
     val isLoading: Boolean = false,
+    val showIdentificationDialog: Boolean = false,
     val error: String? = null
 )

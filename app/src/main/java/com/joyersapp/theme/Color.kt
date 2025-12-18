@@ -15,9 +15,12 @@ val Black = Color(0xFF000000)
 val LightBlack = Color(0xFF333333)
 val LightBlack9 = Color(0x17333333)
 val LightBlack13 = Color(0x21333333)
+val LightBlack5 = Color(0x0D333333)
 val LightBlack15 = Color(0x26333333)
+val LightBlack30 = Color(0x4D333333)
 val LightBlack35 = Color(0x59333333)
 val LightBlack40 = Color(0x66333333)
+val LightBlack55 = Color(0x8C333333)
 val LightBlack60 = Color(0x99333333)
 val DisabledTextColor = Color(0x99FFFFFF)
 
@@ -27,6 +30,10 @@ val Gray30 = Color(0xffADADAD)
 val GrayBorder = Color(0xFFE1E1E1)
 val GrayLightBorder = Color(0xFFEAEAEA)
 val Gray20 = Color(0xFFF4F4F4)
+
+val GrayBG = Color(0xFFF5F5F5)
+
+
 val Golden60 = Color(0xffd69e3a)
 val Red = Color(0xffff0000)
 val Green = Color(0xff0ED916)

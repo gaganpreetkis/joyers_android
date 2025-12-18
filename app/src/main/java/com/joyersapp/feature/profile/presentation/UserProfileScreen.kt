@@ -1,31 +1,29 @@
-package com.joyersapp.feature.dashboard.presentation.user_profile
+package com.joyersapp.feature.profile.presentation
 
-import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.joyersapp.feature.profile.presentation.common.IdentificationDialog
+import com.joyersapp.theme.White
 
 @Composable
 fun UserProfileScreen(
-    viewModel: UserProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: UserProfileViewModel = hiltViewModel(),
     onBack: () -> Unit = { /*(LocalContext.current as? ComponentActivity)?.finish()*/ },
     onMenu: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(White)) {
         // fixed header + scrollable content - we don't use Scaffold.bottomBar so content can scroll under floating nav
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().background(White)) {
             ProfileTopHeader(
                 username = state.username,
                 onBack = onBack,
@@ -39,13 +37,20 @@ fun UserProfileScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 UserProfileContent(
-                    state = state,
+                    viewModel = viewModel,
                     onEditProfile = viewModel::onEditProfile,
                     onMessage = viewModel::onMessage,
                     onNotify = viewModel::onNotify,
                     onBookmark = viewModel::onBookmark
                 )
             }
+        }
+        if (state.showIdentificationDialog) {
+            IdentificationDialog(
+                onClose = {
+                    viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
+                }
+            )
         }
     }
 
