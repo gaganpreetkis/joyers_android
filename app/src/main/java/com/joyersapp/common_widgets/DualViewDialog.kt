@@ -470,11 +470,12 @@ fun DualViewDialog(
                                             fontFamily = fontFamilyLato,
                                             textAlign = TextAlign.Center,
                                             color = lightBlackColor,
+                                            lineHeight = 22.sp,
                                             modifier = dialogModifier
                                                 .fillMaxWidth()
                                                 .padding(
-                                                    top = if (isKeyBoardOpen) 90.dp else 30.dp,
-                                                    bottom = if (isKeyBoardOpen) 0.dp else 74.dp
+                                                    top = if (isKeyBoardOpen) 95.dp else 35.dp,
+                                                    bottom = if (isKeyBoardOpen) 0.dp else 69.dp
                                                 )
                                         )
                                     }
