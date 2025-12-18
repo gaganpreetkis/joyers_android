@@ -84,10 +84,10 @@ fun ProfileStatusSection(
                 modifier = Modifier.size(35.dp)
                     .clip(CircleShape)
                     .background(LightBlack5)
-                    .padding(start = 10.dp, top = 10.dp, end = 9.3.dp, bottom = 9.38.dp)
                     .clickable {
-
+                        onEditDescription()
                     }
+                    .padding(start = 10.dp, top = 10.dp, end = 9.3.dp, bottom = 9.38.dp)
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_edit_pencil),

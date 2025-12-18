@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.joyersapp.feature.profile.presentation.common.IdentificationDialog
 import com.joyersapp.theme.White
 
 @Composable
@@ -43,6 +44,13 @@ fun UserProfileScreen(
                     onBookmark = viewModel::onBookmark
                 )
             }
+        }
+        if (state.showIdentificationDialog) {
+            IdentificationDialog(
+                onClose = {
+                    viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
+                }
+            )
         }
     }
 

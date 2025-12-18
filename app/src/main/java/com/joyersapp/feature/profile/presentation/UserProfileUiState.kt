@@ -20,5 +20,6 @@ data class UserProfileUiState(
     val avatarUrl: String? = null,
 
     val isLoading: Boolean = false,
+    val showIdentificationDialog: Boolean = false,
     val error: String? = null
 )
