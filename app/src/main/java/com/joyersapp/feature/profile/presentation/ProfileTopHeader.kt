@@ -1,93 +1,82 @@
-package com.joyersapp.feature.dashboard.presentation.user_profile
+package com.joyersapp.feature.profile.presentation
+
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import com.joyersapp.R
 import com.joyersapp.theme.White
+import com.joyersapp.utils.fontFamilyLato
 
+//@Preview
 @Composable
-fun CenteredHeader(
-    username: String,
-    lockBadgeCount: Int? = null,
+fun ProfileTopHeader(
+    username: String = "Sara_99",
+//    badgeCount: Int?,
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val sideIconWidth = 56.dp
-
+    val sideWidth = 56.dp
     Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = White,
-        tonalElevation = 0.dp
-    ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(63.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .height(63.dp),
+        color = White) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
             ) {
-
-                /** ---------- LEFT: Back Button Image ---------- */
+                // left back image
                 Box(
                     modifier = Modifier
-                        .width(sideIconWidth)
+                        .width(sideWidth)
                         .fillMaxHeight()
                         .align(Alignment.CenterStart),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.ic_back_arrow_golden),
+                        painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
                         contentDescription = "Back",
                         modifier = Modifier
-                            .size(26.dp)
+                            .size(20.dp, 17.dp)
                             .clickable { onBack() }
                     )
                 }
 
-                /** ---------- CENTER: username + lock + badge + arrow ---------- */
+                // center username block
                 Row(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                    /** Lock Image + Badge */
+                    // lock
                     Box(contentAlignment = Alignment.TopEnd) {
                         Image(
-                            painter = painterResource(R.drawable.ic_back_arrow_golden),
-                            contentDescription = "Private",
-                            modifier = Modifier.size(18.dp)
+                            painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace
+                            contentDescription = "Lock",
+                            modifier = Modifier.size(13.39.dp, 20.dp)
                         )
-
-                        /** Small Badge */
-                        if (lockBadgeCount != null && lockBadgeCount > 0) {
+                    /*    if (badgeCount != null && badgeCount > 0) {
                             Box(
                                 modifier = Modifier
                                     .offset(x = (-6).dp, y = 6.dp)
@@ -97,75 +86,52 @@ fun CenteredHeader(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = lockBadgeCount.toString(),
+                                    text = badgeCount.toString(),
                                     fontSize = 8.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
-                        }
+                        }*/
                     }
 
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(7.01.dp))
 
-                    /** Username + Chevron */
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = username,
-                            fontSize = 20.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-
+                        Spacer(Modifier.width(7.dp))
                         Image(
-                            painter = painterResource(com.joyersapp.R.drawable.ic_back_arrow_golden),
+                            painter = painterResource(id = R.drawable.arrowdown_lite),
                             contentDescription = "Dropdown",
-                            modifier = Modifier
-                                .size(20.dp)
-                                .padding(start = 4.dp)
+                            modifier = Modifier.size(14.dp, 8.dp)
                         )
                     }
                 }
 
-                /** ---------- RIGHT: Menu Image ---------- */
+                // right menu
                 Box(
                     modifier = Modifier
-                        .width(sideIconWidth)
+                        .width(sideWidth)
                         .fillMaxHeight()
                         .align(Alignment.CenterEnd),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.ic_back_arrow_golden),
+                        painter = painterResource(id = R.drawable.ic_menu_dots_horizontal),
                         contentDescription = "Menu",
                         modifier = Modifier
-                            .size(22.dp)
+                            .size(18.dp, 4.dp)
                             .clickable { onMenu() }
                     )
                 }
             }
 
-            /** Bottom Divider */
-            Spacer(
-                Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(Color(0xFFE6E6E6))
-            )
-        }
     }
-}
-
-@Preview(showBackground = true, widthDp = 420)
-@Composable
-private fun PreviewCenteredHeader() {
-    CenteredHeader(
-        username = "Sara_99",
-        lockBadgeCount = 7,
-        onBack = {},
-        onMenu = {}
-    )
 }

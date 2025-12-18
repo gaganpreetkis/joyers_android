@@ -14,7 +14,7 @@ import com.joyersapp.auth.presentation.login.LoginScreen
 import com.joyersapp.auth.presentation.resetpassword.ResetPasswordScreen
 import com.joyersapp.auth.presentation.signup.SignUpScreen
 import com.joyersapp.auth.presentation.SplashVideoScreen
-import com.joyersapp.feature.dashboard.AppScaffoldRoot
+import com.joyersapp.feature.common.AppScaffoldRoot
 import com.synapse.joyers.ui.screens.SplashScreen
 import java.net.URLDecoder
 import java.net.URLEncoder

@@ -1,5 +1,4 @@
-package com.joyersapp.feature.dashboard.presentation.user_profile
-
+package com.joyersapp.feature.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,64 +24,69 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.joyersapp.R
 import com.joyersapp.theme.White
-import com.joyersapp.utils.fontFamilyLato
 
-@Preview
 @Composable
-fun ProfileTopHeader(
-    username: String = "Sara_99",
-//    badgeCount: Int?,
+fun CenteredHeader(
+    username: String,
+    lockBadgeCount: Int? = null,
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val sideWidth = 56.dp
+    val sideIconWidth = 56.dp
+
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(63.dp),
-        color = White) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+        modifier = modifier.fillMaxWidth(),
+        color = White,
+        tonalElevation = 0.dp
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(63.dp)
             ) {
-                // left back image
+
+                /** ---------- LEFT: Back Button Image ---------- */
                 Box(
                     modifier = Modifier
-                        .width(sideWidth)
+                        .width(sideIconWidth)
                         .fillMaxHeight()
                         .align(Alignment.CenterStart),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
+                        painter = painterResource(R.drawable.ic_back_arrow_golden),
                         contentDescription = "Back",
                         modifier = Modifier
-                            .size(20.dp, 17.dp)
+                            .size(26.dp)
                             .clickable { onBack() }
                     )
                 }
 
-                // center username block
+                /** ---------- CENTER: username + lock + badge + arrow ---------- */
                 Row(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // lock
+
+                    /** Lock Image + Badge */
                     Box(contentAlignment = Alignment.TopEnd) {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace
-                            contentDescription = "Lock",
-                            modifier = Modifier.size(13.39.dp, 20.dp)
+                            painter = painterResource(R.drawable.ic_back_arrow_golden),
+                            contentDescription = "Private",
+                            modifier = Modifier.size(18.dp)
                         )
-                    /*    if (badgeCount != null && badgeCount > 0) {
+
+                        /** Small Badge */
+                        if (lockBadgeCount != null && lockBadgeCount > 0) {
                             Box(
                                 modifier = Modifier
                                     .offset(x = (-6).dp, y = 6.dp)
@@ -92,52 +96,75 @@ fun ProfileTopHeader(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = badgeCount.toString(),
+                                    text = lockBadgeCount.toString(),
                                     fontSize = 8.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
-                        }*/
+                        }
                     }
 
-                    Spacer(modifier = Modifier.width(7.01.dp))
+                    Spacer(Modifier.width(6.dp))
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    /** Username + Chevron */
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
                             text = username,
-                            fontSize = 22.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
-                            fontFamily = fontFamilyLato,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(Modifier.width(7.dp))
+
                         Image(
-                            painter = painterResource(id = R.drawable.arrowdown_lite),
+                            painter = painterResource(R.drawable.ic_back_arrow_golden),
                             contentDescription = "Dropdown",
-                            modifier = Modifier.size(14.dp, 8.dp)
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(start = 4.dp)
                         )
                     }
                 }
 
-                // right menu
+                /** ---------- RIGHT: Menu Image ---------- */
                 Box(
                     modifier = Modifier
-                        .width(sideWidth)
+                        .width(sideIconWidth)
                         .fillMaxHeight()
                         .align(Alignment.CenterEnd),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_menu_dots_horizontal),
+                        painter = painterResource(R.drawable.ic_back_arrow_golden),
                         contentDescription = "Menu",
                         modifier = Modifier
-                            .size(18.dp, 4.dp)
+                            .size(22.dp)
                             .clickable { onMenu() }
                     )
                 }
             }
 
+            /** Bottom Divider */
+            Spacer(
+                Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color(0xFFE6E6E6))
+            )
+        }
     }
 }
+
+//@Preview(showBackground = true, widthDp = 420)
+//@Composable
+//private fun PreviewCenteredHeader() {
+//    CenteredHeader(
+//        username = "Sara_99",
+//        lockBadgeCount = 7,
+//        onBack = {},
+//        onMenu = {}
+//    )
+//}

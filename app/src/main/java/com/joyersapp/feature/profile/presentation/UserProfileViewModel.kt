@@ -1,4 +1,4 @@
-package com.joyersapp.feature.dashboard.presentation.user_profile
+package com.joyersapp.feature.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,13 +10,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 @HiltViewModel
 class UserProfileViewModel @Inject constructor() : ViewModel() {
-    private val _uiState = MutableStateFlow(UserProfileUiState(
-        bannerUrl = null,
-        avatarUrl = null
-    ))
+    private val _uiState = MutableStateFlow(
+        UserProfileUiState(
+            bannerUrl = null,
+            avatarUrl = null
+        )
+    )
     val uiState: StateFlow<UserProfileUiState> = _uiState.asStateFlow()
 
     init {
@@ -30,6 +31,21 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
                     // optionally update fields from real data
                 )
             }
+        }
+    }
+
+    fun onEvent(event: UserProfileEvent) {
+        when (event) {
+
+            is UserProfileEvent.TabSelected -> {
+                _uiState.update {
+                    it.copy(
+                        selectedTab = event.tab,
+                    )
+                }
+            }
+
+            UserProfileEvent.SubmitClicked -> TODO()
         }
     }
 

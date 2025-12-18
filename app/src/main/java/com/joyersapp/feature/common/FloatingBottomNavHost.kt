@@ -1,4 +1,4 @@
-package com.joyersapp.feature.dashboard
+package com.joyersapp.feature.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -100,10 +100,10 @@ fun BottomNavBar(
 }
 
 
-enum class BottomTab(val label: String, val selectedIcon: Int, val unselectedIcon: Int) {
+enum class BottomTab(val label: String, val selectedIcon: Int, unselectedIcon: Int) {
     HOME("Home", R.drawable.ic_nav_joyers_home, R.drawable.ic_cancel_grey),
-    FRIENDS("Search", R.drawable.ic_nav_joyers_friends, R.drawable.ic_cancel_grey),
-    POST("Add", R.drawable.ic_nav_joyers_add, R.drawable.ic_cancel_grey),
+    PROFILE("Profile", R.drawable.ic_nav_joyers_profile, R.drawable.ic_cancel_grey),
+    POST("Post", R.drawable.ic_nav_joyers_add, R.drawable.ic_cancel_grey),
     CONTACTS("Chat", R.drawable.ic_nav_joyers_contact, R.drawable.ic_cancel_grey),
     NOTIFICATIONS("Profile", R.drawable.ic_nav_joyers_notifications, R.drawable.ic_cancel_grey)
 }

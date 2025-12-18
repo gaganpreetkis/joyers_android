@@ -1,4 +1,4 @@
-package com.joyersapp.feature.dashboard
+package com.joyersapp.feature.common
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,13 +41,13 @@ data class AppScaffoldUiState(
 )
 
 enum class AppScreen {
-    Home, Search, Create, Messages, Profile
+    Home, Profile, Post, Messages, Notifications
 }
 
 fun BottomTab.toScreen(): AppScreen = when (this) {
     BottomTab.HOME -> AppScreen.Home
-    BottomTab.FRIENDS -> AppScreen.Search
-    BottomTab.POST -> AppScreen.Create
+    BottomTab.PROFILE -> AppScreen.Profile
+    BottomTab.POST -> AppScreen.Post
     BottomTab.CONTACTS -> AppScreen.Messages
-    BottomTab.NOTIFICATIONS -> AppScreen.Profile
+    BottomTab.NOTIFICATIONS -> AppScreen.Notifications
 }
