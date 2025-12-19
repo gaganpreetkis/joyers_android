@@ -75,6 +75,7 @@ import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.iosBounceScroll
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -152,10 +153,13 @@ fun LoginScreen(
         }
     }
 
+    val scrollState = rememberScrollState()
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .iosBounceScroll(scrollState)
+            .verticalScroll(scrollState)
             .padding(horizontal = 35.dp)
             .statusBarsPadding()
             .imePadding()
@@ -231,7 +235,7 @@ fun LoginScreen(
                         },
                         maxLength = if (state.isPhoneMode) 15 else 100,
                         placeholder = if (state.isPhoneMode) "Phone Number" else "Username / Email",
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).padding(bottom = 1.dp),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = if (state.isPhoneMode) {
                                 KeyboardType.Phone
@@ -353,7 +357,7 @@ fun LoginScreen(
                                 onPasswordToggle = {
                                     viewModel.onEvent(LoginEvent.PasswordVisibleChanged(!state.passwordVisible))
                                 },
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxSize().padding(bottom = 1.dp),
                             )
                         }
                     }
@@ -475,9 +479,12 @@ fun LoginScreen(
                     ),
                 ) {
                     Text(
-                        "Login", fontSize = 16.sp,
+                        "Login",
+                        fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
+                        lineHeight = 19.sp,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
 
@@ -514,6 +521,7 @@ fun LoginScreen(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
 
                     Spacer(modifier = Modifier.width(7.dp))
@@ -523,7 +531,7 @@ fun LoginScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .width(12.dp)
-                            .padding(top = 2.dp)
+                            .padding(top = 1.dp)
                     )
                 }
 

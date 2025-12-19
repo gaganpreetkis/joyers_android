@@ -104,7 +104,7 @@ fun CountryCodePicker(
     ) {
         Spacer(modifier = Modifier.width(initialPadding.dp))
         AndroidView(
-            modifier = Modifier.wrapContentHeight(),
+            modifier = Modifier.wrapContentHeight().padding(bottom = 1.dp),
             factory = { context ->
                 CountryCodePicker(context).apply {
                     setDefaultCountryUsingNameCode(defaultCountry)

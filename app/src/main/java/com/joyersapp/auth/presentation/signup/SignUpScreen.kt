@@ -202,6 +202,7 @@ fun SignUpScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.71f)
+                    .padding(bottom = 1.dp)
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         viewModel.onEvent(SignupEvent.UsernameFocusChanged(focusState.isFocused))
@@ -342,6 +343,7 @@ fun SignUpScreen(
                                     maxLength = 15,
                                     placeholder = stringResource(R.string.phone_number),
                                     modifier = Modifier.weight(1f)
+                                        .padding(bottom = 1.dp)
                                         .focusRequester(focusRequester)
                                         .onFocusChanged { focusState ->
                                             viewModel.onEvent(SignupEvent.PhoneFocusChanged(focusState.isFocused))
@@ -381,6 +383,7 @@ fun SignUpScreen(
                                     placeholder = stringResource(R.string.email),
                                     modifier = Modifier.weight(1f)
                                         .focusRequester(focusRequester)
+                                        .padding(bottom = 1.dp)
                                         .onFocusChanged { focusState ->
                                             viewModel.onEvent(SignupEvent.EmailFocusChanged(focusState.isFocused))
                                         },
@@ -528,7 +531,7 @@ fun SignUpScreen(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
-                                modifier = Modifier.padding(vertical = 1.dp)
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
 
@@ -550,7 +553,7 @@ fun SignUpScreen(
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
                                 color = White,
-                                modifier = Modifier.padding(vertical = 1.dp)
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
                     }
@@ -602,6 +605,7 @@ fun SignUpScreen(
                                         },
                                         modifier = Modifier
                                             .fillMaxSize()
+                                            .padding(bottom = 1.dp)
                                             .focusRequester(focusRequester)
                                             .onFocusChanged { focusState ->
                                                 viewModel.onEvent(SignupEvent.PasswordFocusChanged(focusState.isFocused))
@@ -699,6 +703,7 @@ fun SignUpScreen(
                                             viewModel.onEvent(SignupEvent.ToggleConfirmPasswordVisibility)
                                         },
                                         modifier = Modifier.fillMaxSize()
+                                            .padding(bottom = 1.dp)
                                             .focusRequester(focusRequester)
                                             .onFocusChanged { focusState ->
                                                 viewModel.onEvent(SignupEvent.ConfirmPasswordFocusChanged(focusState.isFocused))
@@ -761,7 +766,7 @@ fun SignUpScreen(
 //                                    state.isValidPassword && state.confirmPassword == state.password
 //                                else
 //                                    state.isValidUsername && (state.isValidEmail ||state.isValidPhone),
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 1.dp).height(50.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Golden60,
                                 disabledContainerColor = Golden60,

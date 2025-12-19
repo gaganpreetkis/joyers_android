@@ -665,6 +665,7 @@ fun PageOneContent(
                 },
                 placeholder = stringResource(R.string.joyer_name),
                 modifier = Modifier.weight(0.8f)
+                    .padding(bottom = 1.dp)
                     .fillMaxWidth()
                     .imePadding()
                     .focusRequester(remember { FocusRequester() })
@@ -750,7 +751,7 @@ fun PageOneContent(
                 fontWeight = if (countryName.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                 fontFamily = fontFamilyLato,
                 color = if (countryName.isNotEmpty()) lightBlackColor else hintColor,
-//                    modifier = Modifier.weight(0.33f)
+                modifier = Modifier.padding(bottom = 1.dp)
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1033,8 +1034,8 @@ fun PageTwoContent(
                         .clickable {
                             selectedStatus = if (selectedStatus == statusKey) null else statusKey
                             viewModel2.onEvent(IdentityEvent.JoyerStatusChanged(selectedStatus ?: ""))
-                        }
-                        .padding(17.dp),
+                        },
+                        //.padding(17.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -1042,7 +1043,8 @@ fun PageTwoContent(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                        color = if (isSelected) whiteColor else lightBlackColor
+                        color = if (isSelected) whiteColor else lightBlackColor,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
                 if (statusKey != statusOptions.last().first) {
@@ -1359,7 +1361,8 @@ fun PageThreeContent(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
-                                color = whiteColor
+                                color = whiteColor,
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
                     }
@@ -1400,7 +1403,8 @@ fun PageThreeContent(
                                 fontSize = 16.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = if (hasTitleSelected) FontWeight.Bold else FontWeight.SemiBold,
-                                color = if (hasTitleSelected) whiteColor else goldenColor
+                                color = if (hasTitleSelected) whiteColor else goldenColor,
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
                     }
@@ -1443,7 +1447,8 @@ fun PageThreeContent(
                                 fontSize = 16.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = if (hasSubTitleSelected) FontWeight.Bold else FontWeight.SemiBold,
-                                color = if (hasSubTitleSelected) whiteColor else goldenColor
+                                color = if (hasSubTitleSelected) whiteColor else goldenColor,
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
                     }

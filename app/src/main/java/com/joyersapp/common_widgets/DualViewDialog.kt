@@ -351,7 +351,8 @@ fun DualViewDialog(
                                                 placeholder = context.getString(R.string.search_speciality),
                                                 modifier = dialogModifier
                                                     .weight(1f)
-                                                    .fillMaxHeight(),
+                                                    .fillMaxHeight()
+                                                    .padding(bottom = 1.dp),
                                                 textStyle = TextStyle(
                                                     platformStyle = PlatformTextStyle(includeFontPadding = false),
                                                     fontFamily = fontFamilyLato,
@@ -414,7 +415,7 @@ fun DualViewDialog(
                                                 textAlign = TextAlign.Center,
                                                 fontFamily = fontFamilyLato,
                                                 fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier
+                                                modifier = Modifier.padding(bottom = 1.dp)
                                             )
                                         }
                                     } else {
@@ -445,7 +446,7 @@ fun DualViewDialog(
                                                 fontFamily = fontFamilyLato,
                                                 color = if (state.searchQuery.isEmpty()) lightBlackColor else goldenColor,
                                                 textAlign = TextAlign.Center,
-                                                modifier = Modifier
+                                                modifier = Modifier.padding(bottom = 1.dp)
                                             )
                                         }
                                     }

@@ -310,7 +310,7 @@ fun ForgotPasswordScreen(
                                 },
                                 maxLength = 100,
                                 placeholder = stringResource(R.string.username_email),
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).padding(bottom = 1.dp),
                                 containerColor = Color.Transparent,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Email
@@ -425,7 +425,7 @@ fun ForgotPasswordScreen(
                                 },
                                 maxLength = 15,
                                 placeholder = stringResource(R.string.phone_number),
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).padding(bottom = 1.dp),
                                 containerColor = Color.Transparent,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Phone
@@ -693,7 +693,8 @@ fun ForgotPasswordScreen(
                         text = stringResource(R.string.next),
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
             }
@@ -727,7 +728,8 @@ fun ForgotPasswordScreen(
                         text = stringResource(R.string.verify),
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
 
@@ -760,7 +762,8 @@ fun ForgotPasswordScreen(
                         text = stringResource(R.string.resend_code),
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
             }
