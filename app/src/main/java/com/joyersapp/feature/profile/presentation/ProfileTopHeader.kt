@@ -29,109 +29,92 @@ import com.joyersapp.utils.fontFamilyLato
 //@Preview
 @Composable
 fun ProfileTopHeader(
+    modifier: Modifier = Modifier,
     username: String = "Sara_99",
-//    badgeCount: Int?,
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val sideWidth = 56.dp
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .height(63.dp),
-        color = White) {
-            Box(modifier = Modifier
+        color = White
+    ) {
+        Box(
+            modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
+        ) {
+            // left back image
+            Box(
+                modifier = Modifier
+                    .width(sideWidth)
+                    .fillMaxHeight()
+                    .align(Alignment.CenterStart),
+                contentAlignment = Alignment.Center
             ) {
-                // left back image
-                Box(
+                Image(
+                    painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
+                    contentDescription = "Back",
                     modifier = Modifier
-                        .width(sideWidth)
-                        .fillMaxHeight()
-                        .align(Alignment.CenterStart),
-                    contentAlignment = Alignment.Center
-                ) {
+                        .size(20.dp, 17.dp)
+                        .clickable { onBack() }
+                )
+            }
+
+            // center username block
+            Row(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // lock
+                Box(contentAlignment = Alignment.TopEnd) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_back_arrow_golden), // replace
-                        contentDescription = "Back",
-                        modifier = Modifier
-                            .size(20.dp, 17.dp)
-                            .clickable { onBack() }
+                        painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace
+                        contentDescription = "Lock",
+                        modifier = Modifier.size(13.39.dp, 20.dp)
                     )
                 }
 
-                // center username block
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // lock
-                    Box(contentAlignment = Alignment.TopEnd) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace
-                            contentDescription = "Lock",
-                            modifier = Modifier.size(13.39.dp, 20.dp)
-                        )
-                    /*    if (badgeCount != null && badgeCount > 0) {
-                            Box(
-                                modifier = Modifier
-                                    .offset(x = (-6).dp, y = 6.dp)
-                                    .size(14.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFFFF3B30)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = badgeCount.toString(),
-                                    fontSize = 8.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }*/
-                    }
+                Spacer(modifier = Modifier.width(7.01.dp))
 
-                    Spacer(modifier = Modifier.width(7.01.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = username,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = fontFamilyLato,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(Modifier.width(7.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.arrowdown_lite),
-                            contentDescription = "Dropdown",
-                            modifier = Modifier.size(14.dp, 8.dp)
-                        )
-                    }
-                }
-
-                // right menu
-                Box(
-                    modifier = Modifier
-                        .width(sideWidth)
-                        .fillMaxHeight()
-                        .align(Alignment.CenterEnd),
-                    contentAlignment = Alignment.Center
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = username,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.width(7.dp))
                     Image(
-                        painter = painterResource(id = R.drawable.ic_menu_dots_horizontal),
-                        contentDescription = "Menu",
-                        modifier = Modifier
-                            .size(18.dp, 4.dp)
-                            .clickable { onMenu() }
+                        painter = painterResource(id = R.drawable.arrowdown_lite),
+                        contentDescription = "Dropdown",
+                        modifier = Modifier.size(14.dp, 8.dp)
                     )
                 }
             }
 
+            // right menu
+            Box(
+                modifier = Modifier
+                    .width(sideWidth)
+                    .fillMaxHeight()
+                    .align(Alignment.CenterEnd),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_menu_dots_horizontal),
+                    contentDescription = "Menu",
+                    modifier = Modifier
+                        .size(18.dp, 4.dp)
+                        .clickable { onMenu() }
+                )
+            }
+        }
     }
 }

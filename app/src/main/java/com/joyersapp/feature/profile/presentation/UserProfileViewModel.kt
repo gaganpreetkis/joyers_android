@@ -37,6 +37,14 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     fun onEvent(event: UserProfileEvent) {
         when (event) {
 
+            is UserProfileEvent.Load -> {
+//                _uiState.update {
+//                    it.copy(
+//                        isLoading = true,
+//                    )
+//                }
+            }
+
             is UserProfileEvent.TabSelected -> {
                 _uiState.update {
                     it.copy(
@@ -63,8 +71,6 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun onEditProfile() { /* navigate to edit */ }
-    fun onMessage() { /* open chat */ }
-    fun onNotify() { /* notifications */ }
-    fun onBookmark() { /* bookmark */ }
+
+
 }

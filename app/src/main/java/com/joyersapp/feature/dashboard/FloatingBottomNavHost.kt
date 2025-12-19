@@ -100,10 +100,10 @@ fun BottomNavBar(
 }
 
 
-enum class BottomTab(val label: String, val selectedIcon: Int, unselectedIcon: Int) {
-    HOME("Home", R.drawable.ic_nav_joyers_home, R.drawable.ic_cancel_grey),
-    PROFILE("Profile", R.drawable.ic_nav_joyers_profile, R.drawable.ic_cancel_grey),
-    POST("Post", R.drawable.ic_nav_joyers_add, R.drawable.ic_cancel_grey),
-    CONTACTS("Chat", R.drawable.ic_nav_joyers_contact, R.drawable.ic_cancel_grey),
-    NOTIFICATIONS("Profile", R.drawable.ic_nav_joyers_notifications, R.drawable.ic_cancel_grey)
+enum class BottomTab(val label: String, val selectedIcon: Int,val route: String) {
+    HOME("Home", R.drawable.ic_nav_joyers_home, "home"),
+    PROFILE("Profile", R.drawable.ic_nav_joyers_profile, "profile"),
+    POST("Post", R.drawable.ic_nav_joyers_add, "post"),
+    CONTACTS("Chat", R.drawable.ic_nav_joyers_contact, "contacts"),
+    NOTIFICATIONS("Profile", R.drawable.ic_nav_joyers_notifications, "notifications")
 }
