@@ -30,7 +30,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.joyersapp.R
+import com.joyersapp.theme.Black
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.White
+import com.joyersapp.utils.fontFamilyLato
 
 
 @Composable
@@ -39,100 +44,49 @@ fun IdentificationDialog(
     onUploadImage: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Dialog(onDismissRequest = onClose) {
+    Dialog(
+        onDismissRequest = onClose,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )
+    ) {
         Surface(
-            shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
-            color = Color.White
+            modifier = Modifier.padding(vertical = 50.dp),
+            shape = RoundedCornerShape(25.dp),
+            color = White
         ) {
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(bottom = 24.dp)   // extra padding at bottom for scroll
+                    .padding(bottom = 35.dp)   // extra padding at bottom for scroll
             ) {
 
                 /** HEADER **/
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp),
-                    contentAlignment = Alignment.Center
+                        .height(47.dp),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
                     Text(
                         text = "Identification",
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Medium
+                        fontSize = 24.sp,
+                        color = LightBlack,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 29.sp,
                     )
 
-                    Icon(
+                    Image(
                         painter = painterResource(id = R.drawable.ic_cross_golden),
                         contentDescription = "Close",
-                        tint = Color(0xFFD8A23A),
                         modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 16.dp)
-                            .size(22.dp)
+                            .align(alignment = Alignment.TopEnd)
+                            .padding(end = 23.04.dp, top = 16.5.dp)
+                            .size(15.51.dp)
                             .clickable { onClose() }
-                    )
-                }
-
-                Spacer(Modifier.height(20.dp))
-
-                /** PROFILE PICTURE SECTION **/
-                SectionTitle("Profile Picture")
-
-                Spacer(Modifier.height(10.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                        Box(
-                            modifier = Modifier
-                                .size(140.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFF7F7F7)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(R.drawable.camera_outline_colored),
-                                contentDescription = null,
-                                modifier = Modifier.size(42.dp)
-                            )
-                        }
-
-                        Spacer(Modifier.height(10.dp))
-
-                        Text(
-                            text = "Upload Picture",
-                            fontSize = 14.sp,
-                            color = Color(0xFFD8A23A),
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    Icon(
-                        painter = painterResource(R.drawable.camera_inside_color),
-                        contentDescription = null,
-                        tint = Color(0xFFD8A23A),
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(10.dp)
-                            .size(28.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .border(1.dp, Color(0xFFE5E5E5), CircleShape)
-                            .padding(4.dp)
                     )
                 }
 
@@ -175,13 +129,19 @@ fun IdentificationDialog(
 
 @Composable
 fun SectionTitle(text: String) {
-    Text(
-        text = text,
-        fontSize = 14.sp,
-        color = Color.Black,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(start = 20.dp)
-    )
+    Box(
+        modifier = Modifier.height(19.dp)
+    ) {
+        Text(
+            text = text,
+            fontSize = 16.sp,
+            color = LightBlack,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Bold,
+            lineHeight = 22.sp,
+            modifier = Modifier.padding(horizontal = 15.dp),
+        )
+    }
 }
 
 @Composable
