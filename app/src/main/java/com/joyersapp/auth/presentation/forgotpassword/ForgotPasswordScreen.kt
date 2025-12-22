@@ -283,16 +283,16 @@ fun ForgotPasswordScreen(
                             ),
                     ) {
                         Row(
-                            modifier = Modifier.padding(start = 19.dp),
+                            modifier = Modifier.padding(start = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.user_icon),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(24.dp).width(22.34.dp)
                             )
 
-                            //Spacer(modifier = Modifier.width(15.dp))
+                            Spacer(modifier = Modifier.width(0.5.dp))
 
                             AppBasicTextField(
                                 value = state.usernameEmail,
@@ -310,7 +310,7 @@ fun ForgotPasswordScreen(
                                 },
                                 maxLength = 100,
                                 placeholder = stringResource(R.string.username_email),
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).padding(bottom = 1.dp),
                                 containerColor = Color.Transparent,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Email
@@ -362,7 +362,7 @@ fun ForgotPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.ic_telephone_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.height(24.17.dp).width(24.dp)
                         )
                     }
                 }
@@ -387,13 +387,13 @@ fun ForgotPasswordScreen(
                             ),
                     ) {
                         Row(
-                            modifier = Modifier.padding(start = 19.dp),
+                            modifier = Modifier.padding(start = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_telephone_gray),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(24.17.dp).width(24.dp)
                             )
 
                             Spacer(modifier = Modifier.width(7.dp))
@@ -425,7 +425,7 @@ fun ForgotPasswordScreen(
                                 },
                                 maxLength = 15,
                                 placeholder = stringResource(R.string.phone_number),
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).padding(bottom = 1.dp),
                                 containerColor = Color.Transparent,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Phone
@@ -475,7 +475,7 @@ fun ForgotPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.user_icon_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.height(24.dp).width(22.34.dp)
                         )
                     }
                 }
@@ -693,7 +693,8 @@ fun ForgotPasswordScreen(
                         text = stringResource(R.string.next),
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
             }
@@ -727,7 +728,8 @@ fun ForgotPasswordScreen(
                         text = stringResource(R.string.verify),
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
 
@@ -760,7 +762,8 @@ fun ForgotPasswordScreen(
                         text = stringResource(R.string.resend_code),
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
             }

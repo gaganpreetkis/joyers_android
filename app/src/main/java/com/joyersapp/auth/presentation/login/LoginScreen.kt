@@ -75,6 +75,7 @@ import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.iosBounceScroll
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -152,10 +153,13 @@ fun LoginScreen(
         }
     }
 
+    val scrollState = rememberScrollState()
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .iosBounceScroll(scrollState)
+            .verticalScroll(scrollState)
             .padding(horizontal = 35.dp)
             .statusBarsPadding()
             .imePadding()
@@ -200,17 +204,17 @@ fun LoginScreen(
                     .border(color = if (state.password.isNotEmpty() && state.username.isNotEmpty() && (state.apiOnlyUsernameErrorMessage.isNotEmpty() || state.apiErrorMessage.isNotEmpty())) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 19.dp),
+                    modifier = Modifier.padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
                     Image(
                         painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_telephone_gray else R.drawable.user_icon),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.height(if (state.isPhoneMode) 24.17.dp else 24.dp).width(if (state.isPhoneMode) 24.dp else 22.34.dp)
                     )
 
-                    Spacer(modifier = Modifier.width(0.dp))
+                    Spacer(modifier = Modifier.width(if (state.isPhoneMode) 0.dp else 0.5.dp))
 
                     if (state.isPhoneMode)
                         CountryCodePicker(
@@ -231,7 +235,7 @@ fun LoginScreen(
                         },
                         maxLength = if (state.isPhoneMode) 15 else 100,
                         placeholder = if (state.isPhoneMode) "Phone Number" else "Username / Email",
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).padding(bottom = 1.dp),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = if (state.isPhoneMode) {
                                 KeyboardType.Phone
@@ -285,7 +289,7 @@ fun LoginScreen(
                 Image(
                     painter = painterResource(id = if (state.isPhoneMode) R.drawable.user_icon_golden else R.drawable.ic_telephone_golden),
                     contentDescription = "Toggle",
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.height(if (state.isPhoneMode) 24.dp else 24.17.dp).width(if (state.isPhoneMode) 22.34.dp else 24.dp)
                 )
             }
         }
@@ -319,7 +323,7 @@ fun LoginScreen(
                         .background(Gray20, RoundedCornerShape(5.dp))
                 ) {
                     Row(
-                        modifier = Modifier.padding(start = 19.dp),
+                        modifier = Modifier.padding(start = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
@@ -330,7 +334,7 @@ fun LoginScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.password_icon),
                                 contentDescription = null,
-                                modifier = Modifier.height(26.dp).width(24.dp)
+                                modifier = Modifier.height(26.dp).width(22.62.dp)
                             )
 
                             Spacer(modifier = Modifier.width(0.dp))
@@ -353,7 +357,7 @@ fun LoginScreen(
                                 onPasswordToggle = {
                                     viewModel.onEvent(LoginEvent.PasswordVisibleChanged(!state.passwordVisible))
                                 },
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxSize().padding(bottom = 1.dp),
                             )
                         }
                     }
@@ -475,9 +479,12 @@ fun LoginScreen(
                     ),
                 ) {
                     Text(
-                        "Login", fontSize = 16.sp,
+                        "Login",
+                        fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
+                        lineHeight = 19.sp,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
 
@@ -514,6 +521,7 @@ fun LoginScreen(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
 
                     Spacer(modifier = Modifier.width(7.dp))
@@ -523,7 +531,7 @@ fun LoginScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .width(12.dp)
-                            .padding(top = 2.dp)
+                            .padding(top = 1.dp)
                     )
                 }
 

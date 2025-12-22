@@ -27,7 +27,7 @@ sealed class Routes(val route: String) {
     data object ResetPassword : Routes("resetPassword")
     data object JoyersOath : Routes("joyersOath")
     data object SplashVideo : Routes("splashVideo")
-//    data object Dashboard : Routes("dashboard")
+    data object Dashboard : Routes("dashboard")
 
 }
 

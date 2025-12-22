@@ -278,7 +278,7 @@ fun AppBasicTextFieldForLetterSpacing(
                 keyboardOptions = keyboardOptions,
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                 cursorBrush = SolidColor(Black),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 1.dp),
             )
         } // Password eye button (optional) - only show when text is present
         if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {

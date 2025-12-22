@@ -88,8 +88,10 @@ import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
+import com.joyersapp.theme.Green
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack13
+import com.joyersapp.theme.LightBlack55
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.LightBlack9
 import com.joyersapp.theme.Red
@@ -100,6 +102,7 @@ import com.joyersapp.utils.isAllowedIdentityNameChars
 import com.joyersapp.utils.isValidNameAdvanced
 import com.joyersapp.utils.uriToFile
 import kotlinx.coroutines.launch
+
 //@Preview
 @Composable
 fun IdentityScreen(
@@ -253,6 +256,7 @@ fun IdentityScreen(
 //                        preferencesManager = preferencesManager,
 //                        activity = activity
                     )
+
                     1 -> PageTwoContent(
                         viewModel2 = viewModel2,
                         onNext = {
@@ -269,6 +273,7 @@ fun IdentityScreen(
 ////                        preferencesManager = preferencesManager,
 ////                        activity = activity
                     )
+
                     2 -> PageThreeContent(
                         viewModel2 = viewModel2,
                         onBack = {
@@ -276,7 +281,7 @@ fun IdentityScreen(
                                 pagerState.animateScrollToPage(page - 1)
                             }
                         },
-                        onNavigateToNext = {onNavigateToNext()},
+                        onNavigateToNext = { onNavigateToNext() },
                         viewmodel = viewmodel,
                         pagerState
 ////                        signupViewModel = signupViewModel,
@@ -305,7 +310,6 @@ fun IdentityScreen(
     }
 
 }
-
 
 
 @Composable
@@ -337,7 +341,7 @@ fun PageOneContent(
     val hintColor = Gray40
     val whiteColor = Color.White
     val redColor = Red
-    val astrikeColor = colorResource(id = R.color.astrike_color)
+    val astrikeColor = LightBlack55//colorResource(id = R.color.astrike_color)
     val focusManager = LocalFocusManager.current
 
     val maxLength = 45
@@ -438,6 +442,7 @@ fun PageOneContent(
             fontSize = 18.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
+            lineHeight = 22.sp,
             color = lightBlackColor,
             modifier = Modifier.fillMaxWidth()
         )
@@ -488,7 +493,7 @@ fun PageOneContent(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(15.dp)
-                                .clickable(interactionSource = remember { MutableInteractionSource()},indication = null) {
+                                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
 //                                    headerImagePickerLauncher.launch("image/*")
                                     showImagePickerBottomSheetBack = true
                                 },
@@ -610,18 +615,23 @@ fun PageOneContent(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = fontFamilyLato,
-                color = lightBlackColor
+                lineHeight = 22.sp,
+                color = lightBlackColor,
+                modifier = Modifier
             )
+            Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = " *",
-                fontSize = 24.sp,
+                text = "*",
+                fontSize = 22.sp,
                 fontFamily = fontFamilyLato,
-                fontWeight = FontWeight.ExtraBold,
-                color = astrikeColor
+                fontWeight = FontWeight.SemiBold,
+                lineHeight = 22.sp,
+                color = astrikeColor,
+                modifier = Modifier.padding(top = 3.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(7.dp))
 
         // Name Input
         Row(
@@ -664,7 +674,9 @@ fun PageOneContent(
                     }
                 },
                 placeholder = stringResource(R.string.joyer_name),
-                modifier = Modifier.weight(0.8f)
+                modifier = Modifier
+                    .weight(0.8f)
+                    .padding(bottom = 1.dp)
                     .fillMaxWidth()
                     .imePadding()
                     .focusRequester(remember { FocusRequester() })
@@ -673,6 +685,7 @@ fun PageOneContent(
                     },
                 textStyle = TextStyle(
                     fontSize = 16.sp,
+                    color = lightBlackColor,
                     fontWeight = if (username.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
                     fontFamily = fontFamilyLato
@@ -688,6 +701,12 @@ fun PageOneContent(
                 modifier = Modifier.fillMaxHeight().padding(top = 4.dp, end = 6.dp),
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.SemiBold,
+                lineHeight = 24.sp,
+                style = TextStyle(
+                    platformStyle = PlatformTextStyle(
+                        includeFontPadding = false
+                    )
+                )
             )
         }
 
@@ -712,18 +731,23 @@ fun PageOneContent(
                 fontSize = 18.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.SemiBold,
-                color = lightBlackColor
+                lineHeight = 22.sp,
+                color = lightBlackColor,
+                modifier = Modifier
             )
+            Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = context.getString(R.string.strik_left_space),
-                fontSize = 24.sp,
+                text = "*",
+                fontSize = 22.sp,
                 fontFamily = fontFamilyLato,
-                fontWeight = FontWeight.ExtraBold,
-                color = astrikeColor
+                fontWeight = FontWeight.SemiBold,
+                lineHeight = 22.sp,
+                color = astrikeColor,
+                modifier = Modifier.padding(top = 3.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(7.dp))
 
         // Country Selection
         Box(
@@ -731,7 +755,7 @@ fun PageOneContent(
                 .fillMaxWidth()
                 .height(55.dp)
                 .background(Gray20, RoundedCornerShape(5.dp))
-                .border(1.dp,GrayLightBorder, RoundedCornerShape(5.dp))
+                .border(1.dp, GrayLightBorder, RoundedCornerShape(5.dp))
                 .clickable(enabled = countryName.isEmpty()) {
                     showCCPDialog(
                         context,
@@ -750,7 +774,7 @@ fun PageOneContent(
                 fontWeight = if (countryName.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                 fontFamily = fontFamilyLato,
                 color = if (countryName.isNotEmpty()) lightBlackColor else hintColor,
-//                    modifier = Modifier.weight(0.33f)
+                modifier = Modifier.padding(bottom = 1.dp)
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -770,20 +794,20 @@ fun PageOneContent(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         ) {
-                        if (countryName.isEmpty()) {
-                            showCCPDialog(
-                                context,
-                                showPhoneCode = false
-                            ) { code, name, flag, _ ->
-                                countryName = name
-                                selectedCountryCode = code
+                            if (countryName.isEmpty()) {
+                                showCCPDialog(
+                                    context,
+                                    showPhoneCode = false
+                                ) { code, name, flag, _ ->
+                                    countryName = name
+                                    selectedCountryCode = code
+                                    viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
+                                }
+                            } else {
+                                countryName = ""
                                 viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
                             }
-                        } else {
-                            countryName = ""
-                            viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
                         }
-                    }
                 )
             }
         }
@@ -855,7 +879,7 @@ fun PageOneContent(
                     Image(
                         painter = painterResource(id = R.drawable.ic_forward_arrow_white),
                         contentDescription = null,
-                        modifier = Modifier.size(28.dp,25.dp),
+                        modifier = Modifier.size(28.dp, 25.dp),
                         colorFilter = ColorFilter.tint(whiteColor)
                     )
                 }
@@ -1033,8 +1057,8 @@ fun PageTwoContent(
                         .clickable {
                             selectedStatus = if (selectedStatus == statusKey) null else statusKey
                             viewModel2.onEvent(IdentityEvent.JoyerStatusChanged(selectedStatus ?: ""))
-                        }
-                        .padding(17.dp),
+                        },
+                    //.padding(17.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -1042,7 +1066,8 @@ fun PageTwoContent(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                        color = if (isSelected) whiteColor else lightBlackColor
+                        color = if (isSelected) whiteColor else lightBlackColor,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
                 if (statusKey != statusOptions.last().first) {
@@ -1081,11 +1106,13 @@ fun PageTwoContent(
             Spacer(modifier = Modifier.height(10.dp))
 
             Card(
-                modifier = Modifier.fillMaxWidth().border(
-                    width = 1.dp,
-                    color = GrayLightBorder,
-                    shape = RoundedCornerShape(5.dp)
-                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = GrayLightBorder,
+                        shape = RoundedCornerShape(5.dp)
+                    ),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
                 shape = RoundedCornerShape(5.dp)
             ) {
@@ -1359,10 +1386,12 @@ fun PageThreeContent(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
-                                color = whiteColor
+                                color = whiteColor,
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
                     }
+
                     1 -> {
                         //Title selection
                         Text(
@@ -1400,10 +1429,12 @@ fun PageThreeContent(
                                 fontSize = 16.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = if (hasTitleSelected) FontWeight.Bold else FontWeight.SemiBold,
-                                color = if (hasTitleSelected) whiteColor else goldenColor
+                                color = if (hasTitleSelected) whiteColor else goldenColor,
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
                     }
+
                     2 -> {
                         //Title selection
                         Text(
@@ -1443,7 +1474,8 @@ fun PageThreeContent(
                                 fontSize = 16.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = if (hasSubTitleSelected) FontWeight.Bold else FontWeight.SemiBold,
-                                color = if (hasSubTitleSelected) whiteColor else goldenColor
+                                color = if (hasSubTitleSelected) whiteColor else goldenColor,
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
                     }
@@ -1465,8 +1497,8 @@ fun PageThreeContent(
                         .background(goldenColor, CircleShape)
                         .clickable {
                             // API call would go here
-                            viewModel2.onEvent(IdentityEvent.OnMultiStepRegister)
-//                            onNavigateToNext()
+                            //viewModel2.onEvent(IdentityEvent.OnMultiStepRegister)
+                            onNavigateToNext()
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -1514,7 +1546,6 @@ fun PageThreeContent(
             },
         )
     }
-
 
 
 }

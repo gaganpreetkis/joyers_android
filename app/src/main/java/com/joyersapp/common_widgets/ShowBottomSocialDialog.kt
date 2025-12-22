@@ -141,7 +141,6 @@ private fun SocialButton(
         modifier = Modifier
             .fillMaxWidth()
             .height(55.dp)
-            .offset(x = (-5).dp)
             .background(
                 color = Gray20,
                 shape = RoundedCornerShape(5.dp)
@@ -166,7 +165,8 @@ private fun SocialButton(
             fontSize = 18.sp,
             color = LightBlack,
             fontFamily = fontFamilyLato,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 1.dp)
         )
     }
 }

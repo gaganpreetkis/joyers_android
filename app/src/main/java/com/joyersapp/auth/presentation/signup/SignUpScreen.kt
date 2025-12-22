@@ -175,10 +175,10 @@ fun SignUpScreen(
             Image(
                 painter = painterResource(id = R.drawable.user_icon),
                 contentDescription = null,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.height(24.dp).width(22.34.dp)
             )
 
-            Spacer(modifier = Modifier.width(0.dp))
+            Spacer(modifier = Modifier.width(0.5.dp))
 
             AppBasicTextFieldWithCursorHandling(
                 value = state.username,
@@ -202,6 +202,7 @@ fun SignUpScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.71f)
+                    .padding(bottom = 1.dp)
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         viewModel.onEvent(SignupEvent.UsernameFocusChanged(focusState.isFocused))
@@ -319,7 +320,7 @@ fun SignUpScreen(
                                 Image(
                                     painter = painterResource(id = R.drawable.ic_telephone_gray),
                                     contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier.height(24.17.dp).width(24.dp)
                                 )
 
                                 Spacer(modifier = Modifier.width(7.dp))
@@ -342,6 +343,7 @@ fun SignUpScreen(
                                     maxLength = 15,
                                     placeholder = stringResource(R.string.phone_number),
                                     modifier = Modifier.weight(1f)
+                                        .padding(bottom = 1.dp)
                                         .focusRequester(focusRequester)
                                         .onFocusChanged { focusState ->
                                             viewModel.onEvent(SignupEvent.PhoneFocusChanged(focusState.isFocused))
@@ -367,7 +369,7 @@ fun SignUpScreen(
                                 Image(
                                     painter = painterResource(id = R.drawable.ic_mail),
                                     contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier.width(24.dp).height(18.26.dp),
                                 )
 
                                 Spacer(modifier = Modifier.width(0.dp))
@@ -381,6 +383,7 @@ fun SignUpScreen(
                                     placeholder = stringResource(R.string.email),
                                     modifier = Modifier.weight(1f)
                                         .focusRequester(focusRequester)
+                                        .padding(bottom = 1.dp)
                                         .onFocusChanged { focusState ->
                                             viewModel.onEvent(SignupEvent.EmailFocusChanged(focusState.isFocused))
                                         },
@@ -425,7 +428,7 @@ fun SignUpScreen(
                         Image(
                             painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_mail_golden else R.drawable.ic_telephone_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.width( if (state.isPhoneMode) 24.dp else 24.dp).height( if (state.isPhoneMode) 18.26.dp else 24.17.dp),
                         )
                     }
                 }
@@ -528,7 +531,7 @@ fun SignUpScreen(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
-                                modifier = Modifier.padding(vertical = 1.dp)
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
 
@@ -550,7 +553,7 @@ fun SignUpScreen(
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
                                 color = White,
-                                modifier = Modifier.padding(vertical = 1.dp)
+                                modifier = Modifier.padding(bottom = 1.dp)
                             )
                         }
                     }
@@ -573,7 +576,7 @@ fun SignUpScreen(
                                 .background(Gray20, RoundedCornerShape(5.dp))
                         ) {
                             Row(
-                                modifier = Modifier.padding(start = 19.dp),
+                                modifier = Modifier.padding(start = 20.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Row(
@@ -602,6 +605,7 @@ fun SignUpScreen(
                                         },
                                         modifier = Modifier
                                             .fillMaxSize()
+                                            .padding(bottom = 1.dp)
                                             .focusRequester(focusRequester)
                                             .onFocusChanged { focusState ->
                                                 viewModel.onEvent(SignupEvent.PasswordFocusChanged(focusState.isFocused))
@@ -671,7 +675,7 @@ fun SignUpScreen(
                                 .background(Gray20, RoundedCornerShape(5.dp))
                         ) {
                             Row(
-                                modifier = Modifier.padding(start = 19.dp),
+                                modifier = Modifier.padding(start = 20.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Row(
@@ -699,6 +703,7 @@ fun SignUpScreen(
                                             viewModel.onEvent(SignupEvent.ToggleConfirmPasswordVisibility)
                                         },
                                         modifier = Modifier.fillMaxSize()
+                                            .padding(bottom = 1.dp)
                                             .focusRequester(focusRequester)
                                             .onFocusChanged { focusState ->
                                                 viewModel.onEvent(SignupEvent.ConfirmPasswordFocusChanged(focusState.isFocused))
@@ -761,7 +766,7 @@ fun SignUpScreen(
 //                                    state.isValidPassword && state.confirmPassword == state.password
 //                                else
 //                                    state.isValidUsername && (state.isValidEmail ||state.isValidPhone),
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 1.dp).height(50.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Golden60,
                                 disabledContainerColor = Golden60,

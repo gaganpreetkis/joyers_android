@@ -264,15 +264,15 @@ fun ResetPasswordScreen(
                             ),
                     ) {
                         Row(
-                            modifier = Modifier.padding(start = 19.dp),
+                            modifier = Modifier.padding(start = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.user_icon),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(24.dp).width(22.34.dp)
                             )
-
+                            Spacer(modifier = Modifier.width(0.5.dp))
                             AppBasicTextField(
                                 value = state.identifierValue,
                                 onValueChange = {
@@ -282,7 +282,7 @@ fun ResetPasswordScreen(
                                 },
                                 maxLength = 100,
                                 placeholder = stringResource(R.string.username_email),
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).padding(bottom = 1.dp),
                                 containerColor = Color.Transparent,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Email
@@ -325,7 +325,7 @@ fun ResetPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.ic_telephone_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.height(24.17.dp).width(24.dp)
                         )
                     }
                 }
@@ -356,7 +356,7 @@ fun ResetPasswordScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.ic_telephone_gray),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.height(24.17.dp).width(24.dp)
                             )
 
                             Spacer(modifier = Modifier.width(7.dp))
@@ -380,7 +380,7 @@ fun ResetPasswordScreen(
                                 },
                                 maxLength = 15,
                                 placeholder = stringResource(R.string.phone_number),
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).padding(bottom = 1.dp),
                                 containerColor = Color.Transparent,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Phone
@@ -423,7 +423,7 @@ fun ResetPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.user_icon_golden),
                             contentDescription = "Toggle",
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.height(24.dp).width(22.34.dp)
                         )
                     }
                 }
@@ -456,7 +456,7 @@ fun ResetPasswordScreen(
                     .background(Gray20, RoundedCornerShape(5.dp))
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 19.dp),
+                    modifier = Modifier.padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
@@ -466,7 +466,7 @@ fun ResetPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.password_icon),
                             contentDescription = null,
-                            modifier = Modifier.height(26.dp).width(24.dp)
+                            modifier = Modifier.height(26.dp).width(22.6.dp)
                         )
 
                         Spacer(modifier = Modifier.width(0.dp))
@@ -499,7 +499,7 @@ fun ResetPasswordScreen(
 
                             },
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxSize().padding(bottom = 1.dp)
                                 .onFocusChanged { focusState ->
                                     viewModel.onEvent(ResetPasswordEvent.IsPasswordFocusedChanged(focusState.isFocused))
                                 },
@@ -567,7 +567,7 @@ fun ResetPasswordScreen(
                     .background(Gray20, RoundedCornerShape(5.dp))
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 19.dp),
+                    modifier = Modifier.padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
@@ -577,7 +577,7 @@ fun ResetPasswordScreen(
                         Image(
                             painter = painterResource(id = R.drawable.password_icon),
                             contentDescription = null,
-                            modifier = Modifier.height(26.dp).width(24.dp)
+                            modifier = Modifier.height(26.dp).width(22.6.dp)
                         )
 
                         Spacer(modifier = Modifier.width(0.dp))
@@ -601,7 +601,7 @@ fun ResetPasswordScreen(
                                 viewModel.onEvent(ResetPasswordEvent.ConfirmPasswordErrorChanged(null))
                             },
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxSize().padding(bottom = 1.dp)
                                 .onFocusChanged { focusState ->
                                     viewModel.onEvent(ResetPasswordEvent.IsConfirmPasswordFocusedChanged(focusState.isFocused))
                                 },
@@ -782,7 +782,8 @@ fun ResetPasswordScreen(
                     },
                     fontSize = 16.sp,
                     fontFamily = fontFamilyLato,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 1.dp)
                 )
             }
 
