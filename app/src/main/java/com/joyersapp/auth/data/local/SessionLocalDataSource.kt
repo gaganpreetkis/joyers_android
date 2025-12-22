@@ -9,13 +9,27 @@ import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.model.AuthUser
 import com.joyersapp.auth.data.remote.dto.User
 import jakarta.inject.Inject
+import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
+@Singleton
 class SessionLocalDataSource @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
+
+    private val MIN_SPLASH_DURATION: Int = 1500
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Unknown)
+    val authState: StateFlow<AuthState> = _authState
 
     private object Keys {
         val USER_ID = stringPreferencesKey("user_id")
@@ -24,17 +38,37 @@ class SessionLocalDataSource @Inject constructor(
         val USER_NAMES = stringPreferencesKey("user_names")
     }
 
-    val authState: Flow<AuthState> = dataStore.data
-        .map { prefs ->
-            val userId = prefs[Keys.USER_ID]
-            val email = prefs[Keys.EMAIL]
-            if (userId != null && email != null) {
-                AuthState.Authenticated(AuthUser(userId, email))
-            } else {
-                AuthState.Unauthenticated
+    fun refreshAuthState() {
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val startTime = System.currentTimeMillis()
+
+            // Resolve auth state
+            val token = dataStore.data
+                .map { prefs -> prefs[Keys.ACCESS_TOKEN] }.firstOrNull()
+            val userId = dataStore.data
+                .map { prefs -> prefs[Keys.USER_ID] }.firstOrNull()
+            val email = dataStore.data
+                .map { prefs -> prefs[Keys.EMAIL] }.firstOrNull()
+
+            val resolvedState =
+                if (!token.isNullOrEmpty() && !userId.isNullOrEmpty() && !email.isNullOrEmpty()) {
+                    AuthState.Authenticated(AuthUser(userId, email))
+                } else {
+                    AuthState.Unauthenticated
+                }
+
+            // nsure minimum splash duration
+            val elapsed = System.currentTimeMillis() - startTime
+            val remaining = MIN_SPLASH_DURATION - elapsed
+            if (remaining > 0) {
+                delay(remaining)
             }
+
+            // Emit final state
+            _authState.value = resolvedState
         }
-        .onStart { emit(AuthState.Unknown) }
+    }
 
     suspend fun saveUserNames(names: List<User>) {
         val json = Gson().toJson(names)
@@ -50,7 +84,7 @@ class SessionLocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun storeSession(
+    suspend fun saveSession(
         userId: String,
         email: String,
         accessToken: String
@@ -59,7 +93,20 @@ class SessionLocalDataSource @Inject constructor(
             prefs[Keys.USER_ID] = userId
             prefs[Keys.EMAIL] = email
             prefs[Keys.ACCESS_TOKEN] = accessToken
+            _authState.value = AuthState.Authenticated(AuthUser(userId, email))
         }
+    }
+
+    suspend fun clearAccessToken() {
+        dataStore.edit { prefs ->
+            prefs.remove(Keys.ACCESS_TOKEN)
+        }
+    }
+
+    fun getAccessToken(): String? = runBlocking {
+        dataStore.data
+            .map { it[Keys.ACCESS_TOKEN] }
+            .first()
     }
 
     suspend fun clearSession() {

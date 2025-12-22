@@ -507,7 +507,7 @@ class AuthRepositoryImpl @Inject constructor(
 
 
     // auto-login after signup
-//            sessionLocalDataSource.storeSession(
+//            sessionLocalDataSource.saveSession(
 //                userId = response.userId,
 //                email = response.email,
 //                accessToken = response.accessToken

@@ -13,13 +13,13 @@ import com.joyersapp.R
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(onNavigateToLogin: () -> Unit) {
+fun SplashScreen(/*onNavigateToLogin: () -> Unit*/) {
 
     // Navigate after delay
-    LaunchedEffect(Unit) {
+    /*LaunchedEffect(Unit) {
         delay(1500)
         onNavigateToLogin()
-    }
+    }*/
 
     Box(
         modifier = Modifier

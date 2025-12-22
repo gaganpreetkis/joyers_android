@@ -57,7 +57,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                     ) {
-                        AppNavGraph(navController)
+                        AppNavHost()
+//                        AppNavGraph(navController)
                     }
                 }
             }

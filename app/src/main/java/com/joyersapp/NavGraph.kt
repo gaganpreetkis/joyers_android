@@ -27,7 +27,7 @@ sealed class Routes(val route: String) {
     data object ResetPassword : Routes("resetPassword")
     data object JoyersOath : Routes("joyersOath")
     data object SplashVideo : Routes("splashVideo")
-    data object Dashboard : Routes("dashboard")
+//    data object Dashboard : Routes("dashboard")
 
 }
 
@@ -35,17 +35,17 @@ sealed class Routes(val route: String) {
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.Dashboard.route
+        startDestination = Routes.Login.route
 //        startDestination = "${Routes.Identity.route}/test/test"
     ) {
 
-        composable(Routes.Splash.route) {
-            SplashScreen(onNavigateToLogin = {
-                navController.navigate(Routes.Login.route) {
-                    popUpTo(Routes.Splash.route) { inclusive = true }
-                }
-            })
-        }
+//        composable(Routes.Splash.route) {
+//            SplashScreen(onNavigateToLogin = {
+//                navController.navigate(Routes.Login.route) {
+//                    popUpTo(Routes.Splash.route) { inclusive = true }
+//                }
+//            })
+//        }
 
         composable(Routes.Login.route) {
             LoginScreen(onSignUpClick = {
@@ -238,9 +238,9 @@ fun AppNavGraph(navController: NavHostController) {
                 onNavigateToDashboard = { context ->
                     // Show toast message
                     //Toast.makeText(context, "Navigating to Dashboard", Toast.LENGTH_SHORT).show()
-                    navController.navigate(Routes.Dashboard.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
+//                    navController.navigate(Routes.Dashboard.route) {
+//                        popUpTo(0) { inclusive = true }
+//                    }
                     // Navigate to DashboardActivity (Activity, not Compose screen)
                     /*val intent = android.content.Intent(context, com.synapse.joyers.ui.dashboard.DashboardActivity::class.java)
                     context.startActivity(intent)
@@ -249,8 +249,8 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        composable(Routes.Dashboard.route) {
-            DashboardScreen()
-        }
+//        composable(Routes.Dashboard.route) {
+//            DashboardScreen()
+//        }
     }
 }

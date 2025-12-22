@@ -2,6 +2,10 @@ package com.joyersapp.feature.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationRequestDto
+import com.joyersapp.auth.domain.usecase.RegisterUseCase
+import com.joyersapp.auth.presentation.signup.SignupNavigationEvent
+import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +15,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class UserProfileViewModel @Inject constructor() : ViewModel() {
+class UserProfileViewModel @Inject constructor(
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         UserProfileUiState(
             bannerUrl = null,
@@ -23,27 +29,14 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     init {
         // simulate fetch
         viewModelScope.launch {
-            // replace with repository calls
-            _uiState.update {
-                it.copy(
-                    bannerUrl = null,
-                    avatarUrl = null,
-                    // optionally update fields from real data
-                )
-            }
+            getUserProfileData()
         }
     }
 
     fun onEvent(event: UserProfileEvent) {
         when (event) {
 
-            is UserProfileEvent.Load -> {
-//                _uiState.update {
-//                    it.copy(
-//                        isLoading = true,
-//                    )
-//                }
-            }
+            is UserProfileEvent.Load -> { getUserProfileData() }
 
             is UserProfileEvent.TabSelected -> {
                 _uiState.update {
@@ -72,5 +65,35 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
     }
 
 
+    private fun getUserProfileData(){
+        val state = _uiState.value
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+
+            val result = getUserProfileUseCase()
+
+            result.fold(
+                onSuccess = { response ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = null,
+                            username = response.username!!,
+                            displayName = response.titleName!!,
+                            location = response.joyerLocation!!,
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = error.message
+                        )
+                    }
+                }
+            )
+        }
+    }
 
 }

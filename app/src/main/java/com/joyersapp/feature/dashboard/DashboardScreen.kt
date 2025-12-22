@@ -4,13 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun DashboardScreen(
+    navController: NavHostController,
     viewModel: AppScaffoldViewModel = viewModel()
 ) {
-    val navController = rememberNavController()
+//    val navController = rememberNavController()
     val uiState by viewModel.uiState.collectAsState()
 
     FloatingBottomNavHost(
