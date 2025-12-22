@@ -24,13 +24,6 @@ class AppScaffoldViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun onBackClicked() {
-        // handle global back
-    }
-
-    fun onMenuClicked() {
-        // handle menu actions
-    }
 }
 
 data class AppScaffoldUiState(

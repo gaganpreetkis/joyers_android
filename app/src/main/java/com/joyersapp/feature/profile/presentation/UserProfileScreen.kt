@@ -1,11 +1,13 @@
 package com.joyersapp.feature.profile.presentation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +17,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,10 +30,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
+import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.feature.profile.presentation.common.IdentificationDialog
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
 import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
@@ -46,7 +57,9 @@ import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.noRippleClickable
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun UserProfileScreen(
     viewModel: UserProfileViewModel = hiltViewModel(),
@@ -55,60 +68,76 @@ fun UserProfileScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(modifier = Modifier.fillMaxSize().background(White)) {
+    if (state.isLoading) {
+        CustomProgressIndicator()
+    }else {
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(White)
+        ) {
 
-        Column(modifier = Modifier.fillMaxSize().background(White)) {
-
-            ProfileTopHeader(
-                username = state.username,
-                onBack = onBack,
-                onMenu = onMenu
-            )
-
-            // Content (scrollable)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .background(White)
             ) {
-                ProfileInfo(state)
 
-                StatsRow(state)
-
-                Spacer(modifier = Modifier.height(30.dp))
-
-                MagneticsRow(state)
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                DashedLine(Modifier.fillMaxWidth().padding(horizontal = 20.dp))
-
-                Spacer(modifier = Modifier.height(11.dp))
-
-                CustomScrollableTabRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(28.dp),
-                    tabs = state.tabs,
-                    onTabClick = { index ->
-                        viewModel.onEvent(UserProfileEvent.TabSelected(index))
-                    },
-                    selectedTabIndex = state.selectedTab,
+                ProfileTopHeader(
+                    username = state.username, onBack = onBack, onMenu = onMenu
                 )
 
-                ProfileTabsContainer(state, viewModel)
-            }
-        }
-        // Identification Dialog
-        if (state.showIdentificationDialog) {
-            IdentificationDialog(
-                onClose = {
-                    viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
+                // Content (scrollable)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    ProfileInfo(state)
+
+                    StatsRow(state)
+
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    MagneticsRow(state)
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    DashedLine(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(11.dp))
+
+                    CustomScrollableTabRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(28.dp),
+                        tabs = state.tabs,
+                        onTabClick = { index ->
+                            viewModel.onEvent(UserProfileEvent.TabSelected(index))
+                        },
+                        selectedTabIndex = state.selectedTab,
+                    )
+
+                    ProfileTabsContainer(state, viewModel)
                 }
-            )
+            }
+            // Identification Dialog
+            if (state.showIdentificationDialog) {
+                IdentificationDialog(
+                    onClose = {
+                        viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
+                    })
+            }
         }
     }
 }
+
+
+
 
 @Composable
 fun ProfileInfo(state: UserProfileUiState) {
@@ -142,13 +171,11 @@ fun ProfileInfo(state: UserProfileUiState) {
                 .border(width = 3.dp, color = White, shape = CircleShape)
                 .size(115.dp)
                 .clip(CircleShape)
-                .background(Gray20),
-            contentAlignment = Alignment.Center
+                .background(Gray20), contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_nav_joyers_home), // your J icon
-                contentDescription = "avatar",
-                modifier = Modifier.size(66.dp)
+                contentDescription = "avatar", modifier = Modifier.size(66.dp)
             )
         }
 
@@ -158,8 +185,7 @@ fun ProfileInfo(state: UserProfileUiState) {
                 .offset(x = 106.dp, y = 183.dp)
                 .size(25.dp)
                 .clip(CircleShape)
-                .background(Color.White),
-            contentAlignment = Alignment.Center
+                .background(Color.White), contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_refresh_golden),
@@ -171,8 +197,7 @@ fun ProfileInfo(state: UserProfileUiState) {
         /** ---------------- Text Content ---------------- */
         // Name, subtitle, location
         Column(
-            modifier = Modifier
-                .offset(x = 154.dp, y = 130.dp)
+            modifier = Modifier.offset(x = 154.dp, y = 130.dp)
         ) {
 
             Text(
@@ -307,8 +332,7 @@ fun MagneticsRow(state: UserProfileUiState) {
 
             ) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "Edit Magnetics   80%",
@@ -355,6 +379,68 @@ fun MagneticsRow(state: UserProfileUiState) {
 }
 
 @Composable
+fun CustomScrollableTabRow(
+    modifier: Modifier,
+    tabs: List<String>,
+    onTabClick: (Int) -> Unit,
+    selectedTabIndex: Int,
+) {
+    // Custom LazyRow for tabs (replaces ScrollableTabRow)
+    LazyRow(
+        modifier = modifier.padding(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp),  // 🔥 Zero spacing between items
+        contentPadding = PaddingValues(horizontal = 0.dp),  // No edge padding
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        itemsIndexed(tabs) { idx, title ->
+            val isTabSelected = selectedTabIndex == idx
+            var textWidth by remember { mutableStateOf(0.dp) }
+            val localDensity = LocalDensity.current
+
+            Column(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .height(28.dp)
+                    .noRippleClickable() {
+                        onTabClick(idx)
+                    },
+//                horizontalAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamilyLato,
+                    color = if (isTabSelected) LightBlack else LightBlack60,
+                    lineHeight = 22.sp,
+                    modifier = Modifier
+                        .padding(
+                            start = 0.dp,
+                            end = 0.dp,
+                            top = 0.dp,
+                            bottom = 0.dp
+                        )  // No horizontal padding
+                        .height(19.dp)
+                        .onGloballyPositioned { layoutCoordinates ->
+                            textWidth = with(localDensity) { layoutCoordinates.size.width.toDp() }
+
+                        }
+                )
+                Spacer(Modifier.height(6.dp))
+                if (isTabSelected) {
+                    Box(
+                        modifier = Modifier
+                            .width(textWidth)
+                            .height(3.dp)
+                            .background(Golden60)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewModel) {
     // Tab content
     when (state.selectedTab) {
@@ -362,22 +448,20 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
             ProfileStatusSection(
                 onEditDescription = {
                     viewModel.onEvent(UserProfileEvent.OnEditDescriptionClicked(state.selectedTab))
-                }
-            )
+                })
         }
+
         1 -> Column {
             ProfileIdentitySection(
                 onEditDescription = {
                     viewModel.onEvent(UserProfileEvent.OnEditDescriptionClicked(state.selectedTab))
-                }
-            )
+                })
         }
 
         else -> Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
-            contentAlignment = Alignment.Center
+                .height(120.dp), contentAlignment = Alignment.Center
         ) {
             Text("Content for ${state.tabs[state.selectedTab]}")
         }

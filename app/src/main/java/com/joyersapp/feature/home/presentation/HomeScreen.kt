@@ -1,10 +1,12 @@
 package com.joyersapp.feature.home.presentation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -18,8 +20,8 @@ import com.joyersapp.theme.GrayBG
 
 @Composable
 fun HomeScreen() {
-    Scaffold() {
-        Column() {
+    Scaffold() { paddingValues ->
+        Column(Modifier.padding(paddingValues)) {
             JoyersHeader()
             // Avatar content
             Box(
