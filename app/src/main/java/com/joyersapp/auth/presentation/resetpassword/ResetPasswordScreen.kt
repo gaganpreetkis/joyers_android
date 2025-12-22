@@ -264,7 +264,7 @@ fun ResetPasswordScreen(
                             ),
                     ) {
                         Row(
-                            modifier = Modifier.padding(start = 19.dp),
+                            modifier = Modifier.padding(start = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
@@ -272,7 +272,7 @@ fun ResetPasswordScreen(
                                 contentDescription = null,
                                 modifier = Modifier.height(24.dp).width(22.34.dp)
                             )
-
+                            Spacer(modifier = Modifier.width(0.5.dp))
                             AppBasicTextField(
                                 value = state.identifierValue,
                                 onValueChange = {
@@ -456,7 +456,7 @@ fun ResetPasswordScreen(
                     .background(Gray20, RoundedCornerShape(5.dp))
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 19.dp),
+                    modifier = Modifier.padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
@@ -567,7 +567,7 @@ fun ResetPasswordScreen(
                     .background(Gray20, RoundedCornerShape(5.dp))
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 19.dp),
+                    modifier = Modifier.padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(

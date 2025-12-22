@@ -283,7 +283,7 @@ fun ForgotPasswordScreen(
                             ),
                     ) {
                         Row(
-                            modifier = Modifier.padding(start = 19.dp),
+                            modifier = Modifier.padding(start = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
@@ -292,7 +292,7 @@ fun ForgotPasswordScreen(
                                 modifier = Modifier.height(24.dp).width(22.34.dp)
                             )
 
-                            //Spacer(modifier = Modifier.width(15.dp))
+                            Spacer(modifier = Modifier.width(0.5.dp))
 
                             AppBasicTextField(
                                 value = state.usernameEmail,
@@ -387,7 +387,7 @@ fun ForgotPasswordScreen(
                             ),
                     ) {
                         Row(
-                            modifier = Modifier.padding(start = 19.dp),
+                            modifier = Modifier.padding(start = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(

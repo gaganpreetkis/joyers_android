@@ -204,7 +204,7 @@ fun LoginScreen(
                     .border(color = if (state.password.isNotEmpty() && state.username.isNotEmpty() && (state.apiOnlyUsernameErrorMessage.isNotEmpty() || state.apiErrorMessage.isNotEmpty())) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 19.dp),
+                    modifier = Modifier.padding(start = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -214,7 +214,7 @@ fun LoginScreen(
                         modifier = Modifier.height(if (state.isPhoneMode) 24.17.dp else 24.dp).width(if (state.isPhoneMode) 24.dp else 22.34.dp)
                     )
 
-                    Spacer(modifier = Modifier.width(0.dp))
+                    Spacer(modifier = Modifier.width(if (state.isPhoneMode) 0.dp else 0.5.dp))
 
                     if (state.isPhoneMode)
                         CountryCodePicker(
@@ -323,7 +323,7 @@ fun LoginScreen(
                         .background(Gray20, RoundedCornerShape(5.dp))
                 ) {
                     Row(
-                        modifier = Modifier.padding(start = 19.dp),
+                        modifier = Modifier.padding(start = 20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
