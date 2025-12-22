@@ -76,7 +76,8 @@ fun UserProfileContent(
     Surface() {
         Column(modifier = modifier
             .fillMaxSize()
-            .background(White)) {
+            .background(White)
+        ) {
 
             val gold = Golden60
             val lightBlackText = LightBlack
@@ -319,7 +320,7 @@ fun UserProfileContent(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // dashed divider (approx)
-                DashedLine(Modifier.fillMaxWidth())
+                DashedLine(Modifier.fillMaxWidth().padding(horizontal = 20.dp))
 
                 Spacer(modifier = Modifier.height(11.dp))
 
@@ -337,13 +338,21 @@ fun UserProfileContent(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Tab content (sample)
+                // Tab content
                 when (state.selectedTab) {
                     0 -> Column {
-                        ProfileStatusSection()
+                        ProfileStatusSection(
+                            onEditDescription = {
+                                viewModel.onEvent(UserProfileEvent.OnEditDescriptionClicked(state.selectedTab))
+                            }
+                        )
                     }
                     1 -> Column {
-                        ProfileIdentitySection()
+                        ProfileIdentitySection(
+                            onEditDescription = {
+                                viewModel.onEvent(UserProfileEvent.OnEditDescriptionClicked(state.selectedTab))
+                            }
+                        )
                     }
 
                     else -> Box(

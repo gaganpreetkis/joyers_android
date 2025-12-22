@@ -46,6 +46,20 @@ class UserProfileViewModel @Inject constructor() : ViewModel() {
             }
 
             UserProfileEvent.SubmitClicked -> TODO()
+            is UserProfileEvent.OnDialogClosed -> {
+                _uiState.update {
+                    it.copy(
+                        showIdentificationDialog = false,
+                    )
+                }
+            }
+            is UserProfileEvent.OnEditDescriptionClicked -> {
+                _uiState.update {
+                    it.copy(
+                        showIdentificationDialog = true,
+                    )
+                }
+            }
         }
     }
 

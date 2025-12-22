@@ -14,7 +14,7 @@ import com.joyersapp.auth.presentation.login.LoginScreen
 import com.joyersapp.auth.presentation.resetpassword.ResetPasswordScreen
 import com.joyersapp.auth.presentation.signup.SignUpScreen
 import com.joyersapp.auth.presentation.SplashVideoScreen
-import com.joyersapp.feature.common.AppScaffoldRoot
+import com.joyersapp.feature.dashboard.DashboardScreen
 import com.synapse.joyers.ui.screens.SplashScreen
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -54,7 +54,7 @@ fun AppNavGraph(navController: NavHostController) {
             }, onForgotPasswordClick = {
                 navController.navigate(Routes.ForgotPassword.route)
             }, onLoginSuccess = {
-                navController.navigate(Routes.Dashboard.route) {
+                navController.navigate(Routes.SplashVideo.route) {
                     popUpTo(0)
                     launchSingleTop = true
                 }
@@ -251,7 +251,7 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         composable(Routes.Dashboard.route) {
-            AppScaffoldRoot()
+            DashboardScreen()
         }
     }
 }

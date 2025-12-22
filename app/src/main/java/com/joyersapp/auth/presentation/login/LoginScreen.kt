@@ -596,6 +596,7 @@ fun LoginScreen(
                                     "@${user.username.orEmpty()}"
                                 }
                                 RecentUserItem(
+                                    isSingleItem = state.filteredList.size == 1,
                                     isFirst = isFirst,
                                     isLast = isLast,
                                     user = user,
@@ -648,6 +649,7 @@ fun LoginScreen(
 
 @Composable
 fun RecentUserItem(
+    isSingleItem: Boolean,
     isFirst: Boolean,
     isLast: Boolean,
     user: User,
@@ -664,9 +666,9 @@ fun RecentUserItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = if (isFirst) 6.5.dp else 0.dp, bottom = if (isLast) 8.5.dp else 0.dp)
+            .padding(top = if (isFirst) 6.5.dp else 0.dp, bottom = if (isSingleItem) 7.5.dp else if (isLast) 8.5.dp else 0.dp)
             .clickable { onItemClick() }
-            .padding(horizontal = 17.dp, vertical = 4.dp),
+            .padding(start = 14.5.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Icon on the left

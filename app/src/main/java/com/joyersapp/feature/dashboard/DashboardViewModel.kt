@@ -1,4 +1,4 @@
-package com.joyersapp.feature.common
+package com.joyersapp.feature.dashboard
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
