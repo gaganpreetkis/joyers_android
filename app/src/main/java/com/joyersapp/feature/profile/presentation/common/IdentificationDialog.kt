@@ -126,7 +126,7 @@ fun IdentificationDialog(
                         modifier = Modifier
                             .align(alignment = Alignment.TopEnd)
                             .padding(end = 23.04.dp, top = 16.5.dp)
-                            .size(15.51.dp)
+                            .width(15.51.dp)
                             .clickable { onClose() }
                     )
                 }
