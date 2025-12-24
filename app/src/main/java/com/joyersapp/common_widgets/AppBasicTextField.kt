@@ -38,6 +38,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -53,6 +54,7 @@ import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Red
 import com.joyersapp.utils.filterAscii
+import com.joyersapp.utils.filterNameCase
 import com.joyersapp.utils.fontFamilyLato
 
 
@@ -166,21 +168,38 @@ fun AppBasicTextField(
             BasicTextField(
                 value = tfValue,
                 onValueChange = { newValue ->
-                    val filtered = filterAscii(newValue.text, maxLength)
-                    /*if (newValue.text.length <= maxLength) {
-                        tfValue = newValue
-                        onValueChange(newValue.text)
-                    }*/
-                    if (filtered != newValue.text) {
-                        val updated = newValue.copy(
-                            text = filtered,
-                            selection = TextRange(filtered.length)
-                        )
-                        tfValue = updated
-                        onValueChange(filtered)
+
+                    val asciiFiltered = filterAscii(newValue.text, maxLength)
+
+                    if (keyboardOptions.capitalization == KeyboardCapitalization.Words) {
+
+                        val caseFiltered = filterNameCase(asciiFiltered)
+
+                        if (caseFiltered != newValue.text) {
+                            val updated = newValue.copy(
+                                text = caseFiltered,
+                                selection = TextRange(caseFiltered.length)
+                            )
+                            tfValue = updated
+                            onValueChange(caseFiltered)
+                        } else {
+                            tfValue = newValue
+                            onValueChange(newValue.text)
+                        }
+
                     } else {
-                        tfValue = newValue
-                        onValueChange(newValue.text)
+
+                        if (asciiFiltered != newValue.text) {
+                            val updated = newValue.copy(
+                                text = asciiFiltered,
+                                selection = TextRange(asciiFiltered.length)
+                            )
+                            tfValue = updated
+                            onValueChange(asciiFiltered)
+                        } else {
+                            tfValue = newValue
+                            onValueChange(newValue.text)
+                        }
                     }
                 },
                 singleLine = true,

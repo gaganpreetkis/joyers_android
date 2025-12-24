@@ -5,6 +5,7 @@ sealed class IdentityEvent {
     data class TokenChanged(val value: String) : IdentityEvent()
     data class UserIdChanged(val value: String) : IdentityEvent()
     data class NameChanged(val value: String) : IdentityEvent()
+    data class RemainingCharChanged(val value: Int) : IdentityEvent()
     data class JoyerLocationChanged(val value: String) : IdentityEvent()
     data class JoyerStatusChanged(val value: String) : IdentityEvent()
     data class TitleIdChanged(val value: String) : IdentityEvent()

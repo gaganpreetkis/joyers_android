@@ -39,6 +39,10 @@ class IdentityViewModel2 @Inject constructor(
                 _uiState.update { it.copy(name = event.value) }
             }
 
+            is IdentityEvent.RemainingCharChanged -> {
+                _uiState.update { it.copy(remainingChars = event.value) }
+            }
+
             is IdentityEvent.JoyerLocationChanged -> {
                 _uiState.update { it.copy(joyerLocation = event.value) }
             }
