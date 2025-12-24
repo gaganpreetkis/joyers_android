@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.joyersapp.auth.presentation.forgotpassword.ForgotPasswordScreen
 import com.joyersapp.auth.presentation.identity.IdentityScreen
@@ -13,8 +14,6 @@ import com.joyersapp.auth.presentation.login.LoginScreen
 import com.joyersapp.auth.presentation.resetpassword.ResetPasswordScreen
 import com.joyersapp.auth.presentation.signup.SignUpScreen
 import com.joyersapp.auth.presentation.SplashVideoScreen
-import com.joyersapp.feature.dashboard.DashboardScreen
-import com.synapse.joyers.ui.screens.SplashScreen
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -32,11 +31,13 @@ sealed class Routes(val route: String) {
 }
 
 @Composable
-fun AppNavGraph(navController: NavHostController) {
+fun AuthNavGraph() {
+
+    val navController = rememberNavController()
     NavHost(
         navController = navController,
-        //startDestination = Routes.Login.route
-        startDestination = "${Routes.Identity.route}/test/test"
+        startDestination = Routes.Login.route
+//        startDestination = "${Routes.Identity.route}/test/test"
     ) {
 
 //        composable(Routes.Splash.route) {

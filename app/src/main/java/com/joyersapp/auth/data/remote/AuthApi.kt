@@ -76,7 +76,7 @@ interface AuthApi {
         @Body body: ResetPasswordRequestDto
     ): ResetPasswordResponseDto
 
-    @POST("auth/title-type")
+    @POST("auth/title-joyerType")
     suspend fun titleType(): TitlesResponseDto
 
     @POST("auth/login")

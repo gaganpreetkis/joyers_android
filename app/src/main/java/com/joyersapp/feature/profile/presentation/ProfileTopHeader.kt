@@ -30,7 +30,7 @@ import com.joyersapp.utils.fontFamilyLato
 @Composable
 fun ProfileTopHeader(
     modifier: Modifier = Modifier,
-    username: String = "Sara_99",
+    state: UserProfileUiState,
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
 ) {
@@ -51,7 +51,8 @@ fun ProfileTopHeader(
                 modifier = Modifier
                     .width(sideWidth)
                     .fillMaxHeight()
-                    .align(Alignment.CenterStart),
+                    .align(Alignment.CenterStart)
+                    .clickable { onBack() },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -59,7 +60,6 @@ fun ProfileTopHeader(
                     contentDescription = "Back",
                     modifier = Modifier
                         .size(20.dp, 17.dp)
-                        .clickable { onBack() }
                 )
             }
 
@@ -81,9 +81,10 @@ fun ProfileTopHeader(
 
                 Spacer(modifier = Modifier.width(7.01.dp))
 
+                // Username
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = username,
+                        text = state.username,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,

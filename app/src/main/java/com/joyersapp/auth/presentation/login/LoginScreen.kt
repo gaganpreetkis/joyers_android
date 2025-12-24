@@ -65,6 +65,7 @@ import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.BottomSocialDialog
 import com.joyersapp.common_widgets.CountryCodePicker
+import com.joyersapp.core.NetworkConfig
 import com.joyersapp.theme.AvatarBorder
 import com.joyersapp.theme.Black
 import com.joyersapp.theme.DisabledTextColor
@@ -676,7 +677,7 @@ fun RecentUserItem(
             // Profile picture icon for username - circular with colored background
             if (user.profile_picture != null && user.profile_picture?.isNotEmpty() == true) {
                 AsyncImage(
-                    model = "https://joyers-api-dev.krishnais.com/uploads/${user.profile_picture}",
+                    model = "${NetworkConfig.IMAGE_BASE_URL}${user.profile_picture}",
                     contentDescription = null,
                     modifier = Modifier
                         .size(28.dp)

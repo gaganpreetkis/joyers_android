@@ -203,7 +203,7 @@ fun DualViewDialog(
             Row(
                 modifier = dialogModifier
                     .fillMaxWidth()
-                    .padding(top = 18.dp, start = 18.dp, end = 23.dp),
+                    .padding(top = 16.7.dp, start = 18.dp, end = 23.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 // Back button (only visible in subtitle mode)
@@ -266,7 +266,7 @@ fun DualViewDialog(
                     painter = painterResource(id = R.drawable.ic_cross_golden),
                     contentDescription = null,
                     modifier = dialogModifier
-                        .size(15.51.dp)
+                        .width(15.51.dp)
                         .noRippleClickable { onDismiss() }
                 )
             }

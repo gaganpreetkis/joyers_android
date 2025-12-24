@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -45,12 +46,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.components.layouts.CustomProgressIndicator
+import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.presentation.common.IdentificationDialog
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
 import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
+import com.joyersapp.theme.AvatarBorder
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
@@ -84,7 +88,9 @@ fun UserProfileScreen(
             ) {
 
                 ProfileTopHeader(
-                    username = state.username, onBack = onBack, onMenu = onMenu
+                    state = state,
+                    onBack = onBack,
+                    onMenu = onMenu
                 )
 
                 // Content (scrollable)
@@ -151,32 +157,51 @@ fun ProfileInfo(state: UserProfileUiState) {
     ) {
 
         /** ---------------- Banner ---------------- */
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .background(gold)
-        )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(gold)
+            )
+        if (state.backgroundPicture.isNotEmpty()) {
+            AsyncImage(
+                model = "${NetworkConfig.IMAGE_BASE_URL}${state.backgroundPicture}",
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                contentScale = ContentScale.Crop,
+            )
+        }
 
-        /** ---------------- Avatar ---------------- */
+        /** ---------------- Profile Picture ---------------- */
 
-        // Avatar content
+
         Box(
             modifier = Modifier
                 .offset(x = 20.dp, y = 87.dp)
                 .border(width = 3.dp, color = White, shape = CircleShape)
                 .padding(3.dp)
-                .border(width = 3.dp, color = Golden60, shape = CircleShape)
+                .border(width = 3.dp, color = if (state.profilePicture.isEmpty()) Golden60 else AvatarBorder , shape = CircleShape)
                 .padding(3.dp)
                 .border(width = 3.dp, color = White, shape = CircleShape)
                 .size(115.dp)
                 .clip(CircleShape)
                 .background(Gray20), contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_nav_joyers_home), // your J icon
-                contentDescription = "avatar", modifier = Modifier.size(66.dp)
-            )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_nav_joyers_home), // your J icon
+                    contentDescription = "avatar", modifier = Modifier.size(66.dp)
+                )
+            if (state.profilePicture.isNotEmpty()) {
+                AsyncImage(
+                    model = "${NetworkConfig.IMAGE_BASE_URL}${state.profilePicture}",
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+            }
         }
 
         /** Refresh badge */
@@ -199,9 +224,9 @@ fun ProfileInfo(state: UserProfileUiState) {
         Column(
             modifier = Modifier.offset(x = 154.dp, y = 130.dp)
         ) {
-
+            // fullname
             Text(
-                text = state.displayName,
+                text = state.fullname,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
@@ -211,8 +236,9 @@ fun ProfileInfo(state: UserProfileUiState) {
 
             Spacer(Modifier.height(4.dp))
 
+            // typical joyer
             Text(
-                text = state.title,
+                text = state.joyerType,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = fontFamilyLato,
@@ -222,6 +248,7 @@ fun ProfileInfo(state: UserProfileUiState) {
 
             Spacer(Modifier.height(4.dp))
 
+            // location
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = state.location,
@@ -255,6 +282,7 @@ fun StatsRow(state: UserProfileUiState) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // likes
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "Likes",
@@ -274,6 +302,7 @@ fun StatsRow(state: UserProfileUiState) {
                 lineHeight = 22.sp
             )
         }
+        // following
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "Following",
@@ -293,6 +322,7 @@ fun StatsRow(state: UserProfileUiState) {
                 lineHeight = 22.sp
             )
         }
+        // followers
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "Followers",
@@ -350,22 +380,17 @@ fun MagneticsRow(state: UserProfileUiState) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-//                    IconButton(onClick = onMessage, modifier = Modifier.size(23.04.dp, 16.13.dp)) {
             Image(
                 painter = painterResource(id = R.drawable.ic_mail_golden),
                 contentDescription = "msg",
-                modifier = Modifier.size(23.04.dp, 16.13.dp)
+                modifier = Modifier.width(23.04.dp)
             )
             Spacer(modifier = Modifier.width(27.dp))
-//                    }
-//                    IconButton(onClick = onNotify, modifier = Modifier.size(20.dp, 27.56.dp)) {
             Image(
                 painter = painterResource(id = R.drawable.ic_notification_bell_golden),
                 contentDescription = "notify",
                 modifier = Modifier.size(24.47.dp, 27.56.dp)
             )
-//                    }
-//                    IconButton(onClick = onBookmark, modifier = Modifier.size(24.dp, 35.dp)) {
             Spacer(modifier = Modifier.width(27.dp))
             Image(
                 painter = painterResource(id = R.drawable.ic_bookmark_golden),
@@ -388,7 +413,7 @@ fun CustomScrollableTabRow(
     // Custom LazyRow for tabs (replaces ScrollableTabRow)
     LazyRow(
         modifier = modifier.padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(20.dp),  // 🔥 Zero spacing between items
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(horizontal = 0.dp),  // No edge padding
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -446,6 +471,7 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
     when (state.selectedTab) {
         0 -> Column {
             ProfileStatusSection(
+                state = state,
                 onEditDescription = {
                     viewModel.onEvent(UserProfileEvent.OnEditDescriptionClicked(state.selectedTab))
                 })

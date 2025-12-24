@@ -13,6 +13,7 @@ import com.joyersapp.auth.domain.usecase.CheckUsernameUseCase
 import com.joyersapp.auth.domain.usecase.CompleteRegistrationUseCase
 import com.joyersapp.auth.domain.usecase.RegisterUseCase
 import com.joyersapp.auth.domain.usecase.VerifyOtpUseCase
+import com.joyersapp.core.SessionManager
 import com.joyersapp.utils.ApiErrorException
 import com.joyersapp.utils.UiText
 import com.joyersapp.utils.UiText.*
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SignupViewModel @Inject constructor(
+    private val sessionManager: SessionManager,
     private val registerUseCase: RegisterUseCase,
     private val verifyOtpUseCase: VerifyOtpUseCase,
     private val completeRegistrationUseCase: CompleteRegistrationUseCase,
@@ -524,6 +526,11 @@ class SignupViewModel @Inject constructor(
                             error = null
                         )
                     }
+                    sessionManager.saveUser(
+                        userId = response.user?.username ?: "",
+                        email = response.user?.username ?: "",
+                        accessToken = response.token ?: "",
+                    )
                     _navigationEvents.emit(SignupNavigationEvent.RegistrationCompleted(response.token ?: "", response.user?.id ?: ""))
                 },
                 onFailure = { error ->

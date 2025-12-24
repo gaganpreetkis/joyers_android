@@ -31,7 +31,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.joyersapp.R
+import com.joyersapp.core.NetworkConfig
+import com.joyersapp.feature.profile.data.remote.dto.Interests
+import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.presentation.UserProfileUiState
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.LightBlack
@@ -44,18 +49,14 @@ import com.joyersapp.utils.fontFamilyLato
 @Preview
 @Composable
 fun preProfile() {
-    ProfileStatusSection()
+    ProfileStatusSection(state = UserProfileUiState())
 }
 
 @Composable
 fun ProfileStatusSection(
-    description: String = "Description",
-    joyerStatus: String = "Classic",
-    title: String = "Pet",
-    subTitle: String = "Dogs",
-    interests: List<String> = listOf("Affiliation", "Preschoolers", "Adults", "Education", "Training"),
+    modifier: Modifier = Modifier,
+    state: UserProfileUiState,
     onEditDescription: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -105,13 +106,13 @@ fun ProfileStatusSection(
                 .padding(top = 20.dp, start = 15.dp, bottom = 29.dp, end = 15.dp)
         ) {
             /** -------- Key-Value Rows -------- */
-            ProfileKeyValueRow(label = "Joyer Status", value = joyerStatus)
+            ProfileKeyValueRow(label = "Joyer Status", value = state.joyerStatus)
             Spacer(Modifier.height(20.dp))
-            ProfileKeyValueRow(label = "Title", value = title)
+            ProfileKeyValueRow(label = "Title", value = state.titleName)
             Spacer(Modifier.height(20.dp))
-            ProfileKeyValueRow(label = "Sub-Title", value = subTitle)
+            ProfileKeyValueRow(label = "Sub-Title", value = state.subTitleName)
             Spacer(Modifier.height(20.dp))
-            KeyValueRowWithDotSeparators("Area of Interest",interests)
+            InterestsRowWithDotSeparators("Area of Interest",state.areaOfInterest)
         }
 
         Spacer(Modifier.height(15.dp))
@@ -151,7 +152,7 @@ fun ProfileStatusSection(
 
         Spacer(Modifier.height(15.dp))
 
-        JoyerCodeSection()
+        JoyerCodeSection(state = state)
 
         Spacer(Modifier.height(80.dp))
 
@@ -192,7 +193,8 @@ fun ProfileKeyValueRow(
 
 @Composable
 fun JoyerCodeSection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    state: UserProfileUiState
 ) {
     Column(
         modifier = modifier
@@ -203,8 +205,8 @@ fun JoyerCodeSection(
 
         DateInfoRow(
             label = "Joying Since",
-            date = "2 March 2018",
-            duration = "3 Years, 10 Months, 2 Days"
+            date = state.joySince,
+            duration = state.joySinceDuration
         )
 
         Spacer(Modifier.height(19.dp))
@@ -231,17 +233,18 @@ fun JoyerCodeSection(
 
             Column(Modifier.offset(x = 130.dp).wrapContentWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
 
-                Image(
-                    painter = painterResource(R.drawable.dmy_profile_qr),
-                    contentDescription = "profile",
+                AsyncImage(
+                    model = "${NetworkConfig.IMAGE_BASE_URL}${state.qrCode}",
+                    contentDescription = "QR Code",
                     modifier = Modifier
-                        .size(200.dp), contentScale = ContentScale.Fit
+                        .size(200.dp),
+                    contentScale = ContentScale.Fit
                 )
 
                 Spacer(Modifier.height(10.dp))
 
                 Text(
-                    text = "Sara Spiegel James Spiem",
+                    text = state.fullname,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
@@ -250,7 +253,7 @@ fun JoyerCodeSection(
                 )
 
                 Text(
-                    text = "James Spiegel Jade II",
+                    text = state.fullname,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
@@ -261,7 +264,7 @@ fun JoyerCodeSection(
                 Spacer(Modifier.height(7.dp))
 
                 Text(
-                    text = "@Sara_99",
+                    text = "@${state.username}",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
@@ -314,9 +317,9 @@ fun DateInfoRow(
 }
 
 @Composable
-fun KeyValueRowWithDotSeparators(
+fun InterestsRowWithDotSeparators(
     label: String,
-    values: List<String>
+    values: List<Interests>
 ) {
     Box(
         modifier = Modifier
@@ -339,7 +342,7 @@ fun KeyValueRowWithDotSeparators(
         ) {
             values.forEachIndexed { index, item ->
                 Text(
-                    text = item,
+                    text = item.dropdownInterests?.name ?: "",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,

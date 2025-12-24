@@ -2,6 +2,8 @@ package com.joyersapp.di
 
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.auth.data.remote.AuthApi
+import com.joyersapp.core.NetworkConfig
+import com.joyersapp.core.SessionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,8 +22,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    private const val BASE_URL = "https://joyers-api-dev.krishnais.com/api/"
 
     @Provides
     @Singleton
@@ -43,7 +43,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(NetworkConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -58,7 +58,7 @@ object NetworkModule {
 }
 
 class AuthInterceptor @Inject constructor(
-    private val sessionManager: SessionLocalDataSource
+    private val sessionManager: SessionManager
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -81,6 +81,12 @@ class AuthInterceptor @Inject constructor(
             }
         }.build()
 
-        return chain.proceed(authenticatedRequest)
+        val response = chain.proceed(authenticatedRequest)
+
+        if (response.code == 400) {
+            sessionManager.onTokenExpired()
+        }
+
+        return response
     }
 }

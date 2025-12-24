@@ -238,7 +238,7 @@ fun JoyersOathScreen(
 
         // Calculate minimum text size after all texts are measured
         LaunchedEffect(textSizes.value.size) {
-            if (textSizes.value.size == 10) {
+            if (textSizes.value.size == 6) {
                 val minSize = textSizes.value.values.minOrNull()
                 if (minSize != null && minSize > 0f) {
                     minTextSize = minSize
