@@ -321,19 +321,20 @@ fun PageOneContent(
 //    preferencesManager: PreferencesManager? = null,
 //    activity: AppCompatActivity? = null
 ) {
-    var username by remember { mutableStateOf("") }
+    val state by viewModel2.uiState.collectAsStateWithLifecycle()
+    //var username by remember { mutableStateOf("") }
     var isUsernamFocused by remember { mutableStateOf(false) }
-    var countryName by remember { mutableStateOf("") }
-    var profileImageUri by remember { mutableStateOf<Uri?>(null) }
-    var headerImageUri by remember { mutableStateOf<Uri?>(null) }
+    //var countryName by remember { mutableStateOf("") }
+    //var profileImageUri by remember { mutableStateOf<Uri?>(null) }
+    //var headerImageUri by remember { mutableStateOf<Uri?>(null) }
     var showProfilePlaceholder by remember { mutableStateOf(true) }
     var showHeaderPicker by remember { mutableStateOf(true) }
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
     var usernameError by remember { mutableStateOf<String?>(null) }
-    var imagePath by remember { mutableStateOf<String?>(null) }
-    var headerPath by remember { mutableStateOf<String?>(null) }
-    var selectedCountryCode by remember { mutableStateOf("") }
+    //var imagePath by remember { mutableStateOf<String?>(null) }
+    //var headerPath by remember { mutableStateOf<String?>(null) }
+    //var selectedCountryCode by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val goldenColor = Golden60
@@ -344,10 +345,10 @@ fun PageOneContent(
     val astrikeColor = LightBlack55//colorResource(id = R.color.astrike_color)
     val focusManager = LocalFocusManager.current
 
-    val maxLength = 45
-    var remainingChars by remember { mutableStateOf(maxLength) }
+    //val maxLength = 45
+    //var remainingChars by remember { mutableStateOf(maxLength) }
 
-    if (!isUsernamFocused && username.isNotEmpty() && remainingChars > 43) {
+    if (!isUsernamFocused && state.name.isNotEmpty() && state.remainingChars > 43) {
         usernameError = stringResource(R.string.username_error)
     }
 
@@ -356,10 +357,10 @@ fun PageOneContent(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            profileImageUri = it
+            val profileImageUri = it
             showProfilePlaceholder = false
-            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
-                val file = uriToFile(context, profileImageUri!!)
+            if (profileImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri)
                 viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
             }
 //            signupViewModel?.let { vm ->
@@ -416,17 +417,17 @@ fun PageOneContent(
 //    }
 
     // Validation
-    val isNameValid = remember(username) {
-        username.isEmpty() || (isValidNameAdvanced(username) && username.length > 1)
+    val isNameValid = remember(state.name) {
+        state.name.isEmpty() || (isValidNameAdvanced(state.name) && state.name.length > 1)
     }
 
-    val showNextButton = remember(username, countryName) {
-        username.isNotEmpty() && countryName.isNotEmpty() &&
-                /*isValidNameAdvanced(username) && */username.length > 1
+    val showNextButton = remember(state.name, state.joyerLocation) {
+        state.name.isNotEmpty() && state.joyerLocation.isNotEmpty() &&
+                /*isValidNameAdvanced(username) && */state.name.length > 1
     }
 
-    val showSkipButton = remember(username, countryName) {
-        username.isEmpty() && countryName.isEmpty()
+    val showSkipButton = remember(state.name, state.joyerLocation) {
+        state.name.isEmpty() && state.joyerLocation.isEmpty()
     }
 
     Column(
@@ -464,9 +465,9 @@ fun PageOneContent(
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // Header/Background Image
-                if (headerImageUri != null) {
+                if (state.backgroundPicturePath.isNotEmpty()) {
                     AsyncImage(
-                        model = headerImageUri,
+                        model = state.backgroundPicturePath,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -480,9 +481,9 @@ fun PageOneContent(
                             .size(40.dp)
                             .align(Alignment.TopEnd)
                             .clickable {
-                                headerImageUri = null
+                                //headerImageUri = null
                                 showHeaderPicker = true
-                                headerPath = null
+                                //headerPath = null
                                 viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(""))
                             }
                     )
@@ -544,9 +545,9 @@ fun PageOneContent(
                                 CircleShape
                             )
                     ) {
-                        if (profileImageUri != null) {
+                        if (state.profilePicturePath.isNotEmpty()) {
                             AsyncImage(
-                                model = profileImageUri,
+                                model = state.profilePicturePath,
                                 contentDescription = null,
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -582,7 +583,7 @@ fun PageOneContent(
                         }
                     }
 
-                    if (profileImageUri != null) {
+                    if (state.profilePicturePath.isNotEmpty()) {
                         // Close button for profile
                         Image(
                             painter = painterResource(id = R.drawable.ic_cross_round_border_golden),
@@ -592,9 +593,9 @@ fun PageOneContent(
                                 .size(40.dp)
                                 .align(Alignment.BottomEnd)
                                 .clickable {
-                                    profileImageUri = null
+                                    //profileImageUri = null
                                     showProfilePlaceholder = true
-                                    imagePath = null
+                                    //imagePath = null
                                     viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(""))
                                 }
                         )
@@ -651,24 +652,27 @@ fun PageOneContent(
         ) {
             Spacer(modifier = Modifier.width(4.dp))
             AppBasicTextField(
-                value = username,
+                value = state.name,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words
                 ),
                 onValueChange = {
-                    if (it.length <= maxLength) {
-                        username = it
+                    if (it.length <= state.maxLength) {
+                        //state.name = it
                         viewModel2.onEvent(IdentityEvent.NameChanged(it))
                         if (it.isEmpty()) {
-                            remainingChars = maxLength - it.length
+                            //remainingChars = maxLength - it.length
+                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.length))
                             usernameError = null
                             return@AppBasicTextField
                         }
                         if (containsEmoji(it) || !isAllowedIdentityNameChars(it)) {
-                            remainingChars = maxLength - (it.length / 2)
+                            //remainingChars = maxLength - (it.length / 2)
+                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - (it.length / 2)))
                             usernameError = context.getString(R.string.username_error)
                         } else {
-                            remainingChars = maxLength - it.length
+                            //remainingChars = maxLength - it.length
+                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.length))
                             usernameError = null
                         }
                     }
@@ -686,7 +690,7 @@ fun PageOneContent(
                 textStyle = TextStyle(
                     fontSize = 16.sp,
                     color = lightBlackColor,
-                    fontWeight = if (username.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
+                    fontWeight = if (state.name.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
                     fontFamily = fontFamilyLato
                 ),
@@ -695,9 +699,9 @@ fun PageOneContent(
 
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = remainingChars.toString(),
+                text = state.remainingChars.toString(),
                 fontSize = 12.sp,
-                color = if (remainingChars == 0) redColor else hintColor,
+                color = if (state.remainingChars == 0) redColor else hintColor,
                 modifier = Modifier.fillMaxHeight().padding(top = 4.dp, end = 6.dp),
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.SemiBold,
@@ -756,24 +760,24 @@ fun PageOneContent(
                 .height(55.dp)
                 .background(Gray20, RoundedCornerShape(5.dp))
                 .border(1.dp, GrayLightBorder, RoundedCornerShape(5.dp))
-                .clickable(enabled = countryName.isEmpty()) {
+                .clickable(enabled = state.joyerLocation.isEmpty()) {
                     showCCPDialog(
                         context,
                         showPhoneCode = false
                     ) { code, name, flag, _ ->
-                        countryName = name
-                        selectedCountryCode = code
-                        viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
+                        //state.joyerLocation = name
+                        //selectedCountryCode = code
+                        viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(name))
                     }
                 },
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (countryName.isNotEmpty()) countryName else context.getString(R.string.select_location),
+                text = if (state.joyerLocation.isNotEmpty()) state.joyerLocation else context.getString(R.string.select_location),
                 fontSize = 16.sp,
-                fontWeight = if (countryName.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
+                fontWeight = if (state.joyerLocation.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                 fontFamily = fontFamilyLato,
-                color = if (countryName.isNotEmpty()) lightBlackColor else hintColor,
+                color = if (state.joyerLocation.isNotEmpty()) lightBlackColor else hintColor,
                 modifier = Modifier.padding(bottom = 1.dp)
             )
             Row(
@@ -784,7 +788,7 @@ fun PageOneContent(
             ) {
 
                 Image(
-                    painter = painterResource(id = if (countryName.isEmpty()) R.drawable.drop_down else R.drawable.ic_cross_round_border_grey),
+                    painter = painterResource(id = if (state.joyerLocation.isEmpty()) R.drawable.drop_down else R.drawable.ic_cross_round_border_grey),
                     contentDescription = null,
                     modifier = Modifier
                         .padding(end = 15.dp)
@@ -794,18 +798,18 @@ fun PageOneContent(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         ) {
-                            if (countryName.isEmpty()) {
+                            if (state.joyerLocation.isEmpty()) {
                                 showCCPDialog(
                                     context,
                                     showPhoneCode = false
                                 ) { code, name, flag, _ ->
-                                    countryName = name
-                                    selectedCountryCode = code
-                                    viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
+                                    //state.joyerLocation = name
+                                    //selectedCountryCode = code
+                                    viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(name))
                                 }
                             } else {
-                                countryName = ""
-                                viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(countryName))
+                                //state.joyerLocation = ""
+                                viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(""))
                             }
                         }
                 )
@@ -867,7 +871,10 @@ fun PageOneContent(
                         .clip(CircleShape)
                         .clickable {
                             focusManager.clearFocus()
-                            if (username.isNotEmpty() && isValidNameAdvanced(username) && username.length > 1) {
+                            if (state.name.isNotEmpty() && isValidNameAdvanced(state.name) && state.name.length > 1) {
+                                if (state.joyerStatus.isNotEmpty()) {
+                                    viewModel2.onEvent(IdentityEvent.JoyerStatusChanged(""))
+                                }
                                 onNext()
                                 // API call to update user would go here
                             } else {
@@ -894,10 +901,10 @@ fun PageOneContent(
         onDismiss = { showImagePickerBottomSheet = false },
         allowMultipleSelection = false,
         onImagesPicked = { uris ->
-            profileImageUri = uris[0]
+            val profileImageUri = uris[0]
             showProfilePlaceholder = false
-            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
-                val file = uriToFile(context, profileImageUri!!)
+            if (profileImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri)
                 viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
             }
 //            signupViewModel?.let { vm ->
@@ -912,10 +919,10 @@ fun PageOneContent(
 //            }
         },
         onCameraImagePicked = { uri ->
-            profileImageUri = uri
+            val profileImageUri = uri
             showProfilePlaceholder = false
-            if (profileImageUri != null && profileImageUri?.path!!.isNotEmpty()) {
-                val file = uriToFile(context, profileImageUri!!)
+            if (profileImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri)
                 viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
             }
 //            signupViewModel?.let { vm ->
@@ -937,10 +944,10 @@ fun PageOneContent(
         onDismiss = { showImagePickerBottomSheetBack = false },
         allowMultipleSelection = false,
         onImagesPicked = { uris ->
-            headerImageUri = uris[0]
+            val headerImageUri = uris[0]
             showHeaderPicker = false
-            if (headerImageUri != null && headerImageUri?.path!!.isNotEmpty()) {
-                val file = uriToFile(context, headerImageUri!!)
+            if (headerImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, headerImageUri)
                 viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
             }
 //            signupViewModel?.let { vm ->
@@ -955,10 +962,10 @@ fun PageOneContent(
 //            }
         },
         onCameraImagePicked = { uri ->
-            headerImageUri = uri
+            val headerImageUri = uri
             showHeaderPicker = false
-            if (headerImageUri != null && headerImageUri?.path!!.isNotEmpty()) {
-                val file = uriToFile(context, headerImageUri!!)
+            if (headerImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, headerImageUri)
                 viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
             }
 //            signupViewModel?.let { vm ->
@@ -985,7 +992,8 @@ fun PageTwoContent(
 //    activity: AppCompatActivity? = null
 ) {
 
-    var selectedStatus by remember { mutableStateOf<String?>(null) }
+    val state by viewModel2.uiState.collectAsStateWithLifecycle()
+    //var selectedStatus by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val goldenColor = Golden60
     val lightBlackColor = LightBlack
@@ -1018,7 +1026,7 @@ fun PageTwoContent(
 
     Box() {
 
-        val showNextButton = selectedStatus == "Classic"
+        val showNextButton = state.joyerStatus == "Classic"
         val spaceHeight = if (showNextButton) 150.dp else 60.dp
 
         Column(
@@ -1040,7 +1048,7 @@ fun PageTwoContent(
 
             // Status options
             statusOptions.forEach { (statusKey, statusText) ->
-                val isSelected = selectedStatus == statusKey
+                val isSelected = state.joyerStatus == statusKey
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1055,8 +1063,8 @@ fun PageTwoContent(
                             shape = RoundedCornerShape(5.dp)
                         )
                         .clickable {
-                            selectedStatus = if (selectedStatus == statusKey) null else statusKey
-                            viewModel2.onEvent(IdentityEvent.JoyerStatusChanged(selectedStatus ?: ""))
+                            //selectedStatus = if (selectedStatus == statusKey) null else statusKey
+                            viewModel2.onEvent(IdentityEvent.JoyerStatusChanged(if (state.joyerStatus == statusKey) "" else statusKey))
                         },
                     //.padding(17.dp),
                     contentAlignment = Alignment.Center
