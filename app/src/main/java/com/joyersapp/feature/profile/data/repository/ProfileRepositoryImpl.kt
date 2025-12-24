@@ -84,7 +84,7 @@ class ProfileRepositoryImpl @Inject constructor(
 
 
     // auto-login after signup
-//            sessionLocalDataSource.saveSession(
+//            sessionLocalDataSource.saveUser(
 //                userId = response.userId,
 //                email = response.email,
 //                accessToken = response.accessToken

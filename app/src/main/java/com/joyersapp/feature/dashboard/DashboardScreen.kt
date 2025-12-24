@@ -9,10 +9,9 @@ import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun DashboardScreen(
-    navController: NavHostController,
     viewModel: AppScaffoldViewModel = viewModel()
 ) {
-//    val navController = rememberNavController()
+    val navController = rememberNavController()
     val uiState by viewModel.uiState.collectAsState()
 
     FloatingBottomNavHost(
@@ -22,9 +21,9 @@ fun DashboardScreen(
             viewModel.onBottomTabSelected(tab)
             navController.navigate(tab.route) {
                 launchSingleTop = true
-                restoreState = true
+//                restoreState = true
                 popUpTo(navController.graph.startDestinationId) {
-                    saveState = true
+//                    saveState = true
                 }
             }
                               },

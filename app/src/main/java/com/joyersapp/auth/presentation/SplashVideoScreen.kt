@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
@@ -27,10 +28,11 @@ import com.joyersapp.R
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalLayoutApi::class)
-@Preview
 @Composable
 fun SplashVideoScreen(
+    viewModel: SplashVideoViewModel = hiltViewModel(),
     onNavigateToDashboard: (Context) -> Unit = { context ->
+        viewModel.navigateToDashboard()
         // Default: Navigate to DashboardActivity
         /*val intent = android.content.Intent(context, com.synapse.joyers.ui.dashboard.DashboardActivity::class.java)
         context.startActivity(intent)

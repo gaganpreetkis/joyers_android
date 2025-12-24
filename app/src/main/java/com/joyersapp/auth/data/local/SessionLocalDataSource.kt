@@ -32,6 +32,7 @@ class SessionLocalDataSource @Inject constructor(
     val authState: StateFlow<AuthState> = _authState
 
     private object Keys {
+        val AUTH_STATE = stringPreferencesKey("auth_state")
         val USER_ID = stringPreferencesKey("user_id")
         val EMAIL = stringPreferencesKey("email")
         val ACCESS_TOKEN = stringPreferencesKey("access_token")
@@ -53,7 +54,7 @@ class SessionLocalDataSource @Inject constructor(
 
             val resolvedState =
                 if (!token.isNullOrEmpty() && !userId.isNullOrEmpty() && !email.isNullOrEmpty()) {
-                    AuthState.Authenticated(AuthUser(userId, email))
+                    AuthState.Authenticated(AuthUser(userId, email, token))
                 } else {
                     AuthState.Unauthenticated
                 }
@@ -84,7 +85,7 @@ class SessionLocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun saveSession(
+    suspend fun saveUser(
         userId: String,
         email: String,
         accessToken: String
@@ -93,9 +94,9 @@ class SessionLocalDataSource @Inject constructor(
             prefs[Keys.USER_ID] = userId
             prefs[Keys.EMAIL] = email
             prefs[Keys.ACCESS_TOKEN] = accessToken
-            _authState.value = AuthState.Authenticated(AuthUser(userId, email))
         }
     }
+
 
     suspend fun clearAccessToken() {
         dataStore.edit { prefs ->
@@ -111,5 +112,17 @@ class SessionLocalDataSource @Inject constructor(
 
     suspend fun clearSession() {
         dataStore.edit { it.clear() }
+    }
+    fun setAuthState(authState: AuthState) {
+        _authState.value = authState
+    }
+
+    suspend fun login() {
+        val authUser = AuthUser(
+            dataStore.data.map { it[Keys.USER_ID] }.first() ?: "",
+            dataStore.data.map { it[Keys.EMAIL] }.first() ?: "",
+            dataStore.data.map { it[Keys.ACCESS_TOKEN] }.first() ?: "",
+        )
+        _authState.value = AuthState.Authenticated(authUser)
     }
 }

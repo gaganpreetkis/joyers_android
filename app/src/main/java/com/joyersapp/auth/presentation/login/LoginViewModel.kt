@@ -8,6 +8,7 @@ import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.auth.data.remote.dto.LoginRequestDto
 import com.joyersapp.auth.data.remote.dto.User
 import com.joyersapp.auth.domain.usecase.LoginUseCase
+import com.joyersapp.core.SessionManager
 import com.joyersapp.utils.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val sessionLocalDataSource: SessionLocalDataSource
+    private val sessionLocalDataSource: SessionLocalDataSource,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
@@ -209,11 +211,17 @@ class LoginViewModel @Inject constructor(
                         }
 
 
-                        sessionLocalDataSource.saveSession(
+                        sessionManager.saveUser(
                             userId = response.user?.username!!,
                             email = response.user?.username!!,
                             accessToken = response.token,
                         )
+                        sessionManager.login()
+//                        sessionLocalDataSource.saveUser(
+//                            userId = response.user?.username!!,
+//                            email = response.user?.username!!,
+//                            accessToken = response.token,
+//                        )
 
                     } else {
                         _uiState.update { it.copy(isLoading = false, apiErrorMessage = response.message/*, verificationCodeError = response.message*/) }
