@@ -58,7 +58,7 @@ class SessionManager @Inject constructor(
     }
 
     suspend fun logout() {
-        localDataSource.clearSession()
+        localDataSource.clearUserSession()
         localDataSource.setAuthState(AuthState.Unauthenticated)
     }
 

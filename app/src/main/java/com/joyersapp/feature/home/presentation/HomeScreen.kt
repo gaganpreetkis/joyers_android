@@ -22,7 +22,11 @@ import com.joyersapp.theme.GrayBG
 fun HomeScreen() {
     Scaffold() { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
-            JoyersHeader()
+            JoyersHeader(
+                onMenuClick = {
+
+                }
+            )
             // Avatar content
             Box(
                 modifier = Modifier

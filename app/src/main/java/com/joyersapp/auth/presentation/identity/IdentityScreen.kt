@@ -509,11 +509,11 @@ fun PageOneContent(
                             ) {
                                 Image(
                                     painter = painterResource(id = R.drawable.camera_inside_color),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp)
+                                    contentDescription = "Edit Background",
+                                    modifier = Modifier.width(20.82.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(1.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = context.getString(R.string.header),
                                 fontSize = 11.sp,
@@ -521,6 +521,11 @@ fun PageOneContent(
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack60,
                                 lineHeight = 20.sp,
+                                style = TextStyle(
+                                    platformStyle = PlatformTextStyle(
+                                        includeFontPadding = false
+                                    )
+                                )
                             )
                         }
                     }
@@ -602,8 +607,6 @@ fun PageOneContent(
                     }
 
                 }
-
-
             }
         }
 
@@ -751,7 +754,7 @@ fun PageOneContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(7.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         // Country Selection
         Box(

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationRequestDto
 import com.joyersapp.auth.domain.usecase.RegisterUseCase
 import com.joyersapp.auth.presentation.signup.SignupNavigationEvent
+import com.joyersapp.core.SessionManager
 import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val sessionManager: SessionManager,
     ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         UserProfileUiState(
@@ -46,11 +48,18 @@ class UserProfileViewModel @Inject constructor(
                 }
             }
 
+            is UserProfileEvent.Logout -> {
+                viewModelScope.launch {
+                    sessionManager.logout()
+                }
+            }
+
             UserProfileEvent.SubmitClicked -> TODO()
             is UserProfileEvent.OnDialogClosed -> {
                 _uiState.update {
                     it.copy(
                         showIdentificationDialog = false,
+                        showTitlesDialog = false,
                     )
                 }
             }
@@ -58,6 +67,13 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         showIdentificationDialog = true,
+                    )
+                }
+            }
+            is UserProfileEvent.OnEditTitleClicked -> {
+                _uiState.update {
+                    it.copy(
+                        showTitlesDialog = true,
                     )
                 }
             }

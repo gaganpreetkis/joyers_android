@@ -99,6 +99,7 @@ fun BottomSocialDialog(
 
                     // GOOGLE BUTTON
                     SocialButton(
+                        modifier = Modifier.width(27.44.dp).height(28.dp),
                         icon = R.drawable.google,
                         text = context.getString(R.string.google),
                         onClick = {
@@ -111,6 +112,7 @@ fun BottomSocialDialog(
 
                     // FACEBOOK BUTTON
                     SocialButton(
+                        modifier = Modifier.width(30.69.dp).height(30.5.dp),
                         icon = R.drawable.facebook,
                         text = context.getString(R.string.facebook),
                         onClick = {
@@ -133,6 +135,7 @@ fun BottomSocialDialog(
 
 @Composable
 private fun SocialButton(
+    modifier: Modifier,
     icon: Int,
     text: String,
     onClick: () -> Unit
@@ -157,7 +160,7 @@ private fun SocialButton(
         Image(
             painter = painterResource(id = icon),
             contentDescription = null,
-            modifier = Modifier.size(31.dp)
+            modifier = modifier
         )
         Spacer(modifier = Modifier.width(15.dp))
         Text(

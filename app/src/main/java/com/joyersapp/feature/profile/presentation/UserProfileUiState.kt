@@ -45,5 +45,6 @@ data class UserProfileUiState(
 
     val isLoading: Boolean = false,
     val showIdentificationDialog: Boolean = false,
+    val showTitlesDialog: Boolean = false,
     val error: String? = null
 )

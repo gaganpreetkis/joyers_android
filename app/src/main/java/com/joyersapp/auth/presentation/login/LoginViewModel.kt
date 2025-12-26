@@ -56,10 +56,8 @@ class LoginViewModel @Inject constructor(
                         apiErrorMessage = "",
                         apiFailedErrorMessage = "",
                         apiOnlyUsernameErrorMessage = "",
+                        rememberMe = false
                     )
-                }
-                if (state.isFormValid && isValidPassword(state.password) && state.rememberMe) {
-                    onEvent(LoginEvent.RememberMeChanged(false))
                 }
             }
             is LoginEvent.PasswordChanged -> {
@@ -70,10 +68,8 @@ class LoginViewModel @Inject constructor(
                         apiErrorMessage = "",
                         apiFailedErrorMessage = "",
                         apiOnlyUsernameErrorMessage = "",
+                        rememberMe = false
                     )
-                }
-                if (state.isFormValid && isValidPassword(state.password) && state.rememberMe) {
-                    onEvent(LoginEvent.RememberMeChanged(false))
                 }
             }
             is LoginEvent.ApiOnlyUsernameErrorMessageChanged -> {
