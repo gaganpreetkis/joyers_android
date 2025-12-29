@@ -60,6 +60,7 @@ class UserProfileViewModel @Inject constructor(
                     it.copy(
                         showIdentificationDialog = false,
                         showTitlesDialog = false,
+                        showEditProfileHeaderDialog = false,
                     )
                 }
             }
@@ -74,6 +75,13 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         showTitlesDialog = true,
+                    )
+                }
+            }
+            is UserProfileEvent.OnEditProfileHeader -> {
+                _uiState.update {
+                    it.copy(
+                        showEditProfileHeaderDialog = true,
                     )
                 }
             }

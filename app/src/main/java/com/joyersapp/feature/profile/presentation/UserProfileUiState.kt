@@ -36,6 +36,12 @@ data class UserProfileUiState(
     val following: String = "599",
     val followers: String = "155M",
 
+
+    val children: String = "",
+    val birthday: String = "",
+    val relationship: String = "",
+    val politicalIdeology: String = "",
+
     val tabs: List<String> = listOf("Status", "Identity", "Sparks", "Cards", "Gallery"),
     var selectedTab: Int = 0,
     val textWidths: MutableMap<Int, Dp> = mutableStateMapOf(),
@@ -46,5 +52,6 @@ data class UserProfileUiState(
     val isLoading: Boolean = false,
     val showIdentificationDialog: Boolean = false,
     val showTitlesDialog: Boolean = false,
+    val showEditProfileHeaderDialog: Boolean = false,
     val error: String? = null
 )

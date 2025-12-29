@@ -1,4 +1,4 @@
-package com.joyersapp.components.layouts
+package com.joyersapp.components.dialogs
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
@@ -36,7 +36,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -71,9 +70,11 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.utils.dismissKeyboardOnScroll
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
+import com.joyersapp.utils.tapToDismissKeyboard
 
 
 //@Preview
@@ -324,32 +325,6 @@ fun ProfileViewDialog(
         }
     }
 }
-
-fun Modifier.dismissKeyboardOnScroll(): Modifier = composed {
-    val focusManager = LocalFocusManager.current
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                // Dismiss the keyboard on any scroll action
-                focusManager.clearFocus()
-                return Offset.Zero
-            }
-        }
-    }
-
-    this.nestedScroll(nestedScrollConnection)
-}
-
-// 2. Modifier to dismiss keyboard on tap (from previous answer)
-fun Modifier.tapToDismissKeyboard(): Modifier = composed {
-    val focusManager = LocalFocusManager.current
-    pointerInput(Unit) {
-        detectTapGestures(onTap = {
-            focusManager.clearFocus()
-        })
-    }
-}
-
 
 @Composable
 private fun SearchBarRow(

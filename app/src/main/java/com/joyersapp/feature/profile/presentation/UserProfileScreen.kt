@@ -45,13 +45,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.components.layouts.CustomProgressIndicator
-import com.joyersapp.components.layouts.ProfileViewDialog
+import com.joyersapp.components.dialogs.ProfileViewDialog
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.presentation.common.IdentificationDialog
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
@@ -68,7 +67,7 @@ import com.joyersapp.utils.noRippleClickable
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun UserProfileScreen(
-    viewModel: UserProfileViewModel = hiltViewModel(),
+    viewModel: UserProfileViewModel,
     editMagnetics: () -> Unit = {},
     onMenu: () -> Unit = {}
 ) {

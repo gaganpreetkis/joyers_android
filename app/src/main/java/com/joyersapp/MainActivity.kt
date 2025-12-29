@@ -28,7 +28,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.joyersapp.auth.domain.model.AuthState
-import com.joyersapp.components.layouts.TokenExpiredDialog
+import com.joyersapp.components.dialogs.TokenExpiredDialog
 import com.joyersapp.core.AppNavGraph
 import com.joyersapp.core.SessionManager
 import com.joyersapp.core.SessionState
@@ -39,7 +39,6 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

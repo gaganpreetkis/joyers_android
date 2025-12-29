@@ -363,58 +363,8 @@ fun PageOneContent(
                 val file = uriToFile(context, profileImageUri)
                 viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(file.path.toString()))
             }
-//            signupViewModel?.let { vm ->
-//                preferencesManager?.let { pm ->
-//                    val scope = (context as? AppCompatActivity)?.lifecycleScope
-//                    scope?.launch {
-//                        val token = pm.getAccessToken()
-//                        if (token != null) {
-//                            vm.uploadImage(it, token)
-//                        }
-//                    }
-//                }
-//            }
         }
     }
-
-    // Observe API responses
-//    val imageUploadResponse = signupViewModel?.imageUploadResponse?.observeAsState()
-//    val setPageResponse = signupViewModel?.setPageResponse?.observeAsState()
-//
-//    LaunchedEffect(imageUploadResponse?.value) {
-//        imageUploadResponse?.value?.let { response ->
-//            val apiResultHandler = ApiResultHandler<UploadResponse>(
-//                context as AppCompatActivity,
-//                onLoading = { },
-//                onSuccess = {
-//                    // Store image path based on which image was selected
-//                    if (profileImageUri != null) {
-//                        imagePath = it?.data?._id
-//                    } else if (headerImageUri != null) {
-//                        headerPath = it?.data?._id
-//                    }
-//                },
-//                onFailure = { }
-//            )
-//            apiResultHandler.handleApiResult(response)
-//        }
-//    }
-
-//    LaunchedEffect(setPageResponse?.value) {
-//        setPageResponse?.value?.let { response ->
-//            val apiResultHandler = ApiResultHandler<BaseResponse>(
-//                context as AppCompatActivity,
-//                onLoading = { },
-//                onSuccess = {
-//                    val intent = Intent(context, JoyersAuthActivity::class.java)
-//                    context.startActivity(intent)
-//                    (context as AppCompatActivity).finish()
-//                },
-//                onFailure = { }
-//            )
-//            apiResultHandler.handleApiResult(response)
-//        }
-//    }
 
     // Validation
     val isNameValid = remember(state.name) {

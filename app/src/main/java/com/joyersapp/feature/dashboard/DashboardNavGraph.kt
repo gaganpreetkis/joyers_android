@@ -1,34 +1,31 @@
 package com.joyersapp.feature.dashboard
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.joyersapp.feature.home.presentation.HomeScreen
 import com.joyersapp.feature.profile.presentation.MagneticsScreen
 import com.joyersapp.feature.profile.presentation.UserProfileScreen
+import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 
 
 sealed class Routes(val route: String) {
-    data object Home : Routes("home")
-    data object Profile : Routes("profile")
     data object Magnetics : Routes("magnetics")
-    data object Post : Routes("post")
-    data object Contacts : Routes("contacts")
-    data object Notifications : Routes("notifications")
-
 
 }
 
 @Composable
 fun DashboardNavGraph(navController: NavHostController) {
 
+    val userProfileViewModel = hiltViewModel<UserProfileViewModel>()
     NavHost(
         navController = navController,
-        startDestination = Routes.Home.route
+        startDestination = BottomTab.HOME.route
     ) {
 
-        composable(Routes.Home.route) {
+        composable(BottomTab.HOME.route) {
             HomeScreen(
 //                onOpenPost = {
 //                    navController.navigate(HomeRoutes.postDetails(it))
@@ -37,8 +34,9 @@ fun DashboardNavGraph(navController: NavHostController) {
         }
 
         // PROFILE
-        composable(Routes.Profile.route) {
+        composable(BottomTab.PROFILE.route) {
             UserProfileScreen(
+                viewModel = userProfileViewModel,
                 editMagnetics = {
                     navController.navigate(Routes.Magnetics.route)
                 }
@@ -46,22 +44,20 @@ fun DashboardNavGraph(navController: NavHostController) {
         }
         composable(Routes.Magnetics.route) {
             MagneticsScreen(
-                username = "Sara_99",
+                viewModel = userProfileViewModel,
                 onBack = { navController.popBackStack() }
-
-
             )
         }
 
-        composable(Routes.Post.route) {
+        composable(BottomTab.POST.route) {
             HomeScreen()
         }
 
-        composable(Routes.Contacts.route) {
+        composable(BottomTab.CONTACTS.route) {
             HomeScreen()
         }
 
-        composable(Routes.Notifications.route) {
+        composable(BottomTab.NOTIFICATIONS.route) {
             HomeScreen()
         }
 

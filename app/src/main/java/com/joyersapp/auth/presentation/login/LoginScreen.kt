@@ -671,6 +671,7 @@ fun LoginScreen(
     }
 }
 
+
 @Composable
 fun RecentUserItem(
     isSingleItem: Boolean,
@@ -695,7 +696,7 @@ fun RecentUserItem(
                 bottom = if (isSingleItem) 7.5.dp else if (isLast) 8.5.dp else 0.dp
             )
             .clickable { onItemClick() }
-            .padding(start = 14.5.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
+            .padding(start = 17.dp, end = 17.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Icon on the left
