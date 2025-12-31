@@ -9,7 +9,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.LightBlack
 
 // Helper function to parse HTML string with font color and bold tags
@@ -35,7 +35,7 @@ fun parseHtmlString(htmlString: String): AnnotatedString {
             val end = spanned.getSpanEnd(span)
             val colorInt = span.foregroundColor
             val composeColor = if (colorInt == goldenColor) {
-                Golden60
+                Golden
             } else {
                 LightBlack
             }
@@ -50,7 +50,7 @@ fun parseHtmlString(htmlString: String): AnnotatedString {
                 }
             }
 
-            val fontWeight = if (isBold || composeColor == Golden60) {
+            val fontWeight = if (isBold || composeColor == Golden) {
                 FontWeight.Bold
             } else {
                 FontWeight.SemiBold

@@ -63,7 +63,7 @@ import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
 import com.joyersapp.common_widgets.AutoResizeText
 import com.joyersapp.common_widgets.CountryCodePicker
 import com.joyersapp.theme.DisabledTextColor
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Green
 import com.joyersapp.theme.LightBlack
@@ -767,8 +767,8 @@ fun ResetPasswordScreen(
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Golden60,
-                    disabledContainerColor = Golden60,
+                    containerColor = Golden,
+                    disabledContainerColor = Golden,
                     contentColor = White,
                     disabledContentColor = DisabledTextColor
                 ),
@@ -813,7 +813,7 @@ fun ResetPasswordScreen(
                     fontSize = 16.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Bold,
-                    color = Golden60,
+                    color = Golden,
                     modifier = Modifier
                         .clickable { onLoginClick() },
                     textAlign = TextAlign.Center
@@ -834,7 +834,7 @@ fun ResetPasswordScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    color = Golden60,
+                    color = Golden,
                     modifier = Modifier.size(48.dp)
                 )
             }

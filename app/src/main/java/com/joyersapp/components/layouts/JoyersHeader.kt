@@ -21,7 +21,7 @@ fun JoyersHeader(
     onMenuClick: () -> Unit = {},
     onLampClick: () -> Unit = {}
 ) {
-    val gold = Color(0xFFD59B32)   // Replace with your Golden60 if needed
+    val gold = Color(0xFFD59B32)   // Replace with your Golden if needed
 
     Row(
         modifier = Modifier

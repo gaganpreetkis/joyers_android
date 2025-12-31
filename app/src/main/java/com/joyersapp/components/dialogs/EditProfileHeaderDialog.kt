@@ -50,13 +50,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.GrayLightBorder
@@ -79,7 +78,7 @@ fun EditProfileHeaderDialog(
         onDismiss = { onDismiss() },
         titles = arrayListOf("Profile Header")
 
-    ) {
+    ) { dialogModifier, dialogFocusManager, maxHeight ->
 
         Column(
             modifier = Modifier
@@ -169,7 +168,7 @@ fun EditProfileHeaderDialog(
                     .width(190.dp)
                     .align(Alignment.CenterHorizontally)
                     .height(47.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Golden60),
+                colors = ButtonDefaults.buttonColors(containerColor = Golden),
                 shape = RoundedCornerShape(4.dp)
             ) {
                 Text(
@@ -432,7 +431,7 @@ fun TabItem(title: String, selected: Boolean, onClick: () -> Unit) {
     ) {
         Text(
             text = title,
-            color = if (selected) Golden60 else LightBlack,
+            color = if (selected) Golden else LightBlack,
             fontSize = 16.sp,
             lineHeight = 22.sp,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,

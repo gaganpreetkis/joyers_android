@@ -11,15 +11,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = White,
+    background = White,
+    surface = White,
+    onPrimary = White,
+    onBackground = White,
+    onSurface = White,
+    onTertiary = White,
+    tertiary = White
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = White,
+    background = White,
+    surface = White,
+    onPrimary = White,
+    onBackground = White,
+    onSurface = White,
+    onTertiary = White,
+    tertiary = White
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -39,6 +49,7 @@ fun JoyersTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

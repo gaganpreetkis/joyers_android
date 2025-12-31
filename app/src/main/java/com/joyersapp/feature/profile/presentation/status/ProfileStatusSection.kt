@@ -35,9 +35,8 @@ import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.data.remote.dto.Interests
-import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.presentation.UserProfileUiState
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack5
@@ -268,7 +267,7 @@ fun JoyerCodeSection(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
-                    color = Golden60,
+                    color = Golden,
                     lineHeight = 15.sp,
                 )
             }

@@ -9,5 +9,7 @@ sealed class UserProfileEvent {
     data class OnEditDescriptionClicked(val tab: Int) : UserProfileEvent()
     data class OnEditTitleClicked(val tab: Int) : UserProfileEvent()
     data class OnEditProfileHeader(val id: Int) : UserProfileEvent()
+    data class OnEditDescription(val id: Int) : UserProfileEvent()
+    data class OnEditIdentification(val id: Int) : UserProfileEvent()
 
 }

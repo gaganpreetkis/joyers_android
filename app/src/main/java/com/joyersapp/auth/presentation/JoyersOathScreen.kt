@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.joyersapp.common_widgets.AutoSizingHtmlText
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.utils.parseHtmlString
 import com.joyersapp.R
 
@@ -220,7 +220,7 @@ fun JoyersOathScreen(
                     modifier = Modifier
                         .size(60.dp)
                         .clip(CircleShape)
-                        .background(Golden60)
+                        .background(Golden)
                         .clickable(onClick = { onFabClick() }),
                     contentAlignment = Alignment.Center
                 ) {

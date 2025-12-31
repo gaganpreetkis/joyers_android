@@ -42,7 +42,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -63,7 +62,7 @@ import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.CountryCodePicker
 import com.joyersapp.theme.Black
 import com.joyersapp.theme.DisabledTextColor
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
@@ -541,7 +540,7 @@ fun ForgotPasswordScreen(
                                 fontFamily = fontFamilyLato,
                                 textAlign = TextAlign.Center,
                                 fontWeight = if (selectedTab == "Email") FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (selectedTab == "Email") Golden60 else Black,
+                                color = if (selectedTab == "Email") Golden else Black,
                                 modifier = Modifier
                                     .width(74.dp)
                                     //.padding(start = 12.dp, end = 15.dp)
@@ -557,7 +556,7 @@ fun ForgotPasswordScreen(
                                 fontFamily = fontFamilyLato,
                                 textAlign = TextAlign.Center,
                                 fontWeight = if (selectedTab == "SMS") FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (selectedTab == "SMS") Golden60 else LightBlack,
+                                color = if (selectedTab == "SMS") Golden else LightBlack,
                                 modifier = Modifier
                                     .width(74.dp)
                                     //.padding(start = 15.dp, end = 13.dp)
@@ -582,7 +581,7 @@ fun ForgotPasswordScreen(
                                     .weight(1f)
                                     .height(if (selectedTab == "Email") 2.dp else 1.dp)
                                     .background(
-                                        color = if (selectedTab == "Email") Golden60 else LightBlack35
+                                        color = if (selectedTab == "Email") Golden else LightBlack35
                                     )
                             )
                             Box(
@@ -590,7 +589,7 @@ fun ForgotPasswordScreen(
                                     .weight(1f)
                                     .height(if (selectedTab == "SMS") 2.dp else 1.dp)
                                     .background(
-                                        color = if (selectedTab == "SMS") Golden60 else LightBlack35
+                                        color = if (selectedTab == "SMS") Golden else LightBlack35
                                     )
                             )
                         }
@@ -682,8 +681,8 @@ fun ForgotPasswordScreen(
                         .fillMaxWidth()
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Golden60,
-                        disabledContainerColor = Golden60,
+                        containerColor = Golden,
+                        disabledContainerColor = Golden,
                         contentColor = White,
                         disabledContentColor = DisabledTextColor
                     ),
@@ -717,8 +716,8 @@ fun ForgotPasswordScreen(
                         .fillMaxWidth()
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Golden60,
-                        disabledContainerColor = Golden60,
+                        containerColor = Golden,
+                        disabledContainerColor = Golden,
                         contentColor = White,
                         disabledContentColor = DisabledTextColor
                     ),
@@ -794,7 +793,7 @@ fun ForgotPasswordScreen(
                     fontSize = 16.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Bold,
-                    color = Golden60,
+                    color = Golden,
                     modifier = Modifier
                         .clickable { onLoginClick() },
                     //.padding(4.dp),
@@ -816,7 +815,7 @@ fun ForgotPasswordScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    color = Golden60,
+                    color = Golden,
                     modifier = Modifier.size(48.dp)
                 )
             }

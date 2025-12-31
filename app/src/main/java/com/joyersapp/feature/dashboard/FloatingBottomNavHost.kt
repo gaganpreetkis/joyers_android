@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.joyersapp.R
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.GrayBorder
 import com.joyersapp.theme.LightBlack
 
@@ -95,7 +95,7 @@ fun BottomNavBar(
                         ) {
                             onTabSelected(tab)
                         },
-                    colorFilter = ColorFilter.tint(if (tab == selected) Golden60 else LightBlack)
+                    colorFilter = ColorFilter.tint(if (tab == selected) Golden else LightBlack)
                 )
             }
         }

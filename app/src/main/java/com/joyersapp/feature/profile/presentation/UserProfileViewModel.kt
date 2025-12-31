@@ -2,9 +2,7 @@ package com.joyersapp.feature.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.joyersapp.auth.data.remote.dto.signup.CompleteRegistrationRequestDto
-import com.joyersapp.auth.domain.usecase.RegisterUseCase
-import com.joyersapp.auth.presentation.signup.SignupNavigationEvent
+import com.joyersapp.feature.profile.domain.usecase.FetchTitlesUseCase
 import com.joyersapp.core.SessionManager
 import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +16,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val fetchTitlesUseCase: FetchTitlesUseCase,
     private val sessionManager: SessionManager,
     ) : ViewModel() {
     private val _uiState = MutableStateFlow(
@@ -61,6 +60,7 @@ class UserProfileViewModel @Inject constructor(
                         showIdentificationDialog = false,
                         showTitlesDialog = false,
                         showEditProfileHeaderDialog = false,
+                        showEditDescriptionDialog = false,
                     )
                 }
             }
@@ -85,6 +85,21 @@ class UserProfileViewModel @Inject constructor(
                     )
                 }
             }
+            is UserProfileEvent.OnEditDescription -> {
+                _uiState.update {
+                    it.copy(
+                        showEditDescriptionDialog = true,
+                        showIdentificationDialog = false,
+                    )
+                }
+            }
+            is UserProfileEvent.OnEditIdentification -> {
+                _uiState.update {
+                    it.copy(
+                        showIdentificationDialog = true,
+                    )
+                }
+            }
         }
     }
 
@@ -102,26 +117,31 @@ class UserProfileViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             error = null,
-                            username = response.username ?: "N/A",
-                            fullname = (response.firstName ?: "") + (response.lastName ?: ""),
-                            location = response.joyerLocation ?: "N/A",
+                            username = response.username ?: "",
+                            fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
+                            location = response.joyerLocation ?: "",
                             profilePicture = response.profilePicture ?: "",
                             backgroundPicture = response.backgroundPicture ?: "",
-                            likes = response.likesCount ?: "N/A",
-                            following = response.followingCount ?: "N/A",
-                            followers = response.followersCount ?: "N/A",
-                            joyerStatus = response.joyerStatus ?: "N/A",
-                            titleName = response.title?.name ?: "N/A",
-                            subTitleName = response.subTitle?.name ?: "N/A",
+                            likes = response.likesCount ?: "",
+                            following = response.followingCount ?: "",
+                            followers = response.followersCount ?: "",
+                            joyerStatus = response.joyerStatus ?: "",
+//                            birthday = response.b ?: "",
+                            gender = response.gender?: "",
+                            relationship = response.relationship?.name?: "",
+//                            children = response.ch?.name?: "",
+                            politicalIdeology = response.politicalIdeology?.name ?: "",
+                            titleName = response.title?.name ?: "",
+                            subTitleName = response.subTitle?.name ?: "",
                             areaOfInterest = response.interests,
                             languages = response.languages,
-                            joySince = response.joySince ?: "N/A",
-                            joySinceDuration = response.joySinceDuration ?: "N/A",
+                            joySince = response.joySince ?: "",
+                            joySinceDuration = response.joySinceDuration ?: "",
                             qrCode = response.qrCode ?: "",
-                            nationality = response.nationality?.name ?: "N/A",
-                            ethnicity = response.ethnicity?.name ?: "N/A",
-                            faith = response.faith?.name ?: "N/A",
-                            educationName = response.education?.name ?: "N/A",
+                            nationality = response.nationality?.name ?: "",
+                            ethnicity = response.ethnicity?.name ?: "",
+                            faith = response.faith?.name ?: "",
+                            educationName = response.education?.name ?: "",
                         )
                     }
                 },
@@ -130,6 +150,36 @@ class UserProfileViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             error = error.message
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    private fun loadTitles(){
+        val state = _uiState.value
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+
+            val result =
+                fetchTitlesUseCase()
+
+            result.fold(
+                onSuccess = { titles ->
+                    _uiState.update { old ->
+                        old.copy(
+                            isLoading = false,
+                            titles = titles,
+                            errorMessage = null
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message
                         )
                     }
                 }

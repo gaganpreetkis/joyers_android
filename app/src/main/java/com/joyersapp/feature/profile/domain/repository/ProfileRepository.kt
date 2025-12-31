@@ -19,12 +19,14 @@ import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.feature.profile.data.remote.dto.GetUserProfileResponseDto
+import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfile
 import kotlinx.coroutines.flow.Flow
 
 interface ProfileRepository {
 
     suspend fun getUserProfile(): Result<UserProfile>
+    suspend fun fetchTitles(): Result<List<ProfileTitlesData>>
 
 
     suspend fun logout()
