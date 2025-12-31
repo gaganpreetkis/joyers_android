@@ -32,6 +32,7 @@ import com.joyersapp.components.dialogs.TokenExpiredDialog
 import com.joyersapp.core.AppNavGraph
 import com.joyersapp.core.SessionManager
 import com.joyersapp.core.SessionState
+import com.joyersapp.theme.JoyersTheme
 import com.joyersapp.theme.White
 import com.joyersapp.utils.rememberKeyboardHider
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,7 +62,7 @@ class MainActivity : ComponentActivity() {
                 )
             ) {
 
-                MaterialTheme {
+                JoyersTheme {
 
                     val hideKeyboard = rememberKeyboardHider()
                     val navController = rememberNavController()

@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 
 @Composable
 fun CustomProgressIndicator() {
@@ -23,7 +23,7 @@ fun CustomProgressIndicator() {
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            color = Golden60,
+            color = Golden,
             modifier = Modifier.size(48.dp)
         )
     }

@@ -28,6 +28,7 @@ import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.repository.AuthRepository
 import com.joyersapp.feature.profile.data.remote.ProfileApi
 import com.joyersapp.feature.profile.data.remote.dto.GetUserProfileResponseDto
+import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfile
 import com.joyersapp.feature.profile.domain.repository.ProfileRepository
 import com.joyersapp.utils.ApiErrorException
@@ -55,6 +56,35 @@ class ProfileRepositoryImpl @Inject constructor(
             when (response.statusCode) {
                 200 -> {
                     Result.success(response.data!!)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            message = response.message ?: "Something went wrong"
+                        )
+                    )
+                }
+
+                else -> Result.failure(
+                    ApiErrorException(
+                        message = response.message ?: "Something went wrong"
+                    )
+                )
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun fetchTitles(): Result<List<ProfileTitlesData>> =
+        try {
+            val response = api.getTitles()
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response.data)
                 }
 
                 400 -> {

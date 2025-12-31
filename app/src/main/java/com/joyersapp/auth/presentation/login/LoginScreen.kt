@@ -43,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -69,7 +68,7 @@ import com.joyersapp.core.NetworkConfig
 import com.joyersapp.theme.AvatarBorder
 import com.joyersapp.theme.Black
 import com.joyersapp.theme.DisabledTextColor
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack60
@@ -453,7 +452,7 @@ fun LoginScreen(
                     Text(
                         text = "Forgot Password?",
                         fontSize = 12.sp,
-                        color = Golden60,
+                        color = Golden,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
                         lineHeight = 12.sp,
@@ -496,10 +495,10 @@ fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
-                        .background(color = Golden60, shape = RoundedCornerShape(4.dp)),
+                        .background(color = Golden, shape = RoundedCornerShape(4.dp)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Golden60,
-                        disabledContainerColor = Golden60,
+                        containerColor = Golden,
+                        disabledContainerColor = Golden,
                         contentColor = White,
                         disabledContentColor = DisabledTextColor
                     ),
@@ -578,7 +577,7 @@ fun LoginScreen(
                     fontSize = 16.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Bold,
-                    color = Golden60,
+                    color = Golden,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .clickable {
@@ -664,7 +663,7 @@ fun LoginScreen(
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                color = Golden60,
+                color = Golden,
                 modifier = Modifier.size(48.dp)
             )
         }
@@ -720,7 +719,7 @@ fun RecentUserItem(
                 Image(
                     modifier = Modifier
                         .size(28.dp)
-                        .border(shape = CircleShape, width = 1.5.dp, color = Golden60)
+                        .border(shape = CircleShape, width = 1.5.dp, color = Golden)
                         .padding(4.dp)
                         .background(shape = CircleShape, color = Gray20)
                         .padding(2.3.dp),

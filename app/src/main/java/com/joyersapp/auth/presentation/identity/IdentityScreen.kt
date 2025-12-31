@@ -84,11 +84,10 @@ import com.joyersapp.common_widgets.DualViewDialog
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.common_widgets.showCCPDialog
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
-import com.joyersapp.theme.Green
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack13
 import com.joyersapp.theme.LightBlack55
@@ -214,7 +213,7 @@ fun IdentityScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
-                    color = Golden60,
+                    color = Golden,
                     modifier = Modifier
                         .weight(0.2f)
                         .padding(end = 20.dp),
@@ -233,7 +232,7 @@ fun IdentityScreen(
                     modifier = Modifier
                         .fillMaxWidth(progressValues[currentPage] / 100f)
                         .fillMaxHeight()
-                        .background(Golden60)
+                        .background(Golden)
                 )
             }
 
@@ -303,7 +302,7 @@ fun IdentityScreen(
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                color = Golden60,
+                color = Golden,
                 modifier = Modifier.size(48.dp)
             )
         }
@@ -337,7 +336,7 @@ fun PageOneContent(
     //var selectedCountryCode by remember { mutableStateOf("") }
 
     val context = LocalContext.current
-    val goldenColor = Golden60
+    val goldenColor = Golden
     val lightBlackColor = LightBlack
     val hintColor = Gray40
     val whiteColor = Color.White
@@ -948,7 +947,7 @@ fun PageTwoContent(
     val state by viewModel2.uiState.collectAsStateWithLifecycle()
     //var selectedStatus by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
-    val goldenColor = Golden60
+    val goldenColor = Golden
     val lightBlackColor = LightBlack
     val blackColor = colorResource(id = R.color.black)
     val whiteColor = Color.White
@@ -1212,7 +1211,7 @@ fun PageThreeContent(
     var showNextButton by remember { mutableStateOf(false) }
     var showTitleDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val goldenColor = Golden60
+    val goldenColor = Golden
     val lightBlackColor = LightBlack
     val whiteColor = Color.White
 

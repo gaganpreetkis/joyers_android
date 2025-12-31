@@ -17,10 +17,13 @@ import androidx.compose.ui.unit.dp
 import com.joyersapp.R
 import com.joyersapp.components.layouts.JoyersHeader
 import com.joyersapp.theme.GrayBG
+import com.joyersapp.theme.White
 
 @Composable
 fun HomeScreen() {
-    Scaffold() { paddingValues ->
+    Scaffold(
+        modifier = Modifier.background(White)
+    ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             JoyersHeader(
                 onMenuClick = {
@@ -33,7 +36,7 @@ fun HomeScreen() {
                     .fillMaxSize()
 //            .border(width = 3.dp, color = White, shape = CircleShape)
 //            .padding(3.dp)
-//            .border(width = 3.dp, color = Golden60, shape = CircleShape)
+//            .border(width = 3.dp, color = Golden, shape = CircleShape)
 //            .padding(3.dp)
 //            .border(width = 3.dp, color = White, shape = CircleShape)
 //            .size(115.dp)

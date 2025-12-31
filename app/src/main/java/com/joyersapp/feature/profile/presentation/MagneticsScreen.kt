@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,17 +46,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
+import com.joyersapp.common_widgets.IdentificationData
+import com.joyersapp.common_widgets.IdentificationDialog
+import com.joyersapp.components.dialogs.EditDescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack10
-import com.joyersapp.theme.LightBlack30
 import com.joyersapp.theme.LightBlack55
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
@@ -87,73 +88,11 @@ fun MagneticsScreen(
     ) {
 
         /** ─────────────── TOP BAR ─────────────── **/
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(63.dp)
-                .background(White)
-                .padding(horizontal = 15.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Cancel",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = fontFamilyLato,
-                color = Golden60,
-                lineHeight = 22.sp,
-                modifier = Modifier.noRippleClickable() { onBack() }
-            )
-
-            // center username block
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // lock
-                Box(contentAlignment = Alignment.TopEnd) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_lock_heart_black),
-                        contentDescription = "Lock",
-                        modifier = Modifier.size(13.39.dp, 20.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(7.01.dp))
-
-                // Username
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = state.username,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = fontFamilyLato,
-                        lineHeight = 22.sp,
-                        color = LightBlack,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(Modifier.width(7.dp))
-                    Image(
-                        painter = painterResource(id = R.drawable.arrowdown_lite),
-                        contentDescription = "Dropdown",
-                        modifier = Modifier.size(14.dp, 8.dp)
-                    )
-                }
-            }
-
-            Text(
-                text = "Save",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = fontFamilyLato,
-                color = Golden60,
-                lineHeight = 22.sp,
-                modifier = Modifier.noRippleClickable { onBack() }
-            )
-        }
+        TopBar(
+            username = state.username,
+            onBack = { onBack() },
+            onSave = { onBack() }
+        )
 
         HorizontalDivider(color = LightBlack10, thickness = 1.dp)
 
@@ -165,203 +104,40 @@ fun MagneticsScreen(
             Spacer(Modifier.height(10.dp))
             HorizontalDivider(color = LightBlack10, thickness = 1.dp)
 
+
             /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
-            Column(
-                Modifier
-                    .background(White)
-                    .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
-                    .noRippleClickable { viewModel.onEvent(UserProfileEvent.OnEditProfileHeader(0)) },
-            ) {
-                SectionHeader(title = "Profile Header")
-                Spacer(Modifier.height(13.dp))
-                if (state.profilePicture.isNotEmpty()) {
-                    ProfilePicture(
-                        NetworkConfig.IMAGE_BASE_URL + state.profilePicture,
-                        NetworkConfig.IMAGE_BASE_URL + state.backgroundPicture
-                    )
-                } else {
-                    ProfileEditableRow(title = "Profile Picture")
-                }
-                Spacer(Modifier.height(11.dp))
-                if (state.profilePicture.isNotEmpty()) {
-                    BioSection()
-                } else { ProfileEditableRow(title = "Bio") }
+            ProfileHeaderSection( state) {
+                viewModel.onEvent(UserProfileEvent.OnEditProfileHeader(0))
             }
 
             HorizontalDivider(color = LightBlack10, thickness = 1.dp)
             Spacer(Modifier.height(10.dp))
             HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+
 
             /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
-            Column(
-                Modifier
-                    .background(White)
-                    .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp),
-            ) {
-                SectionHeader(title = "Description")
-                Spacer(Modifier.height(13.dp))
-                if (state.joyerStatus.isNotEmpty()) {
-                    KeyValueText(
-                        "Joyer Status",
-                        state.joyerStatus
-                    )
-                } else { ProfileEditableRow(title = "Joyer Status") }
+            DescriptionSection( state) {
+                viewModel.onEvent(UserProfileEvent.OnEditDescription(0))
             }
 
             HorizontalDivider(color = LightBlack10, thickness = 1.dp)
             Spacer(Modifier.height(10.dp))
             HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+
 
             /** ─────────────── SECTION: IDENTIFICATION  ─────────────── **/
-            Column(
-                Modifier
-                    .background(White)
-                    .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp),
-            ) {
-                SectionHeader(title = "Identification")
-
-                Spacer(Modifier.height(13.dp))
-
-                if (state.fullname.isNotEmpty()) {
-                    KeyValueText(
-                        "Name",
-                        state.joyerStatus
-                    )
-                } else { ProfileEditableRow(title = "Name") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.birthday.isNotEmpty()) {
-                    KeyValueText(
-                        "Birthday",
-                        state.birthday
-                    )
-                } else { ProfileEditableRow(title = "Birthday") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.gender.isNotEmpty()) {
-                    KeyValueText(
-                        "Gender",
-                        state.gender
-                    )
-                } else { ProfileEditableRow(title = "Gender") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.nationality.isNotEmpty()) {
-                    KeyValueText(
-                        "Nationality",
-                        state.nationality
-                    )
-                } else {
-                    ProfileEditableRow(title = "Nationality") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.ethnicity.isNotEmpty()) {
-                    KeyValueText(
-                        "Ethnicity",
-                        state.ethnicity
-                    )
-                } else {
-                    ProfileEditableRow(title = "Ethnicity") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.faith.isNotEmpty()) {
-                    KeyValueText(
-                        "Faith",
-                        state.faith
-                    )
-                } else { ProfileEditableRow(title = "Faith") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.language.isNotEmpty()) {
-                    LanguageSection(languages = state.languages)
-                } else {
-                    ProfileEditableRow(title = "Language") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.educationName.isNotEmpty()) {
-                    KeyValueText(
-                        "Education",
-                        state.educationName
-                    )
-                } else {
-                    ProfileEditableRow(title = "Education") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.relationship.isNotEmpty()) {
-                    KeyValueText(
-                        "Relationship",
-                        state.relationship
-                    )
-                } else {
-                    ProfileEditableRow(title = "Relationship") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.children.isNotEmpty()) {
-                    KeyValueText(
-                        "Children",
-                        state.children
-                    )
-                } else {
-                    ProfileEditableRow(title = "Children") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.politicalIdeology.isNotEmpty()) {
-                    KeyValueText(
-                        "Political Ideology",
-                        state.politicalIdeology
-                    )
-                } else {
-                    ProfileEditableRow(title = "Political Ideology") }
-
-                Spacer(Modifier.height(11.dp))
-
-                if (state.location.isNotEmpty()) {
-                    KeyValueText(
-                        "Joyer Location",
-                        state.location
-                    )
-                } else {
-                    ProfileEditableRow(title = "Joyer Location") }
-
-                /*val staticItems = listOf(
-                    "Name", "Birthday", "Gender", "Nationality", "Ethnicity", "Faith",
-                    "Language", "Education", "Relationship", "Children",
-                    "Political Ideology", "Joyer Location"
-                )
-
-                    staticItems.forEach { item ->
-                    ProfileEditableRow(title = item)
-                }*/
+            IdentificationSection( state) {
+                viewModel.onEvent(UserProfileEvent.OnEditIdentification(0))
             }
 
             HorizontalDivider(color = LightBlack10, thickness = 1.dp)
             Spacer(Modifier.height(10.dp))
             HorizontalDivider(color = LightBlack10, thickness = 1.dp)
 
+
             /** ─────────────── SECTION: INTERESTS ─────────────── **/
-            Column(
-                Modifier
-                    .background(White)
-                    .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp),
-            ) {
-                SectionHeader(title = "Interests")
-
-                Spacer(Modifier.height(13.dp))
-
-                if (state.areaOfInterest.isNotEmpty()) {
-                    InterestsSection(state.areaOfInterest)
-                } else {
-                    ProfileEditableRow(title = "Joyer Interests") }
+            InterstsSection( state) {
+                viewModel.onEvent(UserProfileEvent.OnEditDescription(0))
             }
 
             Spacer(Modifier.height(80.dp))
@@ -373,6 +149,309 @@ fun MagneticsScreen(
         EditProfileHeaderDialog(
             onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))}
         ){  }
+    }
+    if (state.showIdentificationDialog) {
+        IdentificationDialog(
+            onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
+            onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
+            onNavigateToDescription = {viewModel.onEvent(UserProfileEvent.OnEditDescription(0))},
+            initialData = IdentificationData(
+                name = state.fullname,
+                birthday = state.birthday,
+//                gender = null,
+                nationality = state.nationality,
+                ethnicity = state.ethnicity,
+                faith = state.faith,
+                language = state.language,
+                education = state.educationName,
+                relationship = state.relationship,
+                politicalIdeology = state.politicalIdeology,
+                joyerLocation = state.location
+            )
+        )
+    }
+    if (state.showEditDescriptionDialog) {
+        EditDescriptionDialog(
+            titlesData = state.titles,
+            onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
+            onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))}
+        )
+    }
+}
+
+@Composable
+fun TopBar(
+    username: String,
+    onBack: () -> Unit,
+    onSave: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(63.dp)
+            .background(White)
+            .padding(horizontal = 15.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "Cancel",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = fontFamilyLato,
+            color = Golden,
+            lineHeight = 22.sp,
+            modifier = Modifier.noRippleClickable() { onBack() }
+        )
+
+        // center username block
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // lock
+            Box(contentAlignment = Alignment.TopEnd) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_lock_heart_black),
+                    contentDescription = "Lock",
+                    modifier = Modifier.size(13.39.dp, 20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(7.01.dp))
+
+            // Username
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = username,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = fontFamilyLato,
+                    lineHeight = 22.sp,
+                    color = LightBlack,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.width(7.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.arrowdown_lite),
+                    contentDescription = "Dropdown",
+                    modifier = Modifier.size(14.dp, 8.dp)
+                )
+            }
+        }
+
+        Text(
+            text = "Save",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = fontFamilyLato,
+            color = Golden,
+            lineHeight = 22.sp,
+            modifier = Modifier.noRippleClickable { onSave() }
+        )
+    }
+}
+
+@Composable
+fun InterstsSection(state: UserProfileUiState, onClick: () -> Unit) {
+    Column(
+        Modifier
+            .background(White)
+            .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
+            .noRippleClickable{ onClick() },
+    ) {
+        SectionHeader(title = "Interests")
+
+        Spacer(Modifier.height(13.dp))
+
+        if (state.areaOfInterest.isNotEmpty()) {
+            InterestsSection(state.areaOfInterest)
+        } else {
+            ProfileEditableRow(title = "Joyer Interests") }
+    }
+}
+
+@Composable
+fun IdentificationSection(state: UserProfileUiState, onClick: () -> Unit) {
+    Column(
+        Modifier
+            .background(White)
+            .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
+            .noRippleClickable{ onClick() },
+    ) {
+        SectionHeader(title = "Identification")
+
+        Spacer(Modifier.height(13.dp))
+
+        if (state.fullname.isNotEmpty()) {
+            KeyValueText(
+                "Name",
+                state.fullname
+            )
+        } else { ProfileEditableRow(title = "Name") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.birthday.isNotEmpty()) {
+            KeyValueText(
+                "Birthday",
+                state.birthday
+            )
+        } else { ProfileEditableRow(title = "Birthday") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.gender.isNotEmpty()) {
+            KeyValueText(
+                "Gender",
+                state.gender
+            )
+        } else { ProfileEditableRow(title = "Gender") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.nationality.isNotEmpty()) {
+            KeyValueText(
+                "Nationality",
+                state.nationality
+            )
+        } else {
+            ProfileEditableRow(title = "Nationality") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.ethnicity.isNotEmpty()) {
+            KeyValueText(
+                "Ethnicity",
+                state.ethnicity
+            )
+        } else {
+            ProfileEditableRow(title = "Ethnicity") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.faith.isNotEmpty()) {
+            KeyValueText(
+                "Faith",
+                state.faith
+            )
+        } else { ProfileEditableRow(title = "Faith") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.languages.isNotEmpty()) {
+            LanguageSection(languages = state.languages)
+        } else {
+            ProfileEditableRow(title = "Language") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.educationName.isNotEmpty()) {
+            KeyValueText(
+                "Education",
+                state.educationName
+            )
+        } else {
+            ProfileEditableRow(title = "Education") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.relationship.isNotEmpty()) {
+            KeyValueText(
+                "Relationship",
+                state.relationship
+            )
+        } else {
+            ProfileEditableRow(title = "Relationship") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.children.isNotEmpty()) {
+            KeyValueText(
+                "Children",
+                state.children
+            )
+        } else {
+            ProfileEditableRow(title = "Children") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.politicalIdeology.isNotEmpty()) {
+            KeyValueText(
+                "Political Ideology",
+                state.politicalIdeology
+            )
+        } else {
+            ProfileEditableRow(title = "Political Ideology") }
+
+        Spacer(Modifier.height(11.dp))
+
+        if (state.location.isNotEmpty()) {
+            KeyValueText(
+                "Joyer Location",
+                state.location
+            )
+        } else {
+            ProfileEditableRow(title = "Joyer Location") }
+
+        /*val staticItems = listOf(
+            "Name", "Birthday", "Gender", "Nationality", "Ethnicity", "Faith",
+            "Language", "Education", "Relationship", "Children",
+            "Political Ideology", "Joyer Location"
+        )
+
+            staticItems.forEach { item ->
+            ProfileEditableRow(title = item)
+        }*/
+    }
+}
+
+@Composable
+fun DescriptionSection(state: UserProfileUiState, onclick: () -> Unit) {
+    Column(
+        Modifier
+            .background(White)
+            .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
+            .noRippleClickable{ onclick() },
+    ) {
+        SectionHeader(title = "Description")
+        Spacer(Modifier.height(13.dp))
+        if (state.joyerStatus.isNotEmpty()) {
+            KeyValueText(
+                "Joyer Status",
+                state.joyerStatus
+            )
+        } else { ProfileEditableRow(title = "Joyer Status") }
+    }
+}
+
+@Composable
+fun ProfileHeaderSection(
+    state: UserProfileUiState,
+    onClick: () -> Unit
+) {
+    Column(
+        Modifier
+            .background(White)
+            .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
+            .noRippleClickable { onClick() },
+    ) {
+        SectionHeader(title = "Profile Header")
+        Spacer(Modifier.height(13.dp))
+        if (state.profilePicture.isNotEmpty()) {
+            ProfilePicture(
+                NetworkConfig.IMAGE_BASE_URL + state.profilePicture,
+                NetworkConfig.IMAGE_BASE_URL + state.backgroundPicture
+            )
+        } else {
+            ProfileEditableRow(title = "Profile Picture")
+        }
+        Spacer(Modifier.height(11.dp))
+        if (state.profilePicture.isNotEmpty()) {
+            BioSection()
+        } else { ProfileEditableRow(title = "Bio") }
     }
 }
 
@@ -404,7 +483,7 @@ fun ProfileEditableRow(
                 painter = painterResource(id = R.drawable.ic_forward_black),
                 contentDescription = null,
                 modifier = Modifier.size(6.dp, 10.5.dp),
-                colorFilter = ColorFilter.tint(Golden60)
+                colorFilter = ColorFilter.tint(Golden)
             )
             Spacer(Modifier.width(9.9.dp))
             Text(
@@ -670,7 +749,6 @@ fun LanguageSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp)
     ) {
 
         Row(
@@ -708,7 +786,7 @@ fun LanguageSection(
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "$name ($level)",
+                            text = "$name",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = fontFamilyLato,
@@ -729,10 +807,9 @@ fun LanguageSection(
                     }
                 }
             }
-
         }
 
-        // ---- HEADER WITH SEE ALL / SHOW LESS ----
+        // ---- SEE ALL / SHOW LESS ----
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -742,12 +819,14 @@ fun LanguageSection(
 
             Text(
                 text = if (expanded) "Show Less" else "See All",
-                fontSize = 15.sp,
-                color = Color(0xFFCC8A00),
-                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                lineHeight = 22.sp,
+                color = Golden,
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .padding(end = 3.dp)
-                    .clickable { expanded = !expanded }
+                    .padding(top = 9.dp)
+                    .noRippleClickable() { expanded = !expanded }
             )
         }
     }
@@ -765,7 +844,6 @@ fun InterestsSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp)
     ) {
 
         Row(
@@ -784,18 +862,9 @@ fun InterestsSection(
 
             // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
             FlowRow(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f),
             ) {
-
-                Text(
-                    text = "Language :",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamilyLato,
-                    color = LightBlack,
-                    lineHeight = 22.sp,
-                )
-                Spacer(Modifier.width(10.dp))
 
                 visibleLanguages.forEachIndexed { index, item ->
                     val name = item.dropdownInterests?.name
@@ -803,7 +872,7 @@ fun InterestsSection(
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "$name ($level)",
+                            text = "$name",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = fontFamilyLato,

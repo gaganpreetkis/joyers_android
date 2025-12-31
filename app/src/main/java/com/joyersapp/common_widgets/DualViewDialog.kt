@@ -2,7 +2,6 @@ package com.joyersapp.common_widgets
 
 import android.util.Log
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,7 +30,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -46,14 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -79,10 +71,9 @@ import com.joyersapp.auth.data.remote.dto.identity.Title
 import com.joyersapp.auth.presentation.identity.IdentityViewModel
 import com.joyersapp.auth.presentation.identity.TitlesDialogEvent
 import com.joyersapp.auth.presentation.identity.TitleEvent
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
-import com.joyersapp.theme.Gray80
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.dismissKeyboardOnScroll
@@ -143,7 +134,7 @@ fun DualViewDialog(
     }
 
 
-    val goldenColor = Golden60
+    val goldenColor = Golden
     val lightBlackColor = LightBlack
     val hintColor = Gray40
     val whiteColor = Color.White
@@ -944,7 +935,7 @@ fun TitleItem(
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected && title.subTitles.isNullOrEmpty()) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (isSelected && title.subTitles.isNullOrEmpty()) Golden60 else LightBlack,
+            color = if (isSelected && title.subTitles.isNullOrEmpty()) Golden else LightBlack,
             //modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
             //modifier = Modifier.weight(1f)
         )
@@ -963,7 +954,7 @@ fun TitleItem(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black,
                 fontFamily = fontFamilyLato,
-                color = Golden60,
+                color = Golden,
                 modifier = modifier
             )
         }
@@ -993,7 +984,7 @@ fun SubtitleItem(
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (isSelected) Golden60 else LightBlack,
+            color = if (isSelected) Golden else LightBlack,
             //modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
         )
         if (!subtitle.description.isNullOrEmpty()) {
@@ -1003,7 +994,7 @@ fun SubtitleItem(
                 fontSize = 20.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Black,
-                color = Golden60,
+                color = Golden,
                 modifier = modifier
             )
         }
@@ -1029,7 +1020,7 @@ fun ClassificationItem(
         )
         Text(
             buildAnnotatedString {
-                withStyle(style = SpanStyle(color = Golden60, fontWeight = FontWeight.SemiBold)) {
+                withStyle(style = SpanStyle(color = Golden, fontWeight = FontWeight.SemiBold)) {
                     append(title)
                 }
                 append(" :  ")

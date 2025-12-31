@@ -23,6 +23,7 @@ val LightBlack35 = Color(0x59333333)
 val LightBlack40 = Color(0x66333333)
 val LightBlack55 = Color(0x8C333333)
 val LightBlack60 = Color(0x99333333)
+val LightBlack80 = Color(0xCC333333)
 val DisabledTextColor = Color(0x99FFFFFF)
 
 val Gray80 = Color(0xCC333333)
@@ -35,7 +36,7 @@ val Gray20 = Color(0xFFF4F4F4)
 val GrayBG = Color(0xFFF5F5F5)
 
 
-val Golden60 = Color(0xffd69e3a)
+val Golden = Color(0xffd69e3a)
 val Red = Color(0xffff0000)
 val Green = Color(0xff0ED916)
 val AvatarBorder = Color(0xff2E79F0)

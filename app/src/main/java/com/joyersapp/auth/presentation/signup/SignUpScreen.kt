@@ -40,7 +40,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -64,7 +63,6 @@ import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.joyersapp.R
-import com.joyersapp.auth.presentation.signup.SignupNavigationEvent.*
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
 import com.joyersapp.common_widgets.AppBasicTextFieldForPassword
@@ -72,9 +70,8 @@ import com.joyersapp.common_widgets.AppBasicTextFieldWithCursorHandling
 import com.joyersapp.common_widgets.CountryCodePicker
 import com.joyersapp.theme.Black
 import com.joyersapp.theme.DisabledTextColor
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
-import com.joyersapp.theme.Gray80
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Green
 import com.joyersapp.theme.LightBlack
@@ -519,8 +516,8 @@ fun SignUpScreen(
                             modifier = Modifier.fillMaxWidth()
                                 .height(50.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Golden60,
-                                disabledContainerColor = Golden60,
+                                containerColor = Golden,
+                                disabledContainerColor = Golden,
                                 contentColor = White,
                                 disabledContentColor = DisabledTextColor
                             ),
@@ -769,8 +766,8 @@ fun SignUpScreen(
 //                                    state.isValidUsername && (state.isValidEmail ||state.isValidPhone),
                             modifier = Modifier.fillMaxWidth().padding(bottom = 1.dp).height(50.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Golden60,
-                                disabledContainerColor = Golden60,
+                                containerColor = Golden,
+                                disabledContainerColor = Golden,
                                 contentColor = White,
                                 disabledContentColor = DisabledTextColor
                             ),
@@ -804,7 +801,7 @@ fun SignUpScreen(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = fontFamilyLato,
-                        color = Golden60,
+                        color = Golden,
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .clickable { onLogInClick() }
@@ -897,7 +894,7 @@ fun SignUpScreen(
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                color = Golden60,
+                color = Golden,
                 modifier = Modifier.size(48.dp)
             )
         }

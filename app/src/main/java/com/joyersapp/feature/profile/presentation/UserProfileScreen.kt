@@ -49,14 +49,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
+import com.joyersapp.common_widgets.IdentificationData
+import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.components.dialogs.ProfileViewDialog
 import com.joyersapp.core.NetworkConfig
-import com.joyersapp.feature.profile.presentation.common.IdentificationDialog
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
 import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
 import com.joyersapp.theme.AvatarBorder
-import com.joyersapp.theme.Golden60
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack60
@@ -137,9 +138,26 @@ fun UserProfileScreen(
             // Identification Dialog
             if (state.showIdentificationDialog) {
                 IdentificationDialog(
-                    onClose = {
-                        viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
-                    })
+                    onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
+                    onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
+                    onNavigateToDescription = {viewModel.onEvent(UserProfileEvent.OnEditDescription(0))},
+                    initialData = IdentificationData(
+                        name = state.fullname,
+                        birthday = state.birthday,
+//                gender = null,
+                        nationality = state.nationality,
+                        ethnicity = state.ethnicity,
+                        faith = state.faith,
+                        language = state.language,
+                        education = state.educationName,
+                        relationship = state.relationship,
+                        politicalIdeology = state.politicalIdeology,
+                        joyerLocation = state.location
+                    )
+                )
+//                    onClose = {
+//                        viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
+//                    })
 
             }
 
@@ -162,7 +180,7 @@ fun UserProfileScreen(
 
 @Composable
 fun ProfileInfo(state: UserProfileUiState) {
-    val gold = Golden60
+    val gold = Golden
     val lightBlackText = LightBlack
 
     Box(
@@ -190,8 +208,6 @@ fun ProfileInfo(state: UserProfileUiState) {
         }
 
         /** ---------------- Profile Picture ---------------- */
-
-
         Box(
             modifier = Modifier
                 .offset(x = 20.dp, y = 87.dp)
@@ -199,7 +215,7 @@ fun ProfileInfo(state: UserProfileUiState) {
                 .padding(3.dp)
                 .border(
                     width = 3.dp,
-                    color = if (state.profilePicture.isEmpty()) Golden60 else AvatarBorder,
+                    color = if (state.profilePicture.isEmpty()) Golden else AvatarBorder,
                     shape = CircleShape
                 )
                 .padding(3.dp)
@@ -217,7 +233,8 @@ fun ProfileInfo(state: UserProfileUiState) {
                     model = "${NetworkConfig.IMAGE_BASE_URL}${state.profilePicture}",
                     contentDescription = null,
                     modifier = Modifier
-                        .clip(CircleShape),
+                        .clip(CircleShape)
+                        .size(109.dp),
                     contentScale = ContentScale.Crop,
                 )
             }
@@ -479,7 +496,7 @@ fun CustomScrollableTabRow(
                         modifier = Modifier
                             .width(textWidth)
                             .height(3.dp)
-                            .background(Golden60)
+                            .background(Golden)
                     )
                 }
             }
