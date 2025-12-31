@@ -143,7 +143,8 @@ fun LoginScreen(
             // Initial check
             updateKeyboardState(frameLayout)
 
-            val listener = ViewTreeObserver.OnGlobalLayoutListener { updateKeyboardState(frameLayout) }
+            val listener =
+                ViewTreeObserver.OnGlobalLayoutListener { updateKeyboardState(frameLayout) }
             frameLayout.viewTreeObserver.addOnGlobalLayoutListener(listener)
 
             onDispose {
@@ -155,7 +156,7 @@ fun LoginScreen(
     }
 
     val scrollState = rememberScrollState()
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -201,8 +202,14 @@ fun LoginScreen(
             Box(
                 modifier = Modifier
                     .weight(0.85f)
-                    .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
-                    .border(color = if (state.password.isNotEmpty() && state.username.isNotEmpty() && (state.apiOnlyUsernameErrorMessage.isNotEmpty() || state.apiErrorMessage.isNotEmpty())) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
+                    .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = if (isUsernameFieldFocused && !state.isPhoneMode && state.filteredList.isNotEmpty()) 0.dp else 5.dp))
+                    .border(
+                        color = if (state.password.isNotEmpty() && state.username.isNotEmpty() && (state.apiOnlyUsernameErrorMessage.isNotEmpty() || state.apiErrorMessage.isNotEmpty())) Red else colorResource(
+                            id = R.color.color_border_light
+                        ),
+                        width = 1.dp,
+                        shape = RoundedCornerShape(topStart = 5.dp, bottomStart = if (isUsernameFieldFocused && !state.isPhoneMode && state.filteredList.isNotEmpty()) 0.dp else 5.dp)
+                    ),
             ) {
                 Row(
                     modifier = Modifier.padding(start = 20.dp),
@@ -212,7 +219,9 @@ fun LoginScreen(
                     Image(
                         painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_telephone_gray else R.drawable.user_icon),
                         contentDescription = null,
-                        modifier = Modifier.height(if (state.isPhoneMode) 24.17.dp else 24.dp).width(if (state.isPhoneMode) 24.dp else 22.34.dp)
+                        modifier = Modifier
+                            .height(if (state.isPhoneMode) 24.17.dp else 24.dp)
+                            .width(if (state.isPhoneMode) 24.dp else 22.34.dp)
                     )
 
                     Spacer(modifier = Modifier.width(if (state.isPhoneMode) 0.dp else 0.5.dp))
@@ -236,7 +245,9 @@ fun LoginScreen(
                         },
                         maxLength = if (state.isPhoneMode) 15 else 100,
                         placeholder = if (state.isPhoneMode) "Phone Number" else "Username / Email",
-                        modifier = Modifier.weight(1f).padding(bottom = 1.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(bottom = 1.dp),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = if (state.isPhoneMode) {
                                 KeyboardType.Phone
@@ -283,14 +294,20 @@ fun LoginScreen(
                         viewModel.onEvent(LoginEvent.ApiFailedErrorMessageChanged(""))
                         viewModel.onEvent(LoginEvent.ApiOnlyUsernameErrorMessageChanged(""))*/
                     }
-                    .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
-                    .border(color = colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)),
+                    .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd =  if (isUsernameFieldFocused && !state.isPhoneMode && state.filteredList.isNotEmpty()) 0.dp else 5.dp))
+                    .border(
+                        color = colorResource(id = R.color.color_border_light),
+                        width = 1.dp,
+                        shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd =  if (isUsernameFieldFocused && !state.isPhoneMode && state.filteredList.isNotEmpty()) 0.dp else 5.dp)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(id = if (state.isPhoneMode) R.drawable.user_icon_golden else R.drawable.ic_telephone_golden),
                     contentDescription = "Toggle",
-                    modifier = Modifier.height(if (state.isPhoneMode) 24.dp else 24.17.dp).width(if (state.isPhoneMode) 22.34.dp else 24.dp)
+                    modifier = Modifier
+                        .height(if (state.isPhoneMode) 24.dp else 24.17.dp)
+                        .width(if (state.isPhoneMode) 22.34.dp else 24.dp)
                 )
             }
         }
@@ -320,7 +337,11 @@ fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
-                        .border(color = if (state.password.isNotEmpty() && (state.passwordError || state.apiErrorMessage.isNotEmpty())) Red else colorResource(id = R.color.color_border_light), width = 1.dp, shape = RoundedCornerShape(5.dp))
+                        .border(
+                            color = if (state.password.isNotEmpty() && (state.passwordError || state.apiErrorMessage.isNotEmpty())) Red else colorResource(
+                                id = R.color.color_border_light
+                            ), width = 1.dp, shape = RoundedCornerShape(5.dp)
+                        )
                         .background(Gray20, RoundedCornerShape(5.dp))
                 ) {
                     Row(
@@ -335,7 +356,9 @@ fun LoginScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.password_icon),
                                 contentDescription = null,
-                                modifier = Modifier.height(26.dp).width(22.62.dp)
+                                modifier = Modifier
+                                    .height(26.dp)
+                                    .width(22.62.dp)
                             )
 
                             Spacer(modifier = Modifier.width(0.dp))
@@ -358,7 +381,9 @@ fun LoginScreen(
                                 onPasswordToggle = {
                                     viewModel.onEvent(LoginEvent.PasswordVisibleChanged(!state.passwordVisible))
                                 },
-                                modifier = Modifier.fillMaxSize().padding(bottom = 1.dp),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(bottom = 1.dp),
                             )
                         }
                     }
@@ -467,7 +492,7 @@ fun LoginScreen(
                         //emailPhoneError = !emailPhoneError
                         viewModel.onEvent(LoginEvent.OnLoginButtonClicked)
                     },
-                    enabled = state.username.isNotEmpty() && state.password.isNotEmpty()/*state.isFormValid && isValidPassword(state.password)*/,
+                    enabled = state.username.isNotEmpty() && state.password.isNotEmpty(),/*state.isFormValid && isValidPassword(state.password)*/
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
@@ -572,52 +597,50 @@ fun LoginScreen(
             }
 
             // RECENT USERS DROPDOWN LIST
-            if (isUsernameFieldFocused && !state.isPhoneMode && state.recentUsersList.isNotEmpty()) {
-                if (state.filteredList.isNotEmpty()) {
-                    Column() {
+            if (isUsernameFieldFocused && !state.isPhoneMode && state.filteredList.isNotEmpty()) {
+                Column() {
 
-                        Spacer(modifier = Modifier.height(3.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
 
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(White, RoundedCornerShape(5.dp))
-                                .border(
-                                    color = colorResource(id = R.color.color_border_light),
-                                    width = 1.dp,
-                                    shape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
-                                )
-                        ) {
-                            state.filteredList.forEachIndexed { index, user ->
-                                val isFirst = index == 0
-                                val isLast = index == state.filteredList.size - 1
-                                val displayValue = if (user.recentType.equals("email", true)) {
-                                    user.email.orEmpty()
-                                } else {
-                                    "@${user.username.orEmpty()}"
-                                }
-                                RecentUserItem(
-                                    isSingleItem = state.filteredList.size == 1,
-                                    isFirst = isFirst,
-                                    isLast = isLast,
-                                    user = user,
-                                    onItemClick = {
-                                        viewModel.onEvent(LoginEvent.UsernameChanged(displayValue))
-                                        focusManager.clearFocus()
-                                    },
-                                    onRemoveClick = {
-                                        val updatedList = state.recentUsersList.toMutableList()
-                                        updatedList.remove(user)
-                                        viewModel.saveUserNames(updatedList)
-                                    }
-                                )
-                                /*if (index < filteredList.size - 1) {
-                                    Spacer(modifier = Modifier.height(0.dp))
-                                }*/
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(White, RoundedCornerShape(5.dp))
+                            .border(
+                                color = colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(bottomStart = 5.dp, bottomEnd = 5.dp)
+                            )
+                    ) {
+                        state.filteredList.forEachIndexed { index, user ->
+                            val isFirst = index == 0
+                            val isLast = index == state.filteredList.size - 1
+                            val displayValue = if (user.recentType.equals("email", true)) {
+                                user.email.orEmpty()
+                            } else {
+                                "@${user.username.orEmpty()}"
                             }
+                            RecentUserItem(
+                                isSingleItem = state.filteredList.size == 1,
+                                isFirst = isFirst,
+                                isLast = isLast,
+                                user = user,
+                                onItemClick = {
+                                    viewModel.onEvent(LoginEvent.UsernameChanged(displayValue))
+                                    focusManager.clearFocus()
+                                },
+                                onRemoveClick = {
+                                    val updatedList = state.recentUsersList.toMutableList()
+                                    updatedList.remove(user)
+                                    viewModel.saveUserNames(updatedList)
+                                }
+                            )
+                            /*if (index < filteredList.size - 1) {
+                                Spacer(modifier = Modifier.height(0.dp))
+                            }*/
                         }
-
                     }
+
                 }
             }
 
@@ -648,6 +671,7 @@ fun LoginScreen(
     }
 }
 
+
 @Composable
 fun RecentUserItem(
     isSingleItem: Boolean,
@@ -667,9 +691,12 @@ fun RecentUserItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = if (isFirst) 6.5.dp else 0.dp, bottom = if (isSingleItem) 7.5.dp else if (isLast) 8.5.dp else 0.dp)
+            .padding(
+                top = if (isFirst) 6.5.dp else 0.dp,
+                bottom = if (isSingleItem) 7.5.dp else if (isLast) 8.5.dp else 0.dp
+            )
             .clickable { onItemClick() }
-            .padding(start = 14.5.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
+            .padding(start = 17.dp, end = 17.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Icon on the left

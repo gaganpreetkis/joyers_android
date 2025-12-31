@@ -634,7 +634,7 @@ fun SignUpScreen(
 //                        if (password.isNotEmpty() && isValidPassword(password) && isPasswordFocused && confirmPasswordError == null) {
                             Text(
                                 text = context.getString(R.string.strong),
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Green,
@@ -642,6 +642,7 @@ fun SignUpScreen(
                                     .align(Alignment.End)
                                     .padding(top = 5.dp)
                             )
+                            Spacer(modifier = Modifier.height(3.dp))
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth(),

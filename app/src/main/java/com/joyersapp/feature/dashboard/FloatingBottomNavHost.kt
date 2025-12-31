@@ -33,6 +33,7 @@ import com.joyersapp.theme.LightBlack
 @Composable
 fun FloatingBottomNavHost(
     modifier: Modifier = Modifier,
+    showBottomTab: Boolean,
     topBar: @Composable () -> Unit = {},
     selectedTab: BottomTab,
     onBottomTabSelected: (BottomTab) -> Unit = {},
@@ -47,11 +48,13 @@ fun FloatingBottomNavHost(
 
             content(innerPadding)
         }
-        BottomNavBar(
-            modifier = modifier.align(Alignment.BottomCenter),
-            selected = selectedTab,
-            onTabSelected = onBottomTabSelected
-        )
+        if (showBottomTab) {
+            BottomNavBar(
+                modifier = modifier.align(Alignment.BottomCenter),
+                selected = selectedTab,
+                onTabSelected = onBottomTabSelected
+            )
+        }
 
     }
 }
@@ -62,7 +65,7 @@ fun BottomNavBar(
     selected: BottomTab,
     onTabSelected: (BottomTab) -> Unit
 ) {
-    val bottomLift = 20.dp
+    val bottomLift = 0.dp
     Surface(
         modifier = modifier
             .fillMaxWidth()

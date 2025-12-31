@@ -498,7 +498,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
 
     override suspend fun logout() {
-        sessionLocalDataSource.clearSession()
+        sessionLocalDataSource.clearUserSession()
     }
 
     override fun observeAuthState(): Flow<AuthState> =

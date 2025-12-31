@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,12 +45,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.components.layouts.CustomProgressIndicator
+import com.joyersapp.components.dialogs.ProfileViewDialog
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.presentation.common.IdentificationDialog
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
@@ -66,8 +67,8 @@ import com.joyersapp.utils.noRippleClickable
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun UserProfileScreen(
-    viewModel: UserProfileViewModel = hiltViewModel(),
-    onBack: () -> Unit = { /*(LocalContext.current as? ComponentActivity)?.finish()*/ },
+    viewModel: UserProfileViewModel,
+    editMagnetics: () -> Unit = {},
     onMenu: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -89,7 +90,7 @@ fun UserProfileScreen(
 
                 ProfileTopHeader(
                     state = state,
-                    onBack = onBack,
+                    onBack = { viewModel.onEvent(UserProfileEvent.Logout(0)) },
                     onMenu = onMenu
                 )
 
@@ -105,7 +106,9 @@ fun UserProfileScreen(
 
                     Spacer(modifier = Modifier.height(30.dp))
 
-                    MagneticsRow(state)
+                    MagneticsRow(
+                        editMagnetics = editMagnetics
+                    )
 
                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -137,6 +140,18 @@ fun UserProfileScreen(
                     onClose = {
                         viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
                     })
+
+            }
+
+            if (state.showTitlesDialog) {
+                ProfileViewDialog(
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
+                    onApply = {},
+                    searchQuery = "",
+                    showApplyButton = false,
+                    titles = arrayListOf("Title", "Subtitle", "Subtitle"),
+                    FirstColumn = {  }
+                )
             }
         }
     }
@@ -182,7 +197,11 @@ fun ProfileInfo(state: UserProfileUiState) {
                 .offset(x = 20.dp, y = 87.dp)
                 .border(width = 3.dp, color = White, shape = CircleShape)
                 .padding(3.dp)
-                .border(width = 3.dp, color = if (state.profilePicture.isEmpty()) Golden60 else AvatarBorder , shape = CircleShape)
+                .border(
+                    width = 3.dp,
+                    color = if (state.profilePicture.isEmpty()) Golden60 else AvatarBorder,
+                    shape = CircleShape
+                )
                 .padding(3.dp)
                 .border(width = 3.dp, color = White, shape = CircleShape)
                 .size(115.dp)
@@ -346,7 +365,7 @@ fun StatsRow(state: UserProfileUiState) {
 }
 
 @Composable
-fun MagneticsRow(state: UserProfileUiState) {
+fun MagneticsRow(editMagnetics: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -356,7 +375,10 @@ fun MagneticsRow(state: UserProfileUiState) {
     ) {
         // Action card (Edit Magnetics 80%)
         Card(
-            modifier = Modifier.size(150.dp, 35.dp),
+            modifier = Modifier.size(150.dp, 35.dp)
+                .clickable {
+                    editMagnetics()
+                },
             shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(containerColor = LightBlack),
 
@@ -480,7 +502,7 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
         1 -> Column {
             ProfileIdentitySection(
                 onEditDescription = {
-                    viewModel.onEvent(UserProfileEvent.OnEditDescriptionClicked(state.selectedTab))
+                    viewModel.onEvent(UserProfileEvent.OnEditTitleClicked(state.selectedTab))
                 })
         }
 

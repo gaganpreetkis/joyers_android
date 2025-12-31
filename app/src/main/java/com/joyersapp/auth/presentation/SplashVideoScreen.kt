@@ -32,7 +32,6 @@ import kotlinx.coroutines.delay
 fun SplashVideoScreen(
     viewModel: SplashVideoViewModel = hiltViewModel(),
     onNavigateToDashboard: (Context) -> Unit = { context ->
-        viewModel.navigateToDashboard()
         // Default: Navigate to DashboardActivity
         /*val intent = android.content.Intent(context, com.synapse.joyers.ui.dashboard.DashboardActivity::class.java)
         context.startActivity(intent)
@@ -61,7 +60,8 @@ fun SplashVideoScreen(
     LaunchedEffect(gifLoaded) {
         if (gifLoaded) {
             delay(3500) // 3.5 seconds delay as per original implementation
-            onNavigateToDashboard(context)
+
+            viewModel.navigateToDashboard()
         }
     }
     

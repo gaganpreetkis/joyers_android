@@ -97,6 +97,13 @@ class SessionLocalDataSource @Inject constructor(
         }
     }
 
+    suspend fun clearUserSession() {
+        dataStore.edit { prefs ->
+            prefs.remove(Keys.ACCESS_TOKEN)
+            prefs.remove(Keys.USER_ID)
+            prefs.remove(Keys.EMAIL)
+        }
+    }
 
     suspend fun clearAccessToken() {
         dataStore.edit { prefs ->

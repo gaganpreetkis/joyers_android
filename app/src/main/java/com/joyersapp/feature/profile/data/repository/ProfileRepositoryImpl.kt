@@ -79,7 +79,7 @@ class ProfileRepositoryImpl @Inject constructor(
         }
 
     override suspend fun logout() {
-        sessionLocalDataSource.clearSession()
+        sessionLocalDataSource.clearUserSession()
     }
 
 
