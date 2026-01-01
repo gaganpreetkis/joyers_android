@@ -23,4 +23,39 @@ interface ProfileApi {
     @GET("auth/title-type")
     suspend fun getTitles(): ProfileTitlesResponseDto
 
+    @GET("auth/title-type")
+    suspend fun getSubTitles(): ProfileTitlesResponseDto
+
+    @RequiresAuth
+    @POST("user/get-countries-list")
+    suspend fun getCountryList(): ProfileTitlesResponseDto
+
+    @RequiresAuth
+    @POST("user/get-education-list")
+    suspend fun getEducationList(): ProfileTitlesResponseDto
+
+    @RequiresAuth
+    @POST("user/get-ethnicity-list")
+    suspend fun getEthenicityList(): ProfileTitlesResponseDto
+
+    @RequiresAuth
+    @POST("user/get-faith-religions-list")
+    suspend fun getFaithReligionList(): ProfileTitlesResponseDto
+
+    @RequiresAuth
+    @POST("user/get-interests-list")
+    suspend fun getInterestList(): ProfileTitlesResponseDto
+
+    @RequiresAuth
+    @POST("user/get-political-ideology-list")
+    suspend fun getPoliticalIdeologyList(): ProfileTitlesResponseDto
+
+    @RequiresAuth
+    @POST("user/get-relationship-status-list")
+    suspend fun getRelationShipList(): ProfileTitlesResponseDto
+
+    @RequiresAuth
+    @POST("user/get-language-list")
+    suspend fun getLanguageList(): ProfileTitlesResponseDto
+
 }

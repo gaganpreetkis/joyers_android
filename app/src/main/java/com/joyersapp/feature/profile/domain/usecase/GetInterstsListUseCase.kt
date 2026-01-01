@@ -4,8 +4,8 @@ import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.domain.repository.ProfileRepository
 import jakarta.inject.Inject
 
-class FetchTitlesUseCase @Inject constructor(
+class GetInterstsListUseCase @Inject constructor(
     private val profileRepository: ProfileRepository
 ) {
-    suspend operator fun invoke(): Result<List<ProfileTitlesData>> = profileRepository.fetchTitles()
+    suspend operator fun invoke(): Result<List<ProfileTitlesData>> = profileRepository.getInterestList()
 }

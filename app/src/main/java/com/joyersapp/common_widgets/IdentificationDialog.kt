@@ -43,7 +43,7 @@ import com.joyersapp.utils.noRippleClickable
 fun IdentificationDialog(
     onDismiss: () -> Unit,
     onApply: (IdentificationData) -> Unit,
-    onNavigateToDescription: () -> Unit,
+    onNavigateToDescription: (String) -> Unit,
     initialData: IdentificationData
 ) {
 
@@ -108,7 +108,7 @@ fun IdentificationDialog(
                     label = "Birthday",
                     hintText = "Joyer Birthday",
                     value = birthday,
-                    onClick = { onNavigateToDescription() },
+                    onClick = { onNavigateToDescription("Birthday") },
                     onClear = { birthday = "" }
                 )
 
@@ -137,7 +137,7 @@ fun IdentificationDialog(
                     label = "Ethnicity",
                     hintText = "Joyer Ethnicity",
                     value = ethnicity,
-                    onClick = { onNavigateToDescription() },
+                    onClick = { onNavigateToDescription("Ethnicity") },
                     onClear = { ethnicity = "" }
                 )
 
@@ -147,7 +147,7 @@ fun IdentificationDialog(
                     label = "Faith",
                     hintText = "Joyer Faith / Religion",
                     value = faith,
-                    onClick = { onNavigateToDescription() },
+                    onClick = { onNavigateToDescription("Faith") },
                     onClear = { faith = "" }
                 )
 
@@ -168,7 +168,7 @@ fun IdentificationDialog(
                     label = "Education",
                     hintText = "Joyer Degree",
                     value = education,
-                    onClick = { onNavigateToDescription() },
+                    onClick = { onNavigateToDescription("Education") },
                     onClear = { education = "" }
                 )
 
@@ -178,7 +178,7 @@ fun IdentificationDialog(
                     label = "Relationship",
                     hintText = "Relationship Status",
                     value = relationship,
-                    onClick = { onNavigateToDescription() },
+                    onClick = { onNavigateToDescription("Relationship") },
                     onClear = { relationship = "" }
                 )
 
@@ -188,7 +188,7 @@ fun IdentificationDialog(
                     label = "Political Ideology",
                     hintText = "Joyer Ideology",
                     value = politicalIdeology,
-                    onClick = { onNavigateToDescription() },
+                    onClick = { onNavigateToDescription("Political Ideology") },
                     onClear = { politicalIdeology = "" }
                 )
 
@@ -198,7 +198,7 @@ fun IdentificationDialog(
                     label = "Joyer Location",
                     hintText = "Joyer Location",
                     value = joyerLocation,
-                    onClick = { onNavigateToDescription() },
+                    onClick = { onNavigateToDescription("Joyer Location") },
                     onClear = { joyerLocation = "" }
                 )
 
@@ -229,12 +229,13 @@ fun IdentificationDialog(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable
 fun IdentificationMultiselectField(
     label: String = "label",
     hintText: String = "hint",
-    values: List<String> = arrayListOf("ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd","ghhj", "bjbnmn", "iuhjk dfsd",),
+    values: List<String> = arrayListOf("ghhj", "bjbnmn", "iuhjk dfsd","ghhj"),
     onClear: () -> Unit = {},
     onClick: () -> Unit = {}
 ) {
@@ -323,7 +324,52 @@ fun IdentificationMultiselectField(
                     // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        maxLines = if (seeAll) 100 else 3
+                        maxLines = if (seeAll) 100 else 4,
+                        overflow = FlowRowOverflow.expandOrCollapseIndicator(
+                            minRowsToShowCollapse = 4,
+                            expandIndicator = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = "See All",
+                                        fontSize = 12.sp,
+                                        lineHeight = 22.sp,
+                                        color = Golden,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(top = 9.dp)
+                                            .noRippleClickable() { seeAll = true }
+                                    )
+                                }
+                            },
+                            collapseIndicator = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = "Show Less",
+                                        fontSize = 12.sp,
+                                        lineHeight = 22.sp,
+                                        color = Golden,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(top = 9.dp)
+                                            .noRippleClickable() { seeAll = false }
+                                    )
+                                }
+                            }
+                        )
                     ) {
                         values.forEachIndexed { index, item ->
                             val name = item
@@ -350,26 +396,6 @@ fun IdentificationMultiselectField(
                                 }
                             }
                         }
-                    }
-                    // ---- SEE ALL / SHOW LESS ----
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Text(
-                            text = if (seeAll) "Show Less" else "See All",
-                            fontSize = 12.sp,
-                            lineHeight = 22.sp,
-                            color = Golden,
-                            fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .padding(top = 9.dp)
-                                .noRippleClickable() { seeAll = !seeAll }
-                        )
                     }
                 }
             }

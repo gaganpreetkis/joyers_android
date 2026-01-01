@@ -7,7 +7,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -116,8 +118,16 @@ fun MagneticsScreen(
 
 
             /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
+            val headers = arrayListOf("Description", "Joyer Status", state.joyerStatus)
+            if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
             DescriptionSection( state) {
-                viewModel.onEvent(UserProfileEvent.OnEditDescription(0))
+                viewModel.onEvent(
+                    UserProfileEvent.OnEditDescription(
+                        0,
+                        headers = headers,
+                        titlesData = state.titles
+                    )
+                )
             }
 
             HorizontalDivider(color = LightBlack10, thickness = 1.dp)
@@ -136,8 +146,8 @@ fun MagneticsScreen(
 
 
             /** ─────────────── SECTION: INTERESTS ─────────────── **/
-            InterstsSection( state) {
-                viewModel.onEvent(UserProfileEvent.OnEditDescription(0))
+            InterestsSection( state) {
+                viewModel.onEvent(UserProfileEvent.OnEditDescription(0, arrayListOf("Interests"), state.titles))
             }
 
             Spacer(Modifier.height(80.dp))
@@ -154,7 +164,15 @@ fun MagneticsScreen(
         IdentificationDialog(
             onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
             onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
-            onNavigateToDescription = {viewModel.onEvent(UserProfileEvent.OnEditDescription(0))},
+            onNavigateToDescription = {
+                viewModel.onEvent(
+                    UserProfileEvent.OnEditDescription(
+                        0,
+                        headers = arrayListOf("Identification", it),
+                        titlesData = state.titles
+                    )
+                )
+                                      },
             initialData = IdentificationData(
                 name = state.fullname,
                 birthday = state.birthday,
@@ -174,7 +192,8 @@ fun MagneticsScreen(
         EditDescriptionDialog(
             titlesData = state.titles,
             onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
-            onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))}
+            onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
+            headers = state.dialogHeader
         )
     }
 }
@@ -255,7 +274,7 @@ fun TopBar(
 }
 
 @Composable
-fun InterstsSection(state: UserProfileUiState, onClick: () -> Unit) {
+fun InterestsSection(state: UserProfileUiState, onClick: () -> Unit) {
     Column(
         Modifier
             .background(White)
@@ -421,7 +440,7 @@ fun DescriptionSection(state: UserProfileUiState, onclick: () -> Unit) {
         if (state.joyerStatus.isNotEmpty()) {
             KeyValueText(
                 "Joyer Status",
-                state.joyerStatus
+                state.subTitle?.name?: state.title?.name?: ""
             )
         } else { ProfileEditableRow(title = "Joyer Status") }
     }
@@ -737,14 +756,12 @@ private fun KeyValueText(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LanguageSection(
     languages: List<Languages>
 ) {
-    var expanded by remember { mutableStateOf(true) }
-
-    // How many items to show before pressing See All
-    val visibleLanguages = if (expanded) languages else languages.take(6)
+    var seeAll by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -768,6 +785,52 @@ fun LanguageSection(
             // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
+                maxLines = if (seeAll) 100 else 4,
+                overflow = FlowRowOverflow.expandOrCollapseIndicator(
+                    minRowsToShowCollapse = 4,
+                    expandIndicator = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            Text(
+                                text = "See All",
+                                fontSize = 12.sp,
+                                lineHeight = 22.sp,
+                                color = Golden,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(top = 9.dp)
+                                    .noRippleClickable() { seeAll = true }
+                            )
+                        }
+                    },
+                    collapseIndicator = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            Text(
+                                text = "Show Less",
+                                fontSize = 12.sp,
+                                lineHeight = 22.sp,
+                                color = Golden,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(top = 9.dp)
+                                    .noRippleClickable() { seeAll = false }
+                            )
+                        }
+                    }
+                )
             ) {
 
                 Text(
@@ -780,7 +843,7 @@ fun LanguageSection(
                 )
                 Spacer(Modifier.width(10.dp))
 
-                visibleLanguages.forEachIndexed { index, item ->
+                languages.forEachIndexed { index, item ->
                     val name = item.language?.name
                     val level = item.language?.description
 
@@ -794,7 +857,7 @@ fun LanguageSection(
                             lineHeight = 22.sp,
                         )
 
-                        if (index != visibleLanguages.lastIndex) {
+                        if (index != languages.lastIndex) {
                             Spacer(Modifier.width(10.dp))
                             Box(
                                 modifier = Modifier
@@ -808,38 +871,15 @@ fun LanguageSection(
                 }
             }
         }
-
-        // ---- SEE ALL / SHOW LESS ----
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = if (expanded) "Show Less" else "See All",
-                fontSize = 12.sp,
-                lineHeight = 22.sp,
-                color = Golden,
-                fontFamily = fontFamilyLato,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(top = 9.dp)
-                    .noRippleClickable() { expanded = !expanded }
-            )
-        }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun InterestsSection(
     interests: List<Interests>
 ) {
-    var expanded by remember { mutableStateOf(true) }
-
-    // How many items to show before pressing See All
-    val visibleLanguages = if (expanded) interests else interests.take(12)
+    var seeAll by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -864,9 +904,55 @@ fun InterestsSection(
             FlowRow(
                 modifier = Modifier
                     .weight(1f),
+                maxLines = if (seeAll) 100 else 4,
+                overflow = FlowRowOverflow.expandOrCollapseIndicator(
+                    minRowsToShowCollapse = 4,
+                    expandIndicator = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            Text(
+                                text = "See All",
+                                fontSize = 12.sp,
+                                lineHeight = 22.sp,
+                                color = Golden,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(top = 9.dp)
+                                    .noRippleClickable() { seeAll = true }
+                            )
+                        }
+                    },
+                    collapseIndicator = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            Text(
+                                text = "Show Less",
+                                fontSize = 12.sp,
+                                lineHeight = 22.sp,
+                                color = Golden,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(top = 9.dp)
+                                    .noRippleClickable() { seeAll = false }
+                            )
+                        }
+                    }
+                )
             ) {
 
-                visibleLanguages.forEachIndexed { index, item ->
+                interests.forEachIndexed { index, item ->
                     val name = item.dropdownInterests?.name
                     val level = item.dropdownInterests?.description
 
@@ -880,7 +966,7 @@ fun InterestsSection(
                             lineHeight = 22.sp,
                         )
 
-                        if (index != visibleLanguages.lastIndex) {
+                        if (index != interests.lastIndex) {
                             Spacer(Modifier.width(10.dp))
                             Box(
                                 modifier = Modifier
@@ -894,25 +980,6 @@ fun InterestsSection(
                 }
             }
 
-        }
-
-        // ---- HEADER WITH SEE ALL / SHOW LESS ----
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = if (expanded) "Show Less" else "See All",
-                fontSize = 15.sp,
-                color = Color(0xFFCC8A00),
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier
-                    .padding(end = 3.dp)
-                    .clickable { expanded = !expanded }
-            )
         }
     }
 }
