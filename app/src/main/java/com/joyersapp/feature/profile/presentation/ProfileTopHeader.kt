@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joyersapp.R
+import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 
@@ -89,6 +90,7 @@ fun ProfileTopHeader(
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         maxLines = 1,
+                        color = LightBlack,
                         overflow = TextOverflow.Ellipsis
                     )
                     Spacer(Modifier.width(7.dp))

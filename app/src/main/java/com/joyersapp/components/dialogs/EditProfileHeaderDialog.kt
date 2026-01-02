@@ -43,6 +43,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -50,12 +51,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.ImagePickerBottomSheet
+import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
+import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.theme.Golden
@@ -70,17 +73,23 @@ import com.joyersapp.theme.LightBlack9
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
+import com.joyersapp.utils.uriToFile
 
 //@Preview
 @Composable
 fun EditProfileHeaderDialog(
+    data: EditProfileHeaderDialogDto,
     onDismiss: () -> Unit = {},
-    onApply: () -> Unit = {},
+    onApply: (data: EditProfileHeaderDialogDto) -> Unit = {},
     viewModel: UserProfileViewModel
 ) {
 
     var bioText by remember { mutableStateOf("") }
-    var website by remember { mutableStateOf("") }
+    var showProfilePlaceholder by remember { mutableStateOf(true) }
+    var showImagePickerBottomSheet by remember { mutableStateOf(false) }
+    var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
+    var showHeaderPicker by remember { mutableStateOf(true) }
+    val context = LocalContext.current
 
     BaseDialog (
         onDismiss = { onDismiss() },
@@ -108,11 +117,15 @@ fun EditProfileHeaderDialog(
             )
 
             EditableProfilePictureCard(
-                backgroundPicturePath = "",
-                profilePicturePath = "",
-                onHeaderPicker = {},
-                onClearHeaderIamage = {},
-                onProfilePicturePicker = {},
+                backgroundPicturePath = data.backgroundPicturePath ?: "",
+                profilePicturePath = data.profilePicturePath ?: "",
+                onHeaderPicker = {
+                    showImagePickerBottomSheetBack = true
+                },
+                onClearHeaderImage = {},
+                onProfilePicturePicker = {
+                    showImagePickerBottomSheet = true
+                },
                 onClearProfilePicture = {}
             )
 
@@ -196,7 +209,9 @@ fun EditProfileHeaderDialog(
 
             // ---------- APPLY BUTTON ----------
             Button (
-                onClick = onApply,
+                onClick = {
+                    onApply(EditProfileHeaderDialogDto())
+                },
                 modifier = Modifier
                     .width(190.dp)
                     .align(Alignment.CenterHorizontally)
@@ -215,6 +230,52 @@ fun EditProfileHeaderDialog(
             }
         }
     }
+
+    // Image Picker Bottom Sheet Profile Picture
+    ImagePickerBottomSheet(
+        showBottomSheet = showImagePickerBottomSheet,
+        onDismiss = { showImagePickerBottomSheet = false },
+        allowMultipleSelection = false,
+        onImagesPicked = { uris ->
+            val profileImageUri = uris[0]
+            showProfilePlaceholder = false
+            if (profileImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri)
+                viewModel.onEvent(UserProfileEvent.ProfilePicturePathChanged(file.path.toString()))
+            }
+        },
+        onCameraImagePicked = { uri ->
+            val profileImageUri = uri
+            showProfilePlaceholder = false
+            if (profileImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, profileImageUri)
+                viewModel.onEvent(UserProfileEvent.ProfilePicturePathChanged(file.path.toString()))
+            }
+        }
+    )
+
+    // Image Picker Bottom Sheet Background Picture
+    ImagePickerBottomSheetBack(
+        showBottomSheet = showImagePickerBottomSheetBack,
+        onDismiss = { showImagePickerBottomSheetBack = false },
+        allowMultipleSelection = false,
+        onImagesPicked = { uris ->
+            val headerImageUri = uris[0]
+            showHeaderPicker = false
+            if (headerImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, headerImageUri)
+                viewModel.onEvent(UserProfileEvent.BackgroundPicturePathChanged(file.path.toString()))
+            }
+        },
+        onCameraImagePicked = { uri ->
+            val headerImageUri = uri
+            showHeaderPicker = false
+            if (headerImageUri.path!!.isNotEmpty()) {
+                val file = uriToFile(context, headerImageUri)
+                viewModel.onEvent(UserProfileEvent.BackgroundPicturePathChanged(file.path.toString()))
+            }
+        }
+    )
 }
 
 @Composable
@@ -222,7 +283,7 @@ fun EditableProfilePictureCard(
     backgroundPicturePath: String,
     profilePicturePath: String,
     onHeaderPicker: () -> Unit,
-    onClearHeaderIamage: () -> Unit,
+    onClearHeaderImage: () -> Unit,
     onProfilePicturePicker: () -> Unit,
     onClearProfilePicture: () -> Unit
 
@@ -247,7 +308,7 @@ fun EditableProfilePictureCard(
             // Header/Background Image
             if (backgroundPicturePath.isNotEmpty()) {
                 AsyncImage(
-                    model = backgroundPicturePath,
+                    model = "https://joyers-api-dev.krishnais.com/uploads/$backgroundPicturePath",
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -261,7 +322,7 @@ fun EditableProfilePictureCard(
                         .size(40.dp)
                         .align(Alignment.TopEnd)
                         .clickable {
-                            onClearHeaderIamage()
+                            onClearHeaderImage()
                         }
                 )
             } else {
@@ -326,7 +387,7 @@ fun EditableProfilePictureCard(
                 ) {
                     if (profilePicturePath.isNotEmpty()) {
                         AsyncImage(
-                            model = profilePicturePath,
+                            model = "https://joyers-api-dev.krishnais.com/uploads/$profilePicturePath",
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -339,7 +400,7 @@ fun EditableProfilePictureCard(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clickable {
-                                    onProfilePicturePicker
+                                    onProfilePicturePicker()
                                 },
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
