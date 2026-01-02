@@ -1457,8 +1457,8 @@ fun PageThreeContent(
                         .background(goldenColor, CircleShape)
                         .clickable {
                             // API call would go here
-                            //viewModel2.onEvent(IdentityEvent.OnMultiStepRegister)
-                            onNavigateToNext()
+                            viewModel2.onEvent(IdentityEvent.OnMultiStepRegister)
+                            //onNavigateToNext()
                         },
                     contentAlignment = Alignment.Center
                 ) {
