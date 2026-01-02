@@ -1,6 +1,7 @@
 /build
 # Gradle
 .gradle/
+.gradle/*
 build/
 **/build/
 
