@@ -154,9 +154,9 @@ fun EditProfileHeaderDialog(
             WebsiteTextField(
                 label = "Website",
                 hintText = "Domain Link",
-                value = website,
-                onValueChange = { website = it },
-                onClear = { website = "" }
+                value = data.websiteUrl?:"",
+                onValueChange = { data.websiteUrl = it },
+                onClear = { data.websiteUrl = "" }
 
             )
             /*Row(verticalAlignment = Alignment.CenterVertically,
