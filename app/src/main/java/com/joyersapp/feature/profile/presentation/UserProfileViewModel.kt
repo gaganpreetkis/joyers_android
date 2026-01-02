@@ -2,6 +2,7 @@ package com.joyersapp.feature.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.joyersapp.auth.presentation.identity.IdentityEvent
 import com.joyersapp.feature.profile.domain.usecase.GetTitlesUseCase
 import com.joyersapp.core.SessionManager
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -104,7 +105,7 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.UpdateUserData -> {
-                uploadUserProfileData(event.requestDto)
+                uploadUserProfileData(req)
             }
 
             is UserProfileEvent.ToggleProfileHeaderDialog -> {
@@ -135,6 +136,22 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         showMentionJoyersDialog = event.show,
+                    )
+                }
+            }
+
+            is UserProfileEvent.BackgroundPicturePathChanged -> {
+                _uiState.update {
+                    it.copy(
+                        backgroundPicture = event.value
+                    )
+                }
+            }
+
+            is UserProfileEvent.ProfilePicturePathChanged -> {
+                _uiState.update {
+                    it.copy(
+                        profilePicture = event.value
                     )
                 }
             }

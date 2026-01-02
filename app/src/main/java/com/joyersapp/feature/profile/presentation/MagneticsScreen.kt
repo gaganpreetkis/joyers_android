@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
-import com.joyersapp.auth.presentation.signup.SignupNavigationEvent
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.dialogs.EditDescriptionDialog
@@ -57,6 +56,7 @@ import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.core.NetworkConfig
+import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -181,7 +181,11 @@ fun MagneticsScreen(
         if (state.showEditProfileHeaderDialog) {
             EditProfileHeaderDialog(
                 viewModel = viewModel,
-                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false)) }
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false)) },
+                onApply = { data->
+
+                },
+                data = EditProfileHeaderDialogDto(profilePicturePath = state.profilePicture, backgroundPicturePath = state.backgroundPicture, bio = "", websiteUrl = "")
             )
         }
 
