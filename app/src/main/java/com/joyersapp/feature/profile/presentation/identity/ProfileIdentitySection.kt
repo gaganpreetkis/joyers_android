@@ -106,8 +106,8 @@ fun ProfileIdentitySection(
 
             KeyMapValueRowWithDotSeparators(label = "Language", mapOf(
                 Pair("English", "( Very Good )"),
-                Pair("French", "( Good )"),
-                Pair("Arabic", "( Basic )"),
+//                Pair("French", "( Good )"),
+//                Pair("Arabic", "( Basic )"),
             ))
 
             Spacer(Modifier.height(20.dp))

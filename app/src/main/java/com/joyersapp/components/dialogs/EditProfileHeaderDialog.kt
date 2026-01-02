@@ -50,6 +50,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -79,6 +80,7 @@ fun EditProfileHeaderDialog(
 ) {
 
     var bioText by remember { mutableStateOf("") }
+    var website by remember { mutableStateOf("") }
 
     BaseDialog (
         onDismiss = { onDismiss() },
@@ -94,6 +96,17 @@ fun EditProfileHeaderDialog(
                 .verticalScroll(rememberScrollState()),
         ) {
             // ---------- HEADER SECTION ----------
+
+            Text(
+                text = "Profile Picture",
+                fontSize = 16.sp,
+                lineHeight = 19.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamilyLato,
+                color = LightBlack,
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+
             EditableProfilePictureCard(
                 backgroundPicturePath = "",
                 profilePicturePath = "",
@@ -124,7 +137,16 @@ fun EditProfileHeaderDialog(
             Spacer(modifier = Modifier.height(10.dp))
 
             // ---------- WEBSITE SECTION ----------
-            Row(verticalAlignment = Alignment.CenterVertically,
+
+            WebsiteTextField(
+                label = "Website",
+                hintText = "Domain Link",
+                value = website,
+                onValueChange = { website = it },
+                onClear = { website = "" }
+
+            )
+            /*Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.height(60.dp)) {
                 Text(
                     text = "Website",
@@ -168,7 +190,7 @@ fun EditProfileHeaderDialog(
                         maxLength = 45
                     )
                 }
-            }
+            }*/
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -500,4 +522,94 @@ fun HighlightsEditor(
             }
         }
     )
+}
+
+//@Preview
+@Composable
+fun WebsiteTextField(
+    label: String,
+    hintText: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    onClear: () -> Unit
+) {
+    val lightBlackColor = LightBlack
+    val fieldOuterBg = GrayBG
+
+    Column {
+
+
+        // Outer field container (light grey rectangle)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .background(fieldOuterBg, RoundedCornerShape(5.dp))
+                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .padding(15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.SemiBold,
+                color = lightBlackColor,
+            )
+
+            Spacer(Modifier.width(10.dp))
+
+            // Inner pill container
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp)
+                    .background(Color.White, RoundedCornerShape(30.dp))
+                    .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 15.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AppBasicTextField(
+                        value = value,
+                        onValueChange = onValueChange,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        placeholder = hintText,
+                        containerColor = Color.Transparent,
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.Normal,
+                            lineHeight = 22.sp,
+                            color = lightBlackColor
+                        )
+                    )
+
+                    if (value.isNotEmpty()) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(15.dp)
+                                .clickable { onClear() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_cross_round_gray),
+                                contentDescription = "Clear",
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

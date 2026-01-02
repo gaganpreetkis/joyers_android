@@ -26,7 +26,7 @@ data class UserProfileUiState(
     val ethnicity: String = "",
     val faith: String = "",
     val language: String = "",
-    val languages: List<Languages> = emptyList(),
+    val languages: List<Languages> = arrayListOf(Languages(ProfileMeta(name = "English"), "( Very Good )")),
     val educationName: String = "",
 
     val joySince: String = "",

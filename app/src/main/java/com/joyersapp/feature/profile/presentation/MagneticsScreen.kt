@@ -490,7 +490,7 @@ fun ProfileHeaderSection(
         } else {
             ProfileEditableRow(title = "Profile Picture")
         }
-        Spacer(Modifier.height(11.dp))
+        Spacer(Modifier.height(13.dp))
         if (state.profilePicture.isNotEmpty()) {
             BioSection()
         } else { ProfileEditableRow(title = "Bio") }
@@ -730,12 +730,11 @@ fun BioSection(
                     modifier = Modifier
                         .clickable { onLinkClick() }
                 ) {
-                  /*  Icon(
-                        imageVector = Icons.Default.Link,
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_link),
                         contentDescription = null,
-//                        tint = Color.Gray,
-                        modifier = Modifier.size(14.5.dp)
-                    )*/
+                        modifier = Modifier.height(14.5.dp).width(14.5.dp)
+                    )
                     Spacer(Modifier.width(5.dp))
 
                     Text(

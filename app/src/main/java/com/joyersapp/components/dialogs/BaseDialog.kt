@@ -156,10 +156,11 @@ fun BaseDialog(
                     )
                 } else {
                     FlowRow(
-                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp)
+                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp),
+                        horizontalArrangement = Arrangement.Center,
                     ) {
                         titles.forEachIndexed { index, item ->
-                            Row(verticalAlignment = Alignment.CenterVertically,) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = item,
                                     fontSize = 16.sp,

@@ -20,24 +20,31 @@ fun EditDescriptionDialog(
     onApply: () -> Unit = {}
 ) {
 
+    var searchQuery by remember { mutableStateOf("") }
     var itemsList by remember { mutableStateOf(titlesData) }
-    var clarificationList by remember { mutableStateOf(itemsList.filter { !it.description.isNullOrEmpty() }) }
+    var itemsList2 by remember { mutableStateOf(titlesData) }
+    var clarificationList by remember { mutableStateOf(itemsList2.filter { !it.description.isNullOrEmpty() }) }
 
     ProfileViewDialog(
         onDismiss = onDismiss,
         onApply = onApply,
         showApplyButton = true,
         headers = headers,
-        searchQuery = "",
+        searchQuery = searchQuery,
         onSearchQueryChanged = { query ->
-            CoroutineScope(Dispatchers.Default).launch {
-                itemsList = titlesData.filter { it.name?.contains(query, ignoreCase = true)?: false }
-            }
+            searchQuery = query
+//            CoroutineScope(Dispatchers.Default).launch {
+//                itemsList =
+//                    itemsList2.filter { it.name?.contains(query, ignoreCase = true) ?: false }
+//            }
 
-                               },
-        titlesData = itemsList,
-        clarificationData = clarificationList
+        },
+        titlesData = itemsList2.filter { it.name?.contains(searchQuery, ignoreCase = true) ?: false },
+        clarificationData = clarificationList,
+        onShowSubTitles = {
+            itemsList2 = it
+        },
+        onBack = { itemsList2 = titlesData }
     )
-
 }
 

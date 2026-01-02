@@ -137,6 +137,7 @@ fun UserProfileScreen(
                     Spacer(modifier = Modifier.height(11.5.dp))
 
                     ProfileTabsContainer(state, viewModel)
+
                 }
             }
             // Identification Dialog

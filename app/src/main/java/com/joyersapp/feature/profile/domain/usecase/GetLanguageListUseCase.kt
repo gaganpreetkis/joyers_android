@@ -7,5 +7,5 @@ import jakarta.inject.Inject
 class GetLanguageListUseCase @Inject constructor(
     private val profileRepository: ProfileRepository
 ) {
-    suspend operator fun invoke(): Result<List<ProfileTitlesData>> = profileRepository.getCountryList()
+    suspend operator fun invoke(): Result<List<ProfileTitlesData>> = profileRepository.getLanguageList()
 }

@@ -74,11 +74,13 @@ fun ProfileViewDialog(
     titlesData: List<ProfileTitlesData>,
     clarificationData: List<ProfileTitlesData> = emptyList(),
     showApplyButton: Boolean = false,
+    onShowSubTitles: (List<ProfileTitlesData>) -> Unit,
+    onBack: () -> Unit,
     onApply: () -> Unit
 ) {
 
     val context = LocalContext.current
-    val isKeyBoardOpen = rememberIsKeyboardOpen()
+    var showBackButton by remember { mutableStateOf(false) }
 
     val goldenColor = Golden
     val lightBlackColor = LightBlack
@@ -87,7 +89,11 @@ fun ProfileViewDialog(
     BaseDialog(
         onDismiss = onDismiss,
         titles = headers,
-
+        onBack = {
+            showBackButton = false
+            onBack()
+                 },
+        showBackButton = showBackButton
         ) { dialogModifier, dialogFocusManager, maxHeight ->
 
         Spacer(modifier = dialogModifier.height(15.dp))
@@ -144,8 +150,15 @@ fun ProfileViewDialog(
                             title = title,
                             isSelected = title.isSelected,
                             onClick = {
-                                coroutineScope.launch {
-                                    listState.animateScrollToItem(0)
+                                title.isSelected = !title.isSelected
+                                if (title.selections.isNullOrEmpty()) {
+                                    coroutineScope.launch {
+                                        listState.animateScrollToItem(0)
+                                    }
+//                                    onTitleSelected()
+                                } else {
+                                    showBackButton = true
+                                    onShowSubTitles(title.selections?:emptyList())
                                 }
 //                                     keyboardController?.hide()
                             },
@@ -424,12 +437,12 @@ fun TitleItem(
             text = title.name ?: "",
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
-            fontWeight = if (isSelected && title.selectionCount.isNullOrEmpty()) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (isSelected && title.selectionCount.isNullOrEmpty()) Golden else LightBlack,
+            fontWeight = if (isSelected && title.selections.isNullOrEmpty()) FontWeight.SemiBold else FontWeight.Normal,
+            color = if (isSelected && title.selections.isNullOrEmpty()) Golden else LightBlack,
             //modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
             //modifier = Modifier.weight(1f)
         )
-        if (!title.selectionCount.isNullOrEmpty()) {
+        if (!title.selections.isNullOrEmpty()) {
             Spacer(modifier = modifier.width(3.dp))
             Image(
                 painter = painterResource(id = R.drawable.arrowdown_lite),
