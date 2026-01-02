@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.hbb20.CountryCodePicker
 import com.joyersapp.theme.Gray40
+import com.joyersapp.theme.LightBlack35
 import com.joyersapp.utils.fontFamilyLato
 
 
@@ -134,7 +135,7 @@ fun CountryCodePicker(
         VerticalDivider(
             modifier = Modifier
                 .height(24.dp),
-            color = Gray40,
+            color = LightBlack35,
             thickness = 1.dp
         )
     }

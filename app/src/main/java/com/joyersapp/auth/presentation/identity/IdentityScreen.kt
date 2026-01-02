@@ -338,7 +338,7 @@ fun PageOneContent(
     val context = LocalContext.current
     val goldenColor = Golden
     val lightBlackColor = LightBlack
-    val hintColor = Gray40
+    val hintColor = LightBlack60
     val whiteColor = Color.White
     val redColor = Red
     val astrikeColor = LightBlack55//colorResource(id = R.color.astrike_color)
@@ -584,7 +584,7 @@ fun PageOneContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(7.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         // Name Input
         Row(
@@ -678,7 +678,7 @@ fun PageOneContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(15.dp))
+        Spacer(modifier = Modifier.height(if (usernameError != null) 10.dp else 15.dp))
 
         // Location Section
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -727,9 +727,9 @@ fun PageOneContent(
             Text(
                 text = if (state.joyerLocation.isNotEmpty()) state.joyerLocation else context.getString(R.string.select_location),
                 fontSize = 16.sp,
-                fontWeight = if (state.joyerLocation.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                 fontFamily = fontFamilyLato,
                 color = if (state.joyerLocation.isNotEmpty()) lightBlackColor else hintColor,
+                fontWeight = if (state.joyerLocation.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                 modifier = Modifier.padding(bottom = 1.dp)
             )
             Row(

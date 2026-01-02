@@ -68,6 +68,8 @@ import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.R
+import com.joyersapp.auth.presentation.login.LoginEvent
+import com.joyersapp.auth.presentation.signup.SignupEvent
 import com.joyersapp.common_widgets.AppBasicTextFieldForLetterSpacing
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack35
@@ -262,7 +264,7 @@ fun ForgotPasswordScreen(
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
-            // USERNAME / EMAIL BOX (LEFT BIG + RIGHT ICON)
+            /*// USERNAME / EMAIL BOX (LEFT BIG + RIGHT ICON)
             if (!state.isPhoneMode) {
                 Row(
                     modifier = Modifier
@@ -478,6 +480,212 @@ fun ForgotPasswordScreen(
                         )
                     }
                 }
+            }*/
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Box(
+                    modifier = if (!state.isPhoneMode) {
+                        Modifier
+                            .weight(0.85f)
+                            .height(50.dp)
+                            .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
+                            .border(
+                                color = if (state.usernameEmailError != null) Red else colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
+                            )
+                    } else {
+                        Modifier
+                            .weight(0.85f)
+                            .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
+                            .border(
+                                color = if (state.phoneError != null) Red else colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
+                            )
+                    },
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+
+                        // LEFT PART
+                        Row(
+                            modifier = Modifier.padding(start = 20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Image(
+                                painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_telephone_gray else R.drawable.user_icon),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .height(if (state.isPhoneMode) 24.17.dp else 24.dp)
+                                    .width(if (state.isPhoneMode) 24.dp else 22.34.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(if (state.isPhoneMode) 0.dp else 0.5.dp))
+
+                            if (state.isPhoneMode)
+                                CountryCodePicker(
+                                    initialPadding = 8f,
+                                    defaultCountry = selectedCountryNameCode,
+                                    onCountrySelected = { code ->
+                                        viewModel.onEvent(ForgotPasswordEvent.SelectedCountryCodeChanged(code))
+                                    },
+                                    onCountryNameCodeSelected = { nameCode ->
+                                        selectedCountryNameCode = nameCode
+                                    }
+                                )
+
+                            AppBasicTextField(
+                                value = if (state.isPhoneMode) state.phone else state.usernameEmail,
+                                onValueChange = {
+                                    if (state.isPhoneMode) {
+                                        if (state.phone != it) {
+                                            if (it.length <= 15) {
+                                                viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(it))
+                                                viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
+                                            }
+                                            if (state.showVerificationCode) {
+                                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                            }
+                                        }
+                                    } else {
+                                        if (state.usernameEmail != it) {
+                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(it))
+                                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
+                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
+                                            viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+                                            if (state.showVerificationCode) {
+                                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                            }
+                                        }
+                                    }
+                                },
+                                maxLength = if (state.isPhoneMode) 15 else 100,
+                                placeholder = if (state.isPhoneMode) stringResource(R.string.phone_number) else stringResource(R.string.username_email),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(bottom = 1.dp),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = if (state.isPhoneMode) {
+                                        KeyboardType.Phone
+                                    } else {
+                                        KeyboardType.Email
+                                    }
+                                ),
+                                /*onFocusChanged = { focused ->
+                                    isUsernameFieldFocused = focused
+                                }*/
+                            )
+
+                            if (!state.isPhoneMode && state.usernameEmail.isNotEmpty()) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .padding(start = 5.dp, end = 10.dp)
+                                        .clickable {
+                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(""))
+                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
+                                            if (state.showVerificationCode) {
+                                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                            }
+                                        }
+                                )
+                            }
+                            if (state.isPhoneMode && state.phone.isNotEmpty()) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .padding(start = 5.dp, end = 10.dp)
+                                        .clickable {
+                                            viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
+                                            viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+                                            if (state.showVerificationCode) {
+                                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                            }
+                                        }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(5.dp))
+
+                // RIGHT CALL ICON PART
+                if (state.isPhoneMode) {
+                    Box(
+                        modifier = Modifier
+                            .weight(0.15f)
+                            .fillMaxHeight()
+                            .clickable {
+                                viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
+                                viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+                                viewModel.onEvent(ForgotPasswordEvent.IsPhoneModeChanged(false))
+                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                            }
+                            .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+                            .border(
+                                color = colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.user_icon_golden),
+                            contentDescription = "Toggle",
+                            modifier = Modifier
+                                .height(24.dp)
+                                .width(22.34.dp)
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .weight(0.15f)
+                            .fillMaxHeight()
+                            .clickable {
+                                viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(""))
+                                viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
+                                viewModel.onEvent(ForgotPasswordEvent.IsPhoneModeChanged(true))
+                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
+                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                            }
+                            .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
+                            .border(
+                                color = colorResource(id = R.color.color_border_light),
+                                width = 1.dp,
+                                shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_telephone_golden),
+                            contentDescription = "Toggle",
+                            modifier = Modifier
+                                .height(24.17.dp)
+                                .width(24.dp)
+                        )
+                    }
+                }
             }
 
             // Error messages
@@ -540,7 +748,7 @@ fun ForgotPasswordScreen(
                                 fontFamily = fontFamilyLato,
                                 textAlign = TextAlign.Center,
                                 fontWeight = if (selectedTab == "Email") FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (selectedTab == "Email") Golden else Black,
+                                color = if (selectedTab == "Email") Golden else LightBlack,
                                 modifier = Modifier
                                     .width(74.dp)
                                     //.padding(start = 12.dp, end = 15.dp)
@@ -568,7 +776,7 @@ fun ForgotPasswordScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(7.5.dp))
+                        Spacer(modifier = Modifier.height(5.5.dp))
 
                         // Underline indicators container - 148dp wide, centered, touching
                         Row(
