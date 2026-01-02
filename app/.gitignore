@@ -11,6 +11,10 @@ gradle.properties.local
 # Log files
 *.log
 
+*.idea
+*.lock
+*.bin
+
 # Android Studio
 .idea/
 *.iml
