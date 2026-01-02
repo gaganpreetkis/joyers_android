@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -55,10 +56,10 @@ import com.joyersapp.utils.tapToDismissKeyboard
 @Composable
 fun BaseDialog(
     onDismiss: () -> Unit = {},
-    titles: List<String> = arrayListOf(),
+    titles: List<String> = arrayListOf("",),
     showBackButton: Boolean = false,
     onBack: () -> Unit = {},
-    dialogContent: @Composable (dialogModifier: Modifier, dialogFocusManager: FocusManager, maxHeight: Dp) -> Unit = {dialogModifier, dialogFocusManager, maxHeight ->}
+    dialogContent: @Composable (dialogModifier: Modifier, dialogFocusManager: FocusManager, maxHeight: Dp) -> Unit = { dialogModifier, dialogFocusManager, maxHeight -> }
 ) {
 
     val context = LocalContext.current
@@ -72,97 +73,98 @@ fun BaseDialog(
 //            .fillMaxSize()
 //            .background(White)
 //    ) {
-        Dialog(
-            onDismissRequest = onDismiss,
-            properties = DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = false,
-                usePlatformDefaultWidth = false,
-                decorFitsSystemWindows = false
-            )) {
-            val dialogFocusManager = LocalFocusManager.current
-            val dialogModifier = Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures {
-                        dialogFocusManager.clearFocus()
-                    }
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        val dialogFocusManager = LocalFocusManager.current
+        val dialogModifier = Modifier
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    dialogFocusManager.clearFocus()
+                }
+            }
+
+        val configuration = LocalWindowInfo.current.containerSize
+        // Calculate maximum height: screen height - 100.dp (50.dp top + 50.dp bottom)
+        val minHeight = 275.dp
+        val maxHeight = remember(configuration) {
+            configuration.height.dp - 100.dp
+        }
+
+        // Determine the height modifier dynamically
+        val dialogHeightModifier = if (isKeyBoardOpen) {
+            // When keyboard is visible, the parent Column will resize to full height
+            Modifier
+                .height(maxHeight)
+                .padding(top = 50.dp)
+        } else {
+            // When keyboard is hidden, use a standard dialog height constraint
+            Modifier
+                .wrapContentHeight()
+                .heightIn(min = minHeight, max = maxHeight)
+                .padding(top = 50.dp, bottom = 50.dp)
+        }
+
+        Card(
+            modifier = dialogModifier
+
+                .windowInsetsPadding(WindowInsets.systemBars)
+                .then(dialogHeightModifier) // Apply dynamic height
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(25.dp))
+                .background(Color.White) // Ensure background captures taps
+                .dismissKeyboardOnScroll()
+                .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+
+            // Header
+            Row(
+                modifier = dialogModifier
+                    .fillMaxWidth()
+                    .padding(top = 16.7.dp, start = 18.dp, end = 23.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // Back button (only visible in subtitle mode)
+                if (showBackButton) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_back_arrow_golden),
+                        contentDescription = null,
+                        modifier = dialogModifier
+                            .size(20.dp, 15.dp)
+                            .noRippleClickable { onBack() }
+                    )
+                } else {
+                    Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
                 }
 
-            val configuration = LocalWindowInfo.current.containerSize
-            // Calculate maximum height: screen height - 100.dp (50.dp top + 50.dp bottom)
-            val minHeight = 275.dp
-            val maxHeight = remember(configuration) {
-                configuration.height.dp - 100.dp
-            }
-
-            // Determine the height modifier dynamically
-            val dialogHeightModifier = if (isKeyBoardOpen) {
-                // When keyboard is visible, the parent Column will resize to full height
-                Modifier
-                    .height(maxHeight)
-                    .padding(top = 50.dp)
-            } else {
-                // When keyboard is hidden, use a standard dialog height constraint
-                Modifier
-                    .wrapContentHeight()
-                    .heightIn(min = minHeight, max = maxHeight)
-                    .padding(top = 50.dp, bottom = 50.dp)
-            }
-
-            Card(
-                modifier = dialogModifier
-
-                    .windowInsetsPadding(WindowInsets.systemBars)
-                    .then(dialogHeightModifier) // Apply dynamic height
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(25.dp))
-                    .background(Color.White) // Ensure background captures taps
-                    .dismissKeyboardOnScroll()
-                    .tapToDismissKeyboard()
-                ,shape = RoundedCornerShape(25.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-
-                // Header
-                Row(
-                    modifier = dialogModifier
-                        .fillMaxWidth()
-                        .padding(top = 16.7.dp, start = 18.dp, end = 23.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    // Back button (only visible in subtitle mode)
-                    if (showBackButton) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_back_arrow_golden),
-                            contentDescription = null,
-                            modifier = dialogModifier
-                                .size(20.dp, 15.dp)
-                                .noRippleClickable { onDismiss() }
-                        )
-                    } else {
-                        Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
-                    }
-
-                    // Title or Second Title
-                    if (titles.size == 1) {
-                        Text(
-                            text = titles[0],
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = fontFamilyLato,
-                            color = lightBlackColor,
-                            modifier = dialogModifier.padding(top = 0.dp)
-                        )
-                    } else {
-                        LazyRow (
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp)
-                        ) {
-                            itemsIndexed(titles) { index, item ->
+                // Title or Second Title
+                if (titles.size == 1) {
+                    Text(
+                        text = titles[0],
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        color = lightBlackColor,
+                        modifier = dialogModifier.padding(top = 0.dp)
+                    )
+                } else {
+                    FlowRow(
+                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp)
+                    ) {
+                        titles.forEachIndexed { index, item ->
+                            Row(verticalAlignment = Alignment.CenterVertically,) {
                                 Text(
                                     text = item,
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    lineHeight = if (index == 0) 19.sp else 22.sp,
+                                    fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
                                     fontFamily = fontFamilyLato,
                                     color = lightBlackColor,
                                     modifier = dialogModifier
@@ -177,21 +179,22 @@ fun BaseDialog(
                                     Spacer(modifier = dialogModifier.width(10.dp))
                                 }
                             }
-
                         }
-                    }
 
-                    // Close button
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_cross_golden),
-                        contentDescription = null,
-                        modifier = dialogModifier
-                            .width(15.51.dp)
-                            .noRippleClickable { onDismiss() }
-                    )
+                    }
                 }
-                dialogContent(dialogModifier, dialogFocusManager, maxHeight)
+
+                // Close button
+                Image(
+                    painter = painterResource(id = R.drawable.ic_cross_golden),
+                    contentDescription = null,
+                    modifier = dialogModifier
+                        .width(15.51.dp)
+                        .noRippleClickable { onDismiss() }
+                )
             }
+            dialogContent(dialogModifier, dialogFocusManager, maxHeight)
+        }
 //        }
     }
 }

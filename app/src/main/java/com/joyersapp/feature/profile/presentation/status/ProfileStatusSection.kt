@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,7 +63,7 @@ fun ProfileStatusSection(
             .fillMaxWidth()
             .background(GrayBG)
     ) {
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(8.dp))
 
         /** -------- Description Header -------- */
         Row(
@@ -97,7 +98,7 @@ fun ProfileStatusSection(
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(8.dp))
 
         Column(
             modifier = Modifier
@@ -114,7 +115,7 @@ fun ProfileStatusSection(
             InterestsRowWithDotSeparators("Area of Interest",state.areaOfInterest)
         }
 
-        Spacer(Modifier.height(15.dp))
+        Spacer(Modifier.height(8.dp))
 
         /** -------- Joying Header -------- */
         Row(
@@ -149,11 +150,11 @@ fun ProfileStatusSection(
             }
         }
 
-        Spacer(Modifier.height(15.dp))
+        Spacer(Modifier.height(8.dp))
 
         JoyerCodeSection(state = state)
 
-        Spacer(Modifier.height(80.dp))
+        Spacer(Modifier.height(10.dp))
 
     }
 }
@@ -210,13 +211,13 @@ fun JoyerCodeSection(
 
         Spacer(Modifier.height(19.dp))
 
-        DateInfoRow(
+      /*  DateInfoRow(
             label = "Friends Since",
             date = "12 June 2019",
             duration = "2 Years, 6 Months, 11 Days"
         )
 
-        Spacer(Modifier.height(19.dp))
+        Spacer(Modifier.height(19.dp))*/
 
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -243,32 +244,36 @@ fun JoyerCodeSection(
                 Spacer(Modifier.height(10.dp))
 
                 Text(
+                    modifier = Modifier.width(200.dp),
                     text = state.fullname,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
                     color = LightBlack,
                     lineHeight = 22.sp,
+                    textAlign = TextAlign.Center
                 )
 
-                Text(
-                    text = state.fullname,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamilyLato,
-                    color = LightBlack,
-                    lineHeight = 22.sp,
-                )
+//                Text(
+//                    text = state.fullname,
+//                    fontSize = 16.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    fontFamily = fontFamilyLato,
+//                    color = LightBlack,
+//                    lineHeight = 22.sp,
+//                )
 
                 Spacer(Modifier.height(7.dp))
 
                 Text(
+                    modifier = Modifier.width(200.dp),
                     text = "@${state.username}",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
                     color = Golden,
                     lineHeight = 15.sp,
+                    textAlign = TextAlign.Center
                 )
             }
         }

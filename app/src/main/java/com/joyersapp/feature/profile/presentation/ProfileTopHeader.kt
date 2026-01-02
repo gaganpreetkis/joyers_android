@@ -56,7 +56,7 @@ fun ProfileTopHeader(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_back_arrow_golden),
+                    painter = painterResource(id = R.drawable.ic_menu_golden),
                     contentDescription = "Back",
                     modifier = Modifier
                         .size(20.dp, 17.dp)

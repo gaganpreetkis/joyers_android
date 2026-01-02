@@ -55,6 +55,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.feature.profile.presentation.UserProfileEvent
+import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.GrayBG
@@ -72,8 +74,12 @@ import com.joyersapp.utils.noRippleClickable
 @Composable
 fun EditProfileHeaderDialog(
     onDismiss: () -> Unit = {},
-    onApply: () -> Unit = {}
+    onApply: () -> Unit = {},
+    viewModel: UserProfileViewModel
 ) {
+
+    var bioText by remember { mutableStateOf("") }
+
     BaseDialog (
         onDismiss = { onDismiss() },
         titles = arrayListOf("Profile Header")
@@ -108,7 +114,12 @@ fun EditProfileHeaderDialog(
                 modifier = Modifier.padding(top = 20.dp, bottom = 10.dp)
             )
 
-            BioEditor("") {}
+            BioEditor(bioText) {
+                bioText = it
+                if (it.equals("@")) {
+                    viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
+                }
+            }
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -351,7 +362,7 @@ fun EditableProfilePictureCard(
 
 @Composable
 fun BioEditor(
-    overview: String,
+    text: String,
     onOverviewChange: (String) -> Unit,
 ) {
     var selectedTab by remember { mutableStateOf("overview") }
@@ -409,8 +420,10 @@ fun BioEditor(
                 Box(Modifier.padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 15.dp)) {
                     if (selectedTab == "overview") {
                         OverviewEditor(
-                            text = overview,
-                            onChange = onOverviewChange
+                            text = text,
+                            onChange = {
+                                onOverviewChange(it)
+                            }
                         )
                     } else {
                         HighlightsEditor()

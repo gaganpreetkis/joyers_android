@@ -1,24 +1,40 @@
 package com.joyersapp.feature.profile.data.remote
 
-import com.joyersapp.auth.data.remote.dto.LoginRequestDto
-import com.joyersapp.auth.data.remote.dto.LoginResponseDto
+import com.joyersapp.auth.data.remote.dto.MultiStepRegisterResponseDto
 import com.joyersapp.di.RequiresAuth
-import com.joyersapp.feature.profile.data.remote.dto.GetUserProfileResponseDto
+import com.joyersapp.feature.profile.data.remote.dto.UserProfileResponseDto
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesResponseDto
+import com.joyersapp.feature.profile.data.remote.dto.UploadPictureServerResponse
+import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 
 interface ProfileApi {
 
-    @POST("auth/login")
-    suspend fun login(
-        @Body body: LoginRequestDto
-    ): LoginResponseDto
+    @RequiresAuth
+    @POST("user/update-user-profile-graph")
+    suspend fun uploadUserProfile(
+        @Body requestDto: UserProfileGraphRequestDto
+    ): UserProfileResponseDto
+
+    @RequiresAuth
+    @Multipart
+    @POST("user/upload-picture-server")
+    suspend fun uploadPictureServer(
+        @Part("image_status") id: RequestBody,
+        @Part("profile_picture") profilePicture: MultipartBody.Part,
+        @Part("background_picture") backgroundPicture: MultipartBody.Part
+    ): UploadPictureServerResponse
 
     @RequiresAuth
     @GET("user/get-user-profile")
-    suspend fun getUserProfile(): GetUserProfileResponseDto
+    suspend fun getUserProfile(): UserProfileResponseDto
 
     @GET("auth/title-type")
     suspend fun getTitles(): ProfileTitlesResponseDto

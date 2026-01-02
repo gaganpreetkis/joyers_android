@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,18 +44,24 @@ fun FloatingBottomNavHost(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = topBar,
-            bottomBar = {}
+            bottomBar = {
+                if (showBottomTab) {
+                    BottomNavBar(
+                        modifier = modifier.align(Alignment.BottomCenter),
+                        selected = selectedTab,
+                        onTabSelected = onBottomTabSelected
+                    )
+                }
+            }
         ) { innerPadding ->
+            Box(Modifier.padding(innerPadding)) {
+                content(innerPadding)
 
-            content(innerPadding)
+            }
+
+
         }
-        if (showBottomTab) {
-            BottomNavBar(
-                modifier = modifier.align(Alignment.BottomCenter),
-                selected = selectedTab,
-                onTabSelected = onBottomTabSelected
-            )
-        }
+
 
     }
 }
@@ -66,13 +73,14 @@ fun BottomNavBar(
     onTabSelected: (BottomTab) -> Unit
 ) {
     val bottomLift = 0.dp
-    Surface(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.Transparent)// narrower than full width for "floating" card look
             .padding(bottom = bottomLift)                 // lift above parent bottom
-            .navigationBarsPadding(), shape = RectangleShape,
-        color = Color.Transparent
+            .navigationBarsPadding(),
+//        shape = RectangleShape,
+//        color = Color.Transparent
     ) {
         Row(
             modifier = Modifier
@@ -103,7 +111,7 @@ fun BottomNavBar(
 }
 
 
-enum class BottomTab(val label: String, val selectedIcon: Int,val route: String) {
+enum class BottomTab(val label: String, val selectedIcon: Int, val route: String) {
     HOME("Home", R.drawable.ic_nav_joyers_home, "home"),
     PROFILE("Profile", R.drawable.ic_nav_joyers_profile, "profile"),
     POST("Post", R.drawable.ic_nav_joyers_add, "post"),

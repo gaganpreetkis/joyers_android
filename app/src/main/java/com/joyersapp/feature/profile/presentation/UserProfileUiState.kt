@@ -35,9 +35,9 @@ data class UserProfileUiState(
 
     val displayName: String = "Sara Spiegel James",
     val joyerType: String = "Typical Joyer",
-    val likes: String = "11.1K",
-    val following: String = "599",
-    val followers: String = "155M",
+    val likes: String = "0",
+    val following: String = "0",
+    val followers: String = "0",
 
 
     val children: String = "",
@@ -52,18 +52,19 @@ data class UserProfileUiState(
     val bannerUrl: String? = null,
     val avatarUrl: String? = null,
 
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val errorMessage: String? = null,
     val dialogHeader: List<String> = emptyList(),
+    val titlesData: List<ProfileTitlesData> = emptyList(),
     val titles: List<ProfileTitlesData> = emptyList(),
-    val countryList: List<ProfileTitlesData>? = null,
-    val educationList: List<ProfileTitlesData>? = null,
-    val ethenicityList: List<ProfileTitlesData>? = null,
-    val faithReligionList: List<ProfileTitlesData>? = null,
-    val interestList: List<ProfileTitlesData>? = null,
-    val politicalIdeologyList: List<ProfileTitlesData>? = null,
-    val relationShipList: List<ProfileTitlesData>? = null,
-    val languageList: List<ProfileTitlesData>? = null,
+    val countryList: List<ProfileTitlesData> = emptyList(),
+    val educationList: List<ProfileTitlesData> = emptyList(),
+    val ethenicityList: List<ProfileTitlesData> = emptyList(),
+    val faithReligionList: List<ProfileTitlesData> = emptyList(),
+    val interestList: List<ProfileTitlesData> = emptyList(),
+    val politicalIdeologyList: List<ProfileTitlesData> = emptyList(),
+    val relationShipList: List<ProfileTitlesData> = emptyList(),
+    val languageList: List<ProfileTitlesData> = emptyList(),
 
 
 
@@ -72,5 +73,6 @@ data class UserProfileUiState(
     val showIdentificationDialog: Boolean = false,
     val showEditProfileHeaderDialog: Boolean = false,
     val showEditDescriptionDialog: Boolean = false,
+    val showMentionJoyersDialog: Boolean = false,
     val error: String? = null
 )

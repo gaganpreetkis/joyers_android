@@ -4,6 +4,7 @@ import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.feature.profile.data.remote.ProfileApi
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfile
+import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.feature.profile.domain.repository.ProfileRepository
 import com.joyersapp.utils.ApiErrorException
 import com.joyersapp.utils.parseNetworkError
@@ -15,6 +16,37 @@ class ProfileRepositoryImpl @Inject constructor(
     private val api: ProfileApi,
     private val sessionLocalDataSource: SessionLocalDataSource
 ) : ProfileRepository {
+
+    override suspend fun uploadUserProfile(
+        requestDto: UserProfileGraphRequestDto
+    ): Result<UserProfile> =
+        try {
+            val response = api.uploadUserProfile(requestDto)
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response.data!!)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            message = response.message ?: "Something went wrong"
+                        )
+                    )
+                }
+
+                else -> Result.failure(
+                    ApiErrorException(
+                        message = response.message ?: "Something went wrong"
+                    )
+                )
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
     override suspend fun getUserProfile(): Result<UserProfile> =
         try {

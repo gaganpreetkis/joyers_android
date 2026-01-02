@@ -65,6 +65,7 @@ import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
+import com.joyersapp.utils.toPrettyNumber
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -120,7 +121,7 @@ fun UserProfileScreen(
                             .padding(horizontal = 20.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(11.dp))
+                    Spacer(modifier = Modifier.height(11.5.dp))
 
                     CustomScrollableTabRow(
                         modifier = Modifier
@@ -133,23 +134,17 @@ fun UserProfileScreen(
                         selectedTabIndex = state.selectedTab,
                     )
 
+                    Spacer(modifier = Modifier.height(11.5.dp))
+
                     ProfileTabsContainer(state, viewModel)
                 }
             }
             // Identification Dialog
             if (state.showIdentificationDialog) {
                 IdentificationDialog(
-                    onDismiss = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
-                    onApply = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
-                    onNavigateToDescription = {
-                        viewModel.onEvent(
-                            UserProfileEvent.OnEditDescription(
-                                0,
-                                arrayListOf("Description"),
-                                state.titles
-                            )
-                        )
-                    },
+                    viewModel = viewModel,
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
+                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
                     initialData = IdentificationData(
                         name = state.fullname,
                         birthday = state.birthday,
@@ -170,21 +165,13 @@ fun UserProfileScreen(
 
             }
 
-            if (state.showTitlesDialog) {
+            if (state.showEditDescriptionDialog) {
                 EditDescriptionDialog(
-                    titlesData = state.titles,
-                    onDismiss = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
-                    onApply = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
+                    titlesData = state.titlesData,
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false,emptyList(),emptyList())) },
+                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false,emptyList(),emptyList())) },
                     headers = state.dialogHeader
                 )
-//                ProfileViewDialog(
-//                    onDismiss = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
-//                    onApply = {},
-//                    searchQuery = "",
-//                    showApplyButton = false,
-//                    titles = arrayListOf("Title", "Subtitle", "Subtitle"),
-//                    FirstColumn = {  }
-//                )
             }
         }
     }
@@ -343,7 +330,7 @@ fun StatsRow(state: UserProfileUiState) {
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = state.likes,
+                text = state.likes.toInt().toPrettyNumber(),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
@@ -363,7 +350,7 @@ fun StatsRow(state: UserProfileUiState) {
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = state.following,
+                text = state.following.toInt().toPrettyNumber(),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
@@ -383,7 +370,7 @@ fun StatsRow(state: UserProfileUiState) {
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = state.followers,
+                text = state.followers.toInt().toPrettyNumber(),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
@@ -523,17 +510,20 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
     // Tab content
     when (state.selectedTab) {
         0 -> Column {
+            val headers = arrayListOf("Description", "Joyer Status", state.joyerStatus)
+            if (state.title != null) headers.add(state.title?.name?: "")
+            if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
             ProfileStatusSection(
                 state = state,
                 onEditDescription = {
-                    viewModel.onEvent(UserProfileEvent.OnEditDescriptionClicked(state.selectedTab))
+                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(true, headers = headers, state.titles))
                 })
         }
 
         1 -> Column {
             ProfileIdentitySection(
-                onEditDescription = {
-                    viewModel.onEvent(UserProfileEvent.OnEditTitleClicked(state.selectedTab))
+                onEditIdentity = {
+                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
                 })
         }
 

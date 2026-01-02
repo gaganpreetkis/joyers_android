@@ -27,6 +27,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,13 +49,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
+import com.joyersapp.auth.presentation.signup.SignupNavigationEvent
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.dialogs.EditDescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
+import com.joyersapp.components.dialogs.MentionJoyersDialog
+import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.GrayBG
@@ -83,118 +88,136 @@ fun MagneticsScreen(
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GrayBG)
-    ) {
-
-        /** ─────────────── TOP BAR ─────────────── **/
-        TopBar(
-            username = state.username,
-            onBack = { onBack() },
-            onSave = { onBack() }
-        )
-
-        HorizontalDivider(color = LightBlack10, thickness = 1.dp)
-
-        // Scrollable column
-        Column(
-            Modifier
-                .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(Modifier.height(10.dp))
-            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
-
-
-            /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
-            ProfileHeaderSection( state) {
-                viewModel.onEvent(UserProfileEvent.OnEditProfileHeader(0))
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when(event) {
+                is UserProfileNavigationEvent.NavigateToUserProfile -> { onBack() }
             }
-
-            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
-            Spacer(Modifier.height(10.dp))
-            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
-
-
-            /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
-            val headers = arrayListOf("Description", "Joyer Status", state.joyerStatus)
-            if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
-            DescriptionSection( state) {
-                viewModel.onEvent(
-                    UserProfileEvent.OnEditDescription(
-                        0,
-                        headers = headers,
-                        titlesData = state.titles
-                    )
-                )
-            }
-
-            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
-            Spacer(Modifier.height(10.dp))
-            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
-
-
-            /** ─────────────── SECTION: IDENTIFICATION  ─────────────── **/
-            IdentificationSection( state) {
-                viewModel.onEvent(UserProfileEvent.OnEditIdentification(0))
-            }
-
-            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
-            Spacer(Modifier.height(10.dp))
-            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
-
-
-            /** ─────────────── SECTION: INTERESTS ─────────────── **/
-            InterestsSection( state) {
-                viewModel.onEvent(UserProfileEvent.OnEditDescription(0, arrayListOf("Interests"), state.titles))
-            }
-
-            Spacer(Modifier.height(80.dp))
-
         }
     }
 
-    if (state.showEditProfileHeaderDialog) {
-        EditProfileHeaderDialog(
-            onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))}
-        ){  }
-    }
-    if (state.showIdentificationDialog) {
-        IdentificationDialog(
-            onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
-            onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
-            onNavigateToDescription = {
-                viewModel.onEvent(
-                    UserProfileEvent.OnEditDescription(
-                        0,
-                        headers = arrayListOf("Identification", it),
-                        titlesData = state.titles
-                    )
-                )
-                                      },
-            initialData = IdentificationData(
-                name = state.fullname,
-                birthday = state.birthday,
-//                gender = null,
-                nationality = state.nationality,
-                ethnicity = state.ethnicity,
-                faith = state.faith,
-                language = state.language,
-                education = state.educationName,
-                relationship = state.relationship,
-                politicalIdeology = state.politicalIdeology,
-                joyerLocation = state.location
+    if (state.isLoading) {
+        CustomProgressIndicator()
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(GrayBG)
+        ) {
+
+            /** ─────────────── TOP BAR ─────────────── **/
+            TopBar(
+                username = state.username,
+                onBack = { onBack() },
+                onSave = { viewModel.onEvent(UserProfileEvent.UpdateUserData(UserProfileGraphRequestDto())) }
             )
-        )
-    }
-    if (state.showEditDescriptionDialog) {
-        EditDescriptionDialog(
-            titlesData = state.titles,
-            onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
-            onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
-            headers = state.dialogHeader
-        )
+
+            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+
+            // Scrollable column
+            Column(
+                Modifier
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+
+
+                /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
+                ProfileHeaderSection( state) {
+                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true))
+                }
+
+                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+
+
+                /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
+                val headers = arrayListOf("Description", "Joyer Status", state.joyerStatus)
+                if (state.title != null) headers.add(state.title?.name?: "")
+                if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
+                DescriptionSection( state) {
+                    viewModel.onEvent(
+                        UserProfileEvent.ToggleDescriptionDialog(
+                            true,
+                            headers = headers,
+                            titlesData = state.titles
+                        )
+                    )
+                }
+
+                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+
+
+                /** ─────────────── SECTION: IDENTIFICATION  ─────────────── **/
+                IdentificationSection( state) {
+                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
+                }
+
+                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+
+
+                /** ─────────────── SECTION: INTERESTS ─────────────── **/
+                InterestsSection( state) {
+                    viewModel.onEvent(
+                        UserProfileEvent.ToggleDescriptionDialog(
+                            true,
+                            arrayListOf("Interests"),
+                            state.interestList
+                        )
+                    )
+                }
+
+                Spacer(Modifier.height(80.dp))
+
+            }
+        }
+
+        if (state.showEditProfileHeaderDialog) {
+            EditProfileHeaderDialog(
+                viewModel = viewModel,
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false)) }
+            )
+        }
+
+        if (state.showMentionJoyersDialog) {
+            MentionJoyersDialog (
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(false)) }
+            ){  }
+        }
+        if (state.showIdentificationDialog) {
+            IdentificationDialog(
+                viewModel = viewModel,
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
+                onApply = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
+                initialData = IdentificationData(
+                    name = state.fullname,
+                    birthday = state.birthday,
+//                gender = null,
+                    nationality = state.nationality,
+                    ethnicity = state.ethnicity,
+                    faith = state.faith,
+                    language = state.language,
+                    education = state.educationName,
+                    relationship = state.relationship,
+                    politicalIdeology = state.politicalIdeology,
+                    joyerLocation = state.location
+                )
+            )
+        }
+        if (state.showEditDescriptionDialog) {
+            EditDescriptionDialog(
+                titlesData = state.titlesData,
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false, emptyList(), emptyList()))},
+                onApply = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false, emptyList(), emptyList()))},
+                headers = state.dialogHeader
+            )
+        }
     }
 }
 
@@ -437,7 +460,7 @@ fun DescriptionSection(state: UserProfileUiState, onclick: () -> Unit) {
     ) {
         SectionHeader(title = "Description")
         Spacer(Modifier.height(13.dp))
-        if (state.joyerStatus.isNotEmpty()) {
+        if (!(state.subTitle?.name?: state.title?.name).isNullOrEmpty()) {
             KeyValueText(
                 "Joyer Status",
                 state.subTitle?.name?: state.title?.name?: ""
@@ -660,8 +683,8 @@ fun BioSection(
 
                         withStyle(
                             SpanStyle(
-                                color = Color(0xFFCC8A00),
-                                fontWeight = FontWeight.Bold
+                                color = Golden,
+                                fontWeight = FontWeight.SemiBold,
                             )
                         ) {
                             append("@best ")
@@ -669,7 +692,11 @@ fun BioSection(
 
                         append("platform in this Globe it’s ")
 
-                        withStyle(SpanStyle(color = Color(0xFF2680EB), fontWeight = FontWeight.Bold)) {
+                        withStyle(SpanStyle(
+                            color = Golden,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        ) {
                             append("#Joyers ")
                         }
 
@@ -677,16 +704,22 @@ fun BioSection(
 
                         // clickable URL www.hi.com
                         pushStringAnnotation(tag = "url", annotation = "https://www.hi.com/")
-                        withStyle(SpanStyle(color = Color(0xFF2680EB))) {
+                        withStyle(SpanStyle(
+                            color = Golden,
+                            fontWeight = FontWeight.SemiBold,
+                            )
+                        ) {
                             append("www.hi.com/")
                         }
                         pop()
 
                         append(", an Amazing Social App.")
                     },
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     lineHeight = 22.sp,
-                    color = Color.Black
+                    color = LightBlack,
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = fontFamilyLato
                 )
 
                 Spacer(Modifier.height(10.dp))
@@ -700,15 +733,17 @@ fun BioSection(
                   /*  Icon(
                         imageVector = Icons.Default.Link,
                         contentDescription = null,
-                        tint = Color.Gray,
-                        modifier = Modifier.size(17.dp)
+//                        tint = Color.Gray,
+                        modifier = Modifier.size(14.5.dp)
                     )*/
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(5.dp))
 
                     Text(
                         text = linkText,
                         fontSize = 14.sp,
-                        color = Color(0xFF2680EB),
+                        color = Golden,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 22.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
