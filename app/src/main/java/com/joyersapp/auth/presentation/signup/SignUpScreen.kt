@@ -308,7 +308,7 @@ fun SignUpScreen(
                                 shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             )
                     ) {
-                        Row(
+                        /*Row(
                             modifier = Modifier.padding(start = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -400,6 +400,89 @@ fun SignUpScreen(
                                             }
                                     )
                                 }
+                            }
+                        }*/
+                        Row(
+                            modifier = Modifier.padding(start = 20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = if (state.isPhoneMode) R.drawable.ic_telephone_gray else R.drawable.ic_mail),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .height(if (state.isPhoneMode) 24.17.dp else 18.26.dp)
+                                    .width(if (state.isPhoneMode) 24.dp else 24.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(if (state.isPhoneMode) 0.dp else 0.5.dp))
+
+                            if (state.isPhoneMode)
+                                CountryCodePicker(
+                                    initialPadding = 8f,
+                                    defaultCountry = state.selectedCountryNameCode,
+                                    onCountrySelected = { code ->
+                                        viewModel.onEvent(SignupEvent.CountryCodeChanged(code))
+                                    },
+                                    onCountryNameCodeSelected = { nameCode ->
+                                        viewModel.onEvent(SignupEvent.CountryNameCodeChanged(nameCode))
+                                    }
+                                )
+
+                            AppBasicTextField(
+                                value = if (state.isPhoneMode) state.phone else state.email,
+                                onValueChange = {
+                                    if (state.isPhoneMode) {
+                                        viewModel.onEvent(SignupEvent.PhoneChanged(it))
+                                    } else {
+                                        viewModel.onEvent(SignupEvent.EmailChanged(it))
+                                    }
+                                },
+                                maxLength = if (state.isPhoneMode) 15 else 100,
+                                placeholder = if (state.isPhoneMode) stringResource(R.string.phone_number) else stringResource(R.string.email),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(bottom = 1.dp),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = if (state.isPhoneMode) {
+                                        KeyboardType.Phone
+                                    } else {
+                                        KeyboardType.Email
+                                    }
+                                ),
+                                onFocusChanged = { focused ->
+                                    //isUsernameFieldFocused = focused
+                                    if (state.isPhoneMode) {
+                                        viewModel.onEvent(SignupEvent.PhoneFocusChanged(focused))
+                                    } else {
+                                        viewModel.onEvent(SignupEvent.EmailFocusChanged(focused))
+                                    }
+                                }
+                            )
+
+                            if (state.isPhoneMode && state.phone.isNotEmpty()) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .padding(start = 5.dp, end = 10.dp)
+                                        .clickable {
+                                            viewModel.onEvent(SignupEvent.PhoneChanged(""))
+                                        }
+                                )
+                            }
+
+                            if (!state.isPhoneMode && state.email.isNotEmpty()) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .padding(start = 5.dp, end = 10.dp)
+                                        .clickable {
+                                            viewModel.onEvent(SignupEvent.EmailChanged(""))
+                                        }
+                                )
                             }
                         }
                     }
