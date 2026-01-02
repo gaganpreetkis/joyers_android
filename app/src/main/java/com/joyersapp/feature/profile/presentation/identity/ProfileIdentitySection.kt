@@ -44,12 +44,7 @@ import com.joyersapp.utils.fontFamilyLato
 
 @Composable
 fun ProfileIdentitySection(
-    description: String = "Description",
-    joyerStatus: String = "Classic",
-    title: String = "Pet",
-    subTitle: String = "Dogs",
-    interests: List<String> = listOf("Affiliation", "Preschoolers", "Adults", "Education", "Training"),
-    onEditDescription: () -> Unit = {},
+    onEditIdentity: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -57,7 +52,7 @@ fun ProfileIdentitySection(
             .fillMaxWidth()
             .background(GrayBG)
     ) {
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(8.dp))
 
         /** -------- Identification Header -------- */
         Row(
@@ -79,7 +74,7 @@ fun ProfileIdentitySection(
                 modifier = Modifier.size(35.dp)
                     .clip(CircleShape)
                     .clickable {
-                        onEditDescription()
+                        onEditIdentity()
                     }
                     .background(LightBlack5)
                     .padding(start = 10.dp, top = 10.dp, end = 9.3.dp, bottom = 9.38.dp)
@@ -92,7 +87,7 @@ fun ProfileIdentitySection(
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(8.dp))
 
         Column(
             modifier = Modifier
@@ -122,7 +117,7 @@ fun ProfileIdentitySection(
 
         }
 
-        Spacer(Modifier.height(80.dp))
+        Spacer(Modifier.height(10.dp))
 
     }
 }

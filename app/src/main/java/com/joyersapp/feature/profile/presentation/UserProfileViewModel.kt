@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joyersapp.feature.profile.domain.usecase.GetTitlesUseCase
 import com.joyersapp.core.SessionManager
+import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.feature.profile.domain.usecase.GetCountryListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetEducationListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetEthnicityListUseCase
@@ -14,9 +15,12 @@ import com.joyersapp.feature.profile.domain.usecase.GetPoliticalIdeoogyListUseCa
 import com.joyersapp.feature.profile.domain.usecase.GetRelationshipListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetSubTitlesUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
+import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +29,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
+    private val uploadUserProfileUseCase: UploadUserProfileUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
     private val getTitlesUseCase: GetTitlesUseCase,
     private val getSubTitlesUseCase: GetSubTitlesUseCase,
@@ -39,12 +44,13 @@ class UserProfileViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     ) : ViewModel() {
     private val _uiState = MutableStateFlow(
-        UserProfileUiState(
-            bannerUrl = null,
-            avatarUrl = null
-        )
+        UserProfileUiState()
     )
     val uiState: StateFlow<UserProfileUiState> = _uiState.asStateFlow()
+    private val _navigationEvents = MutableSharedFlow<UserProfileNavigationEvent>()
+    val navigationEvents = _navigationEvents
+
+    val req = UserProfileGraphRequestDto()
 
     init {
         // simulate fetch
@@ -72,6 +78,7 @@ class UserProfileViewModel @Inject constructor(
             getPoliticalIdeologyJob.join()
             getRelationShipJob.join()
             getLanguageJob.join()
+            delay(10)
 
             _uiState.update { it.copy(isLoading = false) }
         }
@@ -96,57 +103,97 @@ class UserProfileViewModel @Inject constructor(
                 }
             }
 
-            UserProfileEvent.SubmitClicked -> TODO()
-            is UserProfileEvent.OnDialogClosed -> {
+            is UserProfileEvent.UpdateUserData -> {
+                uploadUserProfileData(event.requestDto)
+            }
+
+            is UserProfileEvent.ToggleProfileHeaderDialog -> {
                 _uiState.update {
                     it.copy(
-                        showIdentificationDialog = false,
-                        showTitlesDialog = false,
-                        showEditProfileHeaderDialog = false,
-                        showEditDescriptionDialog = false,
+                        showEditProfileHeaderDialog = event.show,
                     )
                 }
             }
-            is UserProfileEvent.OnEditDescriptionClicked -> {
+            is UserProfileEvent.ToggleDescriptionDialog -> {
                 _uiState.update {
                     it.copy(
-                        showIdentificationDialog = true,
+//                        showIdentificationDialog = false,
+                        showEditDescriptionDialog = event.show,
+                        dialogHeader = event.headers,
+                        titlesData = event.titlesData
                     )
                 }
             }
-            is UserProfileEvent.OnEditTitleClicked -> {
+            is UserProfileEvent.ToggleIdentificationDialog -> {
                 _uiState.update {
                     it.copy(
-                        showTitlesDialog = true,
+                        showIdentificationDialog = event.show,
                     )
                 }
             }
-            is UserProfileEvent.OnEditProfileHeader -> {
+            is UserProfileEvent.ToggleMentionJoyersDialog -> {
                 _uiState.update {
                     it.copy(
-                        showEditProfileHeaderDialog = true,
-                    )
-                }
-            }
-            is UserProfileEvent.OnEditDescription -> {
-                _uiState.update {
-                    it.copy(
-                        showEditDescriptionDialog = true,
-                        showIdentificationDialog = false,
-                        dialogHeader = event.headers
-                    )
-                }
-            }
-            is UserProfileEvent.OnEditIdentification -> {
-                _uiState.update {
-                    it.copy(
-                        showIdentificationDialog = true,
+                        showMentionJoyersDialog = event.show,
                     )
                 }
             }
         }
     }
 
+
+    private fun uploadUserProfileData(requestDto: UserProfileGraphRequestDto){
+        viewModelScope.launch {
+
+            val result = uploadUserProfileUseCase(requestDto)
+            result.fold(
+                onSuccess = { response ->
+                    _uiState.update {
+                        it.copy(
+                            error = null,
+                            errorMessage = null,
+                            username = response.username ?: "",
+                            fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
+                            location = response.joyerLocation ?: "",
+                            profilePicture = response.profilePicture ?: "",
+                            backgroundPicture = response.backgroundPicture ?: "",
+                            likes = response.likesCount ?: "",
+                            following = response.followingCount ?: "",
+                            followers = response.followersCount ?: "",
+                            joyerStatus = response.joyerStatus ?: "",
+//                            birthday = response.b ?: "",
+                            gender = response.gender?: "",
+                            relationship = response.relationship?.name?: "",
+//                            children = response.ch?.name?: "",
+                            politicalIdeology = response.politicalIdeology?.name ?: "",
+                            titleName = response.title?.name ?: "",
+                            subTitleName = response.subTitle?.name ?: "",
+                            title = response.title,
+                            subTitle = response.subTitle,
+                            areaOfInterest = response.interests,
+                            languages = response.languages,
+                            joySince = response.joySince ?: "",
+                            joySinceDuration = response.joySinceDuration ?: "",
+                            qrCode = response.qrCode ?: "",
+                            nationality = response.nationality?.name ?: "",
+                            ethnicity = response.ethnicity?.name ?: "",
+                            faith = response.faith?.name ?: "",
+                            educationName = response.education?.name ?: "",
+                        )
+                    }
+                    _navigationEvents.emit(UserProfileNavigationEvent.NavigateToUserProfile)
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+//                            isLoading = false,
+                            error = error.message
+                        )
+                    }
+                }
+            )
+        }
+    }
 
     private fun getUserProfileData(){
         val state = _uiState.value
@@ -192,7 +239,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             error = error.message
                         )
                     }
@@ -220,7 +267,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -248,7 +295,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -274,7 +321,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -300,7 +347,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -326,7 +373,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -352,7 +399,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -378,7 +425,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -404,7 +451,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -430,7 +477,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }
@@ -456,7 +503,7 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+//                            isLoading = false,
                             errorMessage = error.message
                         )
                     }

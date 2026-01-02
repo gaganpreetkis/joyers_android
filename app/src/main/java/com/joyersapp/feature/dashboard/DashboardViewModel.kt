@@ -17,7 +17,7 @@ class AppScaffoldViewModel @Inject constructor() : ViewModel() {
         _uiState.update {
             it.copy(
                 selectedTab = tab,
-                currentScreen = tab.toScreen(),
+//                currentScreen = tab.toScreen(),
                 headerTitle = tab.label,
                 headerSubtitle = null
             )
@@ -30,7 +30,7 @@ data class AppScaffoldUiState(
     val headerTitle: String = "Sara_99",
     val headerSubtitle: String? = null,
     val selectedTab: BottomTab = BottomTab.HOME,
-    val currentScreen: AppScreen = AppScreen.Home,
+//    val currentScreen: AppScreen = AppScreen.Home,
 )
 
 enum class AppScreen {

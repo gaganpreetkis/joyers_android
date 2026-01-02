@@ -24,9 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.components.dialogs.BaseDialog
+import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.GrayBG
@@ -43,9 +44,10 @@ import com.joyersapp.utils.noRippleClickable
 fun IdentificationDialog(
     onDismiss: () -> Unit,
     onApply: (IdentificationData) -> Unit,
-    onNavigateToDescription: (String) -> Unit,
-    initialData: IdentificationData
+    initialData: IdentificationData,
+    viewModel: UserProfileViewModel
 ) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     var name by remember { mutableStateOf(initialData?.name ?: "") }
     var birthday by remember { mutableStateOf(initialData?.birthday ?: "") }
@@ -108,7 +110,15 @@ fun IdentificationDialog(
                     label = "Birthday",
                     hintText = "Joyer Birthday",
                     value = birthday,
-                    onClick = { onNavigateToDescription("Birthday") },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Identification", "Birthday"),
+                                titlesData = state.titles
+                            )
+                        )
+                    },
                     onClear = { birthday = "" }
                 )
 
@@ -128,7 +138,15 @@ fun IdentificationDialog(
                     hintText = "Joyer Nationality",
                     values = nationalityChips,
                     onClear = { nationalityChips.clear() },
-                    onClick = { nationality = "" },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Countries List"),
+                                titlesData = state.countryList
+                            )
+                        )
+                    },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -137,7 +155,15 @@ fun IdentificationDialog(
                     label = "Ethnicity",
                     hintText = "Joyer Ethnicity",
                     value = ethnicity,
-                    onClick = { onNavigateToDescription("Ethnicity") },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Identification", "Ethnicity"),
+                                titlesData = state.ethenicityList
+                            )
+                        )
+                              },
                     onClear = { ethnicity = "" }
                 )
 
@@ -147,7 +173,15 @@ fun IdentificationDialog(
                     label = "Faith",
                     hintText = "Joyer Faith / Religion",
                     value = faith,
-                    onClick = { onNavigateToDescription("Faith") },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Identification", "Faith"),
+                                titlesData = state.faithReligionList
+                            )
+                        )
+                    },
                     onClear = { faith = "" }
                 )
 
@@ -159,7 +193,15 @@ fun IdentificationDialog(
                     hintText = "Joyer Language",
                     values = languageChips,
                     onClear = { languageChips.clear() },
-                    onClick = { nationality = "" },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Identification", "Language"),
+                                titlesData = state.languageList
+                            )
+                        )
+                    },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -168,7 +210,15 @@ fun IdentificationDialog(
                     label = "Education",
                     hintText = "Joyer Degree",
                     value = education,
-                    onClick = { onNavigateToDescription("Education") },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Identification", "Education"),
+                                titlesData = state.educationList
+                            )
+                        )
+                    },
                     onClear = { education = "" }
                 )
 
@@ -178,7 +228,15 @@ fun IdentificationDialog(
                     label = "Relationship",
                     hintText = "Relationship Status",
                     value = relationship,
-                    onClick = { onNavigateToDescription("Relationship") },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Identification", "Relationship"),
+                                titlesData = state.relationShipList
+                            )
+                        )
+                    },
                     onClear = { relationship = "" }
                 )
 
@@ -188,7 +246,15 @@ fun IdentificationDialog(
                     label = "Political Ideology",
                     hintText = "Joyer Ideology",
                     value = politicalIdeology,
-                    onClick = { onNavigateToDescription("Political Ideology") },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Identification", "Political Ideology"),
+                                titlesData = state.politicalIdeologyList
+                            )
+                        )
+                    },
                     onClear = { politicalIdeology = "" }
                 )
 
@@ -198,7 +264,15 @@ fun IdentificationDialog(
                     label = "Joyer Location",
                     hintText = "Joyer Location",
                     value = joyerLocation,
-                    onClick = { onNavigateToDescription("Joyer Location") },
+                    onClick = {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                true,
+                                headers = arrayListOf("Countries List", "Ethnicity"),
+                                titlesData = state.countryList
+                            )
+                        )
+                    },
                     onClear = { joyerLocation = "" }
                 )
 
@@ -709,10 +783,10 @@ fun IdentificationDropdownField(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp)
-                .noRippleClickable { onClick() }
                 .background(fieldOuterBg, RoundedCornerShape(5.dp))
                 .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
                 .padding(15.dp)
+                .noRippleClickable { onClick() }
         ) {
             // Inner pill container
             Box(
@@ -721,11 +795,13 @@ fun IdentificationDropdownField(
                     .height(30.dp)
                     .background(Color.White, RoundedCornerShape(30.dp))
                     .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                    .noRippleClickable { onClick() }
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 15.dp),
+                        .padding(horizontal = 15.dp)
+                        .noRippleClickable { onClick() },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 

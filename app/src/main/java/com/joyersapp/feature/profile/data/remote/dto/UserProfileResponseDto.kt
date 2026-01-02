@@ -2,7 +2,7 @@ package com.joyersapp.feature.profile.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class GetUserProfileResponseDto (
+data class UserProfileResponseDto (
 
     @SerializedName("statusCode" ) var statusCode : Int?    = null,
     @SerializedName("data"       ) var data       : UserProfile?   = UserProfile(),

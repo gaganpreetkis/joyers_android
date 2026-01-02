@@ -105,12 +105,12 @@ fun DashboardNavGraph(navController: NavHostController) {
 //                navigateToIdentification = { navController.navigate(Routes.IdentificationDialog.route) },
             )
         }
-        composable(Routes.ProfileHeaderDialog.route) {
-            EditProfileHeaderDialog(
-                onDismiss = { navController.popBackStack() },
-                onApply = { navController.popBackStack() }
-            )
-        }
+//        composable(Routes.ProfileHeaderDialog.route) {
+//            EditProfileHeaderDialog(
+//                onDismiss = { navController.popBackStack() },
+//                onApply = { navController.popBackStack() }
+//            )
+//        }
 //        composable(Routes.IdentificationDialog.route) {
 //            IdentificationDialog (
 //                onDismiss = { navController.popBackStack() },
