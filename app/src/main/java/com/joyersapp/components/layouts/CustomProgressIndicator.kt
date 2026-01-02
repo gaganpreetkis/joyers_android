@@ -12,12 +12,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.joyersapp.theme.Golden
+import com.joyersapp.theme.White
 
 @Composable
 fun CustomProgressIndicator() {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(White)
             .background(Color.Black.copy(alpha = 0.3f))
             .pointerInput(Unit) {},
         contentAlignment = Alignment.Center

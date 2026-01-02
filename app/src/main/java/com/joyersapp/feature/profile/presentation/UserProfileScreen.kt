@@ -51,6 +51,7 @@ import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.common_widgets.IdentificationDialog
+import com.joyersapp.components.dialogs.EditDescriptionDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.components.dialogs.ProfileViewDialog
 import com.joyersapp.core.NetworkConfig
@@ -76,7 +77,7 @@ fun UserProfileScreen(
 
     if (state.isLoading) {
         CustomProgressIndicator()
-    }else {
+    } else {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
@@ -138,9 +139,17 @@ fun UserProfileScreen(
             // Identification Dialog
             if (state.showIdentificationDialog) {
                 IdentificationDialog(
-                    onDismiss = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
-                    onApply = {viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))},
-                    onNavigateToDescription = {viewModel.onEvent(UserProfileEvent.OnEditDescription(0))},
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
+                    onApply = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
+                    onNavigateToDescription = {
+                        viewModel.onEvent(
+                            UserProfileEvent.OnEditDescription(
+                                0,
+                                arrayListOf("Description"),
+                                state.titles
+                            )
+                        )
+                    },
                     initialData = IdentificationData(
                         name = state.fullname,
                         birthday = state.birthday,
@@ -162,20 +171,24 @@ fun UserProfileScreen(
             }
 
             if (state.showTitlesDialog) {
-                ProfileViewDialog(
+                EditDescriptionDialog(
+                    titlesData = state.titles,
                     onDismiss = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
-                    onApply = {},
-                    searchQuery = "",
-                    showApplyButton = false,
-                    titles = arrayListOf("Title", "Subtitle", "Subtitle"),
-                    FirstColumn = {  }
+                    onApply = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
+                    headers = state.dialogHeader
                 )
+//                ProfileViewDialog(
+//                    onDismiss = { viewModel.onEvent(UserProfileEvent.OnDialogClosed(0)) },
+//                    onApply = {},
+//                    searchQuery = "",
+//                    showApplyButton = false,
+//                    titles = arrayListOf("Title", "Subtitle", "Subtitle"),
+//                    FirstColumn = {  }
+//                )
             }
         }
     }
 }
-
-
 
 
 @Composable
@@ -190,12 +203,12 @@ fun ProfileInfo(state: UserProfileUiState) {
     ) {
 
         /** ---------------- Banner ---------------- */
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(gold)
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .background(gold)
+        )
         if (state.backgroundPicture.isNotEmpty()) {
             AsyncImage(
                 model = "${NetworkConfig.IMAGE_BASE_URL}${state.backgroundPicture}",
@@ -224,10 +237,10 @@ fun ProfileInfo(state: UserProfileUiState) {
                 .clip(CircleShape)
                 .background(Gray20), contentAlignment = Alignment.Center
         ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_nav_joyers_home), // your J icon
-                    contentDescription = "avatar", modifier = Modifier.size(66.dp)
-                )
+            Image(
+                painter = painterResource(id = R.drawable.ic_nav_joyers_home), // your J icon
+                contentDescription = "avatar", modifier = Modifier.size(66.dp)
+            )
             if (state.profilePicture.isNotEmpty()) {
                 AsyncImage(
                     model = "${NetworkConfig.IMAGE_BASE_URL}${state.profilePicture}",
@@ -392,7 +405,8 @@ fun MagneticsRow(editMagnetics: () -> Unit) {
     ) {
         // Action card (Edit Magnetics 80%)
         Card(
-            modifier = Modifier.size(150.dp, 35.dp)
+            modifier = Modifier
+                .size(150.dp, 35.dp)
                 .clickable {
                     editMagnetics()
                 },

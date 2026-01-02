@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.unit.Dp
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
 data class UserProfileUiState(
@@ -16,6 +17,8 @@ data class UserProfileUiState(
     val joyerStatus: String = "",
     val titleName: String = "",
     val subTitleName: String = "",
+    val title: ProfileMeta? = null,
+    val subTitle: ProfileMeta? = null,
     val areaOfInterest: List<Interests> = emptyList(),
 
     val gender: String = "",
@@ -51,8 +54,16 @@ data class UserProfileUiState(
 
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val dialogHeader: List<String> = emptyList(),
     val titles: List<ProfileTitlesData> = emptyList(),
-    val subTitles: List<ProfileTitlesData>? = null,
+    val countryList: List<ProfileTitlesData>? = null,
+    val educationList: List<ProfileTitlesData>? = null,
+    val ethenicityList: List<ProfileTitlesData>? = null,
+    val faithReligionList: List<ProfileTitlesData>? = null,
+    val interestList: List<ProfileTitlesData>? = null,
+    val politicalIdeologyList: List<ProfileTitlesData>? = null,
+    val relationShipList: List<ProfileTitlesData>? = null,
+    val languageList: List<ProfileTitlesData>? = null,
 
 
 
