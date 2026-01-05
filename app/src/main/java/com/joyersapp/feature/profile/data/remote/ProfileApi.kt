@@ -28,8 +28,8 @@ interface ProfileApi {
     @POST("user/upload-picture-server")
     suspend fun uploadPictureServer(
         @Part("image_status") id: RequestBody,
-        @Part("profile_picture") profilePicture: MultipartBody.Part,
-        @Part("background_picture") backgroundPicture: MultipartBody.Part
+        @Part profilePicture: MultipartBody.Part?,
+        @Part backgroundPicture: MultipartBody.Part?
     ): UploadPictureServerResponse
 
     @RequiresAuth

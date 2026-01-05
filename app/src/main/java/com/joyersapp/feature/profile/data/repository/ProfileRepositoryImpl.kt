@@ -3,14 +3,22 @@ package com.joyersapp.feature.profile.data.repository
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.feature.profile.data.remote.ProfileApi
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
+import com.joyersapp.feature.profile.data.remote.dto.UploadPictureServerResponse
 import com.joyersapp.feature.profile.data.remote.dto.UserProfile
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.feature.profile.domain.repository.ProfileRepository
 import com.joyersapp.utils.ApiErrorException
+import com.joyersapp.utils.emptyPart
 import com.joyersapp.utils.parseNetworkError
 import jakarta.inject.Inject
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import retrofit2.Response
+import java.io.File
+import java.net.URLConnection
 
 class ProfileRepositoryImpl @Inject constructor(
     private val api: ProfileApi,
@@ -25,6 +33,64 @@ class ProfileRepositoryImpl @Inject constructor(
             when (response.statusCode) {
                 200 -> {
                     Result.success(response.data!!)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            message = response.message ?: "Something went wrong"
+                        )
+                    )
+                }
+
+                else -> Result.failure(
+                    ApiErrorException(
+                        message = response.message ?: "Something went wrong"
+                    )
+                )
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun uploadPictureServer(imageId: Int, imagePath: String): Result<UploadPictureServerResponse> =
+        try {
+            fun String.toRequestBody() = toRequestBody("text/plain".toMediaTypeOrNull())
+            val profilePicture = if (imageId == 1) {
+                if (imagePath.isNotBlank()) {
+                    val file = File(imagePath)
+                    val mime = URLConnection.guessContentTypeFromName(file.name) ?: "image/jpeg"
+                    val reqFile = file.asRequestBody(mime.toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("profile_picture", file.name, reqFile)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+            val backgroundPicture = if (imageId == 2) {
+                if (imagePath.isNotBlank()) {
+                    val file = File(imagePath)
+                    val mime = URLConnection.guessContentTypeFromName(file.name) ?: "image/jpeg"
+                    val reqFile = file.asRequestBody(mime.toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("background_picture", file.name, reqFile)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+            val response = api.uploadPictureServer(
+                "$imageId".toRequestBody(),
+                profilePicture,
+                backgroundPicture
+            )
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response)
                 }
 
                 400 -> {

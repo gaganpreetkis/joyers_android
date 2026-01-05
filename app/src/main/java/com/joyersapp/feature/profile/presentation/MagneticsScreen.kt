@@ -125,7 +125,7 @@ fun MagneticsScreen(
 
                 /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
                 ProfileHeaderSection( state) {
-                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true))
+                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true, false))
                 }
 
                 HorizontalDivider(color = LightBlack10, thickness = 1.dp)
@@ -181,9 +181,9 @@ fun MagneticsScreen(
         if (state.showEditProfileHeaderDialog) {
             EditProfileHeaderDialog(
                 viewModel = viewModel,
-                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false)) },
-                onApply = { data->
-
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false, false)) },
+                onApply = { data ->
+                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false, true))
                 },
                 data = EditProfileHeaderDialogDto(profilePicturePath = state.profilePicture, backgroundPicturePath = state.backgroundPicture, bio = "", websiteUrl = "")
             )
