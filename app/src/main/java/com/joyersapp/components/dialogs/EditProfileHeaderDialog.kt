@@ -31,6 +31,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
@@ -83,13 +85,17 @@ fun EditProfileHeaderDialog(
     onApply: (data: EditProfileHeaderDialogDto) -> Unit = {},
     viewModel: UserProfileViewModel
 ) {
-
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     var bioText by remember { mutableStateOf("") }
     var showProfilePlaceholder by remember { mutableStateOf(true) }
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
     var showHeaderPicker by remember { mutableStateOf(true) }
     val context = LocalContext.current
+
+    LaunchedEffect(data) {
+        viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(data))
+    }
 
     BaseDialog (
         onDismiss = { onDismiss() },
@@ -117,16 +123,20 @@ fun EditProfileHeaderDialog(
             )
 
             EditableProfilePictureCard(
-                backgroundPicturePath = data.backgroundPicturePath ?: "",
-                profilePicturePath = data.profilePicturePath ?: "",
+                backgroundPicturePath = state.profileHeaderData.backgroundPicturePath ?: "",
+                profilePicturePath = state.profileHeaderData.profilePicturePath ?: "",
                 onHeaderPicker = {
                     showImagePickerBottomSheetBack = true
                 },
-                onClearHeaderImage = {},
+                onClearHeaderImage = {
+                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicturePath = "")))
+                },
                 onProfilePicturePicker = {
                     showImagePickerBottomSheet = true
                 },
-                onClearProfilePicture = {}
+                onClearProfilePicture = {
+                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(profilePicturePath = "")))
+                }
             )
 
             // ---------- BIO SECTION ----------
@@ -210,7 +220,7 @@ fun EditProfileHeaderDialog(
             // ---------- APPLY BUTTON ----------
             Button (
                 onClick = {
-                    onApply(EditProfileHeaderDialogDto())
+                    onApply(state.profileHeaderData)
                 },
                 modifier = Modifier
                     .width(190.dp)

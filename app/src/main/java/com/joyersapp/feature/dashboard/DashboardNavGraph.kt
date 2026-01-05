@@ -100,6 +100,7 @@ fun DashboardNavGraph(navController: NavHostController) {
             MagneticsScreen(
                 viewModel = userProfileViewModel,
                 onBack = { navController.popBackStack() },
+
 //                navigateToProfileHeader = { navController.navigate(Routes.ProfileHeaderDialog.route) },
 //                navigateToDescription = { navController.navigate(Routes.DescriptionDialog.route) },
 //                navigateToIdentification = { navController.navigate(Routes.IdentificationDialog.route) },

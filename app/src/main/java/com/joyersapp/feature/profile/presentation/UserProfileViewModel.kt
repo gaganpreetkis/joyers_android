@@ -16,6 +16,7 @@ import com.joyersapp.feature.profile.domain.usecase.GetPoliticalIdeoogyListUseCa
 import com.joyersapp.feature.profile.domain.usecase.GetRelationshipListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetSubTitlesUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
+import com.joyersapp.feature.profile.domain.usecase.UploadPictureServerUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val uploadUserProfileUseCase: UploadUserProfileUseCase,
+    private val uploadPictureServerUseCase: UploadPictureServerUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
     private val getTitlesUseCase: GetTitlesUseCase,
     private val getSubTitlesUseCase: GetSubTitlesUseCase,
@@ -43,7 +45,7 @@ class UserProfileViewModel @Inject constructor(
     private val getRelationShipListUseCase: GetRelationshipListUseCase,
     private val getLanguageListUseCase: GetLanguageListUseCase,
     private val sessionManager: SessionManager,
-    ) : ViewModel() {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(
         UserProfileUiState()
     )
@@ -88,7 +90,9 @@ class UserProfileViewModel @Inject constructor(
     fun onEvent(event: UserProfileEvent) {
         when (event) {
 
-            is UserProfileEvent.Load -> { getUserProfileData() }
+            is UserProfileEvent.Load -> {
+                getUserProfileData()
+            }
 
             is UserProfileEvent.TabSelected -> {
                 _uiState.update {
@@ -109,12 +113,23 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.ToggleProfileHeaderDialog -> {
-                _uiState.update {
-                    it.copy(
-                        showEditProfileHeaderDialog = event.show,
-                    )
+                if (event.updateProfileHeaderData) {
+                    _uiState.update {
+                        it.copy(
+                            showEditProfileHeaderDialog = event.show,
+                            profilePicture = uiState.value.profileHeaderData.profilePicturePath ?: "",
+                            backgroundPicture = uiState.value.profileHeaderData.backgroundPicturePath ?: ""
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            showEditProfileHeaderDialog = event.show,
+                        )
+                    }
                 }
             }
+
             is UserProfileEvent.ToggleDescriptionDialog -> {
                 _uiState.update {
                     it.copy(
@@ -125,6 +140,7 @@ class UserProfileViewModel @Inject constructor(
                     )
                 }
             }
+
             is UserProfileEvent.ToggleIdentificationDialog -> {
                 _uiState.update {
                     it.copy(
@@ -132,6 +148,7 @@ class UserProfileViewModel @Inject constructor(
                     )
                 }
             }
+
             is UserProfileEvent.ToggleMentionJoyersDialog -> {
                 _uiState.update {
                     it.copy(
@@ -141,17 +158,27 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.BackgroundPicturePathChanged -> {
-                _uiState.update {
+                /*_uiState.update {
                     it.copy(
                         backgroundPicture = event.value
                     )
-                }
+                }*/
+                uploadPictureServer(2, event.value)
             }
 
             is UserProfileEvent.ProfilePicturePathChanged -> {
-                _uiState.update {
+                /*_uiState.update {
                     it.copy(
                         profilePicture = event.value
+                    )
+                }*/
+                uploadPictureServer(1, event.value)
+            }
+
+            is UserProfileEvent.UpdateProfileHeaderData -> {
+                _uiState.update {
+                    it.copy(
+                        profileHeaderData = event.profileHeaderData
                     )
                 }
             }
@@ -159,7 +186,7 @@ class UserProfileViewModel @Inject constructor(
     }
 
 
-    private fun uploadUserProfileData(requestDto: UserProfileGraphRequestDto){
+    private fun uploadUserProfileData(requestDto: UserProfileGraphRequestDto) {
         viewModelScope.launch {
 
             val result = uploadUserProfileUseCase(requestDto)
@@ -179,8 +206,8 @@ class UserProfileViewModel @Inject constructor(
                             followers = response.followersCount ?: "",
                             joyerStatus = response.joyerStatus ?: "",
 //                            birthday = response.b ?: "",
-                            gender = response.gender?: "",
-                            relationship = response.relationship?.name?: "",
+                            gender = response.gender ?: "",
+                            relationship = response.relationship?.name ?: "",
 //                            children = response.ch?.name?: "",
                             politicalIdeology = response.politicalIdeology?.name ?: "",
                             titleName = response.title?.name ?: "",
@@ -212,7 +239,57 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun getUserProfileData(){
+    private fun uploadPictureServer(imageId: Int, imagePath: String) {
+        viewModelScope.launch {
+            val result = uploadPictureServerUseCase(imageId, imagePath)
+            result.fold(
+                onSuccess = { response ->
+                    if (imageId == 1) {
+                        /*_uiState.update {
+                            it.copy(
+                                error = null,
+                                errorMessage = null,
+                                profilePicture = response.data?.profilePicture ?: "",
+                            )
+                        }*/
+                        _uiState.update {
+                            it.copy(
+                                profileHeaderData = uiState.value.profileHeaderData.copy(
+                                    profilePicturePath = response.data?.profilePicture ?: "",
+                                )
+                            )
+                        }
+                    } else {
+                        /*_uiState.update {
+                            it.copy(
+                                error = null,
+                                errorMessage = null,
+                                backgroundPicture = response.data?.backgroundPicture ?: "",
+                            )
+                        }*/
+                        _uiState.update {
+                            it.copy(
+                                profileHeaderData = uiState.value.profileHeaderData.copy(
+                                    backgroundPicturePath = response.data?.backgroundPicture ?: "",
+                                )
+                            )
+                        }
+                    }
+                    //_navigationEvents.emit(UserProfileNavigationEvent.NavigateToUserProfile)
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+//                            isLoading = false,
+                            error = error.message
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    private fun getUserProfileData() {
         val state = _uiState.value
         viewModelScope.launch {
 
@@ -233,8 +310,8 @@ class UserProfileViewModel @Inject constructor(
                             followers = response.followersCount ?: "",
                             joyerStatus = response.joyerStatus ?: "",
 //                            birthday = response.b ?: "",
-                            gender = response.gender?: "",
-                            relationship = response.relationship?.name?: "",
+                            gender = response.gender ?: "",
+                            relationship = response.relationship?.name ?: "",
 //                            children = response.ch?.name?: "",
                             politicalIdeology = response.politicalIdeology?.name ?: "",
                             titleName = response.title?.name ?: "",
@@ -265,7 +342,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadTitles(){
+    private fun loadTitles() {
         val state = _uiState.value
         viewModelScope.launch {
 
@@ -293,7 +370,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadSubTitles(){
+    private fun loadSubTitles() {
         val state = _uiState.value
         viewModelScope.launch {
 
@@ -321,7 +398,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadCountryList(){
+    private fun loadCountryList() {
         viewModelScope.launch {
 
             val result = getCountryListUseCase()
@@ -347,7 +424,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadEducationList(){
+    private fun loadEducationList() {
         viewModelScope.launch {
 
             val result = getEducationListUseCase()
@@ -373,7 +450,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadEthinicityList(){
+    private fun loadEthinicityList() {
         viewModelScope.launch {
 
             val result = getEthenicityListUseCase()
@@ -399,7 +476,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadFaithReligionList(){
+    private fun loadFaithReligionList() {
         viewModelScope.launch {
 
             val result = getFaithReligionListUseCase()
@@ -425,7 +502,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadInterestList(){
+    private fun loadInterestList() {
         viewModelScope.launch {
 
             val result = getInterestListUseCase()
@@ -451,7 +528,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadPoliticalIdeologyList(){
+    private fun loadPoliticalIdeologyList() {
         viewModelScope.launch {
 
             val result = getPoliticalIdeologyListCase()
@@ -477,7 +554,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadRelationShipList(){
+    private fun loadRelationShipList() {
         viewModelScope.launch {
 
             val result = getRelationShipListUseCase()
@@ -503,7 +580,7 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadLanguageList(){
+    private fun loadLanguageList() {
         viewModelScope.launch {
 
             val result = getLanguageListUseCase()
