@@ -1,6 +1,7 @@
 package com.joyersapp.feature.profile.presentation
 
 import com.joyersapp.auth.presentation.identity.IdentityEvent
+import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -17,5 +18,6 @@ sealed class UserProfileEvent {
     data class ToggleMentionJoyersDialog(val show: Boolean) : UserProfileEvent()
     data class BackgroundPicturePathChanged(val value: String) : UserProfileEvent()
     data class ProfilePicturePathChanged(val value: String) : UserProfileEvent()
+    data class OnApplyIdentification(val value: IdentificationData) : UserProfileEvent()
 
 }

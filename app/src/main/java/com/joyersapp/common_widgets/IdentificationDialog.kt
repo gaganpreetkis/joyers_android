@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.components.dialogs.BaseDialog
+import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.theme.Golden
@@ -44,22 +46,10 @@ import com.joyersapp.utils.noRippleClickable
 fun IdentificationDialog(
     onDismiss: () -> Unit,
     onApply: (IdentificationData) -> Unit,
-    initialData: IdentificationData,
+    identificationData: IdentificationData,
     viewModel: UserProfileViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-    var name by remember { mutableStateOf(initialData?.name ?: "") }
-    var birthday by remember { mutableStateOf(initialData?.birthday ?: "") }
-    var selectedGender by remember { mutableStateOf(initialData?.gender ?: Gender.MALE) }
-    var nationality by remember { mutableStateOf(initialData?.nationality ?: "") }
-    var ethnicity by remember { mutableStateOf(initialData?.ethnicity ?: "") }
-    var faith by remember { mutableStateOf(initialData?.faith ?: "") }
-    var language by remember { mutableStateOf(initialData?.language ?: "") }
-    var education by remember { mutableStateOf(initialData?.education ?: "") }
-    var relationship by remember { mutableStateOf(initialData?.relationship ?: "") }
-    var politicalIdeology by remember { mutableStateOf(initialData?.politicalIdeology ?: "") }
-    var joyerLocation by remember { mutableStateOf(initialData?.joyerLocation ?: "") }
 
     // “chips” sections (screenshot-style)
     val nationalityChips = remember {
@@ -98,9 +88,9 @@ fun IdentificationDialog(
                 // Name Field
                 IdentificationTextField(
                     label = "Name",
-                    value = name,
-                    onValueChange = { name = it },
-                    onClear = { name = "" }
+                    value = identificationData.name,
+                    onValueChange = { identificationData.name = it },
+                    onClear = { identificationData.name = "" }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -109,7 +99,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Birthday",
                     hintText = "Joyer Birthday",
-                    value = birthday,
+                    value = identificationData.birthday,
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
@@ -119,15 +109,15 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { birthday = "" }
+                    onClear = { identificationData.birthday = "" }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Gender Field
                 GenderSelectionField(
-                    selectedGender = selectedGender,
-                    onSelection = { selectedGender = it }
+                    selectedGender = identificationData.gender,
+                    onSelection = { identificationData.gender = it }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -154,7 +144,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Ethnicity",
                     hintText = "Joyer Ethnicity",
-                    value = ethnicity,
+                    value = identificationData.ethnicity?.name?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
@@ -164,7 +154,7 @@ fun IdentificationDialog(
                             )
                         )
                               },
-                    onClear = { ethnicity = "" }
+                    onClear = { identificationData.ethnicity?.name = "" }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -172,7 +162,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Faith",
                     hintText = "Joyer Faith / Religion",
-                    value = faith,
+                    value = identificationData.ethnicity?.name?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
@@ -182,7 +172,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { faith = "" }
+                    onClear = { identificationData.faith?.name = "" }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -209,8 +199,9 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Education",
                     hintText = "Joyer Degree",
-                    value = education,
+                    value = identificationData.education?.name?: "",
                     onClick = {
+
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
                                 true,
@@ -219,7 +210,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { education = "" }
+                    onClear = { identificationData.education?.name = "" }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -227,7 +218,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Relationship",
                     hintText = "Relationship Status",
-                    value = relationship,
+                    value = identificationData.relationship?.name?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
@@ -237,7 +228,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { relationship = "" }
+                    onClear = { identificationData.relationship?.name = "" }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -245,7 +236,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Political Ideology",
                     hintText = "Joyer Ideology",
-                    value = politicalIdeology,
+                    value = identificationData.politicalIdeology?.name?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
@@ -255,7 +246,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { politicalIdeology = "" }
+                    onClear = { identificationData.politicalIdeology?.name = "" }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -263,7 +254,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Joyer Location",
                     hintText = "Joyer Location",
-                    value = joyerLocation,
+                    value = identificationData.joyerLocation,
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
@@ -273,14 +264,14 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { joyerLocation = "" }
+                    onClear = { identificationData.joyerLocation = "" }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // ---------- APPLY BUTTON ----------
                 Button (
-                    onClick = { onApply(initialData) },
+                    onClick = { onApply(identificationData) },
                     modifier = Modifier
                         .width(190.dp)
                         .align(Alignment.CenterHorizontally)
@@ -874,17 +865,17 @@ fun GenderOption(
 }
 
 data class IdentificationData(
-    val name: String = "",
-    val birthday: String = "",
-    val gender: Gender = Gender.MALE,
-    val nationality: String = "",
-    val ethnicity: String = "",
-    val faith: String = "",
-    val language: String = "",
-    val education: String = "",
-    val relationship: String = "",
-    val politicalIdeology: String = "",
-    val joyerLocation: String = "",
+    var name: String = "",
+    var birthday: String = "",
+    var gender: Gender = Gender.MALE,
+    var nationality: ProfileMeta? = null,
+    var ethnicity: ProfileMeta? = null,
+    var faith: ProfileMeta? = null,
+    var language: List<Languages> = emptyList(),
+    var education: ProfileMeta? = null,
+    var relationship: ProfileMeta? = null,
+    var politicalIdeology: ProfileMeta? = null,
+    var joyerLocation: String = "",
 )
 
 enum class Gender {

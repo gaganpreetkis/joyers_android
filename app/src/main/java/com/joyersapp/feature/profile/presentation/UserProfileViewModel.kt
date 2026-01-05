@@ -3,6 +3,7 @@ package com.joyersapp.feature.profile.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joyersapp.auth.presentation.identity.IdentityEvent
+import com.joyersapp.common_widgets.Gender
 import com.joyersapp.feature.profile.domain.usecase.GetTitlesUseCase
 import com.joyersapp.core.SessionManager
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -20,6 +21,7 @@ import com.joyersapp.feature.profile.domain.usecase.UploadPictureServerUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -49,15 +51,20 @@ class UserProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         UserProfileUiState()
     )
-    val uiState: StateFlow<UserProfileUiState> = _uiState.asStateFlow()
+    private val _uiStateMagnetics = MutableStateFlow(
+        EditMagneticsUiState()
+    )
     private val _navigationEvents = MutableSharedFlow<UserProfileNavigationEvent>()
+
+    val uiState: StateFlow<UserProfileUiState> = _uiState.asStateFlow()
+    val uiStateMagnetics: StateFlow<EditMagneticsUiState> = _uiStateMagnetics.asStateFlow()
     val navigationEvents = _navigationEvents
 
     val req = UserProfileGraphRequestDto()
 
     init {
         // simulate fetch
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true) }
 
             val getProfileJob = async { getUserProfileData() }
@@ -70,6 +77,7 @@ class UserProfileViewModel @Inject constructor(
             val getPoliticalIdeologyJob = async { loadPoliticalIdeologyList() }
             val getRelationShipJob = async { loadRelationShipList() }
             val getLanguageJob = async { loadLanguageList() }
+            val initSelections = async { initSelections() }
 
             getProfileJob.join()
             getTitlesJob.join()
@@ -81,10 +89,18 @@ class UserProfileViewModel @Inject constructor(
             getPoliticalIdeologyJob.join()
             getRelationShipJob.join()
             getLanguageJob.join()
+            initSelections.join()
             delay(10)
 
             _uiState.update { it.copy(isLoading = false) }
         }
+    }
+
+    suspend fun initSelections() {
+        val state = _uiState.value
+        _uiState.value.educationList.map { if (it.id == state.education?.id) it.isSelected = true }
+        _uiState.value.relationShipList.map { if (it.id == state.relationship?.id) it.isSelected = true }
+        _uiState.value.politicalIdeologyList.map { if (it.id == state.politicalIdeology?.id) it.isSelected = true }
     }
 
     fun onEvent(event: UserProfileEvent) {
@@ -110,6 +126,23 @@ class UserProfileViewModel @Inject constructor(
 
             is UserProfileEvent.UpdateUserData -> {
                 uploadUserProfileData(req)
+            }
+
+            is UserProfileEvent.OnApplyIdentification -> {
+                _uiStateMagnetics.update {
+                    it.copy(
+                        username = event.value.name,
+                        birthday = event.value.birthday,
+//                        gender = event.value.gender,
+                        nationality = event.value.nationality,
+                        ethnicity = event.value.ethnicity,
+                        faith = event.value.faith,
+                        languages = event.value.language,
+                        education = event.value.education,
+                        relationship = event.value.relationship,
+                        politicalIdeology = event.value.politicalIdeology,
+                        location = event.value.joyerLocation,
+                ) }
             }
 
             is UserProfileEvent.ToggleProfileHeaderDialog -> {
@@ -207,9 +240,10 @@ class UserProfileViewModel @Inject constructor(
                             joyerStatus = response.joyerStatus ?: "",
 //                            birthday = response.b ?: "",
                             gender = response.gender ?: "",
-                            relationship = response.relationship?.name ?: "",
+                            relationship = response.relationship,
+                            education = response.education,
 //                            children = response.ch?.name?: "",
-                            politicalIdeology = response.politicalIdeology?.name ?: "",
+                            politicalIdeology = response.politicalIdeology,
                             titleName = response.title?.name ?: "",
                             subTitleName = response.subTitle?.name ?: "",
                             title = response.title,
@@ -223,6 +257,29 @@ class UserProfileViewModel @Inject constructor(
                             ethnicity = response.ethnicity?.name ?: "",
                             faith = response.faith?.name ?: "",
                             educationName = response.education?.name ?: "",
+                        )
+                    }
+                    _uiStateMagnetics.update {
+                        it.copy(
+                            username = response.username ?: "",
+                            fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
+                            location = response.joyerLocation ?: "",
+                            profilePicture = response.profilePicture ?: "",
+                            backgroundPicture = response.backgroundPicture ?: "",
+                            joyerStatus = response.joyerStatus ?: "",
+//                            birthday = response.b ?: "",
+                            gender = response.gender ?: "",
+                            relationship = response.relationship,
+//                            children = response.ch?.name?: "",
+                            politicalIdeology = response.politicalIdeology,
+                            title = response.title,
+                            subTitle = response.subTitle,
+                            areaOfInterest = response.interests,
+                            languages = response.languages,
+                            nationality = response.nationality,
+                            ethnicity = response.ethnicity,
+                            faith = response.faith,
+                            education = response.education,
                         )
                     }
                     _navigationEvents.emit(UserProfileNavigationEvent.NavigateToUserProfile)
@@ -311,9 +368,10 @@ class UserProfileViewModel @Inject constructor(
                             joyerStatus = response.joyerStatus ?: "",
 //                            birthday = response.b ?: "",
                             gender = response.gender ?: "",
-                            relationship = response.relationship?.name ?: "",
+                            relationship = response.relationship,
+                            education = response.education,
 //                            children = response.ch?.name?: "",
-                            politicalIdeology = response.politicalIdeology?.name ?: "",
+                            politicalIdeology = response.politicalIdeology,
                             titleName = response.title?.name ?: "",
                             subTitleName = response.subTitle?.name ?: "",
                             title = response.title,
@@ -327,6 +385,30 @@ class UserProfileViewModel @Inject constructor(
                             ethnicity = response.ethnicity?.name ?: "",
                             faith = response.faith?.name ?: "",
                             educationName = response.education?.name ?: "",
+                        )
+                    }
+
+                    _uiStateMagnetics.update {
+                        it.copy(
+                            username = response.username ?: "",
+                            fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
+                            location = response.joyerLocation ?: "",
+                            profilePicture = response.profilePicture ?: "",
+                            backgroundPicture = response.backgroundPicture ?: "",
+                            joyerStatus = response.joyerStatus ?: "",
+//                            birthday = response.b ?: "",
+                            gender = response.gender ?: "",
+                            relationship = response.relationship,
+//                            children = response.ch?.name?: "",
+                            politicalIdeology = response.politicalIdeology,
+                            title = response.title,
+                            subTitle = response.subTitle,
+                            areaOfInterest = response.interests,
+                            languages = response.languages,
+                            nationality = response.nationality,
+                            ethnicity = response.ethnicity,
+                            faith = response.faith,
+                            education = response.education,
                         )
                     }
                 },

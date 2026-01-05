@@ -127,7 +127,7 @@ fun ProfileViewDialog(
 
             Column(
                 modifier = Modifier
-                    .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 500))
+                    .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 30))
                     .fillMaxWidth()
             ) {
 
@@ -135,7 +135,7 @@ fun ProfileViewDialog(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 300))
+                        .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 30))
                         .weight(1f, fill = false)
                         .fillMaxWidth()
                 ) {
@@ -238,7 +238,7 @@ fun ProfileViewDialog(
                         Spacer(Modifier.height(15.dp))
                         LazyColumn(
                             modifier = Modifier
-                                .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 300))
+                                .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 30))
                                 .heightIn(
                                     min = 0.dp,
                                     max = maxHeightForSubTitles

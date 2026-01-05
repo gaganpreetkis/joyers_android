@@ -53,7 +53,6 @@ import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.dialogs.EditDescriptionDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
-import com.joyersapp.components.dialogs.ProfileViewDialog
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
 import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
@@ -142,24 +141,24 @@ fun UserProfileScreen(
             }
             // Identification Dialog
             if (state.showIdentificationDialog) {
-                IdentificationDialog(
-                    viewModel = viewModel,
-                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
-                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
-                    initialData = IdentificationData(
-                        name = state.fullname,
-                        birthday = state.birthday,
-//                gender = null,
-                        nationality = state.nationality,
-                        ethnicity = state.ethnicity,
-                        faith = state.faith,
-                        language = state.language,
-                        education = state.educationName,
-                        relationship = state.relationship,
-                        politicalIdeology = state.politicalIdeology,
-                        joyerLocation = state.location
-                    )
-                )
+//                IdentificationDialog(
+//                    viewModel = viewModel,
+//                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
+//                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
+//                    identificationData = IdentificationData(
+//                        name = state.fullname,
+//                        birthday = state.birthday,
+////                gender = null,
+//                        nationality = state.nationality,
+//                        ethnicity = state.ethnicity,
+//                        faith = state.faith,
+//                        language = state.language,
+//                        education = state.educationName,
+//                        relationship = state.relationship,
+//                        politicalIdeology = state.politicalIdeology,
+//                        joyerLocation = state.location
+//                    )
+//                )
 //                    onClose = {
 //                        viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
 //                    })

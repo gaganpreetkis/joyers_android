@@ -87,6 +87,7 @@ fun MagneticsScreen(
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiStateMagnetics by viewModel.uiStateMagnetics.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.navigationEvents.collect { event ->
@@ -107,7 +108,7 @@ fun MagneticsScreen(
 
             /** ─────────────── TOP BAR ─────────────── **/
             TopBar(
-                username = state.username,
+                username = uiStateMagnetics.username,
                 onBack = { onBack() },
                 onSave = { viewModel.onEvent(UserProfileEvent.UpdateUserData(UserProfileGraphRequestDto())) }
             )
@@ -124,7 +125,7 @@ fun MagneticsScreen(
 
 
                 /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
-                ProfileHeaderSection( state) {
+                ProfileHeaderSection( uiStateMagnetics) {
                     viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true, false))
                 }
 
@@ -134,15 +135,15 @@ fun MagneticsScreen(
 
 
                 /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
-                val headers = arrayListOf("Description", "Joyer Status", state.joyerStatus)
-                if (state.title != null) headers.add(state.title?.name?: "")
-                if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
-                DescriptionSection( state) {
+                val headers = arrayListOf("Description", "Joyer Status", uiStateMagnetics.joyerStatus)
+                if (uiStateMagnetics.title != null) headers.add(uiStateMagnetics.title?.name?: "")
+                if (uiStateMagnetics.subTitle != null) headers.add(uiStateMagnetics.subTitle?.name?: "")
+                DescriptionSection( uiStateMagnetics) {
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
                             true,
                             headers = headers,
-                            titlesData = state.titles
+                            titlesData = uiStateMagnetics.titles
                         )
                     )
                 }
@@ -153,7 +154,7 @@ fun MagneticsScreen(
 
 
                 /** ─────────────── SECTION: IDENTIFICATION  ─────────────── **/
-                IdentificationSection( state) {
+                IdentificationSection( uiStateMagnetics) {
                     viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
                 }
 
@@ -163,12 +164,12 @@ fun MagneticsScreen(
 
 
                 /** ─────────────── SECTION: INTERESTS ─────────────── **/
-                InterestsSection( state) {
+                InterestsSection( uiStateMagnetics) {
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
                             true,
                             arrayListOf("Interests"),
-                            state.interestList
+                            uiStateMagnetics.interestList
                         )
                     )
                 }
@@ -185,7 +186,7 @@ fun MagneticsScreen(
                 onApply = { data ->
                     viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false, true))
                 },
-                data = EditProfileHeaderDialogDto(profilePicturePath = state.profilePicture, backgroundPicturePath = state.backgroundPicture, bio = "", websiteUrl = "")
+                data = EditProfileHeaderDialogDto(profilePicturePath = uiStateMagnetics.profilePicture, backgroundPicturePath = state.backgroundPicture, bio = "", websiteUrl = "")
             )
         }
 
@@ -198,19 +199,22 @@ fun MagneticsScreen(
             IdentificationDialog(
                 viewModel = viewModel,
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
-                onApply = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
-                initialData = IdentificationData(
-                    name = state.fullname,
-                    birthday = state.birthday,
+                onApply = {
+
+                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false))
+                          },
+                identificationData = IdentificationData(
+                    name = uiStateMagnetics.fullname,
+                    birthday = uiStateMagnetics.birthday,
 //                gender = null,
-                    nationality = state.nationality,
-                    ethnicity = state.ethnicity,
-                    faith = state.faith,
-                    language = state.language,
-                    education = state.educationName,
-                    relationship = state.relationship,
-                    politicalIdeology = state.politicalIdeology,
-                    joyerLocation = state.location
+                    nationality = uiStateMagnetics.nationality,
+                    ethnicity = uiStateMagnetics.ethnicity,
+                    faith = uiStateMagnetics.faith,
+                    language = uiStateMagnetics.languages,
+                    education = uiStateMagnetics.education,
+                    relationship = uiStateMagnetics.relationship,
+                    politicalIdeology = uiStateMagnetics.politicalIdeology,
+                    joyerLocation = uiStateMagnetics.location
                 )
             )
         }
@@ -303,7 +307,7 @@ fun TopBar(
 }
 
 @Composable
-fun InterestsSection(state: UserProfileUiState, onClick: () -> Unit) {
+fun InterestsSection(state: EditMagneticsUiState, onClick: () -> Unit) {
     Column(
         Modifier
             .background(White)
@@ -322,7 +326,7 @@ fun InterestsSection(state: UserProfileUiState, onClick: () -> Unit) {
 }
 
 @Composable
-fun IdentificationSection(state: UserProfileUiState, onClick: () -> Unit) {
+fun IdentificationSection(state: EditMagneticsUiState, onClick: () -> Unit) {
     Column(
         Modifier
             .background(White)
@@ -360,30 +364,30 @@ fun IdentificationSection(state: UserProfileUiState, onClick: () -> Unit) {
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.nationality.isNotEmpty()) {
+        if (state.nationality != null) {
             KeyValueText(
                 "Nationality",
-                state.nationality
+                state.nationality.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Nationality") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.ethnicity.isNotEmpty()) {
+        if (state.ethnicity != null) {
             KeyValueText(
                 "Ethnicity",
-                state.ethnicity
+                state.ethnicity.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Ethnicity") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.faith.isNotEmpty()) {
+        if (state.faith != null) {
             KeyValueText(
                 "Faith",
-                state.faith
+                state.faith.name?: ""
             )
         } else { ProfileEditableRow(title = "Faith") }
 
@@ -396,20 +400,20 @@ fun IdentificationSection(state: UserProfileUiState, onClick: () -> Unit) {
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.educationName.isNotEmpty()) {
+        if (state.education != null) {
             KeyValueText(
                 "Education",
-                state.educationName
+                state.education.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Education") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.relationship.isNotEmpty()) {
+        if (state.relationship != null) {
             KeyValueText(
                 "Relationship",
-                state.relationship
+                state.relationship.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Relationship") }
@@ -426,10 +430,10 @@ fun IdentificationSection(state: UserProfileUiState, onClick: () -> Unit) {
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.politicalIdeology.isNotEmpty()) {
+        if (state.politicalIdeology != null) {
             KeyValueText(
                 "Political Ideology",
-                state.politicalIdeology
+                state.politicalIdeology.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Political Ideology") }
@@ -457,7 +461,7 @@ fun IdentificationSection(state: UserProfileUiState, onClick: () -> Unit) {
 }
 
 @Composable
-fun DescriptionSection(state: UserProfileUiState, onclick: () -> Unit) {
+fun DescriptionSection(state: EditMagneticsUiState, onclick: () -> Unit) {
     Column(
         Modifier
             .background(White)
@@ -477,7 +481,7 @@ fun DescriptionSection(state: UserProfileUiState, onclick: () -> Unit) {
 
 @Composable
 fun ProfileHeaderSection(
-    state: UserProfileUiState,
+    state: EditMagneticsUiState,
     onClick: () -> Unit
 ) {
     Column(

@@ -44,8 +44,9 @@ data class UserProfileUiState(
 
     val children: String = "",
     val birthday: String = "",
-    val relationship: String = "",
-    val politicalIdeology: String = "",
+    val education: ProfileMeta? = null,
+    val relationship: ProfileMeta? = null,
+    val politicalIdeology: ProfileMeta? = null,
 
     val tabs: List<String> = listOf("Status", "Identity", "Sparks", "Cards", "Gallery"),
     var selectedTab: Int = 0,

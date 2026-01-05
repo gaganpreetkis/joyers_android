@@ -1,14 +1,15 @@
 package com.joyersapp.feature.profile.presentation
 
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.ui.unit.Dp
-import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
+import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
 data class EditMagneticsUiState(
+
+    val identificationData: IdentificationData = IdentificationData(),
+
     val username: String = "",
     val fullname: String = "",
     val location: String = "",
@@ -21,21 +22,17 @@ data class EditMagneticsUiState(
     val areaOfInterest: List<Interests> = emptyList(),
 
     val gender: String = "",
-    val nationality: String = "",
-    val ethnicity: String = "",
-    val faith: String = "",
+    val nationality: ProfileMeta? = null,
+    val ethnicity: ProfileMeta? = null,
+    val faith: ProfileMeta? = null,
+    val education: ProfileMeta? = null,
     val languages: List<Languages> = emptyList(),
 
-
     val joyerType: String = "",
-
     val children: String = "",
     val birthday: String = "",
-    val relationship: String = "",
-    val politicalIdeology: String = "",
-
-    val isLoading: Boolean = true,
-    val errorMessage: String? = null,
+    val relationship: ProfileMeta? = null,
+    val politicalIdeology: ProfileMeta? = null,
 
     val dialogHeader: List<String> = emptyList(),
     val titlesData: List<ProfileTitlesData> = emptyList(),
