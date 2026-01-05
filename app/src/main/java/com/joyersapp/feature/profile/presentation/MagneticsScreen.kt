@@ -218,7 +218,9 @@ fun MagneticsScreen(
             EditDescriptionDialog(
                 titlesData = state.titlesData,
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false, emptyList(), emptyList()))},
-                onApply = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false, emptyList(), emptyList()))},
+                onApply = {
+                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false, emptyList(), emptyList()))
+                          },
                 headers = state.dialogHeader
             )
         }

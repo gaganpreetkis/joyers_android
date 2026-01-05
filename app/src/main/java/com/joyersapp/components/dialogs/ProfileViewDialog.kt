@@ -1,8 +1,14 @@
 package com.joyersapp.components.dialogs
 
 import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +67,7 @@ import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.isScrollingUp
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import kotlinx.coroutines.launch
 
@@ -75,6 +83,7 @@ fun ProfileViewDialog(
     clarificationData: List<ProfileTitlesData> = emptyList(),
     showApplyButton: Boolean = false,
     onShowSubTitles: (List<ProfileTitlesData>) -> Unit,
+    onTitleSelected: (String) -> Unit,
     onBack: () -> Unit,
     onApply: () -> Unit
 ) {
@@ -84,6 +93,12 @@ fun ProfileViewDialog(
 
     val goldenColor = Golden
     val lightBlackColor = LightBlack
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+    val isScrollingUp = listState.isScrollingUp()
+    val showSearchBar by remember {
+        derivedStateOf { isScrollingUp }
+    }
 
 
     BaseDialog(
@@ -108,12 +123,11 @@ fun ProfileViewDialog(
 
             val maxHeightForViews = this.maxHeight
             val maxHeightForSubTitles = maxHeightForViews - 35.dp - 179.dp - 70.dp
-            val listState = rememberLazyListState()
-            val coroutineScope = rememberCoroutineScope()
+
 
             Column(
                 modifier = Modifier
-                    .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 10))
+                    .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 500))
                     .fillMaxWidth()
             ) {
 
@@ -121,12 +135,7 @@ fun ProfileViewDialog(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .animateContentSize(
-                            animationSpec = tween(
-                                durationMillis = 3,
-                                delayMillis = 10
-                            )
-                        )
+                        .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 300))
                         .weight(1f, fill = false)
                         .fillMaxWidth()
                 ) {
@@ -138,32 +147,33 @@ fun ProfileViewDialog(
                             onSearchQueryChanged = { onSearchQueryChanged(it) }
                         )
                         Spacer(modifier = dialogModifier.height(20.dp))
-
                     }
 
-                    itemsIndexed(titlesData) { index, title ->
+                    itemsIndexed(titlesData,  key = { _, item -> item.id?:"" }) { index, title ->
                         val isFirst = index == 0
                         val isLast = index == titlesData.lastIndex
-                        TitleItem(
-                            isFirstItem = isFirst,
-                            isLastItem = isLast,
-                            title = title,
-                            isSelected = title.isSelected,
-                            onClick = {
-                                title.isSelected = !title.isSelected
-                                if (title.selections.isNullOrEmpty()) {
-                                    coroutineScope.launch {
-                                        listState.animateScrollToItem(0)
+//                        AnimatedContent(title.isSelected) {
+                            TitleItem(
+                                isFirstItem = isFirst,
+                                isLastItem = isLast,
+                                title = title,
+                                isSelected = title.isSelected,
+                                onClick = {
+//                                title.isSelected = !title.isSelected
+                                    if (title.selections.isNullOrEmpty()) {
+                                        onTitleSelected(title.id ?: "")
+                                        coroutineScope.launch {
+                                            listState.animateScrollToItem(0)
+                                        }
+                                    } else {
+                                        showBackButton = true
+                                        onShowSubTitles(title.selections ?: emptyList())
                                     }
-//                                    onTitleSelected()
-                                } else {
-                                    showBackButton = true
-                                    onShowSubTitles(title.selections?:emptyList())
-                                }
 //                                     keyboardController?.hide()
-                            },
-                            modifier = Modifier
-                        )
+                                },
+                                modifier = Modifier
+                            )
+//                        }
                     }
                 }
 
@@ -228,6 +238,7 @@ fun ProfileViewDialog(
                         Spacer(Modifier.height(15.dp))
                         LazyColumn(
                             modifier = Modifier
+                                .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 300))
                                 .heightIn(
                                     min = 0.dp,
                                     max = maxHeightForSubTitles
