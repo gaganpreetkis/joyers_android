@@ -3,6 +3,7 @@ package com.joyersapp.feature.profile.presentation
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
@@ -32,7 +33,7 @@ data class EditMagneticsUiState(
     val children: String = "",
     val birthday: String = "",
     val relationship: ProfileMeta? = null,
-    val politicalIdeology: MutableList<ProfileMeta>? = null,
+    val politicalIdeology: MutableList<PoliticalIdeology>? = null,
 
     val dialogHeader: List<String> = emptyList(),
     val titlesData: List<ProfileTitlesData> = emptyList(),

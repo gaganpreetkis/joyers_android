@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.Dp
 import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
@@ -46,7 +47,7 @@ data class UserProfileUiState(
     val birthday: String = "",
     val education: ProfileMeta? = null,
     val relationship: ProfileMeta? = null,
-    val politicalIdeology: List<ProfileMeta>? = null,
+    val politicalIdeology: List<PoliticalIdeology>? = null,
 
     val tabs: List<String> = listOf("Status", "Identity", "Sparks", "Cards", "Gallery"),
     var selectedTab: Int = 0,

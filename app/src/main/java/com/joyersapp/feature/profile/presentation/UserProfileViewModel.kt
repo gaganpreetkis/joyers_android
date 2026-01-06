@@ -102,7 +102,7 @@ class UserProfileViewModel @Inject constructor(
         _uiState.value.educationList.forEach { if (it.id.equals(state.education?.id)) { it.isSelected = true } }
         _uiState.value.relationShipList.map { if (it.id.equals(state.relationship?.id)) it.isSelected = true }
 
-         val selectedIds = state.politicalIdeology?.map { it.id }?.toSet()
+         val selectedIds = state.politicalIdeology?.map { it.dropdownPoliticalIdeology?.id }?.toSet()
          val merged = _uiState.value.politicalIdeologyList.map { item ->
              item.copy(isSelected = selectedIds?.contains(item.id) == true )
          }

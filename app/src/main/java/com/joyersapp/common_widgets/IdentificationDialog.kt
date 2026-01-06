@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.components.dialogs.BaseDialog
 import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
@@ -492,7 +493,7 @@ fun IdentificationMultiselectField(
 fun PoliticalIdeologyField(
     label: String = "label",
     hintText: String = "hint",
-    values: MutableList<ProfileMeta>,
+    values: MutableList<PoliticalIdeology>,
     onClear: () -> Unit = {},
     onClick: () -> Unit = {}
 ) {
@@ -540,7 +541,7 @@ fun PoliticalIdeologyField(
 
                         if (values.isNotEmpty()) {
                             Text(
-                                text = values[0].name?: "",
+                                text = values[0].dropdownPoliticalIdeology?.name?: "",
                                 fontSize = 16.sp,
                                 lineHeight = 23.sp,
                                 fontFamily = fontFamilyLato,
@@ -629,7 +630,7 @@ fun PoliticalIdeologyField(
                         )
                     ) {
                         values.forEachIndexed { index, item ->
-                            val name = item.name?: ""
+                            val name = item.dropdownPoliticalIdeology?.name?: ""
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -1066,7 +1067,7 @@ data class IdentificationData(
     var language: List<Languages> = emptyList(),
     var education: ProfileMeta? = null,
     var relationship: ProfileMeta? = null,
-    var politicalIdeology: MutableList<ProfileMeta>? = null,
+    var politicalIdeology: MutableList<PoliticalIdeology>? = null,
     var joyerLocation: String = "",
 )
 

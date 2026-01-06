@@ -440,7 +440,7 @@ fun IdentificationSection(state: EditMagneticsUiState, onClick: () -> Unit) {
         if (state.politicalIdeology != null && state.politicalIdeology.isNotEmpty()) {
             KeyValueText(
                 "Political Ideology",
-                state.politicalIdeology.get(0).name?: ""
+                state.politicalIdeology.get(0).dropdownPoliticalIdeology?.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Political Ideology") }

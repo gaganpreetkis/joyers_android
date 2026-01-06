@@ -35,14 +35,14 @@ data class UserProfile (
     @SerializedName("faith"              ) var faith             : ProfileMeta?         = ProfileMeta(),
     @SerializedName("education"          ) var education         : ProfileMeta?         = ProfileMeta(),
     @SerializedName("relationship"       ) var relationship      : ProfileMeta?         = ProfileMeta(),
-    @SerializedName("political_ideology" ) var politicalIdeology : ArrayList<ProfileMeta>?         = arrayListOf(),
     @SerializedName("likes_count"        ) var likesCount        : String?              = null,
     @SerializedName("following_count"    ) var followingCount    : String?              = null,
     @SerializedName("followers_count"    ) var followersCount    : String?              = null,
     @SerializedName("account_status"     ) var accountStatus     : String?              = null,
+    @SerializedName("political_ideology" ) var politicalIdeology : ArrayList<PoliticalIdeology> = arrayListOf(),
     @SerializedName("interests"          ) var interests         : ArrayList<Interests> = arrayListOf(),
     @SerializedName("languages"          ) var languages         : ArrayList<Languages> = arrayListOf(),
-    @SerializedName("user_bios"          ) var userBios          : ArrayList<String> = arrayListOf()
+//    @SerializedName("user_bios"          ) var userBios          : ArrayList<String> = arrayListOf()
 
 )
 
@@ -64,5 +64,10 @@ data class Languages (
 data class Interests (
 
     @SerializedName("dropdown_interests" ) var dropdownInterests : ProfileMeta? = ProfileMeta()
+
+)
+data class PoliticalIdeology (
+
+    @SerializedName("dropdown_political_ideology" ) var dropdownPoliticalIdeology : ProfileMeta? = ProfileMeta()
 
 )
