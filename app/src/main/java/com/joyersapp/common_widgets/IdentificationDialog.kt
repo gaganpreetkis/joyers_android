@@ -103,7 +103,9 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "",
+                                isMultiSelectEnabled = false,
+                                show = true,
                                 headers = arrayListOf("Identification", "Birthday"),
                                 titlesData = state.titles
                             )
@@ -131,7 +133,9 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "",
+                                isMultiSelectEnabled = false,
+                                show = true,
                                 headers = arrayListOf("Countries List"),
                                 titlesData = state.countryList
                             )
@@ -148,7 +152,9 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "",
+                                isMultiSelectEnabled = false,
+                                show = true,
                                 headers = arrayListOf("Identification", "Ethnicity"),
                                 titlesData = state.ethenicityList
                             )
@@ -166,7 +172,9 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "",
+                                isMultiSelectEnabled = false,
+                                show = true,
                                 headers = arrayListOf("Identification", "Faith"),
                                 titlesData = state.faithReligionList
                             )
@@ -186,7 +194,9 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "",
+                                isMultiSelectEnabled = false,
+                                show = true,
                                 headers = arrayListOf("Identification", "Language"),
                                 titlesData = state.languageList
                             )
@@ -204,7 +214,9 @@ fun IdentificationDialog(
 
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "Education",
+                                isMultiSelectEnabled = false,
+                                show = true,
                                 headers = arrayListOf("Identification", "Education"),
                                 titlesData = state.educationList
                             )
@@ -222,7 +234,9 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "Relationship",
+                                isMultiSelectEnabled = false,
+                                show = true,
                                 headers = arrayListOf("Identification", "Relationship"),
                                 titlesData = state.relationShipList
                             )
@@ -233,20 +247,22 @@ fun IdentificationDialog(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                IdentificationDropdownField(
+                PoliticalIdeologyField (
                     label = "Political Ideology",
                     hintText = "Joyer Ideology",
-                    value = identificationData.politicalIdeology?.name?: "",
+                    values = identificationData.politicalIdeology?: arrayListOf(),
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "Political Ideology",
+                                isMultiSelectEnabled = true,
+                                show = true,
                                 headers = arrayListOf("Identification", "Political Ideology"),
                                 titlesData = state.politicalIdeologyList
                             )
                         )
                     },
-                    onClear = { identificationData.politicalIdeology?.name = "" }
+                    onClear = { identificationData.politicalIdeology?.clear() }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -258,7 +274,9 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                true,
+                                "",
+                                isMultiSelectEnabled = false,
+                                show = true,
                                 headers = arrayListOf("Countries List", "Ethnicity"),
                                 titlesData = state.countryList
                             )
@@ -300,7 +318,7 @@ fun IdentificationDialog(
 fun IdentificationMultiselectField(
     label: String = "label",
     hintText: String = "hint",
-    values: List<String> = arrayListOf("ghhj", "bjbnmn", "iuhjk dfsd","ghhj"),
+    values: MutableList<String> = arrayListOf("ghhj", "bjbnmn", "iuhjk dfsd","ghhj"),
     onClear: () -> Unit = {},
     onClick: () -> Unit = {}
 ) {
@@ -438,6 +456,180 @@ fun IdentificationMultiselectField(
                     ) {
                         values.forEachIndexed { index, item ->
                             val name = item
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = name,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    fontFamily = fontFamilyLato,
+                                    color = LightBlack,
+                                    lineHeight = 22.sp,
+                                )
+
+                                if (index != values.lastIndex) {
+                                    Spacer(Modifier.width(10.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(LightBlack55)
+                                            .size(3.dp)
+                                    )
+                                    Spacer(Modifier.width(10.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun PoliticalIdeologyField(
+    label: String = "label",
+    hintText: String = "hint",
+    values: MutableList<ProfileMeta>,
+    onClear: () -> Unit = {},
+    onClick: () -> Unit = {}
+) {
+    val lightBlackColor = LightBlack
+    val fieldOuterBg = GrayBG
+    var seeAll by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Bold,
+            color = lightBlackColor,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+
+        // Outer field container (light grey rectangle)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 60.dp)
+                .noRippleClickable { onClick() }
+                .background(fieldOuterBg, RoundedCornerShape(5.dp))
+                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .padding(15.dp)
+        ) {
+            Column() {
+                // Inner pill container
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 30.dp)
+                        .background(Color.White, RoundedCornerShape(30.dp))
+                        .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(30.dp)
+                            .padding(horizontal = 15.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        if (values.isNotEmpty()) {
+                            Text(
+                                text = values[0].name?: "",
+                                fontSize = 16.sp,
+                                lineHeight = 23.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
+                                color = LightBlack,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_cross_round_gray),
+                                contentDescription = "Clear",
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .noRippleClickable { onClear() },
+                            )
+                        } else {
+                            Text(
+                                text = hintText,
+                                fontSize = 16.sp,
+                                lineHeight = 23.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
+                                color = LightBlack60,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.arrowdown_lite),
+                                contentDescription = "Drop down",
+                                modifier = Modifier
+                                    .size(10.49.dp, 6.dp)
+                            )
+                        }
+                    }
+                }
+                if (values.size > 1) {
+                    Spacer(Modifier.height(15.dp))
+                    // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = if (seeAll) 100 else 4,
+                        overflow = FlowRowOverflow.expandOrCollapseIndicator(
+                            minRowsToShowCollapse = 4,
+                            expandIndicator = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = "See All",
+                                        fontSize = 12.sp,
+                                        lineHeight = 22.sp,
+                                        color = Golden,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(top = 9.dp)
+                                            .noRippleClickable() { seeAll = true }
+                                    )
+                                }
+                            },
+                            collapseIndicator = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = "Show Less",
+                                        fontSize = 12.sp,
+                                        lineHeight = 22.sp,
+                                        color = Golden,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(top = 9.dp)
+                                            .noRippleClickable() { seeAll = false }
+                                    )
+                                }
+                            }
+                        )
+                    ) {
+                        values.forEachIndexed { index, item ->
+                            val name = item.name?: ""
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -874,7 +1066,7 @@ data class IdentificationData(
     var language: List<Languages> = emptyList(),
     var education: ProfileMeta? = null,
     var relationship: ProfileMeta? = null,
-    var politicalIdeology: ProfileMeta? = null,
+    var politicalIdeology: MutableList<ProfileMeta>? = null,
     var joyerLocation: String = "",
 )
 

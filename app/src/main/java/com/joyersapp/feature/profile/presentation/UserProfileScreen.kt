@@ -166,12 +166,13 @@ fun UserProfileScreen(
             }
 
             if (state.showEditDescriptionDialog) {
-                EditDescriptionDialog(
-                    titlesData = state.titlesData,
-                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false,emptyList(),emptyList())) },
-                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false,emptyList(),emptyList())) },
-                    headers = state.dialogHeader
-                )
+//                EditDescriptionDialog(
+//                    titlesData = state.titlesData,
+////                    selectedItems = state.selectedItems,
+//                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false,emptyList(),emptyList())) },
+//                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false,emptyList(),emptyList())) },
+//                    headers = state.dialogHeader
+//                )
             }
         }
     }
@@ -516,7 +517,7 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
             ProfileStatusSection(
                 state = state,
                 onEditDescription = {
-                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(true, headers = headers, state.titles))
+                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(show = true, headers = headers, titlesData = state.titles))
                 })
         }
 

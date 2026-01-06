@@ -46,7 +46,7 @@ data class UserProfileUiState(
     val birthday: String = "",
     val education: ProfileMeta? = null,
     val relationship: ProfileMeta? = null,
-    val politicalIdeology: ProfileMeta? = null,
+    val politicalIdeology: List<ProfileMeta>? = null,
 
     val tabs: List<String> = listOf("Status", "Identity", "Sparks", "Cards", "Gallery"),
     var selectedTab: Int = 0,
@@ -59,6 +59,7 @@ data class UserProfileUiState(
     val errorMessage: String? = null,
     val dialogHeader: List<String> = emptyList(),
     val titlesData: List<ProfileTitlesData> = emptyList(),
+    val selectedItems: List<ProfileTitlesData> = emptyList(),
     val titles: List<ProfileTitlesData> = emptyList(),
     val countryList: List<ProfileTitlesData> = emptyList(),
     val educationList: List<ProfileTitlesData> = emptyList(),

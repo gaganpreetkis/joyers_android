@@ -1,5 +1,6 @@
 package com.joyersapp.feature.profile.presentation
 
+import androidx.compose.runtime.key
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joyersapp.auth.presentation.identity.IdentityEvent
@@ -64,7 +65,7 @@ class UserProfileViewModel @Inject constructor(
 
     init {
         // simulate fetch
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
             val getProfileJob = async { getUserProfileData() }
@@ -77,7 +78,6 @@ class UserProfileViewModel @Inject constructor(
             val getPoliticalIdeologyJob = async { loadPoliticalIdeologyList() }
             val getRelationShipJob = async { loadRelationShipList() }
             val getLanguageJob = async { loadLanguageList() }
-            val initSelections = async { initSelections() }
 
             getProfileJob.join()
             getTitlesJob.join()
@@ -89,18 +89,24 @@ class UserProfileViewModel @Inject constructor(
             getPoliticalIdeologyJob.join()
             getRelationShipJob.join()
             getLanguageJob.join()
-            initSelections.join()
+
             delay(10)
+
 
             _uiState.update { it.copy(isLoading = false) }
         }
     }
 
-    suspend fun initSelections() {
+     fun initSelections() {
         val state = _uiState.value
-        _uiState.value.educationList.map { if (it.id == state.education?.id) it.isSelected = true }
-        _uiState.value.relationShipList.map { if (it.id == state.relationship?.id) it.isSelected = true }
-        _uiState.value.politicalIdeologyList.map { if (it.id == state.politicalIdeology?.id) it.isSelected = true }
+        _uiState.value.educationList.forEach { if (it.id.equals(state.education?.id)) { it.isSelected = true } }
+        _uiState.value.relationShipList.map { if (it.id.equals(state.relationship?.id)) it.isSelected = true }
+
+         val selectedIds = state.politicalIdeology?.map { it.id }?.toSet()
+         val merged = _uiState.value.politicalIdeologyList.map { item ->
+             item.copy(isSelected = selectedIds?.contains(item.id) == true )
+         }
+         _uiState.update { it.copy(educationList = merged) }
     }
 
     fun onEvent(event: UserProfileEvent) {
@@ -145,6 +151,32 @@ class UserProfileViewModel @Inject constructor(
                 ) }
             }
 
+            is UserProfileEvent.OnApplyDescription -> {
+                    when(event.key) {
+                        "Education" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val merged = _uiState.value.educationList.map { item ->
+                                item.copy(isSelected = item.id in selectedIds)
+                            }
+                            _uiState.update { it.copy(educationList = merged) }
+                        }
+                        "Political Ideology" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val merged = _uiState.value.politicalIdeologyList.map { item ->
+                                item.copy(isSelected = item.id in selectedIds)
+                            }
+                            _uiState.update { it.copy(educationList = merged) }
+                        }
+                        "Relationship" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val merged = _uiState.value.relationShipList.map { item ->
+                                item.copy(isSelected = item.id in selectedIds)
+                            }
+                            _uiState.update { it.copy(educationList = merged) }
+                        }
+                    }
+            }
+
             is UserProfileEvent.ToggleProfileHeaderDialog -> {
                 if (event.updateProfileHeaderData) {
                     _uiState.update {
@@ -164,12 +196,14 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.ToggleDescriptionDialog -> {
+                initSelections()
                 _uiState.update {
                     it.copy(
 //                        showIdentificationDialog = false,
                         showEditDescriptionDialog = event.show,
                         dialogHeader = event.headers,
-                        titlesData = event.titlesData
+                        titlesData = event.titlesData,
+                        selectedItems = event.selectedItems
                     )
                 }
             }

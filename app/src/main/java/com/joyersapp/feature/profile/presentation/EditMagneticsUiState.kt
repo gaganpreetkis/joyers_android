@@ -32,7 +32,7 @@ data class EditMagneticsUiState(
     val children: String = "",
     val birthday: String = "",
     val relationship: ProfileMeta? = null,
-    val politicalIdeology: ProfileMeta? = null,
+    val politicalIdeology: MutableList<ProfileMeta>? = null,
 
     val dialogHeader: List<String> = emptyList(),
     val titlesData: List<ProfileTitlesData> = emptyList(),
@@ -54,5 +54,9 @@ data class EditMagneticsUiState(
     val showEditProfileHeaderDialog: Boolean = false,
     val showEditDescriptionDialog: Boolean = false,
     val showMentionJoyersDialog: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+
+
+    val key: String? = null,
+    val value: List<ProfileTitlesData>? = null
 )

@@ -11,10 +11,12 @@ import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 //@Preview
 @Composable
 fun EditDescriptionDialog(
+    key: String,
+    isMultiselectEnabled: Boolean,
     titlesData: List<ProfileTitlesData>,
     headers: List<String>,
     onDismiss: () -> Unit,
-    onApply: (List<ProfileTitlesData>) -> Unit
+    onApply: (String, List<ProfileTitlesData>) -> Unit
 ) {
 
   /*  var searchQuery by remember { mutableStateOf("") }
@@ -55,7 +57,7 @@ fun EditDescriptionDialog(
     }
     ProfileViewDialog(
         onDismiss = onDismiss,
-        onApply = { onApply(currentList.filter { it.isSelected }) },
+        onApply = { onApply(key, currentList.filter { it.isSelected }) },
         showApplyButton = true,
         headers = headers,
         searchQuery = searchQuery,

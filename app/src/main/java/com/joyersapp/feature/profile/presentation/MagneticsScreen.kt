@@ -141,7 +141,9 @@ fun MagneticsScreen(
                 DescriptionSection( uiStateMagnetics) {
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
-                            true,
+                            "",
+                            isMultiSelectEnabled = false,
+                            show = true,
                             headers = headers,
                             titlesData = uiStateMagnetics.titles
                         )
@@ -167,7 +169,9 @@ fun MagneticsScreen(
                 InterestsSection( uiStateMagnetics) {
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
-                            true,
+                            "",
+                            isMultiSelectEnabled = false,
+                            show = true,
                             arrayListOf("Interests"),
                             uiStateMagnetics.interestList
                         )
@@ -220,10 +224,13 @@ fun MagneticsScreen(
         }
         if (state.showEditDescriptionDialog) {
             EditDescriptionDialog(
+                key = "",
+                isMultiselectEnabled = false,
                 titlesData = state.titlesData,
-                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false, emptyList(), emptyList()))},
-                onApply = {
-                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false, emptyList(), emptyList()))
+//                selectedItems = state.selectedItems,
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog("",false,false, emptyList(), emptyList()))},
+                onApply = { key, value ->
+                    viewModel.onEvent(UserProfileEvent.OnApplyDescription(key, value))
                           },
                 headers = state.dialogHeader
             )
@@ -430,10 +437,10 @@ fun IdentificationSection(state: EditMagneticsUiState, onClick: () -> Unit) {
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.politicalIdeology != null) {
+        if (state.politicalIdeology != null && state.politicalIdeology.isNotEmpty()) {
             KeyValueText(
                 "Political Ideology",
-                state.politicalIdeology.name?: ""
+                state.politicalIdeology.get(0).name?: ""
             )
         } else {
             ProfileEditableRow(title = "Political Ideology") }

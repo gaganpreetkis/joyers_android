@@ -13,11 +13,12 @@ sealed class UserProfileEvent {
     data class TabSelected(val tab: Int) : UserProfileEvent()
     data class Logout(val tab: Int) : UserProfileEvent()
     data class ToggleProfileHeaderDialog(val show: Boolean, val updateProfileHeaderData: Boolean) : UserProfileEvent()
-    data class ToggleDescriptionDialog(val show: Boolean, val headers: List<String>, val titlesData: List<ProfileTitlesData>) : UserProfileEvent()
+    data class ToggleDescriptionDialog(val key: String = "", val isMultiSelectEnabled: Boolean = false, val show: Boolean, val headers: List<String>, val titlesData: List<ProfileTitlesData>, val selectedItems: List<ProfileTitlesData> = emptyList()) : UserProfileEvent()
     data class ToggleIdentificationDialog(val show: Boolean) : UserProfileEvent()
     data class ToggleMentionJoyersDialog(val show: Boolean) : UserProfileEvent()
     data class BackgroundPicturePathChanged(val value: String) : UserProfileEvent()
     data class ProfilePicturePathChanged(val value: String) : UserProfileEvent()
     data class OnApplyIdentification(val value: IdentificationData) : UserProfileEvent()
+    data class OnApplyDescription(val key: String, val value: List<ProfileTitlesData>) : UserProfileEvent()
 
 }
