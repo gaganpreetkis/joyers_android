@@ -143,6 +143,35 @@ class ProfileRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
+    override suspend fun getUserList(): Result<UserProfile> =
+        try {
+            val response = api.getUserlist()
+            when (response.statusCode) {
+                200 -> {
+                    Result.success(response.data!!)
+                }
+
+                400 -> {
+                    Result.failure(
+                        ApiErrorException(
+                            message = response.message ?: "Something went wrong"
+                        )
+                    )
+                }
+
+                else -> Result.failure(
+                    ApiErrorException(
+                        message = response.message ?: "Something went wrong"
+                    )
+                )
+            }
+        } catch (e: HttpException) {
+            val errorMsg = parseNetworkError(e)
+            Result.failure(IllegalArgumentException(errorMsg, e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
     override suspend fun getTitles(): Result<List<ProfileTitlesData>> =
         try {
             val response = api.getTitles()

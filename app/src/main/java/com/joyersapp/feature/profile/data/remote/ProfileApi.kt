@@ -36,6 +36,10 @@ interface ProfileApi {
     @GET("user/get-user-profile")
     suspend fun getUserProfile(): UserProfileResponseDto
 
+    @RequiresAuth
+    @GET("user/get-user-list")
+    suspend fun getUserlist(): UserProfileResponseDto
+
     @GET("auth/title-type")
     suspend fun getTitles(): ProfileTitlesResponseDto
 

@@ -19,6 +19,7 @@ import com.joyersapp.feature.profile.domain.usecase.GetLanguageListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetPoliticalIdeoogyListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetRelationshipListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetSubTitlesUseCase
+import com.joyersapp.feature.profile.domain.usecase.GetUserListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadPictureServerUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
@@ -38,6 +39,7 @@ class UserProfileViewModel @Inject constructor(
     private val uploadUserProfileUseCase: UploadUserProfileUseCase,
     private val uploadPictureServerUseCase: UploadPictureServerUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val getUserListUseCase: GetUserListUseCase,
     private val getTitlesUseCase: GetTitlesUseCase,
     private val getSubTitlesUseCase: GetSubTitlesUseCase,
     private val getCountryListUseCase: GetCountryListUseCase,
