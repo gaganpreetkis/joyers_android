@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -121,7 +122,8 @@ fun BaseDialog(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(25.dp))
                 .background(Color.White) // Ensure background captures taps
-                .dismissKeyboardOnScroll()
+                .imePadding()
+//                .dismissKeyboardOnScroll()
                 .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
