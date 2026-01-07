@@ -84,6 +84,8 @@ import com.joyersapp.common_widgets.DualViewDialog
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.common_widgets.showCCPDialog
+import com.joyersapp.components.dialogs.BackgroundImagePreviewDialog
+import com.joyersapp.components.dialogs.CropBackgroundImageDialog
 import com.joyersapp.components.dialogs.CropImageDialog
 import com.joyersapp.components.dialogs.ProfilePicturePreviewDialog
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
@@ -341,6 +343,11 @@ fun PageOneContent(
     //var imagePath by remember { mutableStateOf<String?>(null) }
     //var headerPath by remember { mutableStateOf<String?>(null) }
     //var selectedCountryCode by remember { mutableStateOf("") }
+    // Background image preview and crop states
+    var showBackgroundImagePreview by remember { mutableStateOf(false) }
+    var showBackgroundCropDialog by remember { mutableStateOf(false) }
+    var selectedBackgroundImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var selectedBackgroundImagePath by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
     val goldenColor = Golden
@@ -981,39 +988,79 @@ fun PageOneContent(
         allowMultipleSelection = false,
         onImagesPicked = { uris ->
             val headerImageUri = uris[0]
-            showHeaderPicker = false
             if (headerImageUri.path!!.isNotEmpty()) {
+                selectedBackgroundImageUri = headerImageUri
                 val file = uriToFile(context, headerImageUri)
-                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
+                selectedBackgroundImagePath = file.path.toString()
+                showImagePickerBottomSheetBack = false
+                showBackgroundImagePreview = true
             }
-//            signupViewModel?.let { vm ->
-//                preferencesManager?.let { pm ->
-//                    activity?.lifecycleScope?.launch {
-//                        val token = pm.getAccessToken()
-//                        if (token != null) {
-//                            vm.uploadImage(uris[0], token)
-//                        }
-//                    }
-//                }
-//            }
         },
         onCameraImagePicked = { uri ->
             val headerImageUri = uri
-            showHeaderPicker = false
             if (headerImageUri.path!!.isNotEmpty()) {
+                selectedBackgroundImageUri = headerImageUri
                 val file = uriToFile(context, headerImageUri)
-                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
+                selectedBackgroundImagePath = file.path.toString()
+                showImagePickerBottomSheetBack = false
+                showBackgroundImagePreview = true
             }
-//            signupViewModel?.let { vm ->
-//                preferencesManager?.let { pm ->
-//                    activity?.lifecycleScope?.launch {
-//                        val token = pm.getAccessToken()
-//                        if (token != null) {
-//                            vm.uploadImage(uri, token)
-//                        }
-//                    }
-//                }
-//            }
+        }
+    )
+
+    // Background Image Preview Dialog
+    BackgroundImagePreviewDialog(
+        showDialog = showBackgroundImagePreview,
+        imageUri = selectedBackgroundImageUri,
+        imagePath = selectedBackgroundImagePath,
+        onDismiss = {
+            showBackgroundImagePreview = false
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+        },
+        onChangePicture = {
+            showImagePickerBottomSheetBack = true
+        },
+        onDelete = {
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+            viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(""))
+            showBackgroundImagePreview = false
+        },
+        onCrop = {
+            if (selectedBackgroundImageUri != null) {
+                showBackgroundImagePreview = false // Close preview before opening crop
+                showBackgroundCropDialog = true
+            }
+        },
+        onDone = {
+            selectedBackgroundImagePath?.let { path ->
+                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(path))
+            }
+            showBackgroundImagePreview = false
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+        }
+    )
+
+    // Background Image Crop Dialog
+    CropBackgroundImageDialog(
+        showDialog = showBackgroundCropDialog,
+        imageUri = selectedBackgroundImageUri,
+        onDismiss = {
+            showBackgroundCropDialog = false
+            // Reopen preview dialog if we had an image selected
+            if (selectedBackgroundImageUri != null) {
+                showBackgroundImagePreview = true
+            }
+        },
+        onCropped = { newUri, newPath ->
+            showBackgroundCropDialog = false
+            // Update state with cropped image
+            selectedBackgroundImageUri = newUri
+            selectedBackgroundImagePath = newPath
+            // Show preview dialog with updated cropped image
+            showBackgroundImagePreview = true
         }
     )
 }

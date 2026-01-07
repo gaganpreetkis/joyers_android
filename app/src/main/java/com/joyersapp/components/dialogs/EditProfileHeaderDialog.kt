@@ -91,6 +91,13 @@ fun EditProfileHeaderDialog(
     var showCropDialog by remember { mutableStateOf(false) }
     var selectedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
+    
+    // Background image preview and crop states
+    var showBackgroundImagePreview by remember { mutableStateOf(false) }
+    var showBackgroundCropDialog by remember { mutableStateOf(false) }
+    var selectedBackgroundImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var selectedBackgroundImagePath by remember { mutableStateOf<String?>(null) }
+    
     val context = LocalContext.current
 
     LaunchedEffect(data) {
@@ -332,19 +339,79 @@ fun EditProfileHeaderDialog(
         allowMultipleSelection = false,
         onImagesPicked = { uris ->
             val headerImageUri = uris[0]
-            showHeaderPicker = false
             if (headerImageUri.path!!.isNotEmpty()) {
+                selectedBackgroundImageUri = headerImageUri
                 val file = uriToFile(context, headerImageUri)
-                viewModel.onEvent(UserProfileEvent.BackgroundPicturePathChanged(file.path.toString()))
+                selectedBackgroundImagePath = file.path.toString()
+                showImagePickerBottomSheetBack = false
+                showBackgroundImagePreview = true
             }
         },
         onCameraImagePicked = { uri ->
             val headerImageUri = uri
-            showHeaderPicker = false
             if (headerImageUri.path!!.isNotEmpty()) {
+                selectedBackgroundImageUri = headerImageUri
                 val file = uriToFile(context, headerImageUri)
-                viewModel.onEvent(UserProfileEvent.BackgroundPicturePathChanged(file.path.toString()))
+                selectedBackgroundImagePath = file.path.toString()
+                showImagePickerBottomSheetBack = false
+                showBackgroundImagePreview = true
             }
+        }
+    )
+
+    // Background Image Preview Dialog
+    BackgroundImagePreviewDialog(
+        showDialog = showBackgroundImagePreview,
+        imageUri = selectedBackgroundImageUri,
+        imagePath = selectedBackgroundImagePath,
+        onDismiss = {
+            showBackgroundImagePreview = false
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+        },
+        onChangePicture = {
+            showImagePickerBottomSheetBack = true
+        },
+        onDelete = {
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+            viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicturePath = "")))
+            showBackgroundImagePreview = false
+        },
+        onCrop = {
+            if (selectedBackgroundImageUri != null) {
+                showBackgroundImagePreview = false // Close preview before opening crop
+                showBackgroundCropDialog = true
+            }
+        },
+        onDone = {
+            selectedBackgroundImagePath?.let { path ->
+                viewModel.onEvent(UserProfileEvent.BackgroundPicturePathChanged(path))
+            }
+            showBackgroundImagePreview = false
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+        }
+    )
+
+    // Background Image Crop Dialog
+    CropBackgroundImageDialog(
+        showDialog = showBackgroundCropDialog,
+        imageUri = selectedBackgroundImageUri,
+        onDismiss = { 
+            showBackgroundCropDialog = false
+            // Reopen preview dialog if we had an image selected
+            if (selectedBackgroundImageUri != null) {
+                showBackgroundImagePreview = true
+            }
+        },
+        onCropped = { newUri, newPath ->
+            showBackgroundCropDialog = false
+            // Update state with cropped image
+            selectedBackgroundImageUri = newUri
+            selectedBackgroundImagePath = newPath
+            // Show preview dialog with updated cropped image
+            showBackgroundImagePreview = true
         }
     )
 }
