@@ -168,21 +168,23 @@ fun CropImageDialog(
         val displayedImageBottom = displayedImageTop + displayedImageHeight
 
         // Now account for graphicsLayer transform (scale and translation)
-        // The graphicsLayer transform is applied to the Image composable
-        // The circle center in Box coordinates is (circleCenterBoxX, circleCenterBoxY)
-        // We need to find what point in the displayed image (before transform) maps to this circle center
+        // The graphicsLayer transform: scale is applied around pivot (center), then translation
+        // For a point (x, y) in Image coordinates: 
+        //   transformed = center + (x - center) * scale + translation
+        // Inverse: x = center + (transformed - center - translation) / scale
         
-        // The displayed image is centered in the Box at (circleCenterBoxX, circleCenterBoxY)
-        // After graphicsLayer transform: the image is scaled and translated
-        // To reverse: apply inverse transform to the circle center
-        // Note: offsetX and offsetY are in the composable's coordinate system (Box coordinates)
-        // The transform order is: translate then scale, so inverse is: inverse scale then inverse translate
-        val displayedCenterX = (circleCenterBoxX - offsetX) / scale
-        val displayedCenterY = (circleCenterBoxY - offsetY) / scale
+        // The Image composable's center (pivot point for scaling) - same as circle center
+        val pivotX = boxSize / 2f
+        val pivotY = boxSize / 2f
+        
+        // Apply inverse transform: find the point in Image's coordinate system that maps to circle center
+        // Since circleCenterBoxX == pivotX, this simplifies to: point = pivot - offset / scale
+        val pointInImageCoordX = pivotX + (circleCenterBoxX - pivotX - offsetX) / scale
+        val pointInImageCoordY = pivotY + (circleCenterBoxY - pivotY - offsetY) / scale
 
         // Convert to coordinates relative to displayed image's top-left corner
-        val relativeX = displayedCenterX - displayedImageLeft
-        val relativeY = displayedCenterY - displayedImageTop
+        val relativeX = pointInImageCoordX - displayedImageLeft
+        val relativeY = pointInImageCoordY - displayedImageTop
 
         // Map from displayed image coordinates to original bitmap coordinates
         // For ContentScale.Fit, the scale factors are the same for both dimensions
@@ -192,8 +194,8 @@ fun CropImageDialog(
         val imageScale = scaleX // scaleX == scaleY for ContentScale.Fit
 
         // Center point in original bitmap coordinates
-        val imageCenterX = relativeX * imageScale
-        val imageCenterY = relativeY * imageScale
+        val cropCenterX = relativeX * imageScale
+        val cropCenterY = relativeY * imageScale
 
         // Calculate crop size in original image coordinates
         // The circle diameter in Box coordinates is cropSizePx
@@ -205,12 +207,12 @@ fun CropImageDialog(
         // Ensure crop size is valid and doesn't exceed image dimensions
         val validCropSize = cropSizeInImage.coerceAtLeast(1f).coerceAtMost(min(imageWidth, imageHeight))
 
-        // Calculate crop bounds (square crop centered at imageCenterX, imageCenterY)
+        // Calculate crop bounds (square crop centered at cropCenterX, cropCenterY)
         val halfCropSize = validCropSize / 2f
         
         // Calculate crop position, ensuring it stays within image bounds
-        val cropX = (imageCenterX - halfCropSize).coerceIn(0f, imageWidth - validCropSize)
-        val cropY = (imageCenterY - halfCropSize).coerceIn(0f, imageHeight - validCropSize)
+        val cropX = (cropCenterX - halfCropSize).coerceIn(0f, imageWidth - validCropSize)
+        val cropY = (cropCenterY - halfCropSize).coerceIn(0f, imageHeight - validCropSize)
 
         // Create square crop from bitmap
         val cropSizeInt = validCropSize.toInt().coerceAtLeast(1).coerceAtMost(min(imageWidth.toInt(), imageHeight.toInt()))

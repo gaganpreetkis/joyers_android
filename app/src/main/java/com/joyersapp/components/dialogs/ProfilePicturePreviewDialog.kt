@@ -130,8 +130,10 @@ fun ProfilePicturePreviewDialog(
                                     .background(Gray20)
                             ) {
                                 if (imageUri != null) {
+                                    // Use imagePath if available (for local files), otherwise use imageUri
+                                    val imageModel = imagePath ?: imageUri
                                     AsyncImage(
-                                        model = imageUri,
+                                        model = imageModel,
                                         contentDescription = "Profile picture preview",
                                         modifier = Modifier
                                             .fillMaxSize()

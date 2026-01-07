@@ -938,6 +938,7 @@ fun PageOneContent(
         },
         onCrop = {
             if (selectedProfileImageUri != null) {
+                showProfilePicturePreview = false // Close preview before opening crop
                 showCropDialog = true
             }
         },
@@ -956,11 +957,19 @@ fun PageOneContent(
     CropImageDialog(
         showDialog = showCropDialog,
         imageUri = selectedProfileImageUri,
-        onDismiss = { showCropDialog = false },
+        onDismiss = {
+            showCropDialog = false
+            // Reopen preview dialog if we had an image selected
+            if (selectedProfileImageUri != null) {
+                showProfilePicturePreview = true
+            }
+        },
         onCropped = { newUri, newPath ->
+            showCropDialog = false
+            // Update state with cropped image
             selectedProfileImageUri = newUri
             selectedProfileImagePath = newPath
-            showCropDialog = false
+            // Show preview dialog with updated cropped image
             showProfilePicturePreview = true
         }
     )
