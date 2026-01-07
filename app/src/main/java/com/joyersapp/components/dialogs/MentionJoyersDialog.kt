@@ -288,7 +288,7 @@ fun SearchBarRowForEditMaganetic(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_edit_magantic_add),
+                painter = painterResource(R.drawable.ic_nav_joyers_add),
                 contentDescription = "Add Joyer",
                 modifier = Modifier.size(30.dp)
             )

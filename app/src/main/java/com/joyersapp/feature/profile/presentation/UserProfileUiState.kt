@@ -37,7 +37,7 @@ data class UserProfileUiState(
     val ethnicity: ProfileMeta? = null,
     val faith: ProfileMeta? = null,
     val language: String = "",
-    val languages: List<Languages> = arrayListOf(Languages(ProfileMeta(name = "English"), "( Very Good )")),
+    val languages: List<Languages> = emptyList(),
     val educationName: String = "",
 
     val joySince: String = "",
@@ -89,4 +89,10 @@ data class UserProfileUiState(
     val showEditDescriptionDialog: Boolean = false,
     val showMentionJoyersDialog: Boolean = false,
     val showDatePickerDialog: Boolean = false,
+    val showLanguagesDialog: Boolean = false,
+
+
+    val key: String = "",
+    val selectedIds: List<String> = arrayListOf(),
+    val isMultiselectEnabled: Boolean = false,
 )

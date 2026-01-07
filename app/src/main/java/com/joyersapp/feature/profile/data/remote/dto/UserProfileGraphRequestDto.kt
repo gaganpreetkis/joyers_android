@@ -26,8 +26,13 @@ data class UserProfileGraphRequestDto (
     @SerializedName("relationship_id"       ) var relationshipId      : String?           = null,
     @SerializedName("political_ideology_id" ) var politicalIdeologyId : List<String>?           = null,
     @SerializedName("joyer_location_id"     ) var joyerLocationId     : String?           = null,
-    @SerializedName("language_id"           ) var languageId          : List<String>? = null,
+    @SerializedName("language_id"           ) var languageId          : List<LanguageReq>? = null,
     @SerializedName("sub_language_id"       ) var subLanguageId       : List<String>? = null,
     @SerializedName("interest_ids"          ) var interestIds         : List<String>? = null
 
+)
+
+data class LanguageReq(
+    @SerializedName("id"          ) val id: String = "",
+    @SerializedName("label"       ) val level: String = "",
 )

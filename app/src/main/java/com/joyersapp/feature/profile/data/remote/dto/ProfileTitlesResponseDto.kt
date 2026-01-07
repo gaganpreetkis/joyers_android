@@ -16,8 +16,9 @@ data class ProfileTitlesData (
     @SerializedName("id"            ) var id           : String? = null,
     @SerializedName("name"          ) var name         : String? = null,
     @SerializedName("description"   ) var description  : String? = null,
-    @SerializedName("selections"   ) var selections  : List<ProfileTitlesData>? = null,
-    @SerializedName("selection_count"   ) var selectionCount  : String? = null,
+    @SerializedName("level"         ) var level        : String? = null,
+    @SerializedName("selections"    ) var selections   : List<ProfileTitlesData>? = null,
+    @SerializedName("selection_count") var selectionCount : String? = null,
     @SerializedName("display_order" ) var displayOrder : Int?    = null,
     var isSelected : Boolean = false
 

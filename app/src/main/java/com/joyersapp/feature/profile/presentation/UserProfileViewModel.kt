@@ -6,6 +6,9 @@ import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.domain.usecase.GetTitlesUseCase
 import com.joyersapp.core.SessionManager
 import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
+import com.joyersapp.feature.profile.data.remote.dto.Language
+import com.joyersapp.feature.profile.data.remote.dto.LanguageReq
+import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
@@ -167,6 +170,14 @@ class UserProfileViewModel @Inject constructor(
 
             is UserProfileEvent.UpdateUserData -> {
                 val magneticsData = _uiState.value.magneticsData
+
+                val languageList = arrayListOf<LanguageReq>()
+                magneticsData.identificationData?.language?.forEach { item ->
+                    languageList.add(
+                        LanguageReq(item.language?.id?: "", item.language?.level?: "")
+                    )
+                }
+
                 val requestDto = UserProfileGraphRequestDto(
                     profilePicture = magneticsData.profileHeaderData?.profilePicture,
                     backgroundPicture = magneticsData.profileHeaderData?.backgroundPicture,
@@ -178,7 +189,7 @@ class UserProfileViewModel @Inject constructor(
                     birthDate = magneticsData.identificationData?.birthday,
                     gender = magneticsData.identificationData?.gender,
                     nationalityId = if (magneticsData.identificationData?.nationality.isNullOrEmpty()) null else magneticsData.identificationData.nationality?.map { it.dropdownCountries?.id?: "" },
-//                    languageId = if (magneticsData.identificationData?.language.isNullOrEmpty()) null else magneticsData.identificationData.language?.map { it.language?.id?: "" },
+                    languageId = languageList,
                     politicalIdeologyId = if (magneticsData.identificationData?.politicalIdeology.isNullOrEmpty()) null else magneticsData.identificationData.politicalIdeology?.map { it.dropdownPoliticalIdeology?.id?: "" },
                     ethnicityId = magneticsData.identificationData?.ethnicity?.id,
                     faithId = magneticsData.identificationData?.faith?.id,
@@ -346,7 +357,12 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.OnBioChanged -> {
-                _uiState.update { it.copy(profileHeaderData = _uiState.value.profileHeaderData.copy(bio = event.value)) }
+                _uiState.update { it.copy(
+                    profileHeaderData = _uiState.value.profileHeaderData.copy(
+                        bio = event.value,
+//                        overviewRemainingChars = 150 - event.value.length
+                    ),
+                ) }
             }
 
             is UserProfileEvent.OnWebsiteUrlChanged -> {
@@ -371,9 +387,6 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.ToggleDescriptionDialog -> {
-
-//                initSelections()
-
                 val selectedIds = event.selectedIds
                 val merged = event.titlesData.map { item ->
                     item.copy(isSelected = selectedIds.contains(item.id) == true )
@@ -424,6 +437,48 @@ class UserProfileViewModel @Inject constructor(
                         showDatePickerDialog = event.show,
                     )
                 }
+            }
+
+            is UserProfileEvent.ToggleLanguageDialog -> {
+                val selectedIds = uiState.value.identificationData.language?.associateBy( { it.language?.id?: "" }, { it.language?.level?: "" })
+                val merged = uiState.value.languageList.map { item ->
+                    val newLevel = selectedIds?.get(item.id)
+                    item.copy(
+                        isSelected = selectedIds?.contains(item.id) == true,
+                        level = newLevel?: ""
+                        )
+                }
+
+                _uiState.update {
+                    it.copy(
+                        showLanguagesDialog = event.show,
+                        titlesData = merged,
+//                        selectedIds = selectedIds
+                    )
+                }
+            }
+
+            is UserProfileEvent.OnApplyLanguage -> {
+                val selectedIds = event.value.associateBy( { it.id },{ it.level } )
+                val selected = _uiState.value.languageList.filter() { it.id in selectedIds }
+
+                val selectedMeta = selected.map { item ->
+                    val newLevel = selectedIds?.get(item.id)
+                    Languages(
+                        language = Language(
+                            id = item.id,
+                            name = item.name,
+                            description = item.description,
+                            level = newLevel,
+                        )
+                    )
+                }
+
+                _uiState.update { it.copy(
+                    showLanguagesDialog = false,
+                    identificationData = _uiState.value.identificationData.copy(language = selectedMeta)
+                ) }
+
             }
 
             is UserProfileEvent.BackgroundPicturePathChanged -> {

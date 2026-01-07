@@ -54,6 +54,7 @@ import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.dialogs.BirthdayDatePickerDialog
 import com.joyersapp.components.dialogs.EditDescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
+import com.joyersapp.components.dialogs.LanguageSelectionDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.core.NetworkConfig
@@ -243,6 +244,13 @@ fun MagneticsScreen(
             BirthdayDatePickerDialog(
                 onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleDatePickerDialog(show = false)) },
                 onDateSelected = {  viewModel.onEvent(UserProfileEvent.OnApplyBirthday(value = it)) }
+            )
+        }
+        if (state.showLanguagesDialog) {
+            LanguageSelectionDialog(
+                viewModel = viewModel,
+                onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = false)) },
+                onApply = {  viewModel.onEvent(UserProfileEvent.OnApplyLanguage(it)) }
             )
         }
     }
@@ -519,7 +527,7 @@ fun ProfileHeaderSection(
             ProfileEditableRow(title = "Profile Picture")
         }
         Spacer(Modifier.height(13.dp))
-        if (!state?.bio.isNullOrEmpty()) {
+        if (!state?.bio.isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
             BioSection(
                 bioText = state.bio,
                 linkText = state.websiteUrl,
@@ -708,33 +716,38 @@ fun BioSection(
                 )
             ) {
 
-                // ----- BIO RICH TEXT -----
-                HighlightedText(bioText)
+                if (bioText.isNotEmpty()) {
+                    // ----- BIO RICH TEXT -----
+                    HighlightedText(bioText)
+                }
 
-                Spacer(Modifier.height(10.dp))
+                if (linkText.isNotEmpty()) {
 
-                // ----- LINK ROW -----
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clickable { onLinkClick() }
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_link),
-                        contentDescription = null,
-                        modifier = Modifier.height(14.5.dp).width(14.5.dp)
-                    )
-                    Spacer(Modifier.width(5.dp))
+                    Spacer(Modifier.height(10.dp))
 
-                    Text(
-                        text = linkText,
-                        fontSize = 14.sp,
-                        color = Golden,
-                        fontWeight = FontWeight.SemiBold,
-                        lineHeight = 22.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    // ----- LINK ROW -----
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable { onLinkClick() }
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_link),
+                            contentDescription = null,
+                            modifier = Modifier.height(14.5.dp).width(14.5.dp)
+                        )
+                        Spacer(Modifier.width(5.dp))
+
+                        Text(
+                            text = linkText,
+                            fontSize = 14.sp,
+                            color = Golden,
+                            fontWeight = FontWeight.SemiBold,
+                            lineHeight = 22.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }
@@ -905,11 +918,15 @@ fun LanguageSection(
 
                 languages.forEachIndexed { index, item ->
                     val name = item.language?.name
-                    val level = item.language?.description
+                    val level = item.language?.level?: ""
+                    val language = buildString {
+                        append(name)
+                        if (level.isNotEmpty()) append(" ($level)")
+                    }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "$name",
+                            text = language,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = fontFamilyLato,
@@ -1057,5 +1074,7 @@ data class ProfileHeaderData(
     val profilePicture: String = "",
     val backgroundPicture: String = "",
     val bio: String = "",
+    val overviewRemainingChars: Int = 150 - bio.length,
+    val highlightsRemainingChars: Int = 25,
     val websiteUrl: String = "",
 )

@@ -3,6 +3,7 @@ package com.joyersapp.feature.profile.presentation
 import com.joyersapp.auth.presentation.identity.IdentityEvent
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
+import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 
@@ -18,6 +19,7 @@ sealed class UserProfileEvent {
     data class ToggleIdentificationDialog(val show: Boolean) : UserProfileEvent()
     data class ToggleMentionJoyersDialog(val show: Boolean) : UserProfileEvent()
     data class ToggleDatePickerDialog(val show: Boolean) : UserProfileEvent()
+    data class ToggleLanguageDialog(val show: Boolean) : UserProfileEvent()
     data class BackgroundPicturePathChanged(val value: String) : UserProfileEvent()
     data class ProfilePicturePathChanged(val value: String) : UserProfileEvent()
     data class OnApplyIdentification(val value: IdentificationData) : UserProfileEvent()
@@ -25,6 +27,7 @@ sealed class UserProfileEvent {
     data class OnApplyDescription(val key: String, val value: List<ProfileTitlesData>) : UserProfileEvent()
     data class OnNameChanged(val value: String) : UserProfileEvent()
     data class OnApplyBirthday(val value: String) : UserProfileEvent()
+    data class OnApplyLanguage(val value: List<ProfileTitlesData>) : UserProfileEvent()
     data class OnClearDescription(val key: String) : UserProfileEvent()
     data class OnGenderSelected(val value: String) : UserProfileEvent()
     data class OnBioChanged(val value: String) : UserProfileEvent()

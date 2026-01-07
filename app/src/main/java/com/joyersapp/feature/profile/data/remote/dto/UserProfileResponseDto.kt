@@ -24,7 +24,7 @@ data class UserProfile (
     @SerializedName("background_picture" ) var backgroundPicture : String?              = null,
     @SerializedName("profile_picture"    ) var profilePicture    : String?              = null,
     @SerializedName("bio"                ) var bio               : String?              = null,
-    @SerializedName("website_url"        ) var websiteUrl        : String?              = null,
+    @SerializedName("website_url"                ) var websiteUrl               : String?              = null,
     @SerializedName("joyer_status"       ) var joyerStatus       : String?              = null,
     @SerializedName("joy_since"          ) var joySince          : String?              = null,
     @SerializedName("joy_since_duration" ) var joySinceDuration  : String?              = null,
@@ -57,9 +57,18 @@ data class ProfileMeta (
 
 )
 
+data class Language (
+
+    @SerializedName("id"          ) var id          : String? = null,
+    @SerializedName("name"        ) var name        : String? = null,
+    @SerializedName("description" ) var description : String? = null,
+    @SerializedName("label"       ) var level       : String? = null,
+
+)
+
 data class Languages (
 
-    @SerializedName("language"    ) var language    : ProfileMeta? = ProfileMeta(),
+    @SerializedName("language"    ) var language    : Language? = Language(),
     @SerializedName("sublanguage" ) var sublanguage : Any?         = null
 
 )
