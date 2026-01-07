@@ -2,20 +2,29 @@ package com.joyersapp.feature.profile.presentation
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.unit.Dp
+import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
 data class UserProfileUiState(
-    val profileHeaderData: EditProfileHeaderDialogDto = EditProfileHeaderDialogDto(),
+
+    val magneticsData: MagneticsData = MagneticsData(),
+    val identificationData: IdentificationData = IdentificationData(),
+
+    val profileHeaderData: ProfileHeaderData = ProfileHeaderData(),
     val username: String = "",
     val fullname: String = "",
-    val location: String = "",
+    val joyerLocation: String? = null,
+    val location: ProfileMeta? = null,
     val profilePicture: String = "",
     val backgroundPicture: String = "",
+    val bio: String = "",
+    val websiteUrl: String = "",
 
     val joyerStatus: String = "",
     val titleName: String = "",
@@ -25,9 +34,8 @@ data class UserProfileUiState(
     val areaOfInterest: List<Interests> = emptyList(),
 
     val gender: String = "",
-    val nationality: String = "",
-    val ethnicity: String = "",
-    val faith: String = "",
+    val ethnicity: ProfileMeta? = null,
+    val faith: ProfileMeta? = null,
     val language: String = "",
     val languages: List<Languages> = arrayListOf(Languages(ProfileMeta(name = "English"), "( Very Good )")),
     val educationName: String = "",
@@ -47,6 +55,7 @@ data class UserProfileUiState(
     val birthday: String = "",
     val education: ProfileMeta? = null,
     val relationship: ProfileMeta? = null,
+    val nationality: List<Nationality>? = null,
     val politicalIdeology: List<PoliticalIdeology>? = null,
 
     val tabs: List<String> = listOf("Status", "Identity", "Sparks", "Cards", "Gallery"),
@@ -79,5 +88,5 @@ data class UserProfileUiState(
     val showEditProfileHeaderDialog: Boolean = false,
     val showEditDescriptionDialog: Boolean = false,
     val showMentionJoyersDialog: Boolean = false,
-    val error: String? = null
+    val showDatePickerDialog: Boolean = false,
 )

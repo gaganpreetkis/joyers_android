@@ -20,25 +20,28 @@ data class UserProfile (
     @SerializedName("first_name"         ) var firstName         : String?              = null,
     @SerializedName("last_name"          ) var lastName          : String?              = null,
     @SerializedName("gender"             ) var gender            : String?              = null,
+    @SerializedName("birth_date"         ) var birthDate         : String?              = null,
     @SerializedName("background_picture" ) var backgroundPicture : String?              = null,
     @SerializedName("profile_picture"    ) var profilePicture    : String?              = null,
     @SerializedName("bio"                ) var bio               : String?              = null,
-    @SerializedName("joyer_location"     ) var joyerLocation     : String?              = null,
+    @SerializedName("website_url"        ) var websiteUrl        : String?              = null,
     @SerializedName("joyer_status"       ) var joyerStatus       : String?              = null,
     @SerializedName("joy_since"          ) var joySince          : String?              = null,
     @SerializedName("joy_since_duration" ) var joySinceDuration  : String?              = null,
     @SerializedName("qr_code"            ) var qrCode            : String?              = null,
-    @SerializedName("title"              ) var title             : ProfileMeta?         = ProfileMeta(),
-    @SerializedName("sub_title"          ) var subTitle          : ProfileMeta?         = ProfileMeta(),
-    @SerializedName("nationality"        ) var nationality       : ProfileMeta?         = ProfileMeta(),
-    @SerializedName("ethnicity"          ) var ethnicity         : ProfileMeta?         = ProfileMeta(),
-    @SerializedName("faith"              ) var faith             : ProfileMeta?         = ProfileMeta(),
-    @SerializedName("education"          ) var education         : ProfileMeta?         = ProfileMeta(),
-    @SerializedName("relationship"       ) var relationship      : ProfileMeta?         = ProfileMeta(),
+    @SerializedName("joyer_location"     ) var joyerLocation     : String?              = null,
+    @SerializedName("title"              ) var title             : ProfileMeta?         = null,
+    @SerializedName("location"           ) var location          : ProfileMeta?         = null,
+    @SerializedName("sub_title"          ) var subTitle          : ProfileMeta?         = null,
+    @SerializedName("ethnicity"          ) var ethnicity         : ProfileMeta?         = null,
+    @SerializedName("faith"              ) var faith             : ProfileMeta?         = null,
+    @SerializedName("education"          ) var education         : ProfileMeta?         = null,
+    @SerializedName("relationship"       ) var relationship      : ProfileMeta?         = null,
     @SerializedName("likes_count"        ) var likesCount        : String?              = null,
     @SerializedName("following_count"    ) var followingCount    : String?              = null,
     @SerializedName("followers_count"    ) var followersCount    : String?              = null,
     @SerializedName("account_status"     ) var accountStatus     : String?              = null,
+    @SerializedName("nationality"        ) var nationality       : ArrayList<Nationality>? = arrayListOf(),
     @SerializedName("political_ideology" ) var politicalIdeology : ArrayList<PoliticalIdeology> = arrayListOf(),
     @SerializedName("interests"          ) var interests         : ArrayList<Interests> = arrayListOf(),
     @SerializedName("languages"          ) var languages         : ArrayList<Languages> = arrayListOf(),
@@ -69,5 +72,10 @@ data class Interests (
 data class PoliticalIdeology (
 
     @SerializedName("dropdown_political_ideology" ) var dropdownPoliticalIdeology : ProfileMeta? = ProfileMeta()
+
+)
+data class Nationality (
+
+    @SerializedName("dropdown_countries" ) var dropdownCountries : ProfileMeta? = ProfileMeta()
 
 )

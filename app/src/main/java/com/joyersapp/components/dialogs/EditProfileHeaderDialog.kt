@@ -61,6 +61,7 @@ import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
+import com.joyersapp.feature.profile.presentation.ProfileHeaderData
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.theme.Golden
@@ -80,21 +81,20 @@ import com.joyersapp.utils.uriToFile
 //@Preview
 @Composable
 fun EditProfileHeaderDialog(
-    data: EditProfileHeaderDialogDto,
     onDismiss: () -> Unit = {},
-    onApply: (data: EditProfileHeaderDialogDto) -> Unit = {},
+    onApply: (data: ProfileHeaderData) -> Unit = {},
     viewModel: UserProfileViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    var bioText by remember { mutableStateOf("") }
+    val profileHeaderData = state.profileHeaderData
     var showProfilePlaceholder by remember { mutableStateOf(true) }
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
     var showHeaderPicker by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
-    LaunchedEffect(data) {
-        viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(data))
+    LaunchedEffect(profileHeaderData) {
+        viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(profileHeaderData))
     }
 
     BaseDialog (
@@ -123,19 +123,19 @@ fun EditProfileHeaderDialog(
             )
 
             EditableProfilePictureCard(
-                backgroundPicturePath = state.profileHeaderData.backgroundPicturePath ?: "",
-                profilePicturePath = state.profileHeaderData.profilePicturePath ?: "",
+                backgroundPicturePath = state.profileHeaderData.backgroundPicture ?: "",
+                profilePicturePath = state.profileHeaderData.profilePicture ?: "",
                 onHeaderPicker = {
                     showImagePickerBottomSheetBack = true
                 },
                 onClearHeaderImage = {
-                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicturePath = "")))
+                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicture = "")))
                 },
                 onProfilePicturePicker = {
                     showImagePickerBottomSheet = true
                 },
                 onClearProfilePicture = {
-                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(profilePicturePath = "")))
+                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(profilePicture = "")))
                 }
             )
 
@@ -150,8 +150,8 @@ fun EditProfileHeaderDialog(
                 modifier = Modifier.padding(top = 20.dp, bottom = 10.dp)
             )
 
-            BioEditor(bioText) {
-                bioText = it
+            BioEditor(profileHeaderData.bio) {
+                viewModel.onEvent(UserProfileEvent.OnBioChanged(it))
                 if (it.equals("@")) {
                     viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                 }
@@ -164,9 +164,9 @@ fun EditProfileHeaderDialog(
             WebsiteTextField(
                 label = "Website",
                 hintText = "Domain Link",
-                value = data.websiteUrl?:"",
-                onValueChange = { data.websiteUrl = it },
-                onClear = { data.websiteUrl = "" }
+                value = profileHeaderData.websiteUrl,
+                onValueChange = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged(it)) },
+                onClear = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged("")) }
 
             )
             /*Row(verticalAlignment = Alignment.CenterVertically,

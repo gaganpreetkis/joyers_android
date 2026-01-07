@@ -717,7 +717,7 @@ fun PageOneContent(
                         context,
                         showPhoneCode = false
                     ) { code, name, flag, _ ->
-                        //state.joyerLocation = name
+                        //state.location = name
                         //selectedCountryCode = code
                         viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(name))
                     }
@@ -755,12 +755,12 @@ fun PageOneContent(
                                     context,
                                     showPhoneCode = false
                                 ) { code, name, flag, _ ->
-                                    //state.joyerLocation = name
+                                    //state.location = name
                                     //selectedCountryCode = code
                                     viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(name))
                                 }
                             } else {
-                                //state.joyerLocation = ""
+                                //state.location = ""
                                 viewModel2.onEvent(IdentityEvent.JoyerLocationChanged(""))
                             }
                         }

@@ -3,17 +3,22 @@ package com.joyersapp.feature.profile.presentation
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
 data class EditMagneticsUiState(
 
-    val identificationData: IdentificationData = IdentificationData(),
+
+    val selectedIds: List<String> = arrayListOf(),
+    val isMultiselectEnabled: Boolean = false,
+    val key: String = "",
+    val value: List<ProfileTitlesData>? = null,
 
     val username: String = "",
     val fullname: String = "",
-    val location: String = "",
+    val location: ProfileMeta? = null,
     val profilePicture: String = "",
     val backgroundPicture: String = "",
 
@@ -23,17 +28,17 @@ data class EditMagneticsUiState(
     val areaOfInterest: List<Interests> = emptyList(),
 
     val gender: String = "",
-    val nationality: ProfileMeta? = null,
     val ethnicity: ProfileMeta? = null,
     val faith: ProfileMeta? = null,
     val education: ProfileMeta? = null,
-    val languages: List<Languages> = emptyList(),
+    val languages: List<Languages>? = null,
 
     val joyerType: String = "",
     val children: String = "",
     val birthday: String = "",
     val relationship: ProfileMeta? = null,
-    val politicalIdeology: MutableList<PoliticalIdeology>? = null,
+    val nationality: List<Nationality>? = null,
+    val politicalIdeology: List<PoliticalIdeology>? = null,
 
     val dialogHeader: List<String> = emptyList(),
     val titlesData: List<ProfileTitlesData> = emptyList(),
@@ -58,6 +63,4 @@ data class EditMagneticsUiState(
     val error: String? = null,
 
 
-    val key: String? = null,
-    val value: List<ProfileTitlesData>? = null
-)
+    )

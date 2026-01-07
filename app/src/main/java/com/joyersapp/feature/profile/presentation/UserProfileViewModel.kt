@@ -1,12 +1,14 @@
 package com.joyersapp.feature.profile.presentation
 
-import androidx.compose.runtime.key
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.joyersapp.auth.presentation.identity.IdentityEvent
-import com.joyersapp.common_widgets.Gender
+import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.domain.usecase.GetTitlesUseCase
 import com.joyersapp.core.SessionManager
+import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
+import com.joyersapp.feature.profile.data.remote.dto.Nationality
+import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
+import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.feature.profile.domain.usecase.GetCountryListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetEducationListUseCase
@@ -22,7 +24,6 @@ import com.joyersapp.feature.profile.domain.usecase.UploadPictureServerUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -61,7 +62,7 @@ class UserProfileViewModel @Inject constructor(
     val uiStateMagnetics: StateFlow<EditMagneticsUiState> = _uiStateMagnetics.asStateFlow()
     val navigationEvents = _navigationEvents
 
-    val req = UserProfileGraphRequestDto()
+
 
     init {
         // simulate fetch
@@ -116,6 +117,38 @@ class UserProfileViewModel @Inject constructor(
                 getUserProfileData()
             }
 
+            is UserProfileEvent.InitMagneticsData -> {
+                val state = _uiState.value
+                _uiState.update {
+                    it.copy(
+                        magneticsData = MagneticsData(
+                            username = state.username,
+                            profileHeaderData = ProfileHeaderData(
+                                profilePicture = state.profilePicture,
+                                backgroundPicture = state.backgroundPicture,
+                                bio = state.bio,
+                                websiteUrl = state.websiteUrl,
+                            ),
+                            joyerStatus = state.joyerStatus,
+                            interests = state.areaOfInterest,
+                            identificationData = IdentificationData(
+                                name = state.fullname,
+                                birthday = state.birthday,
+                                gender = state.gender,
+                                nationality = state.nationality,
+                                ethnicity = state.ethnicity,
+                                faith = state.faith,
+                                language = state.languages,
+                                education = state.education,
+                                relationship = state.relationship,
+                                politicalIdeology = state.politicalIdeology,
+                                location = state.location,
+                            ),
+                        )
+                    )
+                }
+            }
+
             is UserProfileEvent.TabSelected -> {
                 _uiState.update {
                     it.copy(
@@ -131,87 +164,246 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.UpdateUserData -> {
-                uploadUserProfileData(req)
+                val magneticsData = _uiState.value.magneticsData
+                val requestDto = UserProfileGraphRequestDto(
+                    profilePicture = magneticsData.profileHeaderData?.profilePicture,
+                    backgroundPicture = magneticsData.profileHeaderData?.backgroundPicture,
+                    bio = magneticsData.profileHeaderData?.bio,
+                    websiteUrl = magneticsData.profileHeaderData?.websiteUrl,
+                    joyerStatus = magneticsData.joyerStatus,
+                    firstName = magneticsData.identificationData?.name?.trim()?.split(" ")?.firstOrNull(),
+                    lastName = magneticsData.identificationData?.name?.trim()?.split(" ")?.drop(1)?.joinToString(" "),
+                    birthDate = magneticsData.identificationData?.birthday,
+                    gender = magneticsData.identificationData?.gender,
+                    nationalityId = if (magneticsData.identificationData?.nationality.isNullOrEmpty()) null else magneticsData.identificationData.nationality?.map { it.dropdownCountries?.id?: "" },
+//                    languageId = if (magneticsData.identificationData?.language.isNullOrEmpty()) null else magneticsData.identificationData.language?.map { it.language?.id?: "" },
+                    politicalIdeologyId = if (magneticsData.identificationData?.politicalIdeology.isNullOrEmpty()) null else magneticsData.identificationData.politicalIdeology?.map { it.dropdownPoliticalIdeology?.id?: "" },
+                    ethnicityId = magneticsData.identificationData?.ethnicity?.id,
+                    faithId = magneticsData.identificationData?.faith?.id,
+                    educationId = magneticsData.identificationData?.education?.id,
+                    relationshipId = magneticsData.identificationData?.relationship?.id,
+                    joyerLocationId = magneticsData.identificationData?.location?.id,
+                )
+                uploadUserProfileData(requestDto)
             }
 
             is UserProfileEvent.OnApplyIdentification -> {
-                _uiStateMagnetics.update {
+                val magneticsData = _uiState.value.magneticsData.copy(identificationData = uiState.value.identificationData)
+
+                _uiState.update {
                     it.copy(
-                        username = event.value.name,
-                        birthday = event.value.birthday,
-//                        gender = event.value.gender,
-                        nationality = event.value.nationality,
-                        ethnicity = event.value.ethnicity,
-                        faith = event.value.faith,
-                        languages = event.value.language,
-                        education = event.value.education,
-                        relationship = event.value.relationship,
-                        politicalIdeology = event.value.politicalIdeology,
-                        location = event.value.joyerLocation,
+                        magneticsData = magneticsData
+                ) }
+            }
+
+            is UserProfileEvent.OnApplyProfileHeader -> {
+                val magneticsData = _uiState.value.magneticsData.copy(profileHeaderData = event.value)
+
+                _uiState.update {
+                    it.copy(
+                        magneticsData = magneticsData
                 ) }
             }
 
             is UserProfileEvent.OnApplyDescription -> {
                     when(event.key) {
+                        "Nationality" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val selected = _uiState.value.countryList.filter() { it.id in selectedIds }
+
+                            val selectedMeta = selected.map {
+                                Nationality(
+                                    dropdownCountries = ProfileMeta(
+                                        id = it.id,
+                                        name = it.name,
+                                        description = it.description,
+                                    )
+                                )
+                            }
+
+                            _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(nationality = selectedMeta)) }
+                        }
+                        "Ethnicity" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val selected = _uiState.value.ethenicityList.firstOrNull() { it.id in selectedIds }
+                            val selectedMeta = ProfileMeta(
+                                id = selected?.id,
+                                name = selected?.name,
+                                description = selected?.description,
+                            )
+
+                            _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(ethnicity = selectedMeta)) }
+
+                        }
+                        "Faith" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val selected = _uiState.value.faithReligionList.firstOrNull() { it.id in selectedIds }
+                            val selectedMeta = ProfileMeta(
+                                id = selected?.id,
+                                name = selected?.name,
+                                description = selected?.description,
+                            )
+
+                            _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(faith = selectedMeta)) }
+
+                        }
                         "Education" -> {
                             val selectedIds = event.value.map { it.id }.toSet()
-                            val merged = _uiState.value.educationList.map { item ->
-                                item.copy(isSelected = item.id in selectedIds)
-                            }
-                            _uiState.update { it.copy(educationList = merged) }
-                        }
-                        "Political Ideology" -> {
-                            val selectedIds = event.value.map { it.id }.toSet()
-                            val merged = _uiState.value.politicalIdeologyList.map { item ->
-                                item.copy(isSelected = item.id in selectedIds)
-                            }
-                            _uiState.update { it.copy(educationList = merged) }
+                            val selected = _uiState.value.educationList.firstOrNull() { it.id in selectedIds }
+                            val selectedMeta = ProfileMeta(
+                                id = selected?.id,
+                                name = selected?.name,
+                                description = selected?.description,
+                            )
+
+                            _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(education = selectedMeta)) }
+
                         }
                         "Relationship" -> {
                             val selectedIds = event.value.map { it.id }.toSet()
-                            val merged = _uiState.value.relationShipList.map { item ->
-                                item.copy(isSelected = item.id in selectedIds)
+                            val selected = _uiState.value.relationShipList.firstOrNull() { it.id in selectedIds }
+                            val selectedMeta = ProfileMeta(
+                                id = selected?.id,
+                                name = selected?.name,
+                                description = selected?.description,
+                            )
+
+                            _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(relationship = selectedMeta)) }
+                        }
+                        "Political Ideology" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val selected = _uiState.value.politicalIdeologyList.filter() { it.id in selectedIds }
+
+                            val selectedMeta = selected.map {
+                                PoliticalIdeology(
+                                    dropdownPoliticalIdeology = ProfileMeta(
+                                        id = it.id,
+                                        name = it.name,
+                                        description = it.description,
+                                    )
+                                )
                             }
-                            _uiState.update { it.copy(educationList = merged) }
+
+                            _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(politicalIdeology = selectedMeta)) }
+                        }
+                        "Joyer Location" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val selected = _uiState.value.countryList.firstOrNull() { it.id in selectedIds }
+
+                            val selectedMeta = ProfileMeta(
+                                id = selected?.id,
+                                name = selected?.name,
+                                description = selected?.description,
+                            )
+
+                            _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(location = selectedMeta)) }
                         }
                     }
             }
 
-            is UserProfileEvent.ToggleProfileHeaderDialog -> {
-                if (event.updateProfileHeaderData) {
-                    _uiState.update {
-                        it.copy(
-                            showEditProfileHeaderDialog = event.show,
-                            profilePicture = uiState.value.profileHeaderData.profilePicturePath ?: "",
-                            backgroundPicture = uiState.value.profileHeaderData.backgroundPicturePath ?: ""
-                        )
+            is UserProfileEvent.OnClearDescription -> {
+                when(event.key) {
+                    "Name" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(name = "")) }
                     }
-                } else {
-                    _uiState.update {
-                        it.copy(
-                            showEditProfileHeaderDialog = event.show,
-                        )
+                    "Birthday" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(birthday = "")) }
+                    }
+                    "Gender" -> {
+//                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(gender = "")) }
+                    }
+                    "Nationality" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(nationality = null)) }
+                    }
+                    "Ethnicity" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(ethnicity = null)) }
+                    }
+                    "Faith" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(faith = null)) }
+                    }
+                    "Language" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(language = null)) }
+                    }
+                    "Education" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(education = null)) }
+                    }
+                    "Relationship" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(relationship = null)) }
+                    }
+                    "Political Ideology" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(politicalIdeology = null)) }
+                    }
+                    "Joyer Location" -> {
+                        _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(location = null)) }
                     }
                 }
             }
 
-            is UserProfileEvent.ToggleDescriptionDialog -> {
-                initSelections()
+            is UserProfileEvent.OnGenderSelected -> {
+                _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(gender = event.value)) }
+            }
+
+            is UserProfileEvent.OnBioChanged -> {
+                _uiState.update { it.copy(profileHeaderData = _uiState.value.profileHeaderData.copy(bio = event.value)) }
+            }
+
+            is UserProfileEvent.OnWebsiteUrlChanged -> {
+                _uiState.update { it.copy(profileHeaderData = _uiState.value.profileHeaderData.copy(websiteUrl = event.value)) }
+            }
+
+            is UserProfileEvent.OnApplyBirthday -> {
+                _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(birthday = event.value)) }
+            }
+
+            is UserProfileEvent.OnNameChanged -> {
+                _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(name = event.value)) }
+            }
+
+            is UserProfileEvent.ToggleProfileHeaderDialog -> {
                 _uiState.update {
                     it.copy(
-//                        showIdentificationDialog = false,
-                        showEditDescriptionDialog = event.show,
-                        dialogHeader = event.headers,
-                        titlesData = event.titlesData,
-                        selectedItems = event.selectedItems
+                        showEditProfileHeaderDialog = event.show,
+                        profileHeaderData = uiState.value.magneticsData.profileHeaderData?: ProfileHeaderData()
                     )
                 }
             }
 
+            is UserProfileEvent.ToggleDescriptionDialog -> {
+
+//                initSelections()
+
+                val selectedIds = event.selectedIds
+                val merged = event.titlesData.map { item ->
+                    item.copy(isSelected = selectedIds.contains(item.id) == true )
+                }
+
+                _uiState.update {
+                    it.copy(
+                        showEditDescriptionDialog = event.show,
+                        dialogHeader = event.headers,
+                        titlesData = merged,
+                    )
+                }
+                _uiStateMagnetics.update {
+                    it.copy(
+                        key = event.key,
+                        selectedIds = event.selectedIds,
+                        isMultiselectEnabled = event.isMultiSelectEnabled,
+                    )
+                }
+//                viewModelScope.launch {
+//                    _navigationEvents.emit(UserProfileNavigationEvent.NavigateToDescriptionDialog(""))
+//                }
+
+            }
+
             is UserProfileEvent.ToggleIdentificationDialog -> {
+                val state = _uiState.value
+                val uiStateMagnetics = uiStateMagnetics.value
                 _uiState.update {
                     it.copy(
                         showIdentificationDialog = event.show,
+                        identificationData = state.magneticsData.identificationData?: IdentificationData()
                     )
                 }
             }
@@ -220,6 +412,14 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         showMentionJoyersDialog = event.show,
+                    )
+                }
+            }
+
+            is UserProfileEvent.ToggleDatePickerDialog -> {
+                _uiState.update {
+                    it.copy(
+                        showDatePickerDialog = event.show,
                     )
                 }
             }
@@ -255,24 +455,27 @@ class UserProfileViewModel @Inject constructor(
 
     private fun uploadUserProfileData(requestDto: UserProfileGraphRequestDto) {
         viewModelScope.launch {
-
+            _uiState.update { it.copy(isLoading = true) }
             val result = uploadUserProfileUseCase(requestDto)
             result.fold(
                 onSuccess = { response ->
                     _uiState.update {
                         it.copy(
-                            error = null,
+                            isLoading = false,
                             errorMessage = null,
                             username = response.username ?: "",
                             fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
-                            location = response.joyerLocation ?: "",
+                            location = response.location,
+                            joyerLocation = response.joyerLocation,
                             profilePicture = response.profilePicture ?: "",
                             backgroundPicture = response.backgroundPicture ?: "",
+                            bio = response.bio ?: "",
+                            websiteUrl = response.websiteUrl ?: "",
                             likes = response.likesCount ?: "",
                             following = response.followingCount ?: "",
                             followers = response.followersCount ?: "",
                             joyerStatus = response.joyerStatus ?: "",
-//                            birthday = response.b ?: "",
+                            birthday = response.birthDate ?: "",
                             gender = response.gender ?: "",
                             relationship = response.relationship,
                             education = response.education,
@@ -283,37 +486,14 @@ class UserProfileViewModel @Inject constructor(
                             title = response.title,
                             subTitle = response.subTitle,
                             areaOfInterest = response.interests,
-//                            languages = response.languages,
+                            languages = response.languages,
                             joySince = response.joySince ?: "",
                             joySinceDuration = response.joySinceDuration ?: "",
                             qrCode = response.qrCode ?: "",
-                            nationality = response.nationality?.name ?: "",
-                            ethnicity = response.ethnicity?.name ?: "",
-                            faith = response.faith?.name ?: "",
-                            educationName = response.education?.name ?: "",
-                        )
-                    }
-                    _uiStateMagnetics.update {
-                        it.copy(
-                            username = response.username ?: "",
-                            fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
-                            location = response.joyerLocation ?: "",
-                            profilePicture = response.profilePicture ?: "",
-                            backgroundPicture = response.backgroundPicture ?: "",
-                            joyerStatus = response.joyerStatus ?: "",
-//                            birthday = response.b ?: "",
-                            gender = response.gender ?: "",
-                            relationship = response.relationship,
-//                            children = response.ch?.name?: "",
-                            politicalIdeology = response.politicalIdeology,
-                            title = response.title,
-                            subTitle = response.subTitle,
-                            areaOfInterest = response.interests,
-                            languages = response.languages,
                             nationality = response.nationality,
                             ethnicity = response.ethnicity,
                             faith = response.faith,
-                            education = response.education,
+                            educationName = response.education?.name ?: "",
                         )
                     }
                     _navigationEvents.emit(UserProfileNavigationEvent.NavigateToUserProfile)
@@ -321,8 +501,8 @@ class UserProfileViewModel @Inject constructor(
                 onFailure = { error ->
                     _uiState.update {
                         it.copy(
-//                            isLoading = false,
-                            error = error.message
+                            isLoading = false,
+                            errorMessage = error.message
                         )
                     }
                 }
@@ -346,7 +526,7 @@ class UserProfileViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 profileHeaderData = uiState.value.profileHeaderData.copy(
-                                    profilePicturePath = response.data?.profilePicture ?: "",
+                                    profilePicture = response.data?.profilePicture ?: "",
                                 )
                             )
                         }
@@ -361,7 +541,7 @@ class UserProfileViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 profileHeaderData = uiState.value.profileHeaderData.copy(
-                                    backgroundPicturePath = response.data?.backgroundPicture ?: "",
+                                    backgroundPicture = response.data?.backgroundPicture ?: "",
                                 )
                             )
                         }
@@ -372,7 +552,7 @@ class UserProfileViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
 //                            isLoading = false,
-                            error = error.message
+                            errorMessage = error.message
                         )
                     }
                 }
@@ -389,18 +569,20 @@ class UserProfileViewModel @Inject constructor(
                 onSuccess = { response ->
                     _uiState.update {
                         it.copy(
-                            error = null,
                             errorMessage = null,
                             username = response.username ?: "",
                             fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
-                            location = response.joyerLocation ?: "",
+                            location = response.location,
+                            joyerLocation = response.joyerLocation,
                             profilePicture = response.profilePicture ?: "",
                             backgroundPicture = response.backgroundPicture ?: "",
+                            bio = response.bio ?: "",
+                            websiteUrl = response.websiteUrl ?: "",
                             likes = response.likesCount ?: "",
                             following = response.followingCount ?: "",
                             followers = response.followersCount ?: "",
                             joyerStatus = response.joyerStatus ?: "",
-//                            birthday = response.b ?: "",
+                            birthday = response.birthDate ?: "",
                             gender = response.gender ?: "",
                             relationship = response.relationship,
                             education = response.education,
@@ -411,38 +593,14 @@ class UserProfileViewModel @Inject constructor(
                             title = response.title,
                             subTitle = response.subTitle,
                             areaOfInterest = response.interests,
-//                            languages = response.languages,
+                            languages = response.languages,
                             joySince = response.joySince ?: "",
                             joySinceDuration = response.joySinceDuration ?: "",
                             qrCode = response.qrCode ?: "",
-                            nationality = response.nationality?.name ?: "",
-                            ethnicity = response.ethnicity?.name ?: "",
-                            faith = response.faith?.name ?: "",
-                            educationName = response.education?.name ?: "",
-                        )
-                    }
-
-                    _uiStateMagnetics.update {
-                        it.copy(
-                            username = response.username ?: "",
-                            fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
-                            location = response.joyerLocation ?: "",
-                            profilePicture = response.profilePicture ?: "",
-                            backgroundPicture = response.backgroundPicture ?: "",
-                            joyerStatus = response.joyerStatus ?: "",
-//                            birthday = response.b ?: "",
-                            gender = response.gender ?: "",
-                            relationship = response.relationship,
-//                            children = response.ch?.name?: "",
-                            politicalIdeology = response.politicalIdeology,
-                            title = response.title,
-                            subTitle = response.subTitle,
-                            areaOfInterest = response.interests,
-                            languages = response.languages,
                             nationality = response.nationality,
                             ethnicity = response.ethnicity,
                             faith = response.faith,
-                            education = response.education,
+                            educationName = response.education?.name ?: "",
                         )
                     }
                 },
@@ -450,7 +608,7 @@ class UserProfileViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
 //                            isLoading = false,
-                            error = error.message
+                            errorMessage = error.message
                         )
                     }
                 }

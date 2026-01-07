@@ -156,7 +156,7 @@ fun UserProfileScreen(
 //                        education = state.educationName,
 //                        relationship = state.relationship,
 //                        politicalIdeology = state.politicalIdeology,
-//                        joyerLocation = state.location
+//                        location = state.location
 //                    )
 //                )
 //                    onClose = {
@@ -288,7 +288,7 @@ fun ProfileInfo(state: UserProfileUiState) {
             // location
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = state.location,
+                    text = state.joyerLocation?: "",
                     fontSize = 12.sp,
                     color = Color.Gray,
                     fontWeight = FontWeight.Normal,
@@ -517,14 +517,14 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
             ProfileStatusSection(
                 state = state,
                 onEditDescription = {
-                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(show = true, headers = headers, titlesData = state.titles))
+//                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(show = true, headers = headers, titlesData = state.titles))
                 })
         }
 
         1 -> Column {
             ProfileIdentitySection(
                 onEditIdentity = {
-                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
+//                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
                 })
         }
 
