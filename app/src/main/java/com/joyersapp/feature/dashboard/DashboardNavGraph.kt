@@ -122,15 +122,10 @@ fun DashboardNavGraph(navController: NavHostController) {
 ////                navigateToDescriptionDialog = { navController.navigate(Routes.DescriptionDialog.route) }
 //            )
 //        }
-//        dialog (Routes.DescriptionDialog.route) {
+//        composable(Routes.DescriptionDialog.route) {
 //            EditDescriptionDialog(
-//                userProfileViewModel,
-//
 //                onDismiss = { navController.popBackStack() },
-//                onApply = { key, value ->
-//                    userProfileViewModel.onEvent(UserProfileEvent.OnApplyDescription(key, value))
-//                    navController.popBackStack()
-//                },
+//                onApply = { navController.popBackStack() }
 //            )
 //        }
 //        composable(Routes.ProfileViewDialog.route) {

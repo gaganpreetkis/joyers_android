@@ -84,6 +84,11 @@ import com.joyersapp.common_widgets.DualViewDialog
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.common_widgets.showCCPDialog
+import com.joyersapp.components.dialogs.BackgroundImagePreviewDialog
+import com.joyersapp.components.dialogs.CropBackgroundImageDialog
+import com.joyersapp.components.dialogs.CropImageDialog
+import com.joyersapp.components.dialogs.ProfilePicturePreviewDialog
+import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
@@ -331,9 +336,18 @@ fun PageOneContent(
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
     var usernameError by remember { mutableStateOf<String?>(null) }
+    var showProfilePicturePreview by remember { mutableStateOf(false) }
+    var showCropDialog by remember { mutableStateOf(false) }
+    var selectedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
     //var imagePath by remember { mutableStateOf<String?>(null) }
     //var headerPath by remember { mutableStateOf<String?>(null) }
     //var selectedCountryCode by remember { mutableStateOf("") }
+    // Background image preview and crop states
+    var showBackgroundImagePreview by remember { mutableStateOf(false) }
+    var showBackgroundCropDialog by remember { mutableStateOf(false) }
+    var selectedBackgroundImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var selectedBackgroundImagePath by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
     val goldenColor = Golden
@@ -852,7 +866,7 @@ fun PageOneContent(
         showBottomSheet = showImagePickerBottomSheet,
         onDismiss = { showImagePickerBottomSheet = false },
         allowMultipleSelection = false,
-        onImagesPicked = { uris ->
+        /*onImagesPicked = { uris ->
             val profileImageUri = uris[0]
             showProfilePlaceholder = false
             if (profileImageUri.path!!.isNotEmpty()) {
@@ -887,6 +901,83 @@ fun PageOneContent(
 //                    }
 //                }
 //            }
+        }*/
+        onImagesPicked = { uris ->
+            val profileImageUri = uris[0]
+            if (profileImageUri.path!!.isNotEmpty()) {
+                selectedProfileImageUri = profileImageUri
+                val file = uriToFile(context, profileImageUri)
+                selectedProfileImagePath = file.path.toString()
+                showImagePickerBottomSheet = false
+                showProfilePicturePreview = true
+            }
+        },
+        onCameraImagePicked = { uri ->
+            val profileImageUri = uri
+            if (profileImageUri.path!!.isNotEmpty()) {
+                selectedProfileImageUri = profileImageUri
+                val file = uriToFile(context, profileImageUri)
+                selectedProfileImagePath = file.path.toString()
+                showImagePickerBottomSheet = false
+                showProfilePicturePreview = true
+            }
+        }
+    )
+
+    // Profile Picture Preview Dialog
+    ProfilePicturePreviewDialog(
+        showDialog = showProfilePicturePreview,
+        imageUri = selectedProfileImageUri,
+        imagePath = selectedProfileImagePath,
+        onDismiss = {
+            showProfilePicturePreview = false
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+        },
+        onChangePicture = {
+            showImagePickerBottomSheet = true
+        },
+        onDelete = {
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+            showProfilePlaceholder = true
+            showProfilePicturePreview = true
+        },
+        onCrop = {
+            if (selectedProfileImageUri != null) {
+                showProfilePicturePreview = false // Close preview before opening crop
+                showCropDialog = true
+            }
+        },
+        onDone = {
+            selectedProfileImagePath?.let { path ->
+                showProfilePlaceholder = false
+                viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(path))
+            }
+            showProfilePicturePreview = false
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+        }
+    )
+
+    // Crop Dialog
+    CropImageDialog(
+        showDialog = showCropDialog,
+        imageUri = selectedProfileImageUri,
+        onDismiss = {
+            showCropDialog = false
+            // Reopen preview dialog if we had an image selected
+            if (selectedProfileImageUri != null) {
+                showProfilePicturePreview = true
+            }
+        },
+        onCropped = { newUri, newPath ->
+            showCropDialog = false
+            // Update state with cropped image
+            selectedProfileImageUri = newUri
+            selectedProfileImagePath = newPath
+            // Show preview dialog with updated cropped image
+            showProfilePicturePreview = true
         }
     )
 
@@ -897,39 +988,79 @@ fun PageOneContent(
         allowMultipleSelection = false,
         onImagesPicked = { uris ->
             val headerImageUri = uris[0]
-            showHeaderPicker = false
             if (headerImageUri.path!!.isNotEmpty()) {
+                selectedBackgroundImageUri = headerImageUri
                 val file = uriToFile(context, headerImageUri)
-                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
+                selectedBackgroundImagePath = file.path.toString()
+                showImagePickerBottomSheetBack = false
+                showBackgroundImagePreview = true
             }
-//            signupViewModel?.let { vm ->
-//                preferencesManager?.let { pm ->
-//                    activity?.lifecycleScope?.launch {
-//                        val token = pm.getAccessToken()
-//                        if (token != null) {
-//                            vm.uploadImage(uris[0], token)
-//                        }
-//                    }
-//                }
-//            }
         },
         onCameraImagePicked = { uri ->
             val headerImageUri = uri
-            showHeaderPicker = false
             if (headerImageUri.path!!.isNotEmpty()) {
+                selectedBackgroundImageUri = headerImageUri
                 val file = uriToFile(context, headerImageUri)
-                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(file.path.toString()))
+                selectedBackgroundImagePath = file.path.toString()
+                showImagePickerBottomSheetBack = false
+                showBackgroundImagePreview = true
             }
-//            signupViewModel?.let { vm ->
-//                preferencesManager?.let { pm ->
-//                    activity?.lifecycleScope?.launch {
-//                        val token = pm.getAccessToken()
-//                        if (token != null) {
-//                            vm.uploadImage(uri, token)
-//                        }
-//                    }
-//                }
-//            }
+        }
+    )
+
+    // Background Image Preview Dialog
+    BackgroundImagePreviewDialog(
+        showDialog = showBackgroundImagePreview,
+        imageUri = selectedBackgroundImageUri,
+        imagePath = selectedBackgroundImagePath,
+        onDismiss = {
+            showBackgroundImagePreview = false
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+        },
+        onChangePicture = {
+            showImagePickerBottomSheetBack = true
+        },
+        onDelete = {
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+            viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(""))
+            showBackgroundImagePreview = false
+        },
+        onCrop = {
+            if (selectedBackgroundImageUri != null) {
+                showBackgroundImagePreview = false // Close preview before opening crop
+                showBackgroundCropDialog = true
+            }
+        },
+        onDone = {
+            selectedBackgroundImagePath?.let { path ->
+                viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(path))
+            }
+            showBackgroundImagePreview = false
+            selectedBackgroundImageUri = null
+            selectedBackgroundImagePath = null
+        }
+    )
+
+    // Background Image Crop Dialog
+    CropBackgroundImageDialog(
+        showDialog = showBackgroundCropDialog,
+        imageUri = selectedBackgroundImageUri,
+        onDismiss = {
+            showBackgroundCropDialog = false
+            // Reopen preview dialog if we had an image selected
+            if (selectedBackgroundImageUri != null) {
+                showBackgroundImagePreview = true
+            }
+        },
+        onCropped = { newUri, newPath ->
+            showBackgroundCropDialog = false
+            // Update state with cropped image
+            selectedBackgroundImageUri = newUri
+            selectedBackgroundImagePath = newPath
+            // Show preview dialog with updated cropped image
+            showBackgroundImagePreview = true
         }
     )
 }
