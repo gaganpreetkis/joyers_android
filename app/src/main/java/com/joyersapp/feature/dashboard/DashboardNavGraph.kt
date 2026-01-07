@@ -2,24 +2,17 @@ package com.joyersapp.feature.dashboard
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.joyersapp.common_widgets.IdentificationDialog
-import com.joyersapp.components.dialogs.EditDescriptionDialog
-import com.joyersapp.components.dialogs.EditProfileHeaderDialog
-import com.joyersapp.components.dialogs.ProfileViewDialog
 import com.joyersapp.feature.home.presentation.HomeScreen
 import com.joyersapp.feature.profile.presentation.MagneticsScreen
 import com.joyersapp.feature.profile.presentation.UserProfileScreen
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.utils.defaultEnterTransition
-import com.joyersapp.utils.defaultExitTransition
 import com.joyersapp.utils.defaultPopEnterTransition
-import com.joyersapp.utils.defaultPopExitTransition
 
 
 sealed class Routes(val route: String) {

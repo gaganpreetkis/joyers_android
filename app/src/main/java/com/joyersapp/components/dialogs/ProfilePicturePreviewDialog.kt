@@ -1,0 +1,388 @@
+package com.joyersapp.components.dialogs
+
+import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
+import com.joyersapp.R
+import com.joyersapp.theme.DividerColor30
+import com.joyersapp.theme.Gray20
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.Red
+import com.joyersapp.theme.White
+import com.joyersapp.utils.fontFamilyLato
+
+@Composable
+fun ProfilePicturePreviewDialog(
+    showDialog: Boolean,
+    imageUri: Uri?,
+    imagePath: String?,
+    onDismiss: () -> Unit,
+    onChangePicture: () -> Unit,
+    onDelete: () -> Unit,
+    onCrop: () -> Unit,
+    onDone: () -> Unit
+) {
+    if (showDialog) {
+        var showDeleteConfirm by remember { mutableStateOf(false) }
+
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false,
+                dismissOnBackPress = true,
+                dismissOnClickOutside = false
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = LightBlack) // Dark grey background
+                    .systemBarsPadding()
+            ) {
+                // Close icon - top left
+                Image(
+                    painter = painterResource(id = R.drawable.cross),
+                    contentDescription = "Close",
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(top = 25.dp, start = 20.dp)
+                        .clickable { onDismiss() }
+                )
+
+                // More options icon - top right
+                Image(
+                    painter = painterResource(id = R.drawable.ic_menu_dots_horizontal_white),
+                    contentDescription = "More options",
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 29.dp, end = 20.dp)
+                        .clickable {
+                            // TODO: Implement more options menu if needed
+                        }
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Profile picture - centered horizontally, 31px up from center
+                    val configuration = LocalConfiguration.current
+                    val density = LocalDensity.current
+                    val screenWidth = with(density) { configuration.screenWidthDp.dp }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 20.dp)
+                                    .offset(y = (-31).dp) // 31px up from center
+                                    .size(screenWidth - 40.dp)
+                                    .clip(CircleShape)
+                                    .background(Gray20)
+                            ) {
+                                if (imageUri != null) {
+                                    AsyncImage(
+                                        model = imageUri,
+                                        contentDescription = "Profile picture preview",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.suggestion_joy),
+                                        contentDescription = "Upload placeholder",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(top = 62.dp, bottom = 62.dp, start = 5.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
+                            }
+
+                            // Change Picture button - 30px below image
+                            Box(
+                                modifier = Modifier
+                                    .width(148.dp)
+                                    .offset(y = (-1).dp)
+                                    .border(1.dp, White, RoundedCornerShape(22.dp))
+                                    .clickable { onChangePicture() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = if (imageUri == null) "Upload Picture" else "Change Picture",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = White,
+                                    modifier = Modifier.padding(
+                                        top = 7.dp,
+                                        bottom = 9.dp
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    // Bottom row: show only when an image exists
+                    if (imageUri != null) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, bottom = 60.dp, start = 30.dp, end = 30.dp),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            // Delete button - 30px from left
+                            Box(
+                                modifier = Modifier
+                                    .width(87.dp)
+                                    .border(1.dp, White, RoundedCornerShape(18.dp))
+                                    .clickable { showDeleteConfirm = true },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Delete",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = White,
+                                    modifier = Modifier.padding(
+                                        top = 7.dp,
+                                        bottom = 9.dp
+                                    )
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            // Crop button - centered between Delete and Done
+                            Box(
+                                modifier = Modifier
+                                    .width(87.dp)
+                                    .border(1.dp, White, RoundedCornerShape(22.dp))
+                                    .clickable { onCrop() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Crop",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = White,
+                                    modifier = Modifier.padding(
+                                        top = 7.dp,
+                                        bottom = 9.dp
+                                    )
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            // Done button - 30px from right
+                            Box(
+                                modifier = Modifier
+                                    .width(87.dp)
+                                    .border(1.dp, White, RoundedCornerShape(22.dp))
+                                    .clickable { onDone() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Done",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = White,
+                                    modifier = Modifier.padding(
+                                        top = 7.dp,
+                                        bottom = 9.dp
+                                    )
+                                )
+                            }
+                        }
+                    } else {
+                        // hidden view to show the image at correct position
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, bottom = 60.dp, start = 30.dp, end = 30.dp),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .width(87.dp)
+                                    .border(1.dp, Color.Transparent, RoundedCornerShape(18.dp)),
+                                    //.clickable { showDeleteConfirm = true },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = White,
+                                    modifier = Modifier.padding(
+                                        top = 7.dp,
+                                        bottom = 9.dp
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showDeleteConfirm) {
+            Dialog(
+                onDismissRequest = { showDeleteConfirm = false },
+                properties = DialogProperties(
+                    usePlatformDefaultWidth = false,
+                    decorFitsSystemWindows = false
+                )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(LightBlack.copy(alpha = 0.3f))
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { showDeleteConfirm = false }
+                        .systemBarsPadding(),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Transparent)
+                            .padding(horizontal = 15.dp)
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) { /* consume taps inside */ },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Combined title + delete card with divider
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White, RoundedCornerShape(25.dp)),
+                                //.border(1.dp, LightBlack10, RoundedCornerShape(25.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Delete profile picture?",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    color = LightBlack,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 20.dp, bottom = 20.5.dp)
+                                )
+
+                                HorizontalDivider(thickness = 1.dp, color = DividerColor30)
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            showDeleteConfirm = false
+                                            onDelete()
+                                        }
+                                        .padding(top = 21.5.dp, bottom = 25.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "Delete",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = fontFamilyLato,
+                                        color = Red
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(15.dp))
+
+                        // Cancel card
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White, RoundedCornerShape(20.dp))
+                                //.border(1.dp, LightBlack10, RoundedCornerShape(20.dp))
+                                .clickable { showDeleteConfirm = false }
+                                .padding(top = 22.dp, bottom = 24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Cancel",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = fontFamilyLato,
+                                color = LightBlack
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

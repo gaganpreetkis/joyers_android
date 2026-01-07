@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,9 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -91,6 +87,10 @@ fun EditProfileHeaderDialog(
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
     var showHeaderPicker by remember { mutableStateOf(true) }
+    var showProfilePicturePreview by remember { mutableStateOf(false) }
+    var showCropDialog by remember { mutableStateOf(false) }
+    var selectedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
     LaunchedEffect(data) {
@@ -248,19 +248,71 @@ fun EditProfileHeaderDialog(
         allowMultipleSelection = false,
         onImagesPicked = { uris ->
             val profileImageUri = uris[0]
-            showProfilePlaceholder = false
             if (profileImageUri.path!!.isNotEmpty()) {
+                selectedProfileImageUri = profileImageUri
                 val file = uriToFile(context, profileImageUri)
-                viewModel.onEvent(UserProfileEvent.ProfilePicturePathChanged(file.path.toString()))
+                selectedProfileImagePath = file.path.toString()
+                showImagePickerBottomSheet = false
+                showProfilePicturePreview = true
             }
         },
         onCameraImagePicked = { uri ->
             val profileImageUri = uri
-            showProfilePlaceholder = false
             if (profileImageUri.path!!.isNotEmpty()) {
+                selectedProfileImageUri = profileImageUri
                 val file = uriToFile(context, profileImageUri)
-                viewModel.onEvent(UserProfileEvent.ProfilePicturePathChanged(file.path.toString()))
+                selectedProfileImagePath = file.path.toString()
+                showImagePickerBottomSheet = false
+                showProfilePicturePreview = true
             }
+        }
+    )
+
+    // Profile Picture Preview Dialog
+    ProfilePicturePreviewDialog(
+        showDialog = showProfilePicturePreview,
+        imageUri = selectedProfileImageUri,
+        imagePath = selectedProfileImagePath,
+        onDismiss = {
+            showProfilePicturePreview = false
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+        },
+        onChangePicture = {
+            showImagePickerBottomSheet = true
+        },
+        onDelete = {
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+            showProfilePlaceholder = true
+            showProfilePicturePreview = true
+        },
+        onCrop = {
+            if (selectedProfileImageUri != null) {
+                showCropDialog = true
+            }
+        },
+        onDone = {
+            selectedProfileImagePath?.let { path ->
+                showProfilePlaceholder = false
+                viewModel.onEvent(UserProfileEvent.ProfilePicturePathChanged(path))
+            }
+            showProfilePicturePreview = false
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+        }
+    )
+
+    // Crop Dialog
+    CropImageDialog(
+        showDialog = showCropDialog,
+        imageUri = selectedProfileImageUri,
+        onDismiss = { showCropDialog = false },
+        onCropped = { newUri, newPath ->
+            selectedProfileImageUri = newUri
+            selectedProfileImagePath = newPath
+            showCropDialog = false
+            showProfilePicturePreview = true
         }
     )
 

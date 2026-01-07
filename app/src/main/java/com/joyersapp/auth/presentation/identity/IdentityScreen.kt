@@ -84,6 +84,9 @@ import com.joyersapp.common_widgets.DualViewDialog
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.common_widgets.showCCPDialog
+import com.joyersapp.components.dialogs.CropImageDialog
+import com.joyersapp.components.dialogs.ProfilePicturePreviewDialog
+import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
@@ -331,6 +334,10 @@ fun PageOneContent(
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
     var usernameError by remember { mutableStateOf<String?>(null) }
+    var showProfilePicturePreview by remember { mutableStateOf(false) }
+    var showCropDialog by remember { mutableStateOf(false) }
+    var selectedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
     //var imagePath by remember { mutableStateOf<String?>(null) }
     //var headerPath by remember { mutableStateOf<String?>(null) }
     //var selectedCountryCode by remember { mutableStateOf("") }
@@ -852,7 +859,7 @@ fun PageOneContent(
         showBottomSheet = showImagePickerBottomSheet,
         onDismiss = { showImagePickerBottomSheet = false },
         allowMultipleSelection = false,
-        onImagesPicked = { uris ->
+        /*onImagesPicked = { uris ->
             val profileImageUri = uris[0]
             showProfilePlaceholder = false
             if (profileImageUri.path!!.isNotEmpty()) {
@@ -887,6 +894,74 @@ fun PageOneContent(
 //                    }
 //                }
 //            }
+        }*/
+        onImagesPicked = { uris ->
+            val profileImageUri = uris[0]
+            if (profileImageUri.path!!.isNotEmpty()) {
+                selectedProfileImageUri = profileImageUri
+                val file = uriToFile(context, profileImageUri)
+                selectedProfileImagePath = file.path.toString()
+                showImagePickerBottomSheet = false
+                showProfilePicturePreview = true
+            }
+        },
+        onCameraImagePicked = { uri ->
+            val profileImageUri = uri
+            if (profileImageUri.path!!.isNotEmpty()) {
+                selectedProfileImageUri = profileImageUri
+                val file = uriToFile(context, profileImageUri)
+                selectedProfileImagePath = file.path.toString()
+                showImagePickerBottomSheet = false
+                showProfilePicturePreview = true
+            }
+        }
+    )
+
+    // Profile Picture Preview Dialog
+    ProfilePicturePreviewDialog(
+        showDialog = showProfilePicturePreview,
+        imageUri = selectedProfileImageUri,
+        imagePath = selectedProfileImagePath,
+        onDismiss = {
+            showProfilePicturePreview = false
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+        },
+        onChangePicture = {
+            showImagePickerBottomSheet = true
+        },
+        onDelete = {
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+            showProfilePlaceholder = true
+            showProfilePicturePreview = true
+        },
+        onCrop = {
+            if (selectedProfileImageUri != null) {
+                showCropDialog = true
+            }
+        },
+        onDone = {
+            selectedProfileImagePath?.let { path ->
+                showProfilePlaceholder = false
+                viewModel2.onEvent(IdentityEvent.ProfilePicturePathChanged(path))
+            }
+            showProfilePicturePreview = false
+            selectedProfileImageUri = null
+            selectedProfileImagePath = null
+        }
+    )
+
+    // Crop Dialog
+    CropImageDialog(
+        showDialog = showCropDialog,
+        imageUri = selectedProfileImageUri,
+        onDismiss = { showCropDialog = false },
+        onCropped = { newUri, newPath ->
+            selectedProfileImageUri = newUri
+            selectedProfileImagePath = newPath
+            showCropDialog = false
+            showProfilePicturePreview = true
         }
     )
 
