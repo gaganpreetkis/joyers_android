@@ -6,18 +6,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
+import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 
 //@Preview
 @Composable
 fun EditDescriptionDialog(
-    key: String,
-    isMultiselectEnabled: Boolean,
-    titlesData: List<ProfileTitlesData>,
-    headers: List<String>,
+    viewModel: UserProfileViewModel,
     onDismiss: () -> Unit,
     onApply: (String, List<ProfileTitlesData>) -> Unit
 ) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiStateMagnetics by viewModel.uiStateMagnetics.collectAsStateWithLifecycle()
+
+    val key = uiStateMagnetics.key
+    val isMultiselectEnabled = uiStateMagnetics.isMultiselectEnabled
+    val titlesData = state.titlesData
+    val headers = state.dialogHeader
 
   /*  var searchQuery by remember { mutableStateOf("") }
     var itemsList by remember { mutableStateOf(titlesData) }
@@ -75,9 +81,16 @@ fun EditDescriptionDialog(
             currentList = list
         },
         onTitleSelected = { titleId ->
-            currentList = currentList.map { item ->
-                if (item.id == titleId) item.copy(isSelected = !item.isSelected)
-                else item
+            if (isMultiselectEnabled) {
+                currentList = currentList.map { item ->
+                    if (item.id == titleId) item.copy(isSelected = !item.isSelected)
+                    else item
+                }
+            } else {
+                currentList = currentList.map { item ->
+                    if (item.id == titleId) item.copy(isSelected = !item.isSelected)
+                    else item.copy(isSelected = false)
+                }
             }
         },
         onBack = {

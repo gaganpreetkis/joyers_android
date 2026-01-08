@@ -5,5 +5,8 @@ import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 
 sealed class UserProfileNavigationEvent {
     object NavigateToUserProfile : UserProfileNavigationEvent()
+    class NavigateToDescriptionDialog(val key: String) : UserProfileNavigationEvent()
+    object NavigateToIdentificationDialog : UserProfileNavigationEvent()
+    object NavigateToProfileHeaderDialog : UserProfileNavigationEvent()
 
 }

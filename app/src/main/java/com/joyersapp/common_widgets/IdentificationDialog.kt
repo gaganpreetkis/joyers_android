@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,15 +41,15 @@ import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
+import com.joyersapp.feature.profile.data.remote.dto.Nationality
 
 @Composable
 fun IdentificationDialog(
     onDismiss: () -> Unit,
-    onApply: (IdentificationData) -> Unit,
-    identificationData: IdentificationData,
     viewModel: UserProfileViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val identificationData = state.identificationData
 
     // “chips” sections (screenshot-style)
     val nationalityChips = remember {
@@ -90,8 +89,8 @@ fun IdentificationDialog(
                 IdentificationTextField(
                     label = "Name",
                     value = identificationData.name,
-                    onValueChange = { identificationData.name = it },
-                    onClear = { identificationData.name = "" }
+                    onValueChange = { viewModel.onEvent(UserProfileEvent.OnNameChanged(value = it)) },
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Name")) },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -103,16 +102,12 @@ fun IdentificationDialog(
                     value = identificationData.birthday,
                     onClick = {
                         viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
-                                "",
-                                isMultiSelectEnabled = false,
+                            UserProfileEvent.ToggleDatePickerDialog(
                                 show = true,
-                                headers = arrayListOf("Identification", "Birthday"),
-                                titlesData = state.titles
                             )
                         )
                     },
-                    onClear = { identificationData.birthday = "" }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Birthday")) },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -120,25 +115,26 @@ fun IdentificationDialog(
                 // Gender Field
                 GenderSelectionField(
                     selectedGender = identificationData.gender,
-                    onSelection = { identificationData.gender = it }
+                    onSelection = { viewModel.onEvent(UserProfileEvent.OnGenderSelected(it.value)) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Nationality Field (with chips + See All)
-                IdentificationMultiselectField(
+                NationalityField(
                     label = "Nationality",
                     hintText = "Joyer Nationality",
-                    values = nationalityChips,
-                    onClear = { nationalityChips.clear() },
+                    values = identificationData.nationality?: emptyList(),
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Nationality")) },
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                "",
-                                isMultiSelectEnabled = false,
+                                "Nationality",
+                                isMultiSelectEnabled = true,
                                 show = true,
                                 headers = arrayListOf("Countries List"),
-                                titlesData = state.countryList
+                                titlesData = state.countryList,
+                                selectedIds = identificationData.nationality?.map { it.dropdownCountries?.id?: "" }?: emptyList()
                             )
                         )
                     },
@@ -153,15 +149,16 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                "",
+                                "Ethnicity",
                                 isMultiSelectEnabled = false,
                                 show = true,
                                 headers = arrayListOf("Identification", "Ethnicity"),
-                                titlesData = state.ethenicityList
+                                titlesData = state.ethenicityList,
+                                selectedIds = if (identificationData.ethnicity != null) listOf(identificationData.ethnicity?.id?: "") else emptyList()
                             )
                         )
                               },
-                    onClear = { identificationData.ethnicity?.name = "" }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Ethnicity")) },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -169,39 +166,33 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Faith",
                     hintText = "Joyer Faith / Religion",
-                    value = identificationData.ethnicity?.name?: "",
+                    value = identificationData.faith?.name?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                "",
+                                "Faith",
                                 isMultiSelectEnabled = false,
                                 show = true,
                                 headers = arrayListOf("Identification", "Faith"),
-                                titlesData = state.faithReligionList
+                                titlesData = state.faithReligionList,
+                                selectedIds = if (identificationData.faith != null) listOf(identificationData.faith?.id?: "") else emptyList()
+
                             )
                         )
                     },
-                    onClear = { identificationData.faith?.name = "" }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Faith")) },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Language Field (with chips + See All)
-                IdentificationMultiselectField(
+                LanguagesField(
                     label = "Language",
                     hintText = "Joyer Language",
-                    values = languageChips,
-                    onClear = { languageChips.clear() },
+                    values = identificationData.language,
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Language")) },
                     onClick = {
-                        viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
-                                "",
-                                isMultiSelectEnabled = false,
-                                show = true,
-                                headers = arrayListOf("Identification", "Language"),
-                                titlesData = state.languageList
-                            )
-                        )
+                        viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = true))
                     },
                 )
 
@@ -212,18 +203,18 @@ fun IdentificationDialog(
                     hintText = "Joyer Degree",
                     value = identificationData.education?.name?: "",
                     onClick = {
-
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
                                 "Education",
                                 isMultiSelectEnabled = false,
                                 show = true,
                                 headers = arrayListOf("Identification", "Education"),
-                                titlesData = state.educationList
+                                titlesData = state.educationList,
+                                selectedIds = if (identificationData.education != null) listOf(identificationData.education?.id?: "") else emptyList()
                             )
                         )
                     },
-                    onClear = { identificationData.education?.name = "" }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Education")) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -239,11 +230,12 @@ fun IdentificationDialog(
                                 isMultiSelectEnabled = false,
                                 show = true,
                                 headers = arrayListOf("Identification", "Relationship"),
-                                titlesData = state.relationShipList
+                                titlesData = state.relationShipList,
+                                selectedIds = if (identificationData.relationship != null) listOf(identificationData.relationship?.id?: "") else emptyList()
                             )
                         )
                     },
-                    onClear = { identificationData.relationship?.name = "" }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Relationship")) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -255,15 +247,16 @@ fun IdentificationDialog(
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                "Political Ideology",
+                                key = "Political Ideology",
                                 isMultiSelectEnabled = true,
                                 show = true,
                                 headers = arrayListOf("Identification", "Political Ideology"),
-                                titlesData = state.politicalIdeologyList
+                                titlesData = state.politicalIdeologyList,
+                                selectedIds = identificationData.politicalIdeology?.map { it.dropdownPoliticalIdeology?.id?: "" }?: emptyList()
                             )
                         )
                     },
-                    onClear = { identificationData.politicalIdeology?.clear() }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Political Ideology")) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -271,26 +264,30 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Joyer Location",
                     hintText = "Joyer Location",
-                    value = identificationData.joyerLocation,
+                    value = identificationData.location?.name?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDescriptionDialog(
-                                "",
+                                "Joyer Location",
                                 isMultiSelectEnabled = false,
                                 show = true,
-                                headers = arrayListOf("Countries List", "Ethnicity"),
-                                titlesData = state.countryList
+                                headers = arrayListOf("Countries List"),
+                                titlesData = state.countryList,
+                                selectedIds = if (identificationData.location != null) listOf(identificationData.location?.id?: "") else emptyList()
                             )
                         )
                     },
-                    onClear = { identificationData.joyerLocation = "" }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Joyer Location")) }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // ---------- APPLY BUTTON ----------
                 Button (
-                    onClick = { onApply(identificationData) },
+                    onClick = {
+                        viewModel.onEvent(UserProfileEvent.OnApplyIdentification(identificationData))
+                        viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false))
+                              },
                     modifier = Modifier
                         .width(190.dp)
                         .align(Alignment.CenterHorizontally)
@@ -314,7 +311,6 @@ fun IdentificationDialog(
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Preview
 @Composable
 fun IdentificationMultiselectField(
     label: String = "label",
@@ -487,13 +483,375 @@ fun IdentificationMultiselectField(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun LanguagesField(
+    label: String,
+    hintText: String,
+    values: List<Languages>?,
+    onClear: () -> Unit = {},
+    onClick: () -> Unit = {}
+) {
+    val lightBlackColor = LightBlack
+    val fieldOuterBg = GrayBG
+    var seeAll by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Bold,
+            color = lightBlackColor,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+
+        // Outer field container (light grey rectangle)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 60.dp)
+                .noRippleClickable { onClick() }
+                .background(fieldOuterBg, RoundedCornerShape(5.dp))
+                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .padding(15.dp)
+        ) {
+            Column() {
+                // Inner pill container
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 30.dp)
+                        .background(Color.White, RoundedCornerShape(30.dp))
+                        .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(30.dp)
+                            .padding(horizontal = 15.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        if (!values.isNullOrEmpty()) {
+
+                            val name = values[0].language?.name?:""
+                            val level = values[0].language?.level?:""
+                            val language = buildString {
+                                append(name)
+                                if (level.isNotEmpty()) {
+                                    append(" ($level)")
+                                }
+                            }
+                            Text(
+                                text = language,
+                                fontSize = 16.sp,
+                                lineHeight = 23.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
+                                color = LightBlack,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_cross_round_gray),
+                                contentDescription = "Clear",
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .noRippleClickable { onClear() },
+                            )
+                        } else {
+                            Text(
+                                text = hintText,
+                                fontSize = 16.sp,
+                                lineHeight = 23.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
+                                color = LightBlack60,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.arrowdown_lite),
+                                contentDescription = "Drop down",
+                                modifier = Modifier
+                                    .size(10.49.dp, 6.dp)
+                            )
+                        }
+                    }
+                }
+                if (!values.isNullOrEmpty() && values.size > 1) {
+                    Spacer(Modifier.height(15.dp))
+                    // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = if (seeAll) 100 else 4,
+                        overflow = FlowRowOverflow.expandOrCollapseIndicator(
+                            minRowsToShowCollapse = 4,
+                            expandIndicator = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = "See All",
+                                        fontSize = 12.sp,
+                                        lineHeight = 22.sp,
+                                        color = Golden,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(top = 9.dp)
+                                            .noRippleClickable() { seeAll = true }
+                                    )
+                                }
+                            },
+                            collapseIndicator = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = "Show Less",
+                                        fontSize = 12.sp,
+                                        lineHeight = 22.sp,
+                                        color = Golden,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(top = 9.dp)
+                                            .noRippleClickable() { seeAll = false }
+                                    )
+                                }
+                            }
+                        )
+                    ) {
+                        values.forEachIndexed { index, item ->
+                            val name = item.language?.name?:""
+                            val level = item.language?.level?:""
+                            val language = buildString {
+                                append(name)
+                                if (level.isNotEmpty()) {
+                                    append(" ($level)")
+                                }
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = language,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    fontFamily = fontFamilyLato,
+                                    color = LightBlack,
+                                    lineHeight = 22.sp,
+                                )
+
+                                if (index != values.lastIndex) {
+                                    Spacer(Modifier.width(10.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(LightBlack55)
+                                            .size(3.dp)
+                                    )
+                                    Spacer(Modifier.width(10.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun NationalityField(
+    label: String = "label",
+    hintText: String = "hint",
+    values: List<Nationality>,
+    onClear: () -> Unit = {},
+    onClick: () -> Unit = {}
+) {
+    val lightBlackColor = LightBlack
+    val fieldOuterBg = GrayBG
+    var seeAll by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Bold,
+            color = lightBlackColor,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+
+        // Outer field container (light grey rectangle)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 60.dp)
+                .noRippleClickable { onClick() }
+                .background(fieldOuterBg, RoundedCornerShape(5.dp))
+                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .padding(15.dp)
+        ) {
+            Column() {
+                // Inner pill container
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 30.dp)
+                        .background(Color.White, RoundedCornerShape(30.dp))
+                        .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(30.dp)
+                            .padding(horizontal = 15.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        if (values.isNotEmpty()) {
+                            Text(
+                                text = values[0].dropdownCountries?.name?: "",
+                                fontSize = 16.sp,
+                                lineHeight = 23.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
+                                color = LightBlack,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_cross_round_gray),
+                                contentDescription = "Clear",
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .noRippleClickable { onClear() },
+                            )
+                        } else {
+                            Text(
+                                text = hintText,
+                                fontSize = 16.sp,
+                                lineHeight = 23.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
+                                color = LightBlack60,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.arrowdown_lite),
+                                contentDescription = "Drop down",
+                                modifier = Modifier
+                                    .size(10.49.dp, 6.dp)
+                            )
+                        }
+                    }
+                }
+                if (values.size > 1) {
+                    Spacer(Modifier.height(15.dp))
+                    // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = if (seeAll) 100 else 4,
+                        overflow = FlowRowOverflow.expandOrCollapseIndicator(
+                            minRowsToShowCollapse = 4,
+                            expandIndicator = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = "See All",
+                                        fontSize = 12.sp,
+                                        lineHeight = 22.sp,
+                                        color = Golden,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(top = 9.dp)
+                                            .noRippleClickable() { seeAll = true }
+                                    )
+                                }
+                            },
+                            collapseIndicator = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    Text(
+                                        text = "Show Less",
+                                        fontSize = 12.sp,
+                                        lineHeight = 22.sp,
+                                        color = Golden,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .padding(top = 9.dp)
+                                            .noRippleClickable() { seeAll = false }
+                                    )
+                                }
+                            }
+                        )
+                    ) {
+                        values.forEachIndexed { index, item ->
+                            val name = item.dropdownCountries?.name?: ""
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = name,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    fontFamily = fontFamilyLato,
+                                    color = LightBlack,
+                                    lineHeight = 22.sp,
+                                )
+
+                                if (index != values.lastIndex) {
+                                    Spacer(Modifier.width(10.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(LightBlack55)
+                                            .size(3.dp)
+                                    )
+                                    Spacer(Modifier.width(10.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PoliticalIdeologyField(
     label: String = "label",
     hintText: String = "hint",
-    values: MutableList<PoliticalIdeology>,
+    values: List<PoliticalIdeology>,
     onClear: () -> Unit = {},
     onClick: () -> Unit = {}
 ) {
@@ -663,7 +1021,7 @@ fun PoliticalIdeologyField(
 
 @Composable
 fun GenderSelectionField(
-    selectedGender: Gender,
+    selectedGender: String,
     onSelection: (Gender) -> Unit = {}
 ) {
     Column() {
@@ -688,19 +1046,19 @@ fun GenderSelectionField(
             Column {
                 GenderOption(
                     label = "Male",
-                    isSelected = selectedGender == Gender.MALE,
+                    isSelected = selectedGender == Gender.MALE.value,
                     onClick = { onSelection(Gender.MALE) }
                 )
 
                 GenderOption(
                     label = "Female",
-                    isSelected = selectedGender == Gender.FEMALE,
+                    isSelected = selectedGender == Gender.FEMALE.value,
                     onClick = { onSelection(Gender.FEMALE) }
                 )
 
                 GenderOption(
                     label = "Other Gender",
-                    isSelected = selectedGender == Gender.OTHER,
+                    isSelected = selectedGender == Gender.OTHER.value,
                     onClick = { onSelection(Gender.OTHER) }
                 )
             }
@@ -1043,7 +1401,7 @@ fun GenderOption(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { if (!isSelected) onClick() }
             .padding(vertical = 3.dp)
     ) {
         Text(
@@ -1060,20 +1418,21 @@ fun GenderOption(
 data class IdentificationData(
     var name: String = "",
     var birthday: String = "",
-    var gender: Gender = Gender.MALE,
-    var nationality: ProfileMeta? = null,
+    var gender: String = "",
     var ethnicity: ProfileMeta? = null,
     var faith: ProfileMeta? = null,
-    var language: List<Languages> = emptyList(),
+    var language: List<Languages>? = null,
     var education: ProfileMeta? = null,
     var relationship: ProfileMeta? = null,
-    var politicalIdeology: MutableList<PoliticalIdeology>? = null,
-    var joyerLocation: String = "",
+    var nationality: List<Nationality>? = null,
+    var politicalIdeology: List<PoliticalIdeology>? = null,
+    var location: ProfileMeta? = null,
+    var children: String? = null,
 )
 
-enum class Gender {
-    MALE,
-    FEMALE,
-    OTHER
+enum class Gender(val value: String) {
+    MALE("Male"),
+    FEMALE("Female"),
+    OTHER("Other")
 }
 

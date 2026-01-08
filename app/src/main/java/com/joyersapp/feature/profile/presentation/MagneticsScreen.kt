@@ -51,8 +51,10 @@ import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.common_widgets.IdentificationDialog
+import com.joyersapp.components.dialogs.BirthdayDatePickerDialog
 import com.joyersapp.components.dialogs.EditDescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
+import com.joyersapp.components.dialogs.LanguageSelectionDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.core.NetworkConfig
@@ -84,15 +86,22 @@ import com.joyersapp.utils.noRippleClickable
 fun MagneticsScreen(
     viewModel: UserProfileViewModel,
     onBack: () -> Unit,
+    navigateToDescriptionDialog: (String) -> Unit,
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val uiStateMagnetics by viewModel.uiStateMagnetics.collectAsStateWithLifecycle()
+    val magneticsData = state.magneticsData
 
     LaunchedEffect(Unit) {
         viewModel.navigationEvents.collect { event ->
             when(event) {
                 is UserProfileNavigationEvent.NavigateToUserProfile -> { onBack() }
+                is UserProfileNavigationEvent.NavigateToProfileHeaderDialog -> { onBack() }
+                is UserProfileNavigationEvent.NavigateToDescriptionDialog -> {
+                    navigateToDescriptionDialog(event.key)
+
+                }
+                is UserProfileNavigationEvent.NavigateToIdentificationDialog -> { onBack() }
             }
         }
     }
@@ -108,7 +117,7 @@ fun MagneticsScreen(
 
             /** ─────────────── TOP BAR ─────────────── **/
             TopBar(
-                username = uiStateMagnetics.username,
+                username = magneticsData.username,
                 onBack = { onBack() },
                 onSave = { viewModel.onEvent(UserProfileEvent.UpdateUserData(UserProfileGraphRequestDto())) }
             )
@@ -125,8 +134,8 @@ fun MagneticsScreen(
 
 
                 /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
-                ProfileHeaderSection( uiStateMagnetics) {
-                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true, false))
+                ProfileHeaderSection( magneticsData.profileHeaderData) {
+                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true))
                 }
 
                 HorizontalDivider(color = LightBlack10, thickness = 1.dp)
@@ -135,17 +144,17 @@ fun MagneticsScreen(
 
 
                 /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
-                val headers = arrayListOf("Description", "Joyer Status", uiStateMagnetics.joyerStatus)
-                if (uiStateMagnetics.title != null) headers.add(uiStateMagnetics.title?.name?: "")
-                if (uiStateMagnetics.subTitle != null) headers.add(uiStateMagnetics.subTitle?.name?: "")
-                DescriptionSection( uiStateMagnetics) {
+                val headers = arrayListOf("Description", "Joyer Status", magneticsData.joyerStatus)
+                if (state.title != null) headers.add(state.title?.name?: "")
+                if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
+                DescriptionSection( state) {
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
                             "",
                             isMultiSelectEnabled = false,
                             show = true,
                             headers = headers,
-                            titlesData = uiStateMagnetics.titles
+                            titlesData = state.titles
                         )
                     )
                 }
@@ -156,7 +165,7 @@ fun MagneticsScreen(
 
 
                 /** ─────────────── SECTION: IDENTIFICATION  ─────────────── **/
-                IdentificationSection( uiStateMagnetics) {
+                IdentificationSection( magneticsData.identificationData) {
                     viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
                 }
 
@@ -166,14 +175,14 @@ fun MagneticsScreen(
 
 
                 /** ─────────────── SECTION: INTERESTS ─────────────── **/
-                InterestsSection( uiStateMagnetics) {
+                InterestsSection( magneticsData) {
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
                             "",
                             isMultiSelectEnabled = false,
                             show = true,
-                            arrayListOf("Interests"),
-                            uiStateMagnetics.interestList
+                            headers = arrayListOf("Interests"),
+                            titlesData = state.interestList
                         )
                     )
                 }
@@ -186,11 +195,11 @@ fun MagneticsScreen(
         if (state.showEditProfileHeaderDialog) {
             EditProfileHeaderDialog(
                 viewModel = viewModel,
-                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false, false)) },
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false)) },
                 onApply = { data ->
-                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false, true))
+                    viewModel.onEvent(UserProfileEvent.OnApplyProfileHeader(data))
+                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false))
                 },
-                data = EditProfileHeaderDialogDto(profilePicturePath = uiStateMagnetics.profilePicture, backgroundPicturePath = state.backgroundPicture, bio = "", websiteUrl = "")
             )
         }
 
@@ -203,36 +212,45 @@ fun MagneticsScreen(
             IdentificationDialog(
                 viewModel = viewModel,
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
-                onApply = {
-
-                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false))
-                          },
-                identificationData = IdentificationData(
-                    name = uiStateMagnetics.fullname,
-                    birthday = uiStateMagnetics.birthday,
-//                gender = null,
-                    nationality = uiStateMagnetics.nationality,
-                    ethnicity = uiStateMagnetics.ethnicity,
-                    faith = uiStateMagnetics.faith,
-                    language = uiStateMagnetics.languages,
-                    education = uiStateMagnetics.education,
-                    relationship = uiStateMagnetics.relationship,
-                    politicalIdeology = uiStateMagnetics.politicalIdeology,
-                    joyerLocation = uiStateMagnetics.location
-                )
+//                onApply = {
+//                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false))
+//                          },
+//                identificationData = IdentificationData(
+//                    name = uiStateMagnetics.fullname,
+//                    birthday = uiStateMagnetics.birthday,
+////                gender = null,
+//                    nationality = uiStateMagnetics.nationality,
+//                    ethnicity = uiStateMagnetics.ethnicity,
+//                    faith = uiStateMagnetics.faith,
+//                    language = uiStateMagnetics.languages,
+//                    education = uiStateMagnetics.education,
+//                    relationship = uiStateMagnetics.relationship,
+//                    politicalIdeology = uiStateMagnetics.politicalIdeology,
+//                    location = uiStateMagnetics.location
+//                )
             )
         }
         if (state.showEditDescriptionDialog) {
             EditDescriptionDialog(
-                key = "",
-                isMultiselectEnabled = false,
-                titlesData = state.titlesData,
-//                selectedItems = state.selectedItems,
-                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog("",false,false, emptyList(), emptyList()))},
+                viewModel = viewModel,
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(show = false)) },
                 onApply = { key, value ->
                     viewModel.onEvent(UserProfileEvent.OnApplyDescription(key, value))
-                          },
-                headers = state.dialogHeader
+                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(show = false))
+                },
+            )
+        }
+        if (state.showDatePickerDialog) {
+            BirthdayDatePickerDialog(
+                onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleDatePickerDialog(show = false)) },
+                onDateSelected = {  viewModel.onEvent(UserProfileEvent.OnApplyBirthday(value = it)) }
+            )
+        }
+        if (state.showLanguagesDialog) {
+            LanguageSelectionDialog(
+                viewModel = viewModel,
+                onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = false)) },
+                onApply = {  viewModel.onEvent(UserProfileEvent.OnApplyLanguage(it)) }
             )
         }
     }
@@ -314,7 +332,7 @@ fun TopBar(
 }
 
 @Composable
-fun InterestsSection(state: EditMagneticsUiState, onClick: () -> Unit) {
+fun InterestsSection(state: MagneticsData, onClick: () -> Unit) {
     Column(
         Modifier
             .background(White)
@@ -325,15 +343,15 @@ fun InterestsSection(state: EditMagneticsUiState, onClick: () -> Unit) {
 
         Spacer(Modifier.height(13.dp))
 
-        if (state.areaOfInterest.isNotEmpty()) {
-            InterestsSection(state.areaOfInterest)
+        if (!state.interests.isNullOrEmpty()) {
+            InterestsSection(state.interests?: emptyList())
         } else {
             ProfileEditableRow(title = "Joyer Interests") }
     }
 }
 
 @Composable
-fun IdentificationSection(state: EditMagneticsUiState, onClick: () -> Unit) {
+fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
     Column(
         Modifier
             .background(White)
@@ -344,16 +362,16 @@ fun IdentificationSection(state: EditMagneticsUiState, onClick: () -> Unit) {
 
         Spacer(Modifier.height(13.dp))
 
-        if (state.fullname.isNotEmpty()) {
+        if (!state?.name.isNullOrEmpty()) {
             KeyValueText(
                 "Name",
-                state.fullname
+                state.name
             )
         } else { ProfileEditableRow(title = "Name") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.birthday.isNotEmpty()) {
+        if (!state?.birthday.isNullOrEmpty()) {
             KeyValueText(
                 "Birthday",
                 state.birthday
@@ -362,7 +380,7 @@ fun IdentificationSection(state: EditMagneticsUiState, onClick: () -> Unit) {
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.gender.isNotEmpty()) {
+        if (state?.gender != null) {
             KeyValueText(
                 "Gender",
                 state.gender
@@ -371,86 +389,87 @@ fun IdentificationSection(state: EditMagneticsUiState, onClick: () -> Unit) {
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.nationality != null) {
+        if (state?.nationality != null) {
             KeyValueText(
                 "Nationality",
-                state.nationality.name?: ""
+                "Nationality"
+//                state.nationality..name?: ""
             )
         } else {
             ProfileEditableRow(title = "Nationality") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.ethnicity != null) {
+        if (state?.ethnicity != null) {
             KeyValueText(
                 "Ethnicity",
-                state.ethnicity.name?: ""
+                state.ethnicity?.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Ethnicity") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.faith != null) {
+        if (state?.faith != null) {
             KeyValueText(
                 "Faith",
-                state.faith.name?: ""
+                state.faith?.name?: ""
             )
         } else { ProfileEditableRow(title = "Faith") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.languages.isNotEmpty()) {
-            LanguageSection(languages = state.languages)
+        if (state?.language != null) {
+            LanguageSection(languages = state.language!!)
         } else {
             ProfileEditableRow(title = "Language") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.education != null) {
+        if (state?.education != null) {
             KeyValueText(
                 "Education",
-                state.education.name?: ""
+                state.education?.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Education") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.relationship != null) {
+        if (state?.relationship != null) {
             KeyValueText(
                 "Relationship",
-                state.relationship.name?: ""
+                state.relationship?.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Relationship") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.children.isNotEmpty()) {
+        if (!state?.children.isNullOrEmpty()) {
             KeyValueText(
                 "Children",
-                state.children
+                state.children?: ""
             )
         } else {
             ProfileEditableRow(title = "Children") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.politicalIdeology != null && state.politicalIdeology.isNotEmpty()) {
+        if (!state?.politicalIdeology.isNullOrEmpty()) {
             KeyValueText(
                 "Political Ideology",
-                state.politicalIdeology.get(0).dropdownPoliticalIdeology?.name?: ""
+                state.politicalIdeology?.get(0)?.dropdownPoliticalIdeology?.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Political Ideology") }
 
         Spacer(Modifier.height(11.dp))
 
-        if (state.location.isNotEmpty()) {
+        if (state?.location != null) {
             KeyValueText(
                 "Joyer Location",
-                state.location
+                state.location?.name?: ""
             )
         } else {
             ProfileEditableRow(title = "Joyer Location") }
@@ -468,7 +487,7 @@ fun IdentificationSection(state: EditMagneticsUiState, onClick: () -> Unit) {
 }
 
 @Composable
-fun DescriptionSection(state: EditMagneticsUiState, onclick: () -> Unit) {
+fun DescriptionSection(state: UserProfileUiState, onclick: () -> Unit) {
     Column(
         Modifier
             .background(White)
@@ -488,7 +507,7 @@ fun DescriptionSection(state: EditMagneticsUiState, onclick: () -> Unit) {
 
 @Composable
 fun ProfileHeaderSection(
-    state: EditMagneticsUiState,
+    state: ProfileHeaderData?,
     onClick: () -> Unit
 ) {
     Column(
@@ -499,17 +518,21 @@ fun ProfileHeaderSection(
     ) {
         SectionHeader(title = "Profile Header")
         Spacer(Modifier.height(13.dp))
-        if (state.profilePicture.isNotEmpty()) {
+        if (!state?.profilePicture.isNullOrEmpty()) {
             ProfilePicture(
-                NetworkConfig.IMAGE_BASE_URL + state.profilePicture,
-                NetworkConfig.IMAGE_BASE_URL + state.backgroundPicture
+                NetworkConfig.IMAGE_BASE_URL + state?.profilePicture,
+                NetworkConfig.IMAGE_BASE_URL + state?.backgroundPicture
             )
         } else {
             ProfileEditableRow(title = "Profile Picture")
         }
         Spacer(Modifier.height(13.dp))
-        if (state.profilePicture.isNotEmpty()) {
-            BioSection()
+        if (!state?.bio.isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
+            BioSection(
+                bioText = state.bio,
+                linkText = state.websiteUrl,
+                onLinkClick = {}
+            )
         } else { ProfileEditableRow(title = "Bio") }
     }
 }
@@ -641,9 +664,9 @@ fun ProfilePicture(
 
 @Composable
 fun BioSection(
-    bioText: String = "KMLMKLmklfmv f fd ",
-    linkText: String = "www.joyers.com/USA/laid...",
-    onLinkClick: () -> Unit =  {}
+    bioText: String,
+    linkText: String,
+    onLinkClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -693,80 +716,79 @@ fun BioSection(
                 )
             ) {
 
-                // ----- BIO RICH TEXT -----
-                Text(
-                    buildAnnotatedString {
-                        append("Hi there! I’m using the ")
+                if (bioText.isNotEmpty()) {
+                    // ----- BIO RICH TEXT -----
+                    HighlightedText(bioText)
+                }
 
-                        withStyle(
-                            SpanStyle(
-                                color = Golden,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                        ) {
-                            append("@best ")
-                        }
+                if (linkText.isNotEmpty()) {
 
-                        append("platform in this Globe it’s ")
+                    Spacer(Modifier.height(10.dp))
 
-                        withStyle(SpanStyle(
-                            color = Golden,
-                            fontWeight = FontWeight.SemiBold,
+                    // ----- LINK ROW -----
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable { onLinkClick() }
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_link),
+                            contentDescription = null,
+                            modifier = Modifier.height(14.5.dp).width(14.5.dp)
                         )
-                        ) {
-                            append("#Joyers ")
-                        }
+                        Spacer(Modifier.width(5.dp))
 
-                        append("Network! It’s ")
-
-                        // clickable URL www.hi.com
-                        pushStringAnnotation(tag = "url", annotation = "https://www.hi.com/")
-                        withStyle(SpanStyle(
+                        Text(
+                            text = linkText,
+                            fontSize = 14.sp,
                             color = Golden,
                             fontWeight = FontWeight.SemiBold,
-                            )
-                        ) {
-                            append("www.hi.com/")
-                        }
-                        pop()
-
-                        append(", an Amazing Social App.")
-                    },
-                    fontSize = 16.sp,
-                    lineHeight = 22.sp,
-                    color = LightBlack,
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = fontFamilyLato
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                // ----- LINK ROW -----
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clickable { onLinkClick() }
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_link),
-                        contentDescription = null,
-                        modifier = Modifier.height(14.5.dp).width(14.5.dp)
-                    )
-                    Spacer(Modifier.width(5.dp))
-
-                    Text(
-                        text = linkText,
-                        fontSize = 14.sp,
-                        color = Golden,
-                        fontWeight = FontWeight.SemiBold,
-                        lineHeight = 22.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                            lineHeight = 22.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+fun HighlightedText(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    val parts = text.split(" ")
+
+    Text(
+        buildAnnotatedString {
+            parts.forEachIndexed { index, word ->
+
+                val isMention = word.startsWith("@")
+                val isHashtag = word.startsWith("#")
+                val isUrl = word.startsWith("http") || word.startsWith("www")
+
+                val color = if (isMention || isHashtag || isUrl) Golden else LightBlack
+                val fontWeight = if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
+
+                withStyle(
+                    SpanStyle(
+                        color = color,
+                        fontWeight = fontWeight
+                    )
+                ) {
+                    append(word)
+                }
+
+                if (index != parts.lastIndex) append(" ")
+            }
+        },
+        modifier = modifier,
+        fontSize = 16.sp,
+        fontFamily = fontFamilyLato,
+        lineHeight = 22.sp
+    )
 }
 
 
@@ -896,11 +918,15 @@ fun LanguageSection(
 
                 languages.forEachIndexed { index, item ->
                     val name = item.language?.name
-                    val level = item.language?.description
+                    val level = item.language?.level?: ""
+                    val language = buildString {
+                        append(name)
+                        if (level.isNotEmpty()) append(" ($level)")
+                    }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "$name",
+                            text = language,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = fontFamilyLato,
@@ -1034,3 +1060,21 @@ fun InterestsSection(
         }
     }
 }
+
+
+data class MagneticsData(
+    val username: String = "",
+    val profileHeaderData: ProfileHeaderData? = null,
+    val joyerStatus: String = "",
+    val identificationData: IdentificationData? = null,
+    var interests: List<Interests>? = null,
+)
+
+data class ProfileHeaderData(
+    val profilePicture: String = "",
+    val backgroundPicture: String = "",
+    val bio: String = "",
+    val overviewRemainingChars: Int = 150 - bio.length,
+    val highlightsRemainingChars: Int = 25,
+    val websiteUrl: String = "",
+)

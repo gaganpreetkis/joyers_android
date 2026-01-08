@@ -7,8 +7,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
+import com.joyersapp.common_widgets.IdentificationDialog
+import com.joyersapp.components.dialogs.EditDescriptionDialog
+import com.joyersapp.components.dialogs.EditProfileHeaderDialog
+import com.joyersapp.components.dialogs.ProfileViewDialog
 import com.joyersapp.feature.home.presentation.HomeScreen
 import com.joyersapp.feature.profile.presentation.MagneticsScreen
+import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileScreen
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.utils.defaultEnterTransition
@@ -83,6 +89,7 @@ fun DashboardNavGraph(navController: NavHostController) {
             UserProfileScreen(
                 viewModel = userProfileViewModel,
                 editMagnetics = {
+                    userProfileViewModel.onEvent(UserProfileEvent.InitMagneticsData)
                     navController.navigate(Routes.Magnetics.route)
                 },
 //                navigateToIdentificationDialog = { navController.navigate(Routes.IdentificationDialog.route) },
@@ -94,8 +101,9 @@ fun DashboardNavGraph(navController: NavHostController) {
                 viewModel = userProfileViewModel,
                 onBack = { navController.popBackStack() },
 
+
 //                navigateToProfileHeader = { navController.navigate(Routes.ProfileHeaderDialog.route) },
-//                navigateToDescription = { navController.navigate(Routes.DescriptionDialog.route) },
+                navigateToDescriptionDialog = { navController.navigate(Routes.DescriptionDialog.route) },
 //                navigateToIdentification = { navController.navigate(Routes.IdentificationDialog.route) },
             )
         }
@@ -111,10 +119,15 @@ fun DashboardNavGraph(navController: NavHostController) {
 ////                navigateToDescriptionDialog = { navController.navigate(Routes.DescriptionDialog.route) }
 //            )
 //        }
-//        composable(Routes.DescriptionDialog.route) {
+//        dialog (Routes.DescriptionDialog.route) {
 //            EditDescriptionDialog(
+//                userProfileViewModel,
+//
 //                onDismiss = { navController.popBackStack() },
-//                onApply = { navController.popBackStack() }
+//                onApply = { key, value ->
+//                    userProfileViewModel.onEvent(UserProfileEvent.OnApplyDescription(key, value))
+//                    navController.popBackStack()
+//                },
 //            )
 //        }
 //        composable(Routes.ProfileViewDialog.route) {

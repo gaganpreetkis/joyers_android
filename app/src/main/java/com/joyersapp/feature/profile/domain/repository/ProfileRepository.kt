@@ -10,6 +10,7 @@ interface ProfileRepository {
     suspend fun uploadUserProfile(requestDto: UserProfileGraphRequestDto): Result<UserProfile>
     suspend fun uploadPictureServer(imageId: Int, imagePath: String): Result<UploadPictureServerResponse>
     suspend fun getUserProfile(): Result<UserProfile>
+    suspend fun getUserList(): Result<UserProfile>
     suspend fun getTitles(): Result<List<ProfileTitlesData>>
     suspend fun getSubTitles(): Result<List<ProfileTitlesData>>
     suspend fun getCountryList(): Result<List<ProfileTitlesData>>

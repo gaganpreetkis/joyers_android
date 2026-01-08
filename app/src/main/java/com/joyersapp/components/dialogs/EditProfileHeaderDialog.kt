@@ -43,11 +43,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -57,6 +63,7 @@ import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
+import com.joyersapp.feature.profile.presentation.ProfileHeaderData
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.theme.Golden
@@ -66,6 +73,7 @@ import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack10
 import com.joyersapp.theme.LightBlack13
+import com.joyersapp.theme.LightBlack40
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.LightBlack9
 import com.joyersapp.theme.White
@@ -76,13 +84,12 @@ import com.joyersapp.utils.uriToFile
 //@Preview
 @Composable
 fun EditProfileHeaderDialog(
-    data: EditProfileHeaderDialogDto,
     onDismiss: () -> Unit = {},
-    onApply: (data: EditProfileHeaderDialogDto) -> Unit = {},
+    onApply: (data: ProfileHeaderData) -> Unit = {},
     viewModel: UserProfileViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    var bioText by remember { mutableStateOf("") }
+    val profileHeaderData = state.profileHeaderData
     var showProfilePlaceholder by remember { mutableStateOf(true) }
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
@@ -100,8 +107,8 @@ fun EditProfileHeaderDialog(
     
     val context = LocalContext.current
 
-    LaunchedEffect(data) {
-        viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(data))
+    LaunchedEffect(profileHeaderData) {
+        viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(profileHeaderData))
     }
 
     BaseDialog (
@@ -130,19 +137,19 @@ fun EditProfileHeaderDialog(
             )
 
             EditableProfilePictureCard(
-                backgroundPicturePath = state.profileHeaderData.backgroundPicturePath ?: "",
-                profilePicturePath = state.profileHeaderData.profilePicturePath ?: "",
+                backgroundPicturePath = state.profileHeaderData.backgroundPicture ?: "",
+                profilePicturePath = state.profileHeaderData.profilePicture ?: "",
                 onHeaderPicker = {
                     showImagePickerBottomSheetBack = true
                 },
                 onClearHeaderImage = {
-                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicturePath = "")))
+                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicture = "")))
                 },
                 onProfilePicturePicker = {
                     showImagePickerBottomSheet = true
                 },
                 onClearProfilePicture = {
-                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(profilePicturePath = "")))
+                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(profilePicture = "")))
                 }
             )
 
@@ -157,12 +164,16 @@ fun EditProfileHeaderDialog(
                 modifier = Modifier.padding(top = 20.dp, bottom = 10.dp)
             )
 
-            BioEditor(bioText) {
-                bioText = it
-                if (it.equals("@")) {
-                    viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
+            BioEditor(
+                text = profileHeaderData.bio,
+                remainingChars = profileHeaderData.overviewRemainingChars.toString(),
+                onOverviewChange = {
+                    viewModel.onEvent(UserProfileEvent.OnBioChanged(it))
+                    if (it.equals("@")) {
+                        viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
+                    }
                 }
-            }
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -171,9 +182,9 @@ fun EditProfileHeaderDialog(
             WebsiteTextField(
                 label = "Website",
                 hintText = "Domain Link",
-                value = data.websiteUrl?:"",
-                onValueChange = { data.websiteUrl = it },
-                onClear = { data.websiteUrl = "" }
+                value = profileHeaderData.websiteUrl,
+                onValueChange = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged(it)) },
+                onClear = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged("")) }
 
             )
             /*Row(verticalAlignment = Alignment.CenterVertically,
@@ -584,6 +595,7 @@ fun EditableProfilePictureCard(
 @Composable
 fun BioEditor(
     text: String,
+    remainingChars: String,
     onOverviewChange: (String) -> Unit,
 ) {
     var selectedTab by remember { mutableStateOf("overview") }
@@ -626,7 +638,7 @@ fun BioEditor(
                     .height(170.dp)
             ) {
                 Text(
-                    text = "25",
+                    text = remainingChars,
                     color = LightBlack60,
                     fontSize = 12.sp,
                     lineHeight = 24.sp,
@@ -682,15 +694,73 @@ fun OverviewEditor(
     BasicTextField(
         value = text,
         onValueChange = onChange,
-        textStyle = TextStyle(fontSize = 15.sp, color = Color.Black),
-        modifier = Modifier.fillMaxSize(),
+        visualTransformation = { textValue ->
+            TransformedText(
+                highlightWords(textValue.text),
+                OffsetMapping.Identity
+            )
+        },
+        textStyle = TextStyle(
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            fontFamily = fontFamilyLato,
+            color = Color.Transparent // we paint using AnnotatedString
+        ),
+        modifier = Modifier.fillMaxWidth(),
         decorationBox = { inner ->
-            if (text.isEmpty()) {
-                Text("About Joyer", color = Color.Gray)
+            Box(Modifier.fillMaxSize()) {
+                // Draw colored text
+//                Text(
+//                    text = highlightWords(text),
+//                    fontSize = 15.sp,
+//                    fontFamily = fontFamilyLato,
+//                    lineHeight = 20.sp
+//                )
+
+                // Editable transparent text overlay
+                inner()
+
+                // Placeholder
+                if (text.isEmpty()) {
+                    Text(
+                        "About Joyer",
+                        color = LightBlack40,
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp,
+                        fontFamily = fontFamilyLato
+                    )
+                }
             }
-            inner()
         }
     )
+}
+
+fun highlightWords(text: String): AnnotatedString {
+    val parts = text.split(" ")
+
+    return buildAnnotatedString {
+        parts.forEachIndexed { index, word ->
+
+            val isMention = word.startsWith("@")
+            val isHashtag = word.startsWith("#")
+            val isUrl = word.startsWith("http") || word.startsWith("https") || word.startsWith("www")
+
+            val color = if (isMention || isHashtag || isUrl) Golden else LightBlack
+            val fontWeight = if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
+
+
+            withStyle(
+                style = SpanStyle(
+                    color = color,
+                    fontWeight = fontWeight
+                )
+            ) {
+                append(word)
+            }
+
+            if (index != parts.lastIndex) append(" ")
+        }
+    }
 }
 @Composable
 fun HighlightsEditor(
