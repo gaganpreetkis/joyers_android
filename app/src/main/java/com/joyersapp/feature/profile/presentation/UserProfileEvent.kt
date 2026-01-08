@@ -31,6 +31,7 @@ sealed class UserProfileEvent {
     data class OnClearMultipleSelections(val key: String) : UserProfileEvent()
     data class OnGenderSelected(val value: String) : UserProfileEvent()
     data class OnBioChanged(val value: String) : UserProfileEvent()
+    data class OnHighlightChanged(val value: String) : UserProfileEvent()
     data class OnWebsiteUrlChanged(val value: String) : UserProfileEvent()
 
 }

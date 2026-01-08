@@ -21,6 +21,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -46,11 +49,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -77,7 +82,9 @@ import com.joyersapp.theme.LightBlack40
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.LightBlack9
 import com.joyersapp.theme.White
+import com.joyersapp.utils.countBullets
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.uriToFile
 
@@ -104,6 +111,7 @@ fun EditProfileHeaderDialog(
     var showBackgroundCropDialog by remember { mutableStateOf(false) }
     var selectedBackgroundImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedBackgroundImagePath by remember { mutableStateOf<String?>(null) }
+    var selectedTab by remember { mutableStateOf("overview") }
     
     val context = LocalContext.current
 
@@ -165,14 +173,27 @@ fun EditProfileHeaderDialog(
             )
 
             BioEditor(
-                text = profileHeaderData.bio,
-                remainingChars = profileHeaderData.overviewRemainingChars.toString(),
+                selectedTab = selectedTab,
+                overviewText = profileHeaderData.bio,
+                highlightText = profileHeaderData.highlightText.ifEmpty { "• " },
+                websiteUrl = profileHeaderData.websiteUrl,
+                remainingChars = if (selectedTab == "overview") {
+                    profileHeaderData.overviewRemainingChars.toString()
+                } else {
+                    profileHeaderData.highlightsRemainingChars.toString()
+                },
                 onOverviewChange = {
                     viewModel.onEvent(UserProfileEvent.OnBioChanged(it))
                     if (it.equals("@")) {
                         viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                     }
-                }
+                },
+                onHighlightChange = {
+                    viewModel.onEvent(UserProfileEvent.OnHighlightChanged(it))
+                },
+                onSelectedTabChange = {
+                    selectedTab = it
+                },
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -594,11 +615,15 @@ fun EditableProfilePictureCard(
 
 @Composable
 fun BioEditor(
-    text: String,
+    selectedTab: String,
+    overviewText: String,
+    highlightText: String,
+    websiteUrl: String,
     remainingChars: String,
     onOverviewChange: (String) -> Unit,
+    onHighlightChange: (String) -> Unit,
+    onSelectedTabChange: (String) -> Unit,
 ) {
-    var selectedTab by remember { mutableStateOf("overview") }
 
     Card(
         shape = RoundedCornerShape(5.dp),
@@ -621,12 +646,12 @@ fun BioEditor(
                 TabItem(
                     title = "Overview",
                     selected = selectedTab == "overview"
-                ) { selectedTab = "overview" }
+                ) { onSelectedTabChange("overview") }
                 VerticalDivider(color = LightBlack10)
                 TabItem(
                     title = "Highlights",
                     selected = selectedTab == "highlights"
-                ) { selectedTab = "highlights" }
+                ) { onSelectedTabChange("highlights") }
             }
 
             HorizontalDivider(color = LightBlack10)
@@ -653,13 +678,19 @@ fun BioEditor(
                 Box(Modifier.padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 15.dp)) {
                     if (selectedTab == "overview") {
                         OverviewEditor(
-                            text = text,
+                            text = overviewText,
                             onChange = {
                                 onOverviewChange(it)
                             }
                         )
                     } else {
-                        HighlightsEditor()
+                        HighlightsEditor(
+                            websiteUrl = websiteUrl,
+                            text = highlightText,
+                            onChange = {
+                                onHighlightChange(it)
+                            }
+                        )
                     }
                 }
             }
@@ -693,7 +724,10 @@ fun OverviewEditor(
 ) {
     BasicTextField(
         value = text,
-        onValueChange = onChange,
+        onValueChange = {
+            if (it.graphemeCount() > 150) return@BasicTextField
+            onChange(it)
+        },
         visualTransformation = { textValue ->
             TransformedText(
                 highlightWords(textValue.text),
@@ -762,7 +796,7 @@ fun highlightWords(text: String): AnnotatedString {
         }
     }
 }
-@Composable
+/*@Composable
 fun HighlightsEditor(
 ) {
     var bullets by remember { mutableStateOf("• ") }
@@ -778,6 +812,117 @@ fun HighlightsEditor(
             }
         },
         textStyle = TextStyle(fontSize = 15.sp, color = Color.Black),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp),
+        decorationBox = { inner ->
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(4.dp)
+            ) {
+                inner()
+            }
+        }
+    )
+}*/
+@Composable
+fun HighlightsEditor(
+    websiteUrl: String,
+    text: String,
+    onChange: (String) -> Unit
+) {
+    var textState by remember {
+        // Default bullet visible on first open
+        mutableStateOf(
+            TextFieldValue(
+                text = text,
+                selection = TextRange(2)
+            )
+        )
+    }
+    onChange(textState.text)
+
+    BasicTextField(
+        value = textState,
+        onValueChange = { newValue ->
+            if (newValue.text.graphemeCount() > 25) return@BasicTextField
+
+            val oldValue = textState
+            val oldText = oldValue.text
+            val newText = newValue.text
+
+            // 0️⃣ Guard: preserve leading bullet space when only the first bullet remains
+            // If user deletes the trailing space of the first bullet, restore it.
+            if (newText == "•" && !oldText.contains("\n")) {
+                val restored = "• "
+                textState = TextFieldValue(
+                    text = restored,
+                    selection = TextRange(restored.length)
+                )
+                onChange(textState.text)
+                return@BasicTextField
+            }
+
+            // 1️⃣ Enter → new bullet
+            // Check if text ends with "\n" but not "\n• " (bullet already added)
+            // This catches Enter key presses - when Enter is pressed, "\n" is added immediately
+            // Even if keyboard suggestions are active, the second Enter press will add "\n"
+            if (newText.endsWith("\n") && !newText.endsWith("\n• ")) {
+                val maxBullets = if (websiteUrl.isNotEmpty()) 4 else 5
+                val bulletCount = countBullets(oldText)
+                // ⛔ Stop adding new bullet if limit reached
+                if (bulletCount >= maxBullets) {
+                    textState = oldValue // keep previous text
+                    return@BasicTextField
+                }
+                val updated = newText + "• "
+                textState = TextFieldValue(
+                    text = updated,
+                    selection = TextRange(updated.length)
+                )
+                onChange(textState.text)
+                return@BasicTextField
+            }
+
+            // 2️⃣ Deleting last empty bullet when there are previous bullets:
+            //    "• a\n• b\n• c\n• "  →  "• a\n• b\n• c"
+            val lastEmptyBulletSuffix = "\n• "
+            if (
+                oldText.contains(lastEmptyBulletSuffix) &&
+                oldText.endsWith(lastEmptyBulletSuffix) &&
+                oldValue.selection.end == oldText.length && // cursor at end of last bullet
+                newText.length < oldText.length              // user pressed backspace / clear
+            ) {
+                val base = oldText.removeSuffix(lastEmptyBulletSuffix)
+                textState = TextFieldValue(
+                    text = base,
+                    selection = TextRange(base.length)       // cursor at end of previous bullet
+                )
+                onChange(textState.text)
+                return@BasicTextField
+            }
+
+            // 3️⃣ If everything is cleared, restore a single default bullet
+            if (newText.isEmpty()) {
+                val updated = "• "
+                textState = TextFieldValue(
+                    text = updated,
+                    selection = TextRange(updated.length)
+                )
+                onChange(textState.text)
+                return@BasicTextField
+            }
+
+            // 4️⃣ Normal typing / deleting within bullets
+            textState = newValue
+            onChange(textState.text)
+        },
+        textStyle = TextStyle(
+            fontSize = 15.sp,
+            color = Color.Black
+        ),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp),
