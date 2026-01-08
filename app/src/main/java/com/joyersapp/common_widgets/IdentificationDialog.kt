@@ -90,7 +90,7 @@ fun IdentificationDialog(
                     label = "Name",
                     value = identificationData.name,
                     onValueChange = { viewModel.onEvent(UserProfileEvent.OnNameChanged(value = it)) },
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Name")) },
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Name")) },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -107,7 +107,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Birthday")) },
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Birthday")) },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -125,10 +125,10 @@ fun IdentificationDialog(
                     label = "Nationality",
                     hintText = "Joyer Nationality",
                     values = identificationData.nationality?: emptyList(),
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Nationality")) },
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Nationality")) },
                     onClick = {
                         viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
+                            UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 "Nationality",
                                 isMultiSelectEnabled = true,
                                 show = true,
@@ -148,7 +148,7 @@ fun IdentificationDialog(
                     value = identificationData.ethnicity?.name?: "",
                     onClick = {
                         viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
+                            UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 "Ethnicity",
                                 isMultiSelectEnabled = false,
                                 show = true,
@@ -158,7 +158,7 @@ fun IdentificationDialog(
                             )
                         )
                               },
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Ethnicity")) },
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Ethnicity")) },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -169,7 +169,7 @@ fun IdentificationDialog(
                     value = identificationData.faith?.name?: "",
                     onClick = {
                         viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
+                            UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 "Faith",
                                 isMultiSelectEnabled = false,
                                 show = true,
@@ -180,7 +180,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Faith")) },
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Faith")) },
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -190,7 +190,7 @@ fun IdentificationDialog(
                     label = "Language",
                     hintText = "Joyer Language",
                     values = identificationData.language,
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Language")) },
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Language")) },
                     onClick = {
                         viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = true))
                     },
@@ -204,7 +204,7 @@ fun IdentificationDialog(
                     value = identificationData.education?.name?: "",
                     onClick = {
                         viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
+                            UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 "Education",
                                 isMultiSelectEnabled = false,
                                 show = true,
@@ -214,7 +214,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Education")) }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Education")) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -225,7 +225,7 @@ fun IdentificationDialog(
                     value = identificationData.relationship?.name?: "",
                     onClick = {
                         viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
+                            UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 "Relationship",
                                 isMultiSelectEnabled = false,
                                 show = true,
@@ -235,7 +235,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Relationship")) }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Relationship")) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -246,7 +246,7 @@ fun IdentificationDialog(
                     values = identificationData.politicalIdeology?: arrayListOf(),
                     onClick = {
                         viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
+                            UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 key = "Political Ideology",
                                 isMultiSelectEnabled = true,
                                 show = true,
@@ -256,7 +256,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Political Ideology")) }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Political Ideology")) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -267,7 +267,7 @@ fun IdentificationDialog(
                     value = identificationData.location?.name?: "",
                     onClick = {
                         viewModel.onEvent(
-                            UserProfileEvent.ToggleDescriptionDialog(
+                            UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 "Joyer Location",
                                 isMultiSelectEnabled = false,
                                 show = true,
@@ -277,7 +277,7 @@ fun IdentificationDialog(
                             )
                         )
                     },
-                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearDescription(key = "Joyer Location")) }
+                    onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Joyer Location")) }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

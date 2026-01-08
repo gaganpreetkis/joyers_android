@@ -52,15 +52,16 @@ import com.joyersapp.R
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.dialogs.BirthdayDatePickerDialog
-import com.joyersapp.components.dialogs.EditDescriptionDialog
+import com.joyersapp.components.dialogs.DescriptionDialog
+import com.joyersapp.components.dialogs.MultipleSelectionsDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.dialogs.LanguageSelectionDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
-import com.joyersapp.components.layouts.CustomProgressIndicator
+import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.core.NetworkConfig
-import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
@@ -106,9 +107,10 @@ fun MagneticsScreen(
         }
     }
 
-    if (state.isLoading) {
-        CustomProgressIndicator()
-    } else {
+    HardBlockingLoader(state.isLoading)
+//    if (state.isLoading) {
+//        CustomProgressIndicator()
+//    } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -147,14 +149,11 @@ fun MagneticsScreen(
                 val headers = arrayListOf("Description", "Joyer Status", magneticsData.joyerStatus)
                 if (state.title != null) headers.add(state.title?.name?: "")
                 if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
-                DescriptionSection( state) {
+                DescriptionSection( state.magneticsData) {
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
-                            "",
-                            isMultiSelectEnabled = false,
                             show = true,
-                            headers = headers,
-                            titlesData = state.titles
+                            titlesData = state.titles,
                         )
                     )
                 }
@@ -177,12 +176,13 @@ fun MagneticsScreen(
                 /** ─────────────── SECTION: INTERESTS ─────────────── **/
                 InterestsSection( magneticsData) {
                     viewModel.onEvent(
-                        UserProfileEvent.ToggleDescriptionDialog(
+                        UserProfileEvent.ToggleMultipleSelectionsDialog(
                             "Interests",
                             isMultiSelectEnabled = true,
                             show = true,
                             headers = arrayListOf("Interests"),
-                            titlesData = state.interestList
+                            titlesData = state.interestList,
+                            selectedIds = state.magneticsData.interests?.map { it.dropdownInterests?.id?: "" }?: emptyList()
                         )
                     )
                 }
@@ -202,7 +202,22 @@ fun MagneticsScreen(
                 },
             )
         }
-
+        if (state.showDescriptionDialog) {
+            DescriptionDialog (
+                viewModel = viewModel,
+                onDismiss = {
+                    viewModel.onEvent(
+                        UserProfileEvent.ToggleDescriptionDialog(
+                            show = false,
+                            titlesData = emptyList(),
+                        )
+                    )
+                },
+                onApply = { selectedTitle, selectedSubTitle ->
+                    viewModel.onEvent(UserProfileEvent.OnApplyDescription(selectedTitle, selectedSubTitle))
+                }
+            )
+        }
         if (state.showMentionJoyersDialog) {
             MentionJoyersDialog (
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(false)) }
@@ -212,31 +227,15 @@ fun MagneticsScreen(
             IdentificationDialog(
                 viewModel = viewModel,
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
-//                onApply = {
-//                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false))
-//                          },
-//                identificationData = IdentificationData(
-//                    name = uiStateMagnetics.fullname,
-//                    birthday = uiStateMagnetics.birthday,
-////                gender = null,
-//                    nationality = uiStateMagnetics.nationality,
-//                    ethnicity = uiStateMagnetics.ethnicity,
-//                    faith = uiStateMagnetics.faith,
-//                    language = uiStateMagnetics.languages,
-//                    education = uiStateMagnetics.education,
-//                    relationship = uiStateMagnetics.relationship,
-//                    politicalIdeology = uiStateMagnetics.politicalIdeology,
-//                    location = uiStateMagnetics.location
-//                )
             )
         }
-        if (state.showEditDescriptionDialog) {
-            EditDescriptionDialog(
+        if (state.showMultipleSelectionsDialog) {
+            MultipleSelectionsDialog(
                 viewModel = viewModel,
-                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(show = false)) },
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(show = false)) },
                 onApply = { key, value ->
-                    viewModel.onEvent(UserProfileEvent.OnApplyDescription(key, value))
-                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(show = false))
+                    viewModel.onEvent(UserProfileEvent.OnApplyMultipleSelections(key, value))
+                    viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(show = false))
                 },
             )
         }
@@ -253,7 +252,7 @@ fun MagneticsScreen(
                 onApply = {  viewModel.onEvent(UserProfileEvent.OnApplyLanguage(it)) }
             )
         }
-    }
+//    }
 }
 
 @Composable
@@ -487,7 +486,7 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
 }
 
 @Composable
-fun DescriptionSection(state: UserProfileUiState, onclick: () -> Unit) {
+fun DescriptionSection(state: MagneticsData, onclick: () -> Unit) {
     Column(
         Modifier
             .background(White)
@@ -1066,6 +1065,8 @@ data class MagneticsData(
     val username: String = "",
     val profileHeaderData: ProfileHeaderData? = null,
     val joyerStatus: String = "",
+    val title: ProfileMeta? = null,
+    val subTitle: ProfileMeta? = null,
     val identificationData: IdentificationData? = null,
     var interests: List<Interests>? = null,
 )

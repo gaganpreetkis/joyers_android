@@ -49,12 +49,11 @@ data class UserProfile (
 
 )
 
-data class ProfileMeta (
+data class ProfileMeta(
 
-    @SerializedName("id"          ) var id          : String? = null,
-    @SerializedName("name"        ) var name        : String? = null,
-    @SerializedName("description" ) var description : String? = null
-
+    @SerializedName("id"          )  var id          : String? = null,
+    @SerializedName("name"        )  var name        : String? = null,
+    @SerializedName("description" )  var description : String? = null
 )
 
 data class Language (

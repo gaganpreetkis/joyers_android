@@ -50,19 +50,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
-import com.joyersapp.common_widgets.IdentificationData
-import com.joyersapp.common_widgets.IdentificationDialog
-import com.joyersapp.components.dialogs.EditDescriptionDialog
-import com.joyersapp.components.layouts.CustomProgressIndicator
+import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
 import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
 import com.joyersapp.theme.AvatarBorder
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
-import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.LightBlack
-import com.joyersapp.theme.LightBlack10
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -78,9 +73,10 @@ fun UserProfileScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (state.isLoading) {
-        CustomProgressIndicator()
-    } else {
+    HardBlockingLoader(state.isLoading)
+//    if (state.isLoading) {
+//        CustomProgressIndicator()
+//    } else {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
@@ -174,17 +170,17 @@ fun UserProfileScreen(
 
             }
 
-            if (state.showEditDescriptionDialog) {
-//                EditDescriptionDialog(
+            if (state.showMultipleSelectionsDialog) {
+//                MultipleSelectionsDialog(
 //                    titlesData = state.titlesData,
 ////                    selectedItems = state.selectedItems,
-//                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false,emptyList(),emptyList())) },
-//                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false,emptyList(),emptyList())) },
+//                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(false,emptyList(),emptyList())) },
+//                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(false,emptyList(),emptyList())) },
 //                    headers = state.dialogHeader
 //                )
             }
         }
-    }
+//    }
 }
 
 
@@ -526,7 +522,7 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
             ProfileStatusSection(
                 state = state,
                 onEditDescription = {
-//                    viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(show = true, headers = headers, titlesData = state.titles))
+//                    viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(show = true, headers = headers, titlesData = state.titles))
                 })
         }
 

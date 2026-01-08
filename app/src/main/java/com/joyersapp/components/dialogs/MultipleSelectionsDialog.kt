@@ -12,7 +12,7 @@ import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 
 //@Preview
 @Composable
-fun EditDescriptionDialog(
+fun MultipleSelectionsDialog(
     viewModel: UserProfileViewModel,
     onDismiss: () -> Unit,
     onApply: (String, List<ProfileTitlesData>) -> Unit

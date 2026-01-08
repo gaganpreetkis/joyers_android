@@ -3,7 +3,6 @@ package com.joyersapp.feature.profile.presentation
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.unit.Dp
 import com.joyersapp.common_widgets.IdentificationData
-import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
@@ -86,8 +85,9 @@ data class UserProfileUiState(
     val showTitlesDialog: Boolean = false,
     val showIdentificationDialog: Boolean = false,
     val showEditProfileHeaderDialog: Boolean = false,
-    val showEditDescriptionDialog: Boolean = false,
+    val showMultipleSelectionsDialog: Boolean = false,
     val showMentionJoyersDialog: Boolean = false,
+    val showDescriptionDialog: Boolean = false,
     val showDatePickerDialog: Boolean = false,
     val showLanguagesDialog: Boolean = false,
 
@@ -95,4 +95,5 @@ data class UserProfileUiState(
     val key: String = "",
     val selectedIds: List<String> = arrayListOf(),
     val isMultiselectEnabled: Boolean = false,
+    val isSubTitleMode: Boolean = false,
 )

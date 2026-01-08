@@ -160,7 +160,7 @@ fun BaseDialog(
                     )
                 } else {
                     FlowRow(
-                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp),
+                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp, start = 10.dp, end = 10.dp),
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         titles.forEachIndexed { index, item ->
