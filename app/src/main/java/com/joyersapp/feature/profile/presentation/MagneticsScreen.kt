@@ -178,8 +178,8 @@ fun MagneticsScreen(
                 InterestsSection( magneticsData) {
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
-                            "",
-                            isMultiSelectEnabled = false,
+                            "Interests",
+                            isMultiSelectEnabled = true,
                             show = true,
                             headers = arrayListOf("Interests"),
                             titlesData = state.interestList
@@ -663,7 +663,7 @@ fun ProfilePicture(
 }
 
 @Composable
-fun BioSection(
+private fun BioSection(
     bioText: String,
     linkText: String,
     onLinkClick: () -> Unit

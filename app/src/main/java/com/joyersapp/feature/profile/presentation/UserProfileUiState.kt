@@ -15,8 +15,8 @@ data class UserProfileUiState(
 
     val magneticsData: MagneticsData = MagneticsData(),
     val identificationData: IdentificationData = IdentificationData(),
-
     val profileHeaderData: ProfileHeaderData = ProfileHeaderData(),
+
     val username: String = "",
     val fullname: String = "",
     val joyerLocation: String? = null,
