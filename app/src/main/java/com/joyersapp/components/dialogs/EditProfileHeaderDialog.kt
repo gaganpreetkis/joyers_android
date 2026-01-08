@@ -386,7 +386,7 @@ fun EditProfileHeaderDialog(
         onDelete = {
             selectedBackgroundImageUri = null
             selectedBackgroundImagePath = null
-            viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicturePath = "")))
+            viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicture = "")))
             showBackgroundImagePreview = false
         },
         onCrop = {
