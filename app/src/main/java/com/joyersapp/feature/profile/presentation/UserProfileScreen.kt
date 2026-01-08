@@ -43,6 +43,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,7 +60,9 @@ import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
 import com.joyersapp.theme.AvatarBorder
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
+import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack10
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -103,6 +106,12 @@ fun UserProfileScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     ProfileInfo(state)
+
+                    BioSection(
+                        bioText = state.bio,
+                        linkText = state.websiteUrl,
+                        onLinkClick = {}
+                    )
 
                     StatsRow(state)
 
@@ -534,6 +543,71 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
                 .height(120.dp), contentAlignment = Alignment.Center
         ) {
             Text("Content for ${state.tabs[state.selectedTab]}")
+        }
+    }
+}
+
+@Composable
+private fun BioSection(
+    bioText: String,
+    linkText: String,
+    onLinkClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+
+        Card(
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        ) {
+            Column(
+
+            ) {
+
+                if (bioText.isNotEmpty()) {
+                    // ----- BIO RICH TEXT -----
+                    HighlightedText(bioText)
+                }
+
+                if (linkText.isNotEmpty()) {
+
+                    Spacer(Modifier.height(10.dp))
+
+                    // ----- LINK ROW -----
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable { onLinkClick() }
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_link),
+                            contentDescription = null,
+                            modifier = Modifier.height(14.5.dp).width(14.5.dp)
+                        )
+                        Spacer(Modifier.width(5.dp))
+
+                        Text(
+                            text = linkText,
+                            fontSize = 14.sp,
+                            color = Golden,
+                            fontWeight = FontWeight.SemiBold,
+                            lineHeight = 22.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+                if (bioText.isNotEmpty() || linkText.isNotEmpty()) {
+                    Spacer(Modifier.height(15.dp))
+                    DashedLine(modifier = Modifier.fillMaxWidth())
+                    Spacer(Modifier.height(15.dp))
+                }
+            }
         }
     }
 }

@@ -360,7 +360,7 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update { it.copy(
                     profileHeaderData = _uiState.value.profileHeaderData.copy(
                         bio = event.value,
-//                        overviewRemainingChars = 150 - event.value.length
+                        overviewRemainingChars = 150 - event.value.length
                     ),
                 ) }
             }
