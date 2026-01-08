@@ -72,6 +72,7 @@ import com.joyersapp.theme.LightBlack55
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.noRippleClickable
 
 //@Preview
@@ -1074,7 +1075,9 @@ data class ProfileHeaderData(
     val profilePicture: String = "",
     val backgroundPicture: String = "",
     val bio: String = "",
-    val overviewRemainingChars: Int = 150 - bio.length,
-    val highlightsRemainingChars: Int = 25,
+    val overviewText: String = "",
+    val highlightText: String = "",
+    val overviewRemainingChars: Int = 150 - bio.graphemeCount(),
+    val highlightsRemainingChars: Int = 25 - highlightText.graphemeCount(),
     val websiteUrl: String = "",
 )

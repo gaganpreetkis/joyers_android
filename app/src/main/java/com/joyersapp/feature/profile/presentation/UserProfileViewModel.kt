@@ -26,6 +26,7 @@ import com.joyersapp.feature.profile.domain.usecase.GetUserListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadPictureServerUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
+import com.joyersapp.utils.graphemeCount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.async
@@ -360,7 +361,16 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update { it.copy(
                     profileHeaderData = _uiState.value.profileHeaderData.copy(
                         bio = event.value,
-                        overviewRemainingChars = 150 - event.value.length
+                        overviewRemainingChars = 150 - event.value.graphemeCount()
+                    ),
+                ) }
+            }
+
+            is UserProfileEvent.OnHighlightChanged -> {
+                _uiState.update { it.copy(
+                    profileHeaderData = _uiState.value.profileHeaderData.copy(
+                        highlightText = event.value,
+                        highlightsRemainingChars = 25 - event.value.graphemeCount()
                     ),
                 ) }
             }
