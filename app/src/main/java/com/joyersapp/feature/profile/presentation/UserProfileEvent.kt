@@ -1,6 +1,8 @@
 package com.joyersapp.feature.profile.presentation
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.joyersapp.common_widgets.IdentificationData
+import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -25,12 +27,13 @@ sealed class UserProfileEvent {
     data class OnApplyProfileHeader(val value: ProfileHeaderData) : UserProfileEvent()
     data class OnApplyMultipleSelections(val key: String, val value: List<ProfileTitlesData>) : UserProfileEvent()
     data class OnApplyDescription(val selectedTitle: ProfileMeta?, val selectedSubTitle: ProfileMeta?) : UserProfileEvent()
+    data class OnApplyMentionedJoyers(val selectedUserList: List<EditMagneticsUserListData>) : UserProfileEvent()
     data class OnNameChanged(val value: String) : UserProfileEvent()
     data class OnApplyBirthday(val value: String) : UserProfileEvent()
     data class OnApplyLanguage(val value: List<ProfileTitlesData>) : UserProfileEvent()
     data class OnClearMultipleSelections(val key: String) : UserProfileEvent()
     data class OnGenderSelected(val value: String) : UserProfileEvent()
-    data class OnBioChanged(val value: String) : UserProfileEvent()
+    data class OnBioChanged(val value: TextFieldValue) : UserProfileEvent()
     data class OnHighlightChanged(val value: String) : UserProfileEvent()
     data class OnWebsiteUrlChanged(val value: String) : UserProfileEvent()
 

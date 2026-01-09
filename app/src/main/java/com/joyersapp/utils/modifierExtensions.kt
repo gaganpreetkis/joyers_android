@@ -15,8 +15,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 
 @Composable
-fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier {
+fun Modifier.noRippleClickable(enabled: Boolean = true, onClick: () -> Unit): Modifier {
     return this.clickable(
+        enabled = enabled,
         indication = null,
         interactionSource = remember { MutableInteractionSource() },
         onClick = onClick

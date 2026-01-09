@@ -38,6 +38,7 @@ val GrayBG = Color(0xFFF5F5F5)
 
 
 val Golden = Color(0xffd69e3a)
+val Golden60 = Color(0x99D69E3A)
 val Red = Color(0xffff0000)
 val Green = Color(0xff0ED916)
 val AvatarBorder = Color(0xff2E79F0)

@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -222,9 +223,9 @@ fun MagneticsScreen(
         }
         if (state.showMentionJoyersDialog) {
             MentionJoyersDialog (
-                viewModel = viewModel,
-                onApply = {},
-                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(false)) }
+                initList = state.editMagneticsUserList,
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(false)) },
+                onApply = { viewModel.onEvent(UserProfileEvent.OnApplyMentionedJoyers(it)) },
             )
         }
         if (state.showIdentificationDialog) {
@@ -1192,6 +1193,7 @@ data class ProfileHeaderData(
     val profilePicture: String = "",
     val backgroundPicture: String = "",
     val bio: String = "",
+    val bioFieldValue: TextFieldValue = TextFieldValue(bio),
     val overviewText: String = "",
     val highlightText: String = "",
     val overviewRemainingChars: Int = 150 - bio.graphemeCount(),

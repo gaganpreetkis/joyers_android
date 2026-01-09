@@ -4,19 +4,28 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,54 +38,102 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
+import com.joyersapp.feature.profile.presentation.UserProfileNavigationEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
+import com.joyersapp.feature.profile.presentation.dialogs.MentionJoyersEvent
+import com.joyersapp.feature.profile.presentation.dialogs.MentionJoyersNavEvent
+import com.joyersapp.feature.profile.presentation.dialogs.MentionJoyersViewModel
+import com.joyersapp.theme.AvatarBorder
+import com.joyersapp.theme.Golden
+import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.noRippleClickable
+import com.joyersapp.utils.rememberIsKeyboardOpen
+import com.joyersapp.utils.tapToDismissKeyboard
 
 @Preview
 @Composable
 fun composePreview() {
-   // MentionJoyersDialog(onDismiss = {}, { }, )
+    MentionJoyersDialog(
+        initList = arrayListOf(),
+        onDismiss = {},
+        onApply = {},
+        viewmodel = hiltViewModel()
+        )
 }
 
 @Composable
 fun MentionJoyersDialog(
+    initList: List<EditMagneticsUserListData>,
     onDismiss: () -> Unit,
-    onApply: () -> Unit,
-    viewModel: UserProfileViewModel
+    onApply: (List<EditMagneticsUserListData>) -> Unit,
+    viewmodel: MentionJoyersViewModel = hiltViewModel()
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    BaseDialog(
+    val state by viewmodel.uiState.collectAsStateWithLifecycle()
+    val searchQuery = state.searchQuery
+    val userList = state.filteredUserList
+
+    LaunchedEffect(initList) {
+        viewmodel.onEvent(MentionJoyersEvent.InitUserList(initList))
+    }
+
+    LaunchedEffect(Unit) {
+        viewmodel.navigationEvents.collect { event ->
+            when(event) {
+                is MentionJoyersNavEvent.OnApply -> { onApply(event.selectedUsers) }
+            }
+        }
+    }
+
+
+    BaseMentionJoyersDialog(
         onDismiss = { onDismiss() },
-
-        titles = arrayListOf("Profile Header")
-
+        titles = arrayListOf("Profile Header"),
+        isApplyEnabled = state.isApplyEnabled,
+        onApply = { viewmodel.onEvent(MentionJoyersEvent.OnApply)}
     ) { dialogModifier, dialogFocusManager, maxHeight ->
 
         Column(
@@ -84,7 +141,6 @@ fun MentionJoyersDialog(
                 .fillMaxWidth()
                 .padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 35.dp)
                 .background(Color.White)
-                .verticalScroll(rememberScrollState()),
         ) {
             // ---------- HEADER SECTION ----------
 
@@ -98,42 +154,32 @@ fun MentionJoyersDialog(
                 modifier = Modifier.padding(bottom = 10.dp)
             )
 
-            EditableProfilePictureCard1(
-                state.editMagneticsUserList,
-                dialogModifier = dialogModifier,
-            )
+            // Card with profile and header images
+            Card(
+                modifier = Modifier
+                    .width(384.dp)
+                    .border(
+                        width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
+                    ),
+                shape = RoundedCornerShape(5.dp),
+                colors = CardDefaults.cardColors(containerColor = Gray20)
+            ) {
+
+                Spacer(modifier = Modifier.height(10.dp))
+                SearchBarRowForEditMaganetic(
+                    searchQuery = searchQuery,
+                    onSearchQueryChanged = { viewmodel.onEvent(MentionJoyersEvent.OnSearchQueryChanged(it)) }
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                MentionJoyersScreen(
+                    userList,
+                    onUserClick = { selectedUser ->
+                        viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
+                    }
+                )
+            }
         }
-    }
-}
-
-@Composable
-fun EditableProfilePictureCard1(
-    userlist: List<EditMagneticsUserListData>,
-    dialogModifier: Modifier,
-) {
-    // Card with profile and header images
-    Card(
-        modifier = Modifier
-            .width(384.dp)
-            .height(317.dp)
-            .border(
-                width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
-            ),
-        shape = RoundedCornerShape(5.dp),
-        colors = CardDefaults.cardColors(containerColor = Gray20)
-    ) {
-
-        Spacer(modifier = dialogModifier.height(10.dp))
-        SearchBarRowForEditMaganetic(
-            searchQuery = "Search Joyer",
-            showApplyButton = true,
-            onApply = { },
-            onSearchQueryChanged = { })
-
-        Spacer(modifier = dialogModifier.height(10.dp))
-
-        MentionJoyersScreen(userlist)
-
     }
 }
 
@@ -141,8 +187,6 @@ fun EditableProfilePictureCard1(
 fun SearchBarRowForEditMaganetic(
     dialogModifier: Modifier = Modifier,
     searchQuery: String,
-    showApplyButton: Boolean,
-    onApply: () -> Unit,
     onSearchQueryChanged: (String) -> Unit
 ) {
     val lightBlackColor = LightBlack
@@ -177,7 +221,7 @@ fun SearchBarRowForEditMaganetic(
                 placeholder = "Search Joyer",
                 modifier = dialogModifier
                     .fillMaxHeight()
-                    .padding(horizontal = 15.dp),
+                    .padding(),
                 textStyle = TextStyle(
                     platformStyle = PlatformTextStyle(includeFontPadding = false),
                     fontFamily = fontFamilyLato,
@@ -192,20 +236,19 @@ fun SearchBarRowForEditMaganetic(
             )
         }
 
-        Spacer(modifier = dialogModifier.width(10.dp))
+//        Spacer(modifier = dialogModifier.width(10.dp))
         /* ---------------- PLUS BUTTON ---------------- */
         Box(
             modifier = dialogModifier
                 .size(30.dp) // exact outer size
-                .background(
-                    color = Color(0xFFF6F6F6), // light grey fill
-                    shape = CircleShape
-                )
+//                .background(
+//                    color = Color(0xFFF6F6F6), // light grey fill
+//                    shape = CircleShape
+//                )
                 .clickable {  },
-            contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_nav_joyers_add),
+                painter = painterResource(R.drawable.ic_edit_magantic_add),
                 contentDescription = "Add Joyer",
                 modifier = Modifier.size(30.dp)
             )
@@ -215,53 +258,106 @@ fun SearchBarRowForEditMaganetic(
 
 
 @Composable
-fun MentionJoyersScreen(userlist: List<EditMagneticsUserListData>) {
+fun MentionJoyersScreen(userlist: List<EditMagneticsUserListData>, onUserClick: (EditMagneticsUserListData) -> Unit) {
     Column(
         modifier = Modifier
             .width(354.dp)
             .padding(top = 15.dp, bottom = 15.dp, start = 15.dp, end = 15.dp)
+            .clip(RoundedCornerShape(1.dp))
             .background(
                 color = Color.White, shape = RoundedCornerShape(1.dp)
             )
+            .border(
+                width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
+            ),
     ) {
-        JoyersList(userlist)
+        JoyersList(userlist, onUserClick = onUserClick)
     }
 }
 
 @Composable
-fun JoyersList(getPreviewJoyerList: List<EditMagneticsUserListData>) {
+fun JoyersList(getPreviewJoyerList: List<EditMagneticsUserListData>,
+               onUserClick: (EditMagneticsUserListData) -> Unit) {
     LazyColumn {
-        items(getPreviewJoyerList) {
-            MentionJoyerRow(it)
+        item {
+
+        }
+        itemsIndexed(getPreviewJoyerList) { index, user ->
+            if (0 == index) {
+                Spacer(Modifier.height(10.dp))
+            }
+            MentionJoyerRow(user, onUserClick = onUserClick)
+            if (getPreviewJoyerList.size -1  == index) {
+                Spacer(Modifier.height(15.dp))
+            }
         }
     }
 }
 
 @Composable
-fun MentionJoyerRow(joyer: EditMagneticsUserListData) {
+fun MentionJoyerRow(
+    joyer: EditMagneticsUserListData,
+    onUserClick: (EditMagneticsUserListData) -> Unit
+) {
     Row(
         modifier = Modifier
             .width(354.dp)
-            .height(67.dp),
+            .height(44.dp)
+            .noRippleClickable {
+                onUserClick(joyer)
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
 
         // Radio
-        RadioButton(
-            selected = false,
-            onClick = {  }
-        )
+        Box(
+            Modifier
+                .padding(horizontal = 10.dp).size(16.dp)
+                .clip(CircleShape)
+                .background(if (joyer.isSelected) Golden else Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            if (joyer.isSelected) {
+                Image(
+                    painterResource(R.drawable.ic_tick),
+                    contentDescription = "Radio Button",
+                    Modifier.size(16.3.dp, 16.2.dp),
+                    colorFilter = ColorFilter.tint(White)
+                )
+            } else {
+                Image(
+                    painterResource(R.drawable.ic_radio_button_unselected),
+                    contentDescription = "Radio Button",
+                    Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(LightBlack)
+                )
+            }
+        }
 
-        Spacer(modifier = Modifier.width(10.dp))
+//        Spacer(modifier = Modifier.width(10.dp))
         // Avatar
-        AsyncImage(
-            model = "${NetworkConfig.IMAGE_BASE_URL}${joyer.profile_picture}",
-            contentDescription = "",
+        Box(
             modifier = Modifier
+                .border(width = 1.dp, color = AvatarBorder, shape = CircleShape)
+                .padding(1.dp)
+                .border(width = 1.dp, color = White, shape = CircleShape)
                 .size(37.dp)
                 .clip(CircleShape)
-                .border(2.dp, Color.White, CircleShape)
-        )
+                .background(Gray20), contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.avatar), // your J icon
+                contentDescription = "avatar", modifier = Modifier.size(37.dp)
+            )
+        }
+//        AsyncImage(
+//            model = "${NetworkConfig.IMAGE_BASE_URL}${joyer.profile_picture}",
+//            contentDescription = "",
+//            modifier = Modifier
+//                .size(37.dp)
+//                .clip(CircleShape)
+//                .border(2.dp, Color.White, CircleShape)
+//        )
 
         Spacer(modifier = Modifier.width(10.dp))
 
@@ -272,7 +368,7 @@ fun MentionJoyerRow(joyer: EditMagneticsUserListData) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "${joyer.first_name}${joyer.last_name}",
+                    text = joyer.getDisplayName(),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -301,3 +397,142 @@ fun MentionJoyerRow(joyer: EditMagneticsUserListData) {
     }
 }
 
+@Composable
+private fun BaseMentionJoyersDialog(
+    onDismiss: () -> Unit,
+    titles: List<String>,
+    isApplyEnabled: Boolean,
+    onApply: () -> Unit,
+    dialogContent: @Composable (dialogModifier: Modifier, dialogFocusManager: FocusManager, maxHeight: Dp) -> Unit = { dialogModifier, dialogFocusManager, maxHeight -> }
+) {
+
+    val isKeyBoardOpen = rememberIsKeyboardOpen()
+
+    val lightBlackColor = LightBlack
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        val dialogFocusManager = LocalFocusManager.current
+        val dialogModifier = Modifier
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    dialogFocusManager.clearFocus()
+                }
+            }
+
+        val configuration = LocalWindowInfo.current.containerSize
+        // Calculate maximum height: screen height - 100.dp (50.dp top + 50.dp bottom)
+        val minHeight = 275.dp
+        val maxHeight = remember(configuration) {
+            configuration.height.dp - 100.dp
+        }
+
+        // Determine the height modifier dynamically
+        val dialogHeightModifier = if (isKeyBoardOpen) {
+            // When keyboard is visible, the parent Column will resize to full height
+            Modifier
+                .height(maxHeight)
+                .padding(top = 50.dp)
+        } else {
+            // When keyboard is hidden, use a standard dialog height constraint
+            Modifier
+                .wrapContentHeight()
+                .heightIn(min = minHeight, max = maxHeight)
+                .padding(top = 50.dp, bottom = 50.dp)
+        }
+
+        Card(
+            modifier = dialogModifier
+                .windowInsetsPadding(WindowInsets.systemBars)
+                .then(dialogHeightModifier) // Apply dynamic height
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(25.dp))
+                .background(Color.White) // Ensure background captures taps
+                .imePadding()
+                .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            // Header
+            Row(
+                modifier = dialogModifier
+                    .fillMaxWidth()
+                    .padding(top = 16.7.dp, start = 18.dp, end = 23.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // Back button (only visible in subtitle mode)
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_back_arrow_golden),
+                        contentDescription = null,
+                        modifier = dialogModifier
+                            .size(20.dp, 15.dp)
+                            .noRippleClickable { onDismiss() }
+                    )
+
+
+                // Title or Second Title
+                if (titles.size == 1) {
+                    Text(
+                        text = titles[0],
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        color = lightBlackColor,
+                        modifier = dialogModifier.padding(top = 0.dp)
+                    )
+                } else {
+                    FlowRow(
+                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp, start = 10.dp, end = 10.dp),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        titles.forEachIndexed { index, item ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = item,
+                                    fontSize = 16.sp,
+                                    lineHeight = if (index == 0) 19.sp else 22.sp,
+                                    fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
+                                    fontFamily = fontFamilyLato,
+                                    color = lightBlackColor,
+                                    modifier = dialogModifier
+                                )
+                                if (index < titles.size - 1) {
+                                    Spacer(modifier = dialogModifier.width(11.dp))
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_forward_black),
+                                        contentDescription = null,
+                                        modifier = dialogModifier.size(6.dp, 10.dp)
+                                    )
+                                    Spacer(modifier = dialogModifier.width(10.dp))
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                // Apply button
+                Text(
+                    text = "Apply",
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamilyLato,
+                    color = if (isApplyEnabled) Golden else Golden60,
+                    modifier = dialogModifier
+                        .noRippleClickable(enabled = isApplyEnabled) {
+                            onApply()
+                        }
+                )
+            }
+            dialogContent(dialogModifier, dialogFocusManager, maxHeight)
+        }
+//        }
+    }
+}

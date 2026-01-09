@@ -174,7 +174,7 @@ fun EditProfileHeaderDialog(
 
             BioEditor(
                 selectedTab = selectedTab,
-                overviewText = profileHeaderData.bio,
+                overviewText = profileHeaderData.bioFieldValue,
                 highlightText = profileHeaderData.highlightText.ifEmpty { "• " },
                 websiteUrl = profileHeaderData.websiteUrl,
                 remainingChars = if (selectedTab == "overview") {
@@ -184,7 +184,7 @@ fun EditProfileHeaderDialog(
                 },
                 onOverviewChange = {
                     viewModel.onEvent(UserProfileEvent.OnBioChanged(it))
-                    if (it.equals("@")) {
+                    if (it.text.endsWith(" @")) {
                         viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                     }
                 },
@@ -616,11 +616,11 @@ fun EditableProfilePictureCard(
 @Composable
 fun BioEditor(
     selectedTab: String,
-    overviewText: String,
+    overviewText: TextFieldValue,
     highlightText: String,
     websiteUrl: String,
     remainingChars: String,
-    onOverviewChange: (String) -> Unit,
+    onOverviewChange: (TextFieldValue) -> Unit,
     onHighlightChange: (String) -> Unit,
     onSelectedTabChange: (String) -> Unit,
 ) {
@@ -719,13 +719,13 @@ fun TabItem(title: String, selected: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun OverviewEditor(
-    text: String,
-    onChange: (String) -> Unit
+    text: TextFieldValue,
+    onChange: (TextFieldValue) -> Unit
 ) {
     BasicTextField(
         value = text,
         onValueChange = {
-            if (it.graphemeCount() > 150) return@BasicTextField
+//            if (it.text.graphemeCount() > 150) return@BasicTextField
             onChange(it)
         },
         visualTransformation = { textValue ->
@@ -747,7 +747,7 @@ fun OverviewEditor(
                 // Editable transparent text overlay
                 inner()
                 // Placeholder
-                if (text.isEmpty()) {
+                if (text.text.isEmpty()) {
                     Text(
                         "About Joyer",
                         color = LightBlack40,

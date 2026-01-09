@@ -1,5 +1,6 @@
 package com.joyersapp.feature.profile.presentation
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joyersapp.common_widgets.IdentificationData
@@ -26,6 +27,7 @@ import com.joyersapp.feature.profile.domain.usecase.GetEditMagneticsUserListUseC
 import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadPictureServerUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
+import com.joyersapp.utils.graphemeCount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.async
@@ -381,8 +383,9 @@ class UserProfileViewModel @Inject constructor(
             is UserProfileEvent.OnBioChanged -> {
                 _uiState.update { it.copy(
                     profileHeaderData = _uiState.value.profileHeaderData.copy(
-                        bio = event.value,
-                        overviewRemainingChars = 150 - event.value.graphemeCount()
+                        bio = event.value.text,
+                        bioFieldValue = event.value,
+                        overviewRemainingChars = 150 - event.value.text.graphemeCount()
                     ),
                 ) }
             }
@@ -559,6 +562,17 @@ class UserProfileViewModel @Inject constructor(
                             title = event.selectedTitle,
                             subTitle = event.selectedSubTitle,
                         )
+                    )
+                }
+            }
+
+            is UserProfileEvent.OnApplyMentionedJoyers -> {
+                val selectedUsers = event.selectedUserList.joinToString(separator = " @") { it.username?:"" }
+                val bio = uiState.value.profileHeaderData.bio
+                onEvent(UserProfileEvent.OnBioChanged(TextFieldValue(bio + selectedUsers)))
+                _uiState.update { state ->
+                    state.copy(
+                        showMentionJoyersDialog = false
                     )
                 }
             }
