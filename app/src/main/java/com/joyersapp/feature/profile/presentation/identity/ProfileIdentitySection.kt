@@ -28,6 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joyersapp.R
+import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.Nationality
+import com.joyersapp.feature.profile.presentation.UserProfileUiState
 import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack5
@@ -45,7 +48,8 @@ import com.joyersapp.utils.fontFamilyLato
 @Composable
 fun ProfileIdentitySection(
     onEditIdentity: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    state: UserProfileUiState
 ) {
     Column(
         modifier = modifier
@@ -92,29 +96,16 @@ fun ProfileIdentitySection(
         Column(
             modifier = Modifier
                 .background(White)
-                .padding(top = 20.dp, start = 15.dp, bottom = 29.dp, end = 15.dp)
+                .padding(top = 0.dp, start = 15.dp, bottom = 29.dp, end = 15.dp)
         ) {
             /** -------- Key-Value Rows -------- */
-            ProfileKeyValueRow(label = "Gender", value = "Female")
-            Spacer(Modifier.height(20.dp))
-            ProfileKeyValueRow(label = "Nationality", value = "USA")
-            Spacer(Modifier.height(20.dp))
-            ProfileKeyValueRow(label = "Ethnicity", value = "Indian")
-            Spacer(Modifier.height(20.dp))
-            ProfileKeyValueRow(label = "Faith / Religion", value = "Hinduism")
-            Spacer(Modifier.height(20.dp))
-
-            KeyMapValueRowWithDotSeparators(label = "Language", mapOf(
-                Pair("English", "( Very Good )"),
-//                Pair("French", "( Good )"),
-//                Pair("Arabic", "( Basic )"),
-            ))
-
-            Spacer(Modifier.height(20.dp))
-            ProfileKeyValueRow(label = "Education", value = "Master's Degree")
-            Spacer(Modifier.height(20.dp))
-            ProfileKeyValueRow(label = "Joyer Location", value = "Downtown, Los Angeles, California, United States")
-
+            ProfileKeyValueRow(label = "Gender", value = state.gender)
+            NationalityField(label = "Nationality", values = state.nationality)
+            ProfileKeyValueRow(label = "Ethnicity", value = state.ethnicity?.name?:"")
+            ProfileKeyValueRow(label = "Faith / Religion", value = state.faith?.name?:"")
+            LanguageField(label = "Language", state.languages)
+            ProfileKeyValueRow(label = "Education", value = state.education?.name?:"")
+            ProfileKeyValueRow(label = "Joyer Location", value = state.location?.name?:"")
         }
 
         Spacer(Modifier.height(10.dp))
@@ -127,35 +118,87 @@ fun ProfileKeyValueRow(
     label: String,
     value: String
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
-            fontFamily = fontFamilyLato,
-            color = LightBlack60,
-            lineHeight = 24.sp,
-        )
+    if (value.isNotEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
+        ) {
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = fontFamilyLato,
+                color = LightBlack60,
+                lineHeight = 24.sp,
+            )
 
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = fontFamilyLato,
-            color = LightBlack,
-            lineHeight = 22.sp,
-            modifier = Modifier.offset(x = 130.dp)
-                .widthIn(max = 250.dp),
-        )
+            Text(
+                text = value,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamilyLato,
+                color = LightBlack,
+                lineHeight = 22.sp,
+                modifier = Modifier.offset(x = 130.dp)
+                    .widthIn(max = 250.dp),
+            )
+        }
     }
 }
 @Composable
-fun KeyMapValueRowWithDotSeparators(
+private fun NationalityField(
     label: String,
-    values: Map<String, String>
+    values: List<Nationality>
+) {
+    if (values.isNotEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = fontFamilyLato,
+                color = LightBlack60,
+                lineHeight = 24.sp,
+            )
+
+            FlowRow(
+                Modifier
+                    .offset(x = 130.dp)
+                    .widthIn(max = 250.dp),
+                itemVerticalAlignment = Alignment.CenterVertically,
+            ) {
+                values.forEachIndexed { index, item ->
+                    val name = item.dropdownCountries?.name ?: ""
+                    Text(
+                        text = name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack,
+                        lineHeight = 22.sp,
+                        modifier = Modifier
+                    )
+                    if (index != values.size - 1) {
+                        Spacer(Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier.clip(CircleShape).size(3.dp)
+                                .background(LightBlack55)
+                        )
+                        Spacer(Modifier.width(10.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+@Composable
+private fun LanguageField(
+    label: String,
+    values: List<Languages>
 ) {
     Box(
         modifier = Modifier
@@ -176,9 +219,11 @@ fun KeyMapValueRowWithDotSeparators(
                 .widthIn(max = 250.dp),
             itemVerticalAlignment = Alignment.CenterVertically,
         ) {
-            values.entries.forEachIndexed { index, item ->
+            values.forEachIndexed { index, item ->
+                val name = item.language?.name?: ""
+                val level = item.language?.level?:""
                 Text(
-                    text = item.key,
+                    text = name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
@@ -186,17 +231,19 @@ fun KeyMapValueRowWithDotSeparators(
                     lineHeight = 22.sp,
                     modifier = Modifier
                 )
-                Spacer(Modifier.width(7.dp))
-                Text(
-                    text = item.value,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = fontFamilyLato,
-                    color = LightBlack,
-                    lineHeight = 22.sp,
-                    modifier = Modifier
-                )
-                if (index != values.entries.size - 1) {
+                if (level.trim().isNotEmpty()) {
+                    Spacer(Modifier.width(7.dp))
+                    Text(
+                        text = level.trim(),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack,
+                        lineHeight = 22.sp,
+                        modifier = Modifier
+                    )
+                }
+                if (index != values.size - 1) {
                     Spacer(Modifier.width(10.dp))
                     Box(
                         modifier = Modifier.clip(CircleShape).size(3.dp).background(LightBlack55)

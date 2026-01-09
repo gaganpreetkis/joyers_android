@@ -54,7 +54,7 @@ data class UserProfileUiState(
     val birthday: String = "",
     val education: ProfileMeta? = null,
     val relationship: ProfileMeta? = null,
-    val nationality: List<Nationality>? = null,
+    val nationality: List<Nationality> = emptyList(),
     val politicalIdeology: List<PoliticalIdeology>? = null,
 
     val tabs: List<String> = listOf("Status", "Identity", "Sparks", "Cards", "Gallery"),

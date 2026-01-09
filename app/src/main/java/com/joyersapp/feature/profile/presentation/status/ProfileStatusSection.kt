@@ -103,15 +103,12 @@ fun ProfileStatusSection(
         Column(
             modifier = Modifier
                 .background(White)
-                .padding(top = 20.dp, start = 15.dp, bottom = 29.dp, end = 15.dp)
+                .padding(top = 0.dp, start = 15.dp, bottom = 29.dp, end = 15.dp)
         ) {
             /** -------- Key-Value Rows -------- */
             ProfileKeyValueRow(label = "Joyer Status", value = state.joyerStatus)
-            Spacer(Modifier.height(20.dp))
             ProfileKeyValueRow(label = "Title", value = state.titleName)
-            Spacer(Modifier.height(20.dp))
             ProfileKeyValueRow(label = "Sub-Title", value = state.subTitleName)
-            Spacer(Modifier.height(20.dp))
             InterestsRowWithDotSeparators("Area of Interest",state.areaOfInterest)
         }
 
@@ -164,29 +161,32 @@ fun ProfileKeyValueRow(
     label: String,
     value: String
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
-            fontFamily = fontFamilyLato,
-            color = LightBlack60,
-            lineHeight = 24.sp,
-        )
+    if (value.isNotEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
+        ) {
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = fontFamilyLato,
+                color = LightBlack60,
+                lineHeight = 24.sp,
+            )
 
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = fontFamilyLato,
-            color = LightBlack,
-            lineHeight = 22.sp,
-            modifier = Modifier.offset(x = 130.dp)
-                .widthIn(max = 250.dp),
-        )
+            Text(
+                text = value,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamilyLato,
+                color = LightBlack,
+                lineHeight = 22.sp,
+                modifier = Modifier.offset(x = 130.dp)
+                    .widthIn(max = 250.dp),
+            )
+        }
     }
 }
 
@@ -233,37 +233,31 @@ fun JoyerCodeSection(
 
             Column(Modifier.offset(x = 130.dp).wrapContentWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
 
-                AsyncImage(
-                    model = "${NetworkConfig.IMAGE_BASE_URL}${state.qrCode}",
-                    contentDescription = "QR Code",
-                    modifier = Modifier
-                        .size(200.dp),
-                    contentScale = ContentScale.Fit
-                )
+                if (state.qrCode.isNotEmpty()) {
+                    AsyncImage(
+                        model = "${NetworkConfig.IMAGE_BASE_URL}${state.qrCode}",
+                        contentDescription = "QR Code",
+                        modifier = Modifier
+                            .size(200.dp),
+                        contentScale = ContentScale.Fit
+                    )
 
-                Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(10.dp))
+                }
+                if (state.fullname.trim().isNotEmpty()) {
+                    Text(
+                        modifier = Modifier.width(200.dp),
+                        text = state.fullname.trim(),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack,
+                        lineHeight = 22.sp,
+                        textAlign = TextAlign.Center
+                    )
 
-                Text(
-                    modifier = Modifier.width(200.dp),
-                    text = state.fullname,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamilyLato,
-                    color = LightBlack,
-                    lineHeight = 22.sp,
-                    textAlign = TextAlign.Center
-                )
-
-//                Text(
-//                    text = state.fullname,
-//                    fontSize = 16.sp,
-//                    fontWeight = FontWeight.Bold,
-//                    fontFamily = fontFamilyLato,
-//                    color = LightBlack,
-//                    lineHeight = 22.sp,
-//                )
-
-                Spacer(Modifier.height(7.dp))
+                    Spacer(Modifier.height(7.dp))
+                }
 
                 Text(
                     modifier = Modifier.width(200.dp),
@@ -325,41 +319,45 @@ fun InterestsRowWithDotSeparators(
     label: String,
     values: List<Interests>
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
-            fontFamily = fontFamilyLato,
-            color = LightBlack60,
-            lineHeight = 24.sp,
-        )
-
-        FlowRow(
-            Modifier
-                .offset(x = 130.dp)
-                .widthIn(max = 250.dp),
-            itemVerticalAlignment = Alignment.CenterVertically,
+    if (values.isNotEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
         ) {
-            values.forEachIndexed { index, item ->
-                Text(
-                    text = item.dropdownInterests?.name ?: "",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamilyLato,
-                    color = LightBlack,
-                    lineHeight = 22.sp,
-                    modifier = Modifier
-                )
-                if (index != values.lastIndex) {
-                    Spacer(Modifier.width(10.dp))
-                    Box(
-                        modifier = Modifier.clip(CircleShape).size(3.dp).background(LightBlack55)
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = fontFamilyLato,
+                color = LightBlack60,
+                lineHeight = 24.sp,
+            )
+
+            FlowRow(
+                Modifier
+                    .offset(x = 130.dp)
+                    .widthIn(max = 250.dp),
+                itemVerticalAlignment = Alignment.CenterVertically,
+            ) {
+                values.forEachIndexed { index, item ->
+                    Text(
+                        text = item.dropdownInterests?.name ?: "",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack,
+                        lineHeight = 22.sp,
+                        modifier = Modifier
                     )
-                    Spacer(Modifier.width(10.dp))
+                    if (index != values.lastIndex) {
+                        Spacer(Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier.clip(CircleShape).size(3.dp)
+                                .background(LightBlack55)
+                        )
+                        Spacer(Modifier.width(10.dp))
+                    }
                 }
             }
         }
