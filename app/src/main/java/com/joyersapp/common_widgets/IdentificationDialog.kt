@@ -51,25 +51,6 @@ fun IdentificationDialog(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val identificationData = state.identificationData
 
-    // “chips” sections (screenshot-style)
-    val nationalityChips = remember {
-        mutableStateListOf(
-            "United States", "Kuwait", "India", "England",
-            "Kuwait", "India", "England", "United States",
-            "United States", "Kuwait", "India", "United States"
-        )
-    }
-    val languageChips = remember {
-        mutableStateListOf(
-            "Hindi (Excellent)",
-            "Japanese (Good)",
-            "English (Very Good)",
-            "Arabic (Basic)",
-            "Spanish (Excellent)",
-            "Italian (Good)"
-        )
-    }
-
     BaseDialog(
         onDismiss = onDismiss,
         titles = arrayListOf("Identification")

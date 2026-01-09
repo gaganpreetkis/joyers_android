@@ -193,8 +193,9 @@ class UserProfileViewModel @Inject constructor(
                     lastName = magneticsData.identificationData?.name?.trim()?.split(" ")?.drop(1)?.joinToString(" "),
                     birthDate = magneticsData.identificationData?.birthday,
                     gender = magneticsData.identificationData?.gender,
-                    nationalityId = if (magneticsData.identificationData?.nationality.isNullOrEmpty()) null else magneticsData.identificationData.nationality?.map { it.dropdownCountries?.id?: "" },
                     languageId = languageList,
+                    nationalityId = if (magneticsData.identificationData?.nationality.isNullOrEmpty()) null else magneticsData.identificationData.nationality?.map { it.dropdownCountries?.id?: "" },
+                    interestIds = if (magneticsData.interests.isNullOrEmpty()) null else magneticsData.interests?.map { it.dropdownInterests?.id?: "" },
                     politicalIdeologyId = if (magneticsData.identificationData?.politicalIdeology.isNullOrEmpty()) null else magneticsData.identificationData.politicalIdeology?.map { it.dropdownPoliticalIdeology?.id?: "" },
                     ethnicityId = magneticsData.identificationData?.ethnicity?.id,
                     faithId = magneticsData.identificationData?.faith?.id,
@@ -451,7 +452,6 @@ class UserProfileViewModel @Inject constructor(
                     dialogHeader.add(state.subTitle.name?: "")
                 }
 
-
                 _uiState.update {
                     it.copy(
                         isSubTitleMode = false,
@@ -460,41 +460,6 @@ class UserProfileViewModel @Inject constructor(
                         titlesData = uiState.value.titles,
                     )
                 }
-
-              /*  val selectedTitle = uiState.value.title
-                val selectedIds = event.selectedIds
-                val merged = uiState.value.titles.map { item ->
-                    if (selectedTitle?.id?.contains(item.id?: "") == true) {
-                        item.copy(isSelected = selectedTitle?.id?.contains(item.id ?: "") == true)
-                        if (!item.selections.isNullOrEmpty()) {
-
-                        }
-                    }
-                }
-
-
-                val selectedIds = uiState.value.selectedIds
-                val merged = event.titlesData.map { item ->
-                    item.copy(isSelected = selectedIds.contains(item.id) == true )
-                }
-
-                _uiState.update {
-                    it.copy(
-                        showMultipleSelectionsDialog = event.show,
-                        dialogHeader = event.headers,
-                        titlesData = merged,
-                    )
-                }
-                _uiStateMagnetics.update {
-                    it.copy(
-                        key = event.key,
-                        selectedIds = event.selectedIds,
-                        isMultiselectEnabled = event.isMultiSelectEnabled,
-                    )
-                }*/
-//                viewModelScope.launch {
-//                    _navigationEvents.emit(UserProfileNavigationEvent.NavigateToDescriptionDialog(""))
-//                }
 
             }
 
@@ -611,7 +576,7 @@ class UserProfileViewModel @Inject constructor(
                             isLoading = false,
                             errorMessage = null,
                             username = response.username ?: "",
-                            fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
+                            fullname = ((response.firstName ?: "") + " " + (response.lastName ?: "")).trim(),
                             location = response.location,
                             joyerLocation = response.joyerLocation,
                             profilePicture = response.profilePicture ?: "",
@@ -718,7 +683,7 @@ class UserProfileViewModel @Inject constructor(
                         it.copy(
                             errorMessage = null,
                             username = response.username ?: "",
-                            fullname = (response.firstName ?: "") + " " + (response.lastName ?: ""),
+                            fullname = ((response.firstName ?: "") + " " + (response.lastName ?: "")).trim(),
                             location = response.location,
                             joyerLocation = response.joyerLocation,
                             profilePicture = response.profilePicture ?: "",

@@ -743,17 +743,9 @@ fun OverviewEditor(
         modifier = Modifier.fillMaxWidth(),
         decorationBox = { inner ->
             Box(Modifier.fillMaxSize()) {
-                // Draw colored text
-//                Text(
-//                    text = highlightWords(text),
-//                    fontSize = 15.sp,
-//                    fontFamily = fontFamilyLato,
-//                    lineHeight = 20.sp
-//                )
 
                 // Editable transparent text overlay
                 inner()
-
                 // Placeholder
                 if (text.isEmpty()) {
                     Text(

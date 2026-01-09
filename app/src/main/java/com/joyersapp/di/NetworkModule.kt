@@ -80,7 +80,7 @@ class AuthInterceptor @Inject constructor(
         val token = sessionManager.getAccessToken()
 
         val authenticatedRequest = request.newBuilder().apply {
-            if (!token.isNullOrEmpty()) {
+            if (token.isNotEmpty()) {
                 addHeader("Authorization", "Bearer $token")
             }
         }.build()
