@@ -153,7 +153,7 @@ fun BackgroundImagePreviewDialog(
                                 modifier = Modifier
                                     .width(148.dp)
                                     .offset(y = (-1).dp)
-                                    .border(1.dp, White, RoundedCornerShape(22.dp))
+                                    .border(1.dp, White, RoundedCornerShape(18.dp))
                                     .clickable { onChangePicture() },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -207,7 +207,7 @@ fun BackgroundImagePreviewDialog(
                             Box(
                                 modifier = Modifier
                                     .width(87.dp)
-                                    .border(1.dp, White, RoundedCornerShape(22.dp))
+                                    .border(1.dp, White, RoundedCornerShape(18.dp))
                                     .clickable { onCrop() },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -230,7 +230,7 @@ fun BackgroundImagePreviewDialog(
                             Box(
                                 modifier = Modifier
                                     .width(87.dp)
-                                    .border(1.dp, White, RoundedCornerShape(22.dp))
+                                    .border(1.dp, White, RoundedCornerShape(18.dp))
                                     .clickable { onDone() },
                                 contentAlignment = Alignment.Center
                             ) {

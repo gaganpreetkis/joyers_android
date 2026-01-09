@@ -945,7 +945,7 @@ fun PageOneContent(
         },
         onCrop = {
             if (selectedProfileImageUri != null) {
-                showProfilePicturePreview = false // Close preview before opening crop
+                //showProfilePicturePreview = false // Close preview before opening crop
                 showCropDialog = true
             }
         },
@@ -1029,7 +1029,7 @@ fun PageOneContent(
         },
         onCrop = {
             if (selectedBackgroundImageUri != null) {
-                showBackgroundImagePreview = false // Close preview before opening crop
+                //showBackgroundImagePreview = false // Close preview before opening crop
                 showBackgroundCropDialog = true
             }
         },

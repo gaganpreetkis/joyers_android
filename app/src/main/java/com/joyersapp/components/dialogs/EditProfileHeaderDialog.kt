@@ -328,7 +328,7 @@ fun EditProfileHeaderDialog(
         },
         onCrop = {
             if (selectedProfileImageUri != null) {
-                showProfilePicturePreview = false // Close preview before opening crop
+                //showProfilePicturePreview = false // Close preview before opening crop
                 showCropDialog = true
             }
         },
@@ -412,7 +412,7 @@ fun EditProfileHeaderDialog(
         },
         onCrop = {
             if (selectedBackgroundImageUri != null) {
-                showBackgroundImagePreview = false // Close preview before opening crop
+                //showBackgroundImagePreview = false // Close preview before opening crop
                 showBackgroundCropDialog = true
             }
         },
