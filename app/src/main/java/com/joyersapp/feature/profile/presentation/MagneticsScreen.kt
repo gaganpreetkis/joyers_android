@@ -57,7 +57,6 @@ import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.core.NetworkConfig
-import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -204,8 +203,10 @@ fun MagneticsScreen(
 
         if (state.showMentionJoyersDialog) {
             MentionJoyersDialog (
+                viewModel = viewModel,
+                onApply = {},
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(false)) }
-            ){  }
+            )
         }
         if (state.showIdentificationDialog) {
             IdentificationDialog(

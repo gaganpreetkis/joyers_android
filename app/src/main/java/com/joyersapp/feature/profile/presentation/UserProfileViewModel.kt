@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.domain.usecase.GetTitlesUseCase
 import com.joyersapp.core.SessionManager
-import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
@@ -19,7 +18,7 @@ import com.joyersapp.feature.profile.domain.usecase.GetLanguageListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetPoliticalIdeoogyListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetRelationshipListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetSubTitlesUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetUserListUseCase
+import com.joyersapp.feature.profile.domain.usecase.GetEditMagneticsUserListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadPictureServerUseCase
 import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
@@ -39,7 +38,7 @@ class UserProfileViewModel @Inject constructor(
     private val uploadUserProfileUseCase: UploadUserProfileUseCase,
     private val uploadPictureServerUseCase: UploadPictureServerUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
-    private val getUserListUseCase: GetUserListUseCase,
+    private val getEditMagneticsUserListUseCase: GetEditMagneticsUserListUseCase,
     private val getTitlesUseCase: GetTitlesUseCase,
     private val getSubTitlesUseCase: GetSubTitlesUseCase,
     private val getCountryListUseCase: GetCountryListUseCase,
@@ -72,6 +71,7 @@ class UserProfileViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
 
             val getProfileJob = async { getUserProfileData() }
+            val getEditMagneticsUserListJob = async { getEditMagneticsUserListData() }
             val getTitlesJob = async { loadTitles() }
             val getCountryJob = async { loadCountryList() }
             val getEducationJob = async { loadEducationList() }
@@ -83,6 +83,7 @@ class UserProfileViewModel @Inject constructor(
             val getLanguageJob = async { loadLanguageList() }
 
             getProfileJob.join()
+            getEditMagneticsUserListJob.join()
             getTitlesJob.join()
             getCountryJob.join()
             getEducationJob.join()
@@ -603,6 +604,32 @@ class UserProfileViewModel @Inject constructor(
                             ethnicity = response.ethnicity,
                             faith = response.faith,
                             educationName = response.education?.name ?: "",
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+//                            isLoading = false,
+                            errorMessage = error.message
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    private fun getEditMagneticsUserListData() {
+        viewModelScope.launch {
+
+            val result = getEditMagneticsUserListUseCase()
+
+            result.fold(
+                onSuccess = { list ->
+                    _uiState.update { old ->
+                        old.copy(
+                            editMagneticsUserList = list,
+                            errorMessage = null
                         )
                     }
                 },

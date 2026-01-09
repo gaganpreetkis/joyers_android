@@ -1,6 +1,7 @@
 package com.joyersapp.feature.profile.presentation
 
 import com.joyersapp.common_widgets.IdentificationData
+import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
@@ -40,6 +41,7 @@ data class EditMagneticsUiState(
     val nationality: List<Nationality>? = null,
     val politicalIdeology: List<PoliticalIdeology>? = null,
 
+    val errorMessage: String? = null,
     val dialogHeader: List<String> = emptyList(),
     val titlesData: List<ProfileTitlesData> = emptyList(),
     val titles: List<ProfileTitlesData> = emptyList(),
