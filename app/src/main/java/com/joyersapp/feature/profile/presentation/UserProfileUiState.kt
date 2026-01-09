@@ -3,6 +3,8 @@ package com.joyersapp.feature.profile.presentation
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.unit.Dp
 import com.joyersapp.common_widgets.IdentificationData
+import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
+import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
@@ -14,6 +16,7 @@ data class UserProfileUiState(
 
     val magneticsData: MagneticsData = MagneticsData(),
     val identificationData: IdentificationData = IdentificationData(),
+
     val profileHeaderData: ProfileHeaderData = ProfileHeaderData(),
 
     val username: String = "",
@@ -67,6 +70,7 @@ data class UserProfileUiState(
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
     val dialogHeader: List<String> = emptyList(),
+    val editMagneticsUserList: List<EditMagneticsUserListData> = emptyList(),
     val titlesData: List<ProfileTitlesData> = emptyList(),
     val selectedItems: List<ProfileTitlesData> = emptyList(),
     val titles: List<ProfileTitlesData> = emptyList(),

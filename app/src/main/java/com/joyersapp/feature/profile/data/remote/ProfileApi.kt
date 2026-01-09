@@ -1,7 +1,7 @@
 package com.joyersapp.feature.profile.data.remote
 
-import com.joyersapp.auth.data.remote.dto.MultiStepRegisterResponseDto
 import com.joyersapp.di.RequiresAuth
+import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListResponseDto
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileResponseDto
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesResponseDto
 import com.joyersapp.feature.profile.data.remote.dto.UploadPictureServerResponse
@@ -10,7 +10,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -38,7 +37,7 @@ interface ProfileApi {
 
     @RequiresAuth
     @GET("user/get-user-list")
-    suspend fun getUserlist(): UserProfileResponseDto
+    suspend fun getEditMagneticsUserList(): EditMagneticsUserListResponseDto
 
     @GET("auth/title-type")
     suspend fun getTitles(): ProfileTitlesResponseDto

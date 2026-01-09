@@ -222,8 +222,10 @@ fun MagneticsScreen(
         }
         if (state.showMentionJoyersDialog) {
             MentionJoyersDialog (
+                viewModel = viewModel,
+                onApply = {},
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(false)) }
-            ){  }
+            )
         }
         if (state.showIdentificationDialog) {
             IdentificationDialog(

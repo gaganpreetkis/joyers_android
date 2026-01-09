@@ -2,13 +2,13 @@ package com.joyersapp.feature.profile.data.repository
 
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.feature.profile.data.remote.ProfileApi
+import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UploadPictureServerResponse
 import com.joyersapp.feature.profile.data.remote.dto.UserProfile
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.feature.profile.domain.repository.ProfileRepository
 import com.joyersapp.utils.ApiErrorException
-import com.joyersapp.utils.emptyPart
 import com.joyersapp.utils.parseNetworkError
 import jakarta.inject.Inject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -143,9 +143,9 @@ class ProfileRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
-    override suspend fun getUserList(): Result<UserProfile> =
+    override suspend fun getEditMagneticsUserList(): Result<List<EditMagneticsUserListData>> =
         try {
-            val response = api.getUserlist()
+            val response = api.getEditMagneticsUserList()
             when (response.statusCode) {
                 200 -> {
                     Result.success(response.data!!)
