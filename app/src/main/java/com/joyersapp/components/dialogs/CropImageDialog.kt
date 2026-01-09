@@ -271,7 +271,7 @@ fun CropImageDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .offset(y = (-60).dp), // 60px up from center
+                        .offset(y = (-55).dp), // 55px up from center
                     contentAlignment = Alignment.Center
                 ) {
                     val screenWidth = with(density) { configuration.screenWidthDp.dp }
