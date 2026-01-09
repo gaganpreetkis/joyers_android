@@ -103,7 +103,7 @@ fun ProfileStatusSection(
         Column(
             modifier = Modifier
                 .background(White)
-                .padding(top = 0.dp, start = 15.dp, bottom = 29.dp, end = 15.dp)
+                .padding(top = 0.dp, start = 15.dp, bottom = 20.dp, end = 15.dp)
         ) {
             /** -------- Key-Value Rows -------- */
             ProfileKeyValueRow(label = "Joyer Status", value = state.joyerStatus)
