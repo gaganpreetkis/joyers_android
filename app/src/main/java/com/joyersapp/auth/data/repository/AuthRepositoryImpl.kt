@@ -375,9 +375,11 @@ class AuthRepositoryImpl @Inject constructor(
                 profilePicture,
                 backgroundPicture,
             )
+            Log.e("multi step", "params: ${Gson().toJson(params)}")
+            Log.e("multi step", "profilePicture: ${profilePicturePath}")
+            Log.e("multi step", "backgroundPicture: ${backgroundPicturePath}")
             when (response.statusCode) {
                 200 -> {
-                    Log.e("multi step", "params: ${Gson().toJson(params)}")
                     Result.success(response)
                 }
 

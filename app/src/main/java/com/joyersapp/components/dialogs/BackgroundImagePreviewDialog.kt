@@ -152,7 +152,7 @@ fun BackgroundImagePreviewDialog(
                             Box(
                                 modifier = Modifier
                                     .width(148.dp)
-                                    .offset(y = (-1).dp)
+                                    .offset(y = (7).dp)
                                     .border(1.dp, White, RoundedCornerShape(18.dp))
                                     .clickable { onChangePicture() },
                                 contentAlignment = Alignment.Center

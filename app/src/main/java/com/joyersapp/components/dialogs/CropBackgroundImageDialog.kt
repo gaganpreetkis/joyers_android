@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -257,7 +258,8 @@ fun CropBackgroundImageDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
+                        .weight(1f)
+                        .offset(y = (-48).dp), // 48px up from center
                     contentAlignment = Alignment.Center
                 ) {
                     val screenWidth = with(density) { configuration.screenWidthDp.dp }
@@ -327,12 +329,12 @@ fun CropBackgroundImageDialog(
                             .align(Alignment.Center)
                     ) {
                         // Draw white rectangle border
-                        drawRect(
+                        /*drawRect(
                             color = White,
                             topLeft = Offset(0f, 0f),
                             size = androidx.compose.ui.geometry.Size(size.width, size.height),
                             style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx())
-                        )
+                        )*/
 
                         // Draw grid lines (3x3 grid)
                         val stepX = size.width / 3f
