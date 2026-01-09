@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.feature.profile.domain.usecase.GetTitlesUseCase
 import com.joyersapp.core.SessionManager
-import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
+import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Language
 import com.joyersapp.feature.profile.data.remote.dto.LanguageReq
 import com.joyersapp.feature.profile.data.remote.dto.Languages
@@ -136,6 +136,8 @@ class UserProfileViewModel @Inject constructor(
                                 websiteUrl = state.websiteUrl,
                             ),
                             joyerStatus = state.joyerStatus,
+                            title = state.title,
+                            subTitle = state.subTitle,
                             interests = state.areaOfInterest,
                             identificationData = IdentificationData(
                                 name = state.fullname,
@@ -185,6 +187,8 @@ class UserProfileViewModel @Inject constructor(
                     bio = magneticsData.profileHeaderData?.bio,
                     websiteUrl = magneticsData.profileHeaderData?.websiteUrl,
                     joyerStatus = magneticsData.joyerStatus,
+                    titleId = magneticsData.title?.id,
+                    subTitleId = magneticsData.subTitle?.id,
                     firstName = magneticsData.identificationData?.name?.trim()?.split(" ")?.firstOrNull(),
                     lastName = magneticsData.identificationData?.name?.trim()?.split(" ")?.drop(1)?.joinToString(" "),
                     birthDate = magneticsData.identificationData?.birthday,
@@ -219,8 +223,23 @@ class UserProfileViewModel @Inject constructor(
                 ) }
             }
 
-            is UserProfileEvent.OnApplyDescription -> {
+            is UserProfileEvent.OnApplyMultipleSelections -> {
                     when(event.key) {
+                        "Interests" -> {
+                            val selectedIds = event.value.map { it.id }.toSet()
+                            val selected = _uiState.value.interestList.filter() { it.id in selectedIds }
+
+                            val selectedMeta = selected.map {
+                                Interests(
+                                    dropdownInterests = ProfileMeta(
+                                        id = it.id,
+                                        name = it.name,
+                                        description = it.description,
+                                    )
+                                )
+                            }
+                            _uiState.update { it.copy(magneticsData = _uiState.value.magneticsData.copy(interests = selectedMeta)) }
+                        }
                         "Nationality" -> {
                             val selectedIds = event.value.map { it.id }.toSet()
                             val selected = _uiState.value.countryList.filter() { it.id in selectedIds }
@@ -315,7 +334,7 @@ class UserProfileViewModel @Inject constructor(
                     }
             }
 
-            is UserProfileEvent.OnClearDescription -> {
+            is UserProfileEvent.OnClearMultipleSelections -> {
                 when(event.key) {
                     "Name" -> {
                         _uiState.update { it.copy(identificationData = _uiState.value.identificationData.copy(name = "")) }
@@ -396,7 +415,7 @@ class UserProfileViewModel @Inject constructor(
                 }
             }
 
-            is UserProfileEvent.ToggleDescriptionDialog -> {
+            is UserProfileEvent.ToggleMultipleSelectionsDialog -> {
                 val selectedIds = event.selectedIds
                 val merged = event.titlesData.map { item ->
                     item.copy(isSelected = selectedIds.contains(item.id) == true )
@@ -404,7 +423,7 @@ class UserProfileViewModel @Inject constructor(
 
                 _uiState.update {
                     it.copy(
-                        showEditDescriptionDialog = event.show,
+                        showMultipleSelectionsDialog = event.show,
                         dialogHeader = event.headers,
                         titlesData = merged,
                     )
@@ -416,6 +435,63 @@ class UserProfileViewModel @Inject constructor(
                         isMultiselectEnabled = event.isMultiSelectEnabled,
                     )
                 }
+//                viewModelScope.launch {
+//                    _navigationEvents.emit(UserProfileNavigationEvent.NavigateToDescriptionDialog(""))
+//                }
+
+            }
+
+            is UserProfileEvent.ToggleDescriptionDialog -> {
+                val state = uiState.value.magneticsData
+                val dialogHeader = arrayListOf("Description", "Joyer Status", state.joyerStatus, )
+                if (state.subTitle?.id.isNullOrEmpty()) {
+                    dialogHeader.add(state.title?.name?: "")
+                } else {
+                    dialogHeader.add(state.title?.name?: "")
+                    dialogHeader.add(state.subTitle.name?: "")
+                }
+
+
+                _uiState.update {
+                    it.copy(
+                        isSubTitleMode = false,
+                        showDescriptionDialog = event.show,
+                        dialogHeader = dialogHeader,
+                        titlesData = uiState.value.titles,
+                    )
+                }
+
+              /*  val selectedTitle = uiState.value.title
+                val selectedIds = event.selectedIds
+                val merged = uiState.value.titles.map { item ->
+                    if (selectedTitle?.id?.contains(item.id?: "") == true) {
+                        item.copy(isSelected = selectedTitle?.id?.contains(item.id ?: "") == true)
+                        if (!item.selections.isNullOrEmpty()) {
+
+                        }
+                    }
+                }
+
+
+                val selectedIds = uiState.value.selectedIds
+                val merged = event.titlesData.map { item ->
+                    item.copy(isSelected = selectedIds.contains(item.id) == true )
+                }
+
+                _uiState.update {
+                    it.copy(
+                        showMultipleSelectionsDialog = event.show,
+                        dialogHeader = event.headers,
+                        titlesData = merged,
+                    )
+                }
+                _uiStateMagnetics.update {
+                    it.copy(
+                        key = event.key,
+                        selectedIds = event.selectedIds,
+                        isMultiselectEnabled = event.isMultiSelectEnabled,
+                    )
+                }*/
 //                viewModelScope.launch {
 //                    _navigationEvents.emit(UserProfileNavigationEvent.NavigateToDescriptionDialog(""))
 //                }
@@ -492,20 +568,12 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.BackgroundPicturePathChanged -> {
-                /*_uiState.update {
-                    it.copy(
-                        backgroundPicture = event.value
-                    )
-                }*/
+
                 uploadPictureServer(2, event.value)
             }
 
             is UserProfileEvent.ProfilePicturePathChanged -> {
-                /*_uiState.update {
-                    it.copy(
-                        profilePicture = event.value
-                    )
-                }*/
+
                 uploadPictureServer(1, event.value)
             }
 
@@ -513,6 +581,18 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         profileHeaderData = event.profileHeaderData
+                    )
+                }
+            }
+
+            is UserProfileEvent.OnApplyDescription -> {
+                _uiState.update {
+                    it.copy(
+                        showDescriptionDialog = false,
+                        magneticsData = uiState.value.magneticsData.copy(
+                            title = event.selectedTitle,
+                            subTitle = event.selectedSubTitle,
+                        )
                     )
                 }
             }

@@ -2,26 +2,19 @@ package com.joyersapp.feature.dashboard
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
-import com.joyersapp.common_widgets.IdentificationDialog
-import com.joyersapp.components.dialogs.EditDescriptionDialog
-import com.joyersapp.components.dialogs.EditProfileHeaderDialog
-import com.joyersapp.components.dialogs.ProfileViewDialog
+import com.joyersapp.auth.presentation.identity.IdentityScreen
 import com.joyersapp.feature.home.presentation.HomeScreen
 import com.joyersapp.feature.profile.presentation.MagneticsScreen
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileScreen
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.utils.defaultEnterTransition
-import com.joyersapp.utils.defaultExitTransition
 import com.joyersapp.utils.defaultPopEnterTransition
-import com.joyersapp.utils.defaultPopExitTransition
 
 
 sealed class Routes(val route: String) {
@@ -123,7 +116,7 @@ fun DashboardNavGraph(navController: NavHostController) {
 //            )
 //        }
 //        composable(Routes.DescriptionDialog.route) {
-//            EditDescriptionDialog(
+//            MultipleSelectionsDialog(
 //                onDismiss = { navController.popBackStack() },
 //                onApply = { navController.popBackStack() }
 //            )
@@ -142,7 +135,7 @@ fun DashboardNavGraph(navController: NavHostController) {
         }
 
         composable(BottomTab.CONTACTS.route) {
-            HomeScreen()
+            IdentityScreen("test", "test")
         }
 
         composable(BottomTab.NOTIFICATIONS.route) {

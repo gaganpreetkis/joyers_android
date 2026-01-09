@@ -1,14 +1,8 @@
 package com.joyersapp.components.dialogs
 
 import android.util.Log
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,10 +52,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.DashedLine
+import com.joyersapp.feature.dashboard.Routes
+import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
+import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
@@ -68,28 +67,140 @@ import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isScrollingUp
-import com.joyersapp.utils.rememberIsKeyboardOpen
 import kotlinx.coroutines.launch
-
 
 //@Preview
 @Composable
-fun ProfileViewDialog(
+fun DescriptionDialog(
+    viewModel: UserProfileViewModel,
+    onDismiss: () -> Unit,
+    onApply: (ProfileMeta?, ProfileMeta?) -> Unit
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiStateMagnetics by viewModel.uiStateMagnetics.collectAsStateWithLifecycle()
+
+    val isMultiselectEnabled = false
+    val titlesData = state.titlesData
+    var headers by remember { mutableStateOf(arrayListOf<String>()) }
+
+    var isSubTitleMode by remember { mutableStateOf(false) }
+    var selectedId by remember { mutableStateOf("") }
+    var selectedTitle by remember { mutableStateOf<ProfileMeta?>(state.magneticsData.title) }
+    var selectedSubTitle by remember { mutableStateOf<ProfileMeta?>(state.magneticsData.subTitle) }
+    var searchQuery by remember { mutableStateOf("") }
+    var currentList by remember { mutableStateOf(titlesData) }
+
+    LaunchedEffect(key1 = isSubTitleMode) {
+        if (isSubTitleMode && selectedTitle != null) {
+            headers = arrayListOf("Description", "Joyer Status", "Classic", selectedTitle?.name?: "")
+            selectedId = selectedSubTitle?.id?: ""
+        } else {
+            headers = arrayListOf("Description", "Joyer Status", "Classic")
+            selectedId = selectedTitle?.id?: ""
+        }
+    }
+
+    LaunchedEffect(state.magneticsData.title) {
+        if (!state.magneticsData.title?.id.isNullOrEmpty()) {
+            selectedId = state.magneticsData.title?.id?: ""
+        }
+    }
+    LaunchedEffect(state.magneticsData.subTitle) {
+        if (!state.magneticsData.subTitle?.id.isNullOrEmpty()) {
+            selectedId = state.magneticsData.subTitle?.id?: ""
+            currentList = state.titles.find() { it.id?.equals(state.magneticsData.title?.id?: "") == true }?.selections?: emptyList()
+            isSubTitleMode = true
+        }
+    }
+
+// Derived states (calculated efficiently)
+    val filteredTitles by remember(searchQuery, currentList) {
+        derivedStateOf {
+            currentList.filter {
+                it.name?.contains(searchQuery, ignoreCase = true) == true
+            }
+        }
+    }
+
+    val reorderedTitles by remember(filteredTitles) {
+        derivedStateOf {
+            val selected = filteredTitles.filter { it.id?.equals(selectedId) == true }
+            val unselected = filteredTitles.filter { it.id?.equals(selectedId) == false }
+
+            // selected first, then normal
+            selected + unselected
+        }
+    }
+
+    val clarificationTitles by remember(searchQuery) {
+        derivedStateOf {
+            titlesData.filter {
+                !it.description.isNullOrEmpty() &&
+                        it.name?.contains(searchQuery, ignoreCase = true) == true
+            }
+        }
+    }
+    EditDescriptionDialog(
+        onDismiss = onDismiss,
+        onApply = { onApply(selectedTitle, selectedSubTitle) },
+        showApplyButton = true,
+        showBackButton = isSubTitleMode,
+        headers = headers,
+        searchQuery = searchQuery,
+        selectedId = selectedId,
+        onSearchQueryChanged = { query ->
+            searchQuery = query
+//            CoroutineScope(Dispatchers.Default).launch {
+//                itemsList =
+//                    itemsList2.filter { it.name?.contains(query, ignoreCase = true) ?: false }
+//            }
+
+        },
+        titlesData = reorderedTitles,
+        clarificationData = clarificationTitles,
+        onShowSubTitles = { list ->
+            currentList = list
+            isSubTitleMode = true
+        },
+        onTitleSelected = { title ->
+
+            if (isSubTitleMode) {
+                selectedSubTitle = title
+                selectedId = title?.id?: ""
+            } else {
+                selectedTitle = title
+                selectedId = title?.id?: ""
+            }
+
+        },
+        onBack = {
+            currentList = titlesData
+            isSubTitleMode = false
+            selectedSubTitle = null
+        }
+    )
+}
+
+
+
+@Composable
+fun EditDescriptionDialog(
     onDismiss: () -> Unit,
     headers: List<String>,
     searchQuery: String,
+    selectedId: String,
     onSearchQueryChanged: (query: String) -> Unit,
     titlesData: List<ProfileTitlesData>,
     clarificationData: List<ProfileTitlesData> = emptyList(),
     showApplyButton: Boolean = false,
+    showBackButton: Boolean = false,
     onShowSubTitles: (List<ProfileTitlesData>) -> Unit,
-    onTitleSelected: (String) -> Unit,
+    onTitleSelected: (ProfileMeta?) -> Unit,
     onBack: () -> Unit,
     onApply: () -> Unit
 ) {
 
     val context = LocalContext.current
-    var showBackButton by remember { mutableStateOf(false) }
 
     val goldenColor = Golden
     val lightBlackColor = LightBlack
@@ -105,11 +216,10 @@ fun ProfileViewDialog(
         onDismiss = onDismiss,
         titles = headers,
         onBack = {
-            showBackButton = false
             onBack()
-                 },
+        },
         showBackButton = showBackButton
-        ) { dialogModifier, dialogFocusManager, maxHeight ->
+    ) { dialogModifier, dialogFocusManager, maxHeight ->
 
         Spacer(modifier = dialogModifier.height(15.dp))
 
@@ -153,26 +263,30 @@ fun ProfileViewDialog(
                         val isFirst = index == 0
                         val isLast = index == titlesData.lastIndex
 //                        AnimatedContent(title.isSelected) {
-                            TitleItem(
-                                isFirstItem = isFirst,
-                                isLastItem = isLast,
-                                title = title,
-                                isSelected = title.isSelected,
-                                onClick = {
+                        DescriptionItem(
+                            isFirstItem = isFirst,
+                            isLastItem = isLast,
+                            title = title,
+                            isSelected = title.id?.equals(selectedId) == true,
+                            onClick = {
 //                                title.isSelected = !title.isSelected
-                                    if (title.selections.isNullOrEmpty()) {
-                                        onTitleSelected(title.id ?: "")
-                                        coroutineScope.launch {
-                                            listState.animateScrollToItem(0)
-                                        }
-                                    } else {
-                                        showBackButton = true
-                                        onShowSubTitles(title.selections ?: emptyList())
+                                onTitleSelected(ProfileMeta(
+                                    id = title.id,
+                                    name = title.name,
+                                    description = title.description,
+                                ))
+                                if (title.selections.isNullOrEmpty()) {
+                                    coroutineScope.launch {
+                                        listState.animateScrollToItem(0)
                                     }
+                                } else {
+                                    onShowSubTitles(title.selections ?: emptyList())
+                                }
+
 //                                     keyboardController?.hide()
-                                },
-                                modifier = Modifier
-                            )
+                            },
+                            modifier = Modifier
+                        )
 //                        }
                     }
                 }
@@ -426,7 +540,7 @@ private fun SearchBarRow(
 
 
 @Composable
-fun TitleItem(
+fun DescriptionItem(
     isFirstItem: Boolean,
     isLastItem: Boolean,
     title: ProfileTitlesData,

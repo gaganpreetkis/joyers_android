@@ -1,5 +1,6 @@
 package com.joyersapp.di
 
+import com.google.gson.GsonBuilder
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.auth.data.remote.AuthApi
 import com.joyersapp.core.NetworkConfig
@@ -42,10 +43,13 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        val gson = GsonBuilder()
+            .serializeNulls()     // 👈 forces null values into JSON
+            .create()
         return Retrofit.Builder()
             .baseUrl(NetworkConfig.BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
