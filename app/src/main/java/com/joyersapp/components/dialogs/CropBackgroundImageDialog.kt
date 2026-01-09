@@ -360,9 +360,9 @@ fun CropBackgroundImageDialog(
                 // Done button
                 Box(
                     modifier = Modifier
-                        .padding(bottom = 24.dp)
-                        .width(90.dp)
-                        .border(1.dp, White, RoundedCornerShape(22.dp))
+                        .padding(bottom = 60.dp)
+                        .width(87.dp)
+                        .border(1.dp, White, RoundedCornerShape(18.dp))
                         .clickable { cropAndSave() },
                     contentAlignment = Alignment.Center
                 ) {
@@ -372,7 +372,10 @@ fun CropBackgroundImageDialog(
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         color = White,
-                        modifier = Modifier.padding(vertical = 9.dp)
+                        modifier = Modifier.padding(
+                            top = 7.dp,
+                            bottom = 9.dp
+                        )
                     )
                 }
             }
@@ -382,7 +385,6 @@ fun CropBackgroundImageDialog(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(top = 25.dp, start = 20.dp)
-                    .size(48.dp)
                     .zIndex(1f)
                     .pointerInput(Unit) {
                         detectTapGestures { onDismiss() }
@@ -399,7 +401,6 @@ fun CropBackgroundImageDialog(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 29.dp, end = 20.dp)
-                    .size(48.dp)
                     .zIndex(1f)
                     .pointerInput(Unit) {
                         // Add click handler here if needed
