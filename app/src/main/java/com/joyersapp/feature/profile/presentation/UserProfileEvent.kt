@@ -33,8 +33,9 @@ sealed class UserProfileEvent {
     data class OnApplyLanguage(val value: List<ProfileTitlesData>) : UserProfileEvent()
     data class OnClearMultipleSelections(val key: String) : UserProfileEvent()
     data class OnGenderSelected(val value: String) : UserProfileEvent()
-    data class OnBioChanged(val value: TextFieldValue) : UserProfileEvent()
-    data class OnHighlightChanged(val value: String) : UserProfileEvent()
+    data class OnOverviewChanged(val value: TextFieldValue) : UserProfileEvent()
+    data class OnHighlightChanged(val value: TextFieldValue) : UserProfileEvent()
+    data class OnToggleBioEditor(val tab: String) : UserProfileEvent()
     data class OnWebsiteUrlChanged(val value: String) : UserProfileEvent()
 
 }

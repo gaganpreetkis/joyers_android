@@ -68,6 +68,7 @@ data class UserProfileUiState(
     val avatarUrl: String? = null,
 
     val isLoading: Boolean = true,
+    val isDataLoaded: Boolean = false,
     val errorMessage: String? = null,
     val dialogHeader: List<String> = emptyList(),
     val editMagneticsUserList: List<EditMagneticsUserListData> = emptyList(),

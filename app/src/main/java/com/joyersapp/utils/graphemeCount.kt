@@ -16,6 +16,17 @@ fun String.graphemeCount(): Int {
     return count
 }
 
+fun String.filteredBio(): String {
+    var text = ""
+    val prefix = "Highlights\n"
+    if (this.startsWith(prefix) == true) {
+        text = this.removePrefix(prefix)
+    } else {
+        text = this
+    }
+    return text
+}
+
 fun countBullets(text: String): Int {
     return Regex("""(?m)^•\s""").findAll(text).count()
 }

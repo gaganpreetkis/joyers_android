@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -74,6 +75,8 @@ import com.joyersapp.theme.LightBlack10
 import com.joyersapp.theme.LightBlack55
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
+import com.joyersapp.utils.UiText
+import com.joyersapp.utils.filteredBio
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.noRippleClickable
@@ -527,9 +530,9 @@ fun ProfileHeaderSection(
             ProfileEditableRow(title = "Profile Picture")
         }
         Spacer(Modifier.height(13.dp))
-        if (!state?.bio.isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
+        if (!state?.bio?.filteredBio().isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
             BioSection(
-                bioText = state.bio,
+                bioText = state.bio.filteredBio(),
                 linkText = state.websiteUrl,
                 onLinkClick = {}
             )
@@ -954,7 +957,7 @@ fun LanguageSection(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NationalitySection(
-    languages: List<Nationality>
+    nationalties: List<Nationality>
 ) {
     var seeAll by remember { mutableStateOf(false) }
 
@@ -1029,7 +1032,7 @@ fun NationalitySection(
             ) {
 
                 Text(
-                    text = "Language :",
+                    text = "Nationality :",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
@@ -1038,7 +1041,7 @@ fun NationalitySection(
                 )
                 Spacer(Modifier.width(10.dp))
 
-                languages.forEachIndexed { index, item ->
+                nationalties.forEachIndexed { index, item ->
                     val name = item.dropdownCountries?.name?: ""
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1051,7 +1054,7 @@ fun NationalitySection(
                             lineHeight = 22.sp,
                         )
 
-                        if (index != languages.lastIndex) {
+                        if (index != nationalties.lastIndex) {
                             Spacer(Modifier.width(10.dp))
                             Box(
                                 modifier = Modifier
@@ -1181,7 +1184,7 @@ fun InterestsSection(
 
 data class MagneticsData(
     val username: String = "",
-    val profileHeaderData: ProfileHeaderData? = null,
+    val profileHeaderData: ProfileHeaderData = ProfileHeaderData(),
     val joyerStatus: String = "Classic",
     val title: ProfileMeta? = null,
     val subTitle: ProfileMeta? = null,
@@ -1193,10 +1196,12 @@ data class ProfileHeaderData(
     val profilePicture: String = "",
     val backgroundPicture: String = "",
     val bio: String = "",
-    val bioFieldValue: TextFieldValue = TextFieldValue(bio),
-    val overviewText: String = "",
-    val highlightText: String = "",
-    val overviewRemainingChars: Int = 150 - bio.graphemeCount(),
-    val highlightsRemainingChars: Int = 25 - highlightText.graphemeCount(),
+    val overviewFieldValue: TextFieldValue = TextFieldValue(""),
+    val highlightFieldValue: TextFieldValue = TextFieldValue(text = "• ", selection = TextRange(2)),
+    val overviewRemainingChars: Int = 150 - overviewFieldValue.text.graphemeCount(),
+    val highlightsRemainingChars: Int = 25 - highlightFieldValue.text.graphemeCount(),
     val websiteUrl: String = "",
+    val bioValidationError: UiText? = null,
+
+    var selectedTab: String = "overview"
 )

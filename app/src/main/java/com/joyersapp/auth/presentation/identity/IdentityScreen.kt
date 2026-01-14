@@ -361,6 +361,10 @@ fun PageOneContent(
     //val maxLength = 45
     //var remainingChars by remember { mutableStateOf(maxLength) }
 
+    if (isUsernamFocused && state.name.isNotEmpty() && state.remainingChars < 0) {
+        usernameError = stringResource(R.string.username_error)
+    }
+
     if (!isUsernamFocused && state.name.isNotEmpty() && state.remainingChars > 43) {
         usernameError = stringResource(R.string.username_error)
     }
@@ -623,7 +627,7 @@ fun PageOneContent(
                     capitalization = KeyboardCapitalization.Words
                 ),
                 onValueChange = {
-                    if (it.length <= state.maxLength) {
+                    if (it.length <= state.maxLength + 20) {
                         //state.name = it
                         viewModel2.onEvent(IdentityEvent.NameChanged(it))
                         if (it.isEmpty()) {
@@ -660,14 +664,14 @@ fun PageOneContent(
                     textAlign = TextAlign.Center,
                     fontFamily = fontFamilyLato
                 ),
-                maxLength = 45
+                maxLength = 65
             )
 
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = state.remainingChars.toString(),
                 fontSize = 12.sp,
-                color = if (state.remainingChars == 0) redColor else hintColor,
+                color = if (state.remainingChars <= 0) redColor else hintColor,
                 modifier = Modifier.fillMaxHeight().padding(top = 4.dp, end = 6.dp),
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.SemiBold,

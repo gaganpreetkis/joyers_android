@@ -1,5 +1,6 @@
 package com.joyersapp.components.dialogs
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.verticalScroll
@@ -67,7 +67,6 @@ import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
-import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.presentation.ProfileHeaderData
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
@@ -81,7 +80,9 @@ import com.joyersapp.theme.LightBlack13
 import com.joyersapp.theme.LightBlack40
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.LightBlack9
+import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
+import com.joyersapp.utils.UiText
 import com.joyersapp.utils.countBullets
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
@@ -111,12 +112,11 @@ fun EditProfileHeaderDialog(
     var showBackgroundCropDialog by remember { mutableStateOf(false) }
     var selectedBackgroundImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedBackgroundImagePath by remember { mutableStateOf<String?>(null) }
-    var selectedTab by remember { mutableStateOf("overview") }
     
     val context = LocalContext.current
 
-    LaunchedEffect(profileHeaderData) {
-        viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(profileHeaderData))
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.magneticsData.profileHeaderData))
     }
 
     BaseDialog (
@@ -173,17 +173,19 @@ fun EditProfileHeaderDialog(
             )
 
             BioEditor(
-                selectedTab = selectedTab,
-                overviewText = profileHeaderData.bioFieldValue,
-                highlightText = profileHeaderData.highlightText.ifEmpty { "• " },
+                context = context,
+                selectedTab = state.profileHeaderData.selectedTab,
+                bioValidationError = state.profileHeaderData.bioValidationError,
+                overviewText = profileHeaderData.overviewFieldValue,
+                highlightText = profileHeaderData.highlightFieldValue,
                 websiteUrl = profileHeaderData.websiteUrl,
-                remainingChars = if (selectedTab == "overview") {
+                remainingChars = if (state.profileHeaderData.selectedTab == "overview") {
                     profileHeaderData.overviewRemainingChars.toString()
                 } else {
                     profileHeaderData.highlightsRemainingChars.toString()
                 },
                 onOverviewChange = {
-                    viewModel.onEvent(UserProfileEvent.OnBioChanged(it))
+                    viewModel.onEvent(UserProfileEvent.OnOverviewChanged(it))
                     if (it.text.endsWith(" @")) {
                         viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                     }
@@ -192,7 +194,7 @@ fun EditProfileHeaderDialog(
                     viewModel.onEvent(UserProfileEvent.OnHighlightChanged(it))
                 },
                 onSelectedTabChange = {
-                    selectedTab = it
+                    viewModel.onEvent(UserProfileEvent.OnToggleBioEditor(it))
                 },
             )
 
@@ -206,7 +208,6 @@ fun EditProfileHeaderDialog(
                 value = profileHeaderData.websiteUrl,
                 onValueChange = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged(it)) },
                 onClear = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged("")) }
-
             )
             /*Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.height(60.dp)) {
@@ -615,100 +616,118 @@ fun EditableProfilePictureCard(
 
 @Composable
 fun BioEditor(
+    context: Context,
     selectedTab: String,
+    bioValidationError: UiText?,
     overviewText: TextFieldValue,
-    highlightText: String,
+    highlightText: TextFieldValue,
     websiteUrl: String,
     remainingChars: String,
     onOverviewChange: (TextFieldValue) -> Unit,
-    onHighlightChange: (String) -> Unit,
+    onHighlightChange: (TextFieldValue) -> Unit,
     onSelectedTabChange: (String) -> Unit,
 ) {
 
-    Card(
-        shape = RoundedCornerShape(5.dp),
-        border = BorderStroke(1.dp, LightBlack10),
-        colors = CardDefaults.cardColors(containerColor = GrayBG),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Column() {
+        Card(
+            shape = RoundedCornerShape(5.dp),
+            border = BorderStroke(1.dp, if (bioValidationError == null) LightBlack10 else Red),
+            colors = CardDefaults.cardColors(containerColor = GrayBG),
+            modifier = Modifier.fillMaxWidth()
+        ) {
 
-        Column {
+            Column {
 
-            // ---------------------- TAB HEADER ----------------------
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
+                // ---------------------- TAB HEADER ----------------------
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
 
-                TabItem(
-                    title = "Overview",
-                    selected = selectedTab == "overview"
-                ) { onSelectedTabChange("overview") }
-                VerticalDivider(color = LightBlack10)
-                TabItem(
-                    title = "Highlights",
-                    selected = selectedTab == "highlights"
-                ) { onSelectedTabChange("highlights") }
-            }
+                    TabItem(
+                        title = "Overview",
+                        selected = selectedTab == "overview",
+                        enabled = (highlightText.text.isEmpty() || highlightText.text.equals("• "))
+                    ) { onSelectedTabChange("overview") }
+                    VerticalDivider(color = LightBlack10)
+                    TabItem(
+                        title = "Highlights",
+                        selected = selectedTab == "highlights",
+                        enabled = overviewText.text.isEmpty()
+                    ) { onSelectedTabChange("highlights") }
+                }
 
-            HorizontalDivider(color = LightBlack10)
+                HorizontalDivider(color = LightBlack10)
 
-            // ---------------------- TEXT EDITOR ----------------------
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(170.dp)
-            ) {
-                Text(
-                    text = remainingChars,
-                    color = LightBlack60,
-                    fontSize = 12.sp,
-                    lineHeight = 24.sp,
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = fontFamilyLato,
+                // ---------------------- TEXT EDITOR ----------------------
+                Box(
                     modifier = Modifier
-                        .padding(top = 5.5.dp, bottom = 1.dp, end = 7.dp)
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.End
-                )
+                        .fillMaxWidth()
+                        .height(170.dp)
+                ) {
+                    Text(
+                        text = remainingChars,
+                        color = if (bioValidationError == null) LightBlack60 else Red,
+                        fontSize = 12.sp,
+                        lineHeight = 24.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = fontFamilyLato,
+                        modifier = Modifier
+                            .padding(top = 5.5.dp, bottom = 1.dp, end = 7.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
 
-                Box(Modifier.padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 15.dp)) {
-                    if (selectedTab == "overview") {
-                        OverviewEditor(
-                            text = overviewText,
-                            onChange = {
-                                onOverviewChange(it)
-                            }
-                        )
-                    } else {
-                        HighlightsEditor(
-                            websiteUrl = websiteUrl,
-                            text = highlightText,
-                            onChange = {
-                                onHighlightChange(it)
-                            }
-                        )
+                    Box(Modifier.padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 15.dp)) {
+                        if (selectedTab == "overview") {
+                            OverviewEditor(
+                                text = overviewText,
+                                onChange = {
+                                    onOverviewChange(it)
+                                }
+                            )
+                        } else {
+                            HighlightsEditor(
+                                websiteUrl = websiteUrl,
+                                textState = highlightText,
+                                onChange = {
+                                    onHighlightChange(it)
+                                }
+                            )
+                        }
                     }
                 }
             }
+        }
+
+        if (bioValidationError != null) {
+            Text(
+                text = bioValidationError.asString(context),
+                color = Red,
+                fontSize = 14.sp,
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Normal,
+                lineHeight = 20.sp,
+                modifier = Modifier.padding(top = 3.dp)
+            )
         }
     }
 }
 
 @Composable
-fun TabItem(title: String, selected: Boolean, onClick: () -> Unit) {
+fun TabItem(title: String, selected: Boolean, enabled: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxHeight()
-            .clickable { onClick() },
+            .noRippleClickable(enabled = enabled) { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = title,
-            color = if (selected) Golden else LightBlack,
+            color = if (selected) Golden else if (enabled) LightBlack else LightBlack40,
             fontSize = 16.sp,
             lineHeight = 22.sp,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
@@ -821,94 +840,14 @@ fun HighlightsEditor(
 @Composable
 fun HighlightsEditor(
     websiteUrl: String,
-    text: String,
-    onChange: (String) -> Unit
+    textState: TextFieldValue,
+    onChange: (TextFieldValue) -> Unit
 ) {
-    var textState by remember {
-        // Default bullet visible on first open
-        mutableStateOf(
-            TextFieldValue(
-                text = text,
-                selection = TextRange(2)
-            )
-        )
-    }
-    onChange(textState.text)
 
     BasicTextField(
         value = textState,
         onValueChange = { newValue ->
-            if (newValue.text.graphemeCount() > 25) return@BasicTextField
-
-            val oldValue = textState
-            val oldText = oldValue.text
-            val newText = newValue.text
-
-            // 0️⃣ Guard: preserve leading bullet space when only the first bullet remains
-            // If user deletes the trailing space of the first bullet, restore it.
-            if (newText == "•" && !oldText.contains("\n")) {
-                val restored = "• "
-                textState = TextFieldValue(
-                    text = restored,
-                    selection = TextRange(restored.length)
-                )
-                onChange(textState.text)
-                return@BasicTextField
-            }
-
-            // 1️⃣ Enter → new bullet
-            // Check if text ends with "\n" but not "\n• " (bullet already added)
-            // This catches Enter key presses - when Enter is pressed, "\n" is added immediately
-            // Even if keyboard suggestions are active, the second Enter press will add "\n"
-            if (newText.endsWith("\n") && !newText.endsWith("\n• ")) {
-                val maxBullets = if (websiteUrl.isNotEmpty()) 4 else 5
-                val bulletCount = countBullets(oldText)
-                // ⛔ Stop adding new bullet if limit reached
-                if (bulletCount >= maxBullets) {
-                    textState = oldValue // keep previous text
-                    return@BasicTextField
-                }
-                val updated = newText + "• "
-                textState = TextFieldValue(
-                    text = updated,
-                    selection = TextRange(updated.length)
-                )
-                onChange(textState.text)
-                return@BasicTextField
-            }
-
-            // 2️⃣ Deleting last empty bullet when there are previous bullets:
-            //    "• a\n• b\n• c\n• "  →  "• a\n• b\n• c"
-            val lastEmptyBulletSuffix = "\n• "
-            if (
-                oldText.contains(lastEmptyBulletSuffix) &&
-                oldText.endsWith(lastEmptyBulletSuffix) &&
-                oldValue.selection.end == oldText.length && // cursor at end of last bullet
-                newText.length < oldText.length              // user pressed backspace / clear
-            ) {
-                val base = oldText.removeSuffix(lastEmptyBulletSuffix)
-                textState = TextFieldValue(
-                    text = base,
-                    selection = TextRange(base.length)       // cursor at end of previous bullet
-                )
-                onChange(textState.text)
-                return@BasicTextField
-            }
-
-            // 3️⃣ If everything is cleared, restore a single default bullet
-            if (newText.isEmpty()) {
-                val updated = "• "
-                textState = TextFieldValue(
-                    text = updated,
-                    selection = TextRange(updated.length)
-                )
-                onChange(textState.text)
-                return@BasicTextField
-            }
-
-            // 4️⃣ Normal typing / deleting within bullets
-            textState = newValue
-            onChange(textState.text)
+            onChange(newValue)
         },
         textStyle = TextStyle(
             fontSize = 15.sp,
@@ -978,7 +917,7 @@ fun WebsiteTextField(
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 15.dp),
+                        .padding(end = 15.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AppBasicTextField(
@@ -999,7 +938,7 @@ fun WebsiteTextField(
                     )
 
                     if (value.isNotEmpty()) {
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Box(
                             modifier = Modifier
                                 .clip(CircleShape)

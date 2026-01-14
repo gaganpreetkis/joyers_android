@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
@@ -62,6 +63,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -72,6 +74,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
+import com.joyersapp.auth.presentation.identity.TitleEvent
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
@@ -87,6 +90,8 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack55
+import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
@@ -96,6 +101,13 @@ import com.joyersapp.utils.tapToDismissKeyboard
 @Preview
 @Composable
 fun composePreview() {
+
+//    MentionJoyerRow(EditMagneticsUserListData(
+//        first_name = "Har",
+//        last_name = "Kirat Kirat Kirat Kidgd fgrgc frrgdf",
+//        starCount = 3,
+//        showLock = true
+//    )) { }
     MentionJoyersDialog(
         initList = arrayListOf(),
         onDismiss = {},
@@ -115,6 +127,7 @@ fun MentionJoyersDialog(
     val state by viewmodel.uiState.collectAsStateWithLifecycle()
     val searchQuery = state.searchQuery
     val userList = state.filteredUserList
+    val selectedUserList = state.filteredSelectedUserList
 
     LaunchedEffect(initList) {
         viewmodel.onEvent(MentionJoyersEvent.InitUserList(initList))
@@ -143,16 +156,55 @@ fun MentionJoyersDialog(
                 .background(Color.White)
         ) {
             // ---------- HEADER SECTION ----------
+            if (state.isClearMentionsMode) {
+                ClearMentionsActions(
+                    onClear = { viewmodel.onEvent(MentionJoyersEvent.OnSelectionsCleared) },
+                    onCancel = { viewmodel.onEvent(MentionJoyersEvent.OnToggleClearMentionsMode(false)) },
+                )
+            } else {
+                Row(
+                    modifier = Modifier.padding(bottom = 10.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row() {
+                        Text(
+                            text = if (state.selectedUsersCount.isNotEmpty()) "Mention Joyers : " else "Mention Joyers",
+                            fontSize = 16.sp,
+                            lineHeight = 19.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = fontFamilyLato,
+                            color = LightBlack,
+                        )
 
-            Text(
-                text = "Mention Joyers",
-                fontSize = 16.sp,
-                lineHeight = 19.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = fontFamilyLato,
-                color = LightBlack,
-                modifier = Modifier.padding(bottom = 10.dp)
-            )
+                        Text(
+                            text = state.selectedUsersCount,
+                            fontSize = 16.sp,
+                            lineHeight = 19.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = Golden,
+                        )
+                    }
+
+                    if (state.selectedUsersCount.isNotEmpty()) {
+                        Text(
+                            text = "Clear List",
+                            fontSize = 12.sp,
+                            lineHeight = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = fontFamilyLato,
+                            color = Golden,
+                            modifier = Modifier.noRippleClickable() {
+                                viewmodel.onEvent(MentionJoyersEvent.OnToggleClearMentionsMode(true))
+                            }
+                        )
+                    }
+                }
+            }
+
+
 
             // Card with profile and header images
             Card(
@@ -165,15 +217,30 @@ fun MentionJoyersDialog(
                 colors = CardDefaults.cardColors(containerColor = Gray20)
             ) {
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(15.dp))
                 SearchBarRowForEditMaganetic(
                     searchQuery = searchQuery,
-                    onSearchQueryChanged = { viewmodel.onEvent(MentionJoyersEvent.OnSearchQueryChanged(it)) }
+                    onSearchQueryChanged = { viewmodel.onEvent(MentionJoyersEvent.OnSearchQueryChanged(it)) },
+                    isAddMentionsEnabled = state.isAddMentionsEnabled,
+                    onAddMentionsClick = { viewmodel.onEvent(MentionJoyersEvent.OnAddMentionsClicked) }
                 )
-                Spacer(modifier = Modifier.height(10.dp))
 
-                MentionJoyersScreen(
-                    userList,
+                if (!state.isAddMentionsMode) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    MentionJoyersScreen(
+                        userList,
+                        onUserClick = { selectedUser ->
+                            viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(15.dp))
+            }
+
+            if (state.isAddMentionsMode) {
+                Spacer(modifier = Modifier.height(10.dp))
+                SelectedUsersColumn(
+                    selectedUserList,
                     onUserClick = { selectedUser ->
                         viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
                     }
@@ -187,7 +254,9 @@ fun MentionJoyersDialog(
 fun SearchBarRowForEditMaganetic(
     dialogModifier: Modifier = Modifier,
     searchQuery: String,
-    onSearchQueryChanged: (String) -> Unit
+    isAddMentionsEnabled: Boolean,
+    onSearchQueryChanged: (String) -> Unit,
+    onAddMentionsClick: () -> Unit
 ) {
     val lightBlackColor = LightBlack
     val hintColor = Gray40
@@ -203,7 +272,7 @@ fun SearchBarRowForEditMaganetic(
     ) {
 
         /* ---------------- SEARCH BAR ---------------- */
-        Box(
+        Row(
             modifier = dialogModifier
                 .width(314.dp) // 🔥 KEY FIX
                 .height(30.dp)
@@ -213,7 +282,8 @@ fun SearchBarRowForEditMaganetic(
                     width = 1.dp,
                     color = GrayLightBorder,
                     shape = RoundedCornerShape(35.dp)
-                )
+                ),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             AppBasicTextField(
                 value = searchQuery,
@@ -234,21 +304,33 @@ fun SearchBarRowForEditMaganetic(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 maxLength = 100
             )
+
+            // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
+            if (searchQuery.isNotEmpty()) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_cancel_grey),
+                    contentDescription = null,
+                    modifier = dialogModifier
+                        .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
+                        .size(15.dp)
+                        .clickable { onSearchQueryChanged("") }
+                )
+            } else {
+                // Spacer to maintain consistent padding when icon is not visible
+                Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
+            }
         }
 
-//        Spacer(modifier = dialogModifier.width(10.dp))
+
         /* ---------------- PLUS BUTTON ---------------- */
         Box(
             modifier = dialogModifier
-                .size(30.dp) // exact outer size
-//                .background(
-//                    color = Color(0xFFF6F6F6), // light grey fill
-//                    shape = CircleShape
-//                )
-                .clickable {  },
+                .size(30.dp)
+                .alpha(if (isAddMentionsEnabled) 1f else 0.7f)
+                .noRippleClickable(enabled = isAddMentionsEnabled) { onAddMentionsClick() },
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_edit_magantic_add),
+                painter = painterResource(R.drawable.ic_add_round),
                 contentDescription = "Add Joyer",
                 modifier = Modifier.size(30.dp)
             )
@@ -261,15 +343,15 @@ fun SearchBarRowForEditMaganetic(
 fun MentionJoyersScreen(userlist: List<EditMagneticsUserListData>, onUserClick: (EditMagneticsUserListData) -> Unit) {
     Column(
         modifier = Modifier
+            .padding( start = 15.dp, end = 15.dp)
             .width(354.dp)
-            .padding(top = 15.dp, bottom = 15.dp, start = 15.dp, end = 15.dp)
-            .clip(RoundedCornerShape(1.dp))
+            .clip(RoundedCornerShape(5.dp))
             .background(
-                color = Color.White, shape = RoundedCornerShape(1.dp)
+                color = Color.White, shape = RoundedCornerShape(5.dp)
             )
-            .border(
-                width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
-            ),
+//            .border(
+//                width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
+//            ),
     ) {
         JoyersList(userlist, onUserClick = onUserClick)
     }
@@ -279,16 +361,25 @@ fun MentionJoyersScreen(userlist: List<EditMagneticsUserListData>, onUserClick: 
 fun JoyersList(getPreviewJoyerList: List<EditMagneticsUserListData>,
                onUserClick: (EditMagneticsUserListData) -> Unit) {
     LazyColumn {
-        item {
-
-        }
         itemsIndexed(getPreviewJoyerList) { index, user ->
-            if (0 == index) {
-                Spacer(Modifier.height(10.dp))
-            }
-            MentionJoyerRow(user, onUserClick = onUserClick)
+            Spacer(Modifier.height(15.dp))
+            MentionJoyerRow(showCancelButton = false, user, onUserClick = onUserClick)
             if (getPreviewJoyerList.size -1  == index) {
-                Spacer(Modifier.height(15.dp))
+                Spacer(Modifier.height(25.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun SelectedUsersColumn(selectedUsers: List<EditMagneticsUserListData>,
+               onUserClick: (EditMagneticsUserListData) -> Unit) {
+    LazyColumn {
+        itemsIndexed(selectedUsers) { index, user ->
+            Spacer(Modifier.height(15.dp))
+            MentionJoyerRow(showCancelButton = true, user, onUserClick = onUserClick)
+            if (selectedUsers.size -1  == index) {
+                Spacer(Modifier.height(25.dp))
             }
         }
     }
@@ -296,41 +387,45 @@ fun JoyersList(getPreviewJoyerList: List<EditMagneticsUserListData>,
 
 @Composable
 fun MentionJoyerRow(
+    showCancelButton: Boolean = false,
     joyer: EditMagneticsUserListData,
     onUserClick: (EditMagneticsUserListData) -> Unit
 ) {
     Row(
         modifier = Modifier
-            .width(354.dp)
-            .height(44.dp)
+            .width(if (showCancelButton) 379.dp else 354.dp)
+            .height(37.dp)
             .noRippleClickable {
                 onUserClick(joyer)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        // Radio
-        Box(
-            Modifier
-                .padding(horizontal = 10.dp).size(16.dp)
-                .clip(CircleShape)
-                .background(if (joyer.isSelected) Golden else Color.Transparent),
-            contentAlignment = Alignment.Center
-        ) {
-            if (joyer.isSelected) {
-                Image(
-                    painterResource(R.drawable.ic_tick),
-                    contentDescription = "Radio Button",
-                    Modifier.size(16.3.dp, 16.2.dp),
-                    colorFilter = ColorFilter.tint(White)
-                )
-            } else {
-                Image(
-                    painterResource(R.drawable.ic_radio_button_unselected),
-                    contentDescription = "Radio Button",
-                    Modifier.size(16.dp),
-                    colorFilter = ColorFilter.tint(LightBlack)
-                )
+        if (!showCancelButton) {
+            // Radio
+            Box(
+                Modifier
+                    .padding(horizontal = 10.dp)
+                    .size(16.dp)
+                    .clip(CircleShape)
+                    .background(if (joyer.isSelected) Golden else Color.Transparent),
+                contentAlignment = Alignment.Center
+            ) {
+                if (joyer.isSelected) {
+                    Image(
+                        painterResource(R.drawable.ic_tick),
+                        contentDescription = "Radio Button",
+                        Modifier.size(16.3.dp, 16.2.dp),
+                        colorFilter = ColorFilter.tint(White)
+                    )
+                } else {
+                    Image(
+                        painterResource(R.drawable.ic_radio_button_unselected),
+                        contentDescription = "Radio Button",
+                        Modifier.size(16.dp),
+                        colorFilter = ColorFilter.tint(LightBlack)
+                    )
+                }
             }
         }
 
@@ -343,7 +438,8 @@ fun MentionJoyerRow(
                 .border(width = 1.dp, color = White, shape = CircleShape)
                 .size(37.dp)
                 .clip(CircleShape)
-                .background(Gray20), contentAlignment = Alignment.Center
+                .background(Gray20),
+            contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.avatar), // your J icon
@@ -366,34 +462,172 @@ fun MentionJoyerRow(
             modifier = Modifier.weight(1f)
         ) {
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                ) {
                 Text(
                     text = joyer.getDisplayName(),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp,
+                    color = LightBlack,
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, false)
                 )
 
-                /*if (joyer.starCount > 0) {
-                    Spacer(modifier = Modifier.width(5.dp))
-                    repeat(joyer.starCount) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            tint = Color(0xFFFFC107),
-                            modifier = Modifier.size(14.dp)
+//                if (joyer.starCount > 0) {
+                    Spacer(modifier = Modifier.width(2.dp))
+                    repeat(1) {
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Image(
+                            painter = painterResource(R.drawable.ic_star_golden),
+                            contentDescription = "Star",
+                            modifier = Modifier
+                                .size(14.dp, 13.dp)
                         )
                     }
-                }*/
+//                }
+
+//                if (joyer.showLock && joyer.starCount > 0) {
+                    Spacer(modifier = Modifier.width(7.dp))
+                    Box(modifier = Modifier.size(3.dp).clip(CircleShape).background(LightBlack55))
+                    Spacer(modifier = Modifier.width(7.dp))
+//                }
+
+//                if (joyer.showLock) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_lock_heart_black),
+                        contentDescription = "Star",
+                        modifier = Modifier
+                            .size(9.5.dp, 14.19.dp)
+                    )
+//                }
             }
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Row(verticalAlignment = Alignment.CenterVertically,) {
+                Text(
+                    text = "Data Entry & Information Process Data Entry & Information",
+                    fontSize = 12.sp,
+                    lineHeight = 15.sp,
+                    color = Golden,
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, false)
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Box(modifier = Modifier.size(3.dp).clip(CircleShape).background(LightBlack55))
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    text = "Following",
+                    fontSize = 12.sp,
+                    lineHeight = 17.sp,
+                    color = LightBlack60,
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
 
-            /*Text(
-                text = "${joyer.role} • ${joyer.followStatus}",
-                fontSize = 12.sp,
-                color = Color.Gray
-            )*/
+
+            }
+
         }
+
+        if (showCancelButton) {
+            Spacer(modifier = Modifier.width(20.dp))
+            Image(
+                painter = painterResource(id = R.drawable.ic_cross), // your J icon
+                contentDescription = "cross",
+            )
+        } else {
+            Spacer(modifier = Modifier.width(15.dp))
+        }
+    }
+}
+
+@Composable
+fun ClearMentionsActions(
+    onClear: () -> Unit,
+    onCancel: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+
+        // 🗑 Clear All
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace with your icon
+                contentDescription = null,
+                modifier = Modifier.size(14.2.dp, 15.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = "Clear All",
+                fontSize = 12.sp,
+                lineHeight = 24.sp,
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Bold,
+                color = LightBlack
+            )
+        }
+
+        Spacer(modifier = Modifier.width(17.dp))
+
+        // Clear Button
+        ActionChip(
+            label = "Clear",
+            onClick = onClear
+        )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        // Cancel Button
+        ActionChip(
+            label = "Cancel",
+            onClick = onCancel
+        )
+    }
+}
+
+@Composable
+fun ActionChip(
+    label: String,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .height(23.dp)
+            .width(60.dp)
+            .clip(RoundedCornerShape(50))
+            .border(
+                width = 1.dp,
+                color = Golden,
+                shape = RoundedCornerShape(50)
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            color = Golden,
+            fontFamily = fontFamilyLato,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            lineHeight = 24.sp
+        )
     }
 }
 

@@ -30,6 +30,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
+import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
@@ -60,6 +62,7 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
+import com.joyersapp.utils.filteredBio
 import com.joyersapp.utils.flagEmoji
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
@@ -73,6 +76,10 @@ fun UserProfileScreen(
     onMenu: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(UserProfileEvent.Load)
+    }
 
     HardBlockingLoader(state.isLoading)
 //    if (state.isLoading) {
@@ -345,7 +352,7 @@ private fun BioSection(
 
                 if (bioText.isNotEmpty()) {
                     // ----- BIO RICH TEXT -----
-                    HighlightedText(bioText)
+                    HighlightedText(bioText.filteredBio())
                 }
 
                 if (linkText.isNotEmpty()) {

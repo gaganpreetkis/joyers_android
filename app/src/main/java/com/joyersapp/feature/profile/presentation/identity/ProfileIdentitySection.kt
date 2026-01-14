@@ -91,21 +91,25 @@ fun ProfileIdentitySection(
             }
         }
 
-        Spacer(Modifier.height(8.dp))
+        if (
+            state.gender.isNotEmpty() || state.nationality.isNotEmpty() || !state.ethnicity?.name.isNullOrEmpty() || !state.faith?.name.isNullOrEmpty() || state.languages.isNotEmpty() || !state.education?.name.isNullOrEmpty() || !state.location?.name.isNullOrEmpty()
+            ) {
+            Spacer(Modifier.height(8.dp))
 
-        Column(
-            modifier = Modifier
-                .background(White)
-                .padding(top = 0.dp, start = 15.dp, bottom = 20.dp, end = 15.dp)
-        ) {
-            /** -------- Key-Value Rows -------- */
-            ProfileKeyValueRow(label = "Gender", value = state.gender)
-            NationalityField(label = "Nationality", values = state.nationality)
-            ProfileKeyValueRow(label = "Ethnicity", value = state.ethnicity?.name?:"")
-            ProfileKeyValueRow(label = "Faith / Religion", value = state.faith?.name?:"")
-            LanguageField(label = "Language", state.languages)
-            ProfileKeyValueRow(label = "Education", value = state.education?.name?:"")
-            ProfileKeyValueRow(label = "Joyer Location", value = state.location?.name?:"")
+            Column(
+                modifier = Modifier
+                    .background(White)
+                    .padding(top = 0.dp, start = 15.dp, bottom = 20.dp, end = 15.dp)
+            ) {
+                /** -------- Key-Value Rows -------- */
+                ProfileKeyValueRow(label = "Gender", value = state.gender)
+                NationalityField(label = "Nationality", values = state.nationality)
+                ProfileKeyValueRow(label = "Ethnicity", value = state.ethnicity?.name ?: "")
+                ProfileKeyValueRow(label = "Faith / Religion", value = state.faith?.name ?: "")
+                LanguageField(label = "Language", state.languages)
+                ProfileKeyValueRow(label = "Education", value = state.education?.name ?: "")
+                ProfileKeyValueRow(label = "Joyer Location", value = state.location?.name ?: "")
+            }
         }
 
         Spacer(Modifier.height(10.dp))
@@ -200,58 +204,61 @@ private fun LanguageField(
     label: String,
     values: List<Languages>
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
-            fontFamily = fontFamilyLato,
-            color = LightBlack60,
-            lineHeight = 24.sp,
-        )
-
-        FlowRow(
-            Modifier
-                .offset(x = 130.dp)
-                .widthIn(max = 250.dp),
-            itemVerticalAlignment = Alignment.CenterVertically,
+    if (values.isNotEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-            values.forEachIndexed { index, item ->
-                val name = item.language?.name?: ""
-                val level = item.language?.level?:""
-                Text(
-                    text = name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamilyLato,
-                    color = LightBlack,
-                    lineHeight = 22.sp,
-                    modifier = Modifier
-                )
-                if (level.trim().isNotEmpty()) {
-                    Spacer(Modifier.width(7.dp))
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = fontFamilyLato,
+                color = LightBlack60,
+                lineHeight = 24.sp,
+            )
+
+            FlowRow(
+                Modifier
+                    .offset(x = 130.dp)
+                    .widthIn(max = 250.dp),
+                itemVerticalAlignment = Alignment.CenterVertically,
+            ) {
+                values.forEachIndexed { index, item ->
+                    val name = item.language?.name ?: ""
+                    val level = item.language?.level ?: ""
                     Text(
-                        text = level.trim(),
+                        text = name,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal,
+                        fontWeight = FontWeight.Bold,
                         fontFamily = fontFamilyLato,
                         color = LightBlack,
                         lineHeight = 22.sp,
                         modifier = Modifier
                     )
-                }
-                if (index != values.size - 1) {
-                    Spacer(Modifier.width(10.dp))
-                    Box(
-                        modifier = Modifier.clip(CircleShape).size(3.dp).background(LightBlack55)
-                    )
-                    Spacer(Modifier.width(10.dp))
+                    if (level.trim().isNotEmpty()) {
+                        Spacer(Modifier.width(7.dp))
+                        Text(
+                            text = level.trim(),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = fontFamilyLato,
+                            color = LightBlack,
+                            lineHeight = 22.sp,
+                            modifier = Modifier
+                        )
+                    }
+                    if (index != values.size - 1) {
+                        Spacer(Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier.clip(CircleShape).size(3.dp)
+                                .background(LightBlack55)
+                        )
+                        Spacer(Modifier.width(10.dp))
+                    }
                 }
             }
-        }
 
+        }
     }
 }

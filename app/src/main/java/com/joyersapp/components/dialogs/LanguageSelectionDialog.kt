@@ -126,7 +126,9 @@ fun LanguageSelectionDialog(
         onTitleSelected = { titleId ->
             if (isMultiselectEnabled) {
                 currentList = currentList.map { item ->
-                    if (item.id == titleId) item.copy(isSelected = !item.isSelected)
+                    if (item.id == titleId) item.copy(
+                        isSelected = !item.isSelected,
+                    )
                     else item
                 }
             } else {
@@ -138,7 +140,18 @@ fun LanguageSelectionDialog(
         },
         onLanguageLevelSelected = { id, level ->
             currentList = currentList.map { item ->
-                if (item.id?.contains(id) == true) item.copy(level = level)
+                if (item.id?.contains(id) == true) {
+                    if (level.isEmpty()) {
+                        item.copy(
+                            isSelectionMode = true,
+                        )
+                    } else {
+                        item.copy(
+                            level = level,
+                            isSelectionMode = false,
+                        )
+                    }
+                }
                 else item
             }
         },
@@ -236,7 +249,7 @@ fun LanguagesDialog(
                                 if (title.selections.isNullOrEmpty()) {
 
                                     recentSelectedItemId = title.id?: ""
-                                    if (!title.level.isNullOrEmpty()) {
+                                    if (!title.isSelectionMode) {
                                         onLanguageLevelSelected(title.id?: "", "")
                                     } else {
                                         onTitleSelected(title.id ?: "")
@@ -352,7 +365,7 @@ private fun SearchBarRow(
                                 end = 16.dp
                             ) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
                             .size(15.dp)
-                            .clickable {
+                            .noRippleClickable() {
                                 onSearchQueryChanged("")
                             }
                     )
@@ -374,7 +387,7 @@ private fun SearchBarRow(
                         color = goldenColor,
                         shape = RoundedCornerShape(35.dp)
                     )
-                    .clickable {
+                    .noRippleClickable {
                         onApply()
                     },
                 contentAlignment = Alignment.Center
@@ -405,7 +418,7 @@ private fun SearchBarRow(
                         color = if (searchQuery.isEmpty()) GrayLightBorder else goldenColor,
                         shape = RoundedCornerShape(35.dp)
                     )
-                    .clickable {
+                    .noRippleClickable {
                         keyboardController?.hide()
                     },
                 contentAlignment = Alignment.Center
@@ -441,7 +454,7 @@ fun LanguageItem(
     val level = language.level
     val languageName = buildString {
         append(name)
-        if (!level.isNullOrEmpty()) {
+        if (!level.isNullOrEmpty() && !language.isSelectionMode) {
             append(" ($level)")
         }
     }
@@ -451,7 +464,7 @@ fun LanguageItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .noRippleClickable() { onClick() }
             .padding(bottom = if (isLastItem) 0.dp else 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
@@ -485,7 +498,7 @@ fun LanguageItem(
             )
         }
 
-        if (isSelected && isRecentSelectedItem && level.isNullOrEmpty()) {
+        if (isSelected && isRecentSelectedItem && language.isSelectionMode) {
             LanguageLevel(
                 selectedLevel = language.level?: "",
                 onTabClick = { onLanguageLevelSelected(it) }

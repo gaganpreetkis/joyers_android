@@ -20,6 +20,7 @@ data class ProfileTitlesData (
     @SerializedName("selections"    ) var selections   : List<ProfileTitlesData>? = null,
     @SerializedName("selection_count") var selectionCount : String? = null,
     @SerializedName("display_order" ) var displayOrder : Int?    = null,
-    var isSelected : Boolean = false
+    var isSelected : Boolean = false,
+    var isSelectionMode : Boolean = false
 
 )

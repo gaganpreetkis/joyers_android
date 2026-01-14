@@ -1,47 +1,11 @@
 package com.joyersapp.feature.profile.presentation.dialogs
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import com.joyersapp.common_widgets.IdentificationData
-import com.joyersapp.feature.profile.domain.usecase.GetTitlesUseCase
-import com.joyersapp.core.SessionManager
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
-import com.joyersapp.feature.profile.data.remote.dto.Interests
-import com.joyersapp.feature.profile.data.remote.dto.Language
-import com.joyersapp.feature.profile.data.remote.dto.LanguageReq
-import com.joyersapp.feature.profile.data.remote.dto.Languages
-import com.joyersapp.feature.profile.data.remote.dto.Nationality
-import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
-import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
-import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
-import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
-import com.joyersapp.feature.profile.domain.usecase.GetCountryListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetEducationListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetEthnicityListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetFaithReligionListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetInterstsListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetLanguageListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetPoliticalIdeoogyListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetRelationshipListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetSubTitlesUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetEditMagneticsUserListUseCase
-import com.joyersapp.feature.profile.domain.usecase.GetUserProfileUseCase
-import com.joyersapp.feature.profile.domain.usecase.UploadPictureServerUseCase
-import com.joyersapp.feature.profile.domain.usecase.UploadUserProfileUseCase
-import com.joyersapp.feature.profile.presentation.EditMagneticsUiState
-import com.joyersapp.feature.profile.presentation.MagneticsData
-import com.joyersapp.feature.profile.presentation.ProfileHeaderData
-import com.joyersapp.feature.profile.presentation.UserProfileEvent
-import com.joyersapp.feature.profile.presentation.UserProfileNavigationEvent
-import com.joyersapp.feature.profile.presentation.UserProfileUiState
-import com.joyersapp.feature.profile.presentation.UserProfileViewModel
-import com.joyersapp.utils.graphemeCount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,12 +16,17 @@ import kotlinx.coroutines.launch
 data class MentionJoyersUiState(
 
     val searchQuery: String = "",
+    val selectedUsersCount: String = "",
+    val isAddMentionsMode: Boolean = false,
+    val isClearMentionsMode: Boolean = false,
     val userList: List<EditMagneticsUserListData> = emptyList(),
     val filteredUserList: List<EditMagneticsUserListData> = emptyList(),
-    val selectedUserList: List<EditMagneticsUserListData> = emptyList(),
+    val filteredSelectedUserList: List<EditMagneticsUserListData> = emptyList(),
 ) {
     val isApplyEnabled: Boolean
         get() = userList.any { it.isSelected }
+    val isAddMentionsEnabled: Boolean
+        get() = userList.any { it.isSelected } && !isAddMentionsMode
 }
 
 sealed class MentionJoyersEvent {
@@ -66,6 +35,9 @@ sealed class MentionJoyersEvent {
     data class InitUserList(val userList: List<EditMagneticsUserListData>) : MentionJoyersEvent()
     data object OnApply : MentionJoyersEvent()
     data class OnSearchQueryChanged(val query: String) : MentionJoyersEvent()
+    data object OnAddMentionsClicked : MentionJoyersEvent()
+    data object OnSelectionsCleared : MentionJoyersEvent()
+    data class OnToggleClearMentionsMode(val value: Boolean) : MentionJoyersEvent()
 
 }
 
@@ -89,6 +61,7 @@ class MentionJoyersViewModel @Inject constructor(
             is MentionJoyersEvent.InitUserList -> {
                 viewModelScope.launch {
                     _uiState.update { it.copy(
+                        isAddMentionsMode = false,
                         userList = event.userList,
                         filteredUserList = event.userList,
                     ) }
@@ -96,6 +69,7 @@ class MentionJoyersViewModel @Inject constructor(
             }
             is MentionJoyersEvent.OnUserSelectionToggled -> {
                 _uiState.update { state ->
+                    var selectedUsersCount = ""
 
                     // Update selection in FULL LIST
                     val updatedFullList = state.userList.map {
@@ -111,9 +85,15 @@ class MentionJoyersViewModel @Inject constructor(
                         }
                     }
 
+                    if (state.isAddMentionsMode) {
+                        selectedUsersCount = updatedFullList.filter { it.isSelected }.size.toString()
+                    }
+
                     state.copy(
+                        selectedUsersCount = selectedUsersCount,
                         userList = updatedFullList,
-                        filteredUserList = updatedFiltered
+                        filteredUserList = updatedFiltered,
+                        filteredSelectedUserList = updatedFullList.filter { it.isSelected }
                     )
                 }
             }
@@ -125,24 +105,76 @@ class MentionJoyersViewModel @Inject constructor(
                 }
             }
 
+            is MentionJoyersEvent.OnSelectionsCleared -> {
+                viewModelScope.launch {
+                    _uiState.update { state ->
+                        state.copy(
+                            userList = state.userList.map { it.copy(isSelected = false) },
+                            filteredSelectedUserList = emptyList(),
+                            selectedUsersCount = "",
+                            isClearMentionsMode = false,
+                        )
+                    }
+                }
+            }
+
+            is MentionJoyersEvent.OnToggleClearMentionsMode -> {
+                viewModelScope.launch {
+                    _uiState.update {
+                        it.copy(
+                            isClearMentionsMode = event.value,
+                        )
+                    }
+                }
+            }
+
+            is MentionJoyersEvent.OnAddMentionsClicked -> {
+                viewModelScope.launch {
+                    _uiState.update {
+                            val selectedUsersCount = it.userList.filter { it.isSelected }.size.toString()
+
+                        it.copy(
+                        selectedUsersCount = selectedUsersCount,
+                        filteredSelectedUserList = it.filteredUserList.filter { it.isSelected },
+                        isAddMentionsMode = true,
+                    ) }
+                }
+            }
+
             is MentionJoyersEvent.OnSearchQueryChanged -> {
                 viewModelScope.launch(Dispatchers.Default) {
                     _uiState.update { state ->
-                        val filtered = if (event.query.isBlank()) {
-                            state.userList
-                        } else {
-                            state.userList.filter {
-                                it.getDisplayName().contains(
-                                    event.query,
-                                    ignoreCase = true
-                                )
+                        if (state.isAddMentionsMode) {
+                            val filtered = if (event.query.isBlank()) {
+                                state.userList.filter { it.isSelected }
+                            } else {
+                                state.userList.filter {
+                                    it.isSelected && it.getDisplayName().contains(
+                                        event.query,
+                                        ignoreCase = true
+                                    )
+                                }
                             }
+                            state.copy(
+                                searchQuery = event.query,
+                                filteredSelectedUserList = filtered
+                            )
+                        } else {
+                            val filtered = if (event.query.isBlank()) {
+                                state.userList
+                            } else {
+                                state.userList.filter {
+                                    it.getDisplayName().contains(
+                                        event.query,
+                                        ignoreCase = true
+                                    )
+                                }
+                            }
+                            state.copy(
+                                searchQuery = event.query,
+                                filteredUserList = filtered
+                            )
                         }
-                        state.copy(
-                            searchQuery = event.query,
-                            filteredUserList = filtered
-                        )
-
                     }
                 }
             }
