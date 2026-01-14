@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,6 +58,116 @@ import com.joyersapp.utils.filterAscii
 import com.joyersapp.utils.filterNameCase
 import com.joyersapp.utils.fontFamilyLato
 
+
+@Composable
+fun CustomTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String = "",
+    isEnabled: Boolean = true,
+    maxLength: Int = 100,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    textStyle: TextStyle = TextStyle(
+        fontSize = 16.sp,
+        fontFamily = fontFamilyLato,
+        fontWeight = FontWeight.Normal,
+        platformStyle = PlatformTextStyle(includeFontPadding = false)
+    ),
+    containerColor: Color = Gray20,
+    contentColor: Color = Black,
+    placeholderColor: Color = Gray40,
+    onFocusChanged: ((Boolean) -> Unit)? = null
+) {
+
+    val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
+
+    // Internal TextFieldValue to control cursor position
+    var tfValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = value,
+                selection = TextRange(value.length)
+            )
+        )
+    }
+
+    // Sync if external value changes - always sync to handle clearing
+    LaunchedEffect(value) {
+        // Always sync tfValue with external value changes
+        // This ensures clearing works even when field is focused
+        if (tfValue.text != value) {
+            tfValue = tfValue.copy(text = value, selection = TextRange(value.length))
+        }
+    }
+
+    val focusManager = LocalFocusManager.current
+
+    Row(
+        modifier = modifier
+            .background(containerColor, shape = RoundedCornerShape(8.dp))
+            .fillMaxHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                    onFocusChanged?.invoke(focusState.isFocused)
+                }
+        ) {
+
+            // --------------------------------------------------
+            // 2️⃣ PLACEHOLDER WHEN EMPTY (show even when focused)
+            // --------------------------------------------------
+            if (tfValue.text.isEmpty()) {
+                Text(
+                    text = placeholder,
+                    color = placeholderColor,
+                    style = textStyle,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // --------------------------------------------------
+            // 3️⃣ BASIC TEXT FIELD (VISIBLE ONLY WHEN FOCUSED)
+            // --------------------------------------------------
+            BasicTextField(
+                value = tfValue,
+                onValueChange = { newValue ->
+
+                    val asciiFiltered = filterAscii(newValue.text, maxLength)
+
+                    if (asciiFiltered != newValue.text) {
+                        val updated = newValue.copy(
+                            text = asciiFiltered,
+                            selection = TextRange(asciiFiltered.length)
+                        )
+                        tfValue = updated
+                        onValueChange(asciiFiltered)
+                    } else {
+                        tfValue = newValue
+                        onValueChange(newValue.text)
+                    }
+                },
+                singleLine = true,
+                enabled = isEnabled,
+                textStyle = textStyle.copy(color = contentColor),
+                keyboardOptions = keyboardOptions,
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                cursorBrush = SolidColor(Black),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+//                    .alpha(if (isFocused) 1f else 0f) // hide when not focused
+                    .offset(y = -1.dp),
+            )
+        }
+    }
+}
 
 @Composable
 fun AppBasicTextField(

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,7 +50,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -59,21 +59,29 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.CustomTextField
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.feature.profile.presentation.ProfileHeaderData
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
+import com.joyersapp.theme.DisabledTextColor
 import com.joyersapp.theme.Golden
+import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.GrayBG
+import com.joyersapp.theme.GrayBG5
+import com.joyersapp.theme.GrayInnerBorder
 import com.joyersapp.theme.GrayLightBorder
+import com.joyersapp.theme.GrayOuterBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack10
 import com.joyersapp.theme.LightBlack13
@@ -83,21 +91,29 @@ import com.joyersapp.theme.LightBlack9
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.UiText
-import com.joyersapp.utils.countBullets
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.noRippleClickable
+import com.joyersapp.utils.rememberIsKeyboardOpen
 import com.joyersapp.utils.uriToFile
 
-//@Preview
+@Preview
+@Composable
+private fun preview() {
+    EditProfileHeaderDialog(
+        viewModel = hiltViewModel()
+    )
+}
+
 @Composable
 fun EditProfileHeaderDialog(
     onDismiss: () -> Unit = {},
     onApply: (data: ProfileHeaderData) -> Unit = {},
-    viewModel: UserProfileViewModel
+    viewModel: UserProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val profileHeaderData = state.profileHeaderData
+    val isKeyboardVisible = rememberIsKeyboardOpen()
     var showProfilePlaceholder by remember { mutableStateOf(true) }
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
@@ -106,20 +122,20 @@ fun EditProfileHeaderDialog(
     var showCropDialog by remember { mutableStateOf(false) }
     var selectedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
-    
+
     // Background image preview and crop states
     var showBackgroundImagePreview by remember { mutableStateOf(false) }
     var showBackgroundCropDialog by remember { mutableStateOf(false) }
     var selectedBackgroundImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedBackgroundImagePath by remember { mutableStateOf<String?>(null) }
-    
+
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.magneticsData.profileHeaderData))
     }
 
-    BaseDialog (
+    BaseDialog(
         onDismiss = { onDismiss() },
         titles = arrayListOf("Profile Header")
 
@@ -128,7 +144,12 @@ fun EditProfileHeaderDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 35.dp)
+                .padding(
+                    start = 15.dp,
+                    end = 15.dp,
+                    top = 15.dp,
+//                    bottom = if (isKeyboardVisible) 0.dp else 35.dp
+                )
                 .background(Color.White)
                 .verticalScroll(rememberScrollState()),
         ) {
@@ -141,7 +162,7 @@ fun EditProfileHeaderDialog(
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
                 color = LightBlack,
-                modifier = Modifier.padding(bottom = 10.dp)
+                modifier = Modifier.padding(top = 5.dp, bottom = 10.dp)
             )
 
             EditableProfilePictureCard(
@@ -151,13 +172,25 @@ fun EditProfileHeaderDialog(
                     showImagePickerBottomSheetBack = true
                 },
                 onClearHeaderImage = {
-                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicture = "")))
+                    viewModel.onEvent(
+                        UserProfileEvent.UpdateProfileHeaderData(
+                            state.profileHeaderData.copy(
+                                backgroundPicture = ""
+                            )
+                        )
+                    )
                 },
                 onProfilePicturePicker = {
                     showImagePickerBottomSheet = true
                 },
                 onClearProfilePicture = {
-                    viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(profilePicture = "")))
+                    viewModel.onEvent(
+                        UserProfileEvent.UpdateProfileHeaderData(
+                            state.profileHeaderData.copy(
+                                profilePicture = ""
+                            )
+                        )
+                    )
                 }
             )
 
@@ -192,6 +225,9 @@ fun EditProfileHeaderDialog(
                 },
                 onHighlightChange = {
                     viewModel.onEvent(UserProfileEvent.OnHighlightChanged(it))
+                    if (it.text.endsWith(" @")) {
+                        viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
+                    }
                 },
                 onSelectedTabChange = {
                     viewModel.onEvent(UserProfileEvent.OnToggleBioEditor(it))
@@ -209,75 +245,40 @@ fun EditProfileHeaderDialog(
                 onValueChange = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged(it)) },
                 onClear = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged("")) }
             )
-            /*Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.height(60.dp)) {
-                Text(
-                    text = "Website",
-                    fontSize = 16.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = fontFamilyLato,
-                    color = LightBlack
-                )
-                Spacer(Modifier.width(10.dp))
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(30.dp)
-                        .clip(RoundedCornerShape(50.dp))
-                        .background(Color(0xFFF1F1F1))
-                        .padding(horizontal = 15.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    AppBasicTextField(
-                        value = "",
-                        onValueChange = {
 
-                        },
-                        placeholder = "Domain Link",
-                        modifier = Modifier
-                            .padding(bottom = 1.dp)
-                            .fillMaxWidth()
-                            .imePadding()
-                            .focusRequester(remember { FocusRequester() })
-                            .onFocusChanged { focusState ->
-
-                            },
-                        textStyle = TextStyle(
-                            fontSize = 16.sp,
-                            color = LightBlack,
-                            fontWeight = FontWeight.Normal,
-//                            textAlign = TextAlign.Center,
-                            fontFamily = fontFamilyLato
-                        ),
-                        maxLength = 45
-                    )
-                }
-            }*/
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             // ---------- APPLY BUTTON ----------
-            Button (
+            Button(
+                enabled = state.profileHeaderData.bioValidationError == null,
                 onClick = {
-                    onApply(state.profileHeaderData)
+                    if (state.profileHeaderData.bioValidationError == null) {
+                        onApply(state.profileHeaderData)
+                    }
                 },
                 modifier = Modifier
                     .width(190.dp)
                     .align(Alignment.CenterHorizontally)
                     .height(47.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Golden),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Golden,
+                    disabledContainerColor = Golden,
+                    contentColor = White,
+                    disabledContentColor = DisabledTextColor
+                ),
                 shape = RoundedCornerShape(4.dp)
             ) {
                 Text(
+                    modifier = Modifier.offset(y = -1.dp),
                     text = "Apply",
                     fontSize = 16.sp,
                     lineHeight = 19.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
-                    color = White
                 )
             }
+
+            Spacer(Modifier.height(if (isKeyboardVisible) 25.dp else 35.dp))
         }
     }
 
@@ -348,7 +349,7 @@ fun EditProfileHeaderDialog(
     CropImageDialog(
         showDialog = showCropDialog,
         imageUri = selectedProfileImageUri,
-        onDismiss = { 
+        onDismiss = {
             showCropDialog = false
             // Reopen preview dialog if we had an image selected
             if (selectedProfileImageUri != null) {
@@ -408,7 +409,13 @@ fun EditProfileHeaderDialog(
         onDelete = {
             selectedBackgroundImageUri = null
             selectedBackgroundImagePath = null
-            viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.profileHeaderData.copy(backgroundPicture = "")))
+            viewModel.onEvent(
+                UserProfileEvent.UpdateProfileHeaderData(
+                    state.profileHeaderData.copy(
+                        backgroundPicture = ""
+                    )
+                )
+            )
             showBackgroundImagePreview = false
         },
         onCrop = {
@@ -431,7 +438,7 @@ fun EditProfileHeaderDialog(
     CropBackgroundImageDialog(
         showDialog = showBackgroundCropDialog,
         imageUri = selectedBackgroundImageUri,
-        onDismiss = { 
+        onDismiss = {
             showBackgroundCropDialog = false
             // Reopen preview dialog if we had an image selected
             if (selectedBackgroundImageUri != null) {
@@ -466,11 +473,11 @@ fun EditableProfilePictureCard(
             .height(240.dp)
             .border(
                 width = 1.dp,
-                color = GrayLightBorder,
+                color = GrayOuterBorder,
                 shape = RoundedCornerShape(5.dp)
             ),
         shape = RoundedCornerShape(5.dp),
-        colors = CardDefaults.cardColors(containerColor = Gray20)
+        colors = CardDefaults.cardColors(containerColor = GrayBG5)
     ) {
 
         var showHeaderPicker by remember { mutableStateOf(false) }
@@ -498,42 +505,42 @@ fun EditableProfilePictureCard(
                 )
             } else {
                 // Header picker button
-                    Column(
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(vertical = 15.dp, horizontal = 14.97.dp)
+                        .noRippleClickable {
+                            onHeaderPicker()
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(15.dp)
-                            .noRippleClickable {
-                                onHeaderPicker()
-                            },
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .size(37.92.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, LightBlack13, CircleShape),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(37.dp)
-                                .background(Color.White, CircleShape)
-                                .border(1.dp, LightBlack13, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.camera_inside_color),
-                                contentDescription = "Edit Background",
-                                modifier = Modifier.width(20.82.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = stringResource(R.string.header),
-                            fontSize = 11.sp,
-                            fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Normal,
-                            color = LightBlack60,
-                            lineHeight = 20.sp,
-                            style = TextStyle(
-                                platformStyle = PlatformTextStyle(
-                                    includeFontPadding = false
-                                )
+                        Image(
+                            painter = painterResource(id = R.drawable.camera_inside_color),
+                            contentDescription = "Edit Background",
+                            modifier = Modifier.width(20.82.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(R.string.header),
+                        fontSize = 11.sp,
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.Normal,
+                        color = LightBlack60,
+                        lineHeight = 20.sp,
+                        style = TextStyle(
+                            platformStyle = PlatformTextStyle(
+                                includeFontPadding = false
                             )
                         )
+                    )
                 }
             }
 
@@ -631,8 +638,8 @@ fun BioEditor(
     Column() {
         Card(
             shape = RoundedCornerShape(5.dp),
-            border = BorderStroke(1.dp, if (bioValidationError == null) LightBlack10 else Red),
-            colors = CardDefaults.cardColors(containerColor = GrayBG),
+            border = BorderStroke(1.dp, if (bioValidationError == null) GrayOuterBorder else Red),
+            colors = CardDefaults.cardColors(containerColor = GrayBG5),
             modifier = Modifier.fillMaxWidth()
         ) {
 
@@ -650,13 +657,13 @@ fun BioEditor(
                     TabItem(
                         title = "Overview",
                         selected = selectedTab == "overview",
-                        enabled = (highlightText.text.isEmpty() || highlightText.text.equals("• "))
+                        enabled = true
                     ) { onSelectedTabChange("overview") }
                     VerticalDivider(color = LightBlack10)
                     TabItem(
                         title = "Highlights",
                         selected = selectedTab == "highlights",
-                        enabled = overviewText.text.isEmpty()
+                        enabled = bioValidationError == null
                     ) { onSelectedTabChange("highlights") }
                 }
 
@@ -726,6 +733,7 @@ fun TabItem(title: String, selected: Boolean, enabled: Boolean, onClick: () -> U
         contentAlignment = Alignment.Center
     ) {
         Text(
+            modifier = Modifier.offset(y = -1.dp),
             text = title,
             color = if (selected) Golden else if (enabled) LightBlack else LightBlack40,
             fontSize = 16.sp,
@@ -788,10 +796,12 @@ fun highlightWords(text: String): AnnotatedString {
 
             val isMention = word.startsWith("@")
             val isHashtag = word.startsWith("#")
-            val isUrl = word.startsWith("http") || word.startsWith("https") || word.startsWith("www")
+            val isUrl =
+                word.startsWith("http") || word.startsWith("https") || word.startsWith("www")
 
             val color = if (isMention || isHashtag || isUrl) Golden else LightBlack
-            val fontWeight = if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
+            val fontWeight =
+                if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
 
 
             withStyle(
@@ -807,6 +817,7 @@ fun highlightWords(text: String): AnnotatedString {
         }
     }
 }
+
 /*@Composable
 fun HighlightsEditor(
 ) {
@@ -849,9 +860,15 @@ fun HighlightsEditor(
         onValueChange = { newValue ->
             onChange(newValue)
         },
+        visualTransformation = { textValue ->
+            TransformedText(
+                highlightWords(textValue.text),
+                OffsetMapping.Identity
+            )
+        },
         textStyle = TextStyle(
             fontSize = 15.sp,
-            color = Color.Black
+            color = Color.Transparent
         ),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
         modifier = Modifier
@@ -861,7 +878,7 @@ fun HighlightsEditor(
             Box(
                 Modifier
                     .fillMaxSize()
-                    .padding(4.dp)
+//                    .padding(4.dp)
             ) {
                 inner()
             }
@@ -879,10 +896,9 @@ fun WebsiteTextField(
     onClear: () -> Unit
 ) {
     val lightBlackColor = LightBlack
-    val fieldOuterBg = GrayBG
+    val fieldOuterBg = GrayBG5
 
     Column {
-
 
         // Outer field container (light grey rectangle)
         Row(
@@ -890,7 +906,7 @@ fun WebsiteTextField(
                 .fillMaxWidth()
                 .height(60.dp)
                 .background(fieldOuterBg, RoundedCornerShape(5.dp))
-                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
                 .padding(15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -912,7 +928,7 @@ fun WebsiteTextField(
                     .fillMaxWidth()
                     .height(30.dp)
                     .background(Color.White, RoundedCornerShape(30.dp))
-                    .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                    .border(1.dp, GrayInnerBorder, RoundedCornerShape(50))
             ) {
                 Row(
                     modifier = Modifier
@@ -925,7 +941,8 @@ fun WebsiteTextField(
                         onValueChange = onValueChange,
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight(),
+                            .fillMaxHeight()
+                            .offset(y = -1.dp),
                         placeholder = hintText,
                         containerColor = Color.Transparent,
                         textStyle = androidx.compose.ui.text.TextStyle(

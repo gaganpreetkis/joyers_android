@@ -1014,6 +1014,7 @@ fun GenderSelectionField(
             fontWeight = FontWeight.Bold,
             color = LightBlack,
         )
+        Spacer(Modifier.height(10.dp))
 
         // Outer container (as per design)
         Box(
@@ -1409,7 +1410,24 @@ data class IdentificationData(
     var politicalIdeology: List<PoliticalIdeology>? = null,
     var location: ProfileMeta? = null,
     var children: String? = null,
-)
+
+) {
+    val dataList: HashMap<String, Any?>
+        get() = hashMapOf(
+            Pair("Name", name),
+            Pair("Birthday", birthday),
+            Pair("Gender", gender),
+            Pair("Nationality", nationality),
+            Pair("Ethnicity", ethnicity),
+            Pair("Faith", faith),
+            Pair("Language", language),
+            Pair("Education", education),
+            Pair("Relationship", relationship),
+//            Pair("Children", ""),
+            Pair("Political Ideology", politicalIdeology),
+            Pair("Joyer Location", location),
+        )
+}
 
 enum class Gender(val value: String) {
     MALE("Male"),

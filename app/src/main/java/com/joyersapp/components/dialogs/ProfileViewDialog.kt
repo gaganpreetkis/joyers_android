@@ -121,7 +121,7 @@ fun ProfileViewDialog(
 
     LaunchedEffect(listState) {
         var lastOffset = 0
-        val threshold = 2    // ⬅️ adjust sensitivity (4..12 works best)
+        val threshold = 8    // ⬅️ adjust sensitivity (4..12 works best)
 
         snapshotFlow { listState.firstVisibleItemScrollOffset }
 //            .debounce(40) // ms interval

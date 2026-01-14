@@ -27,6 +27,13 @@ val LightBlack80 = Color(0xCC333333)
 val DisabledTextColor = Color(0x99FFFFFF)
 val DividerColor30 = Color(0x4D707070)
 
+
+val GrayInnerBorder = Color(0xFFEAEAEA)
+val GrayOuterBorder = Color(0xFFEAEAEA) // 5%
+val GrayBG5 = Color(0xFFF4F4F4) // 5%
+
+
+
 val Gray80 = Color(0xCC333333)
 val Gray40 = Color(0xff858585)
 val Gray30 = Color(0xffADADAD)

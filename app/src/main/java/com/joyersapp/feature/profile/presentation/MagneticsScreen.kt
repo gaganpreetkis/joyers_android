@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -359,6 +361,25 @@ fun InterestsSection(state: MagneticsData, onClick: () -> Unit) {
 
 @Composable
 fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
+
+//    LazyColumn(
+//        Modifier
+//            .background(White)
+//            .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
+//            .noRippleClickable{ onClick() },
+//    ) {
+//        itemsIndexed(state?.dataList?.entries?.toList()!!) { key, value ->
+//
+//            when(value) {
+//                is String -> {}
+//
+//            }
+//
+//
+//        }
+//    }
+//
+//    Spacer(Modifier.height(13.dp))
     Column(
         Modifier
             .background(White)
@@ -1199,7 +1220,7 @@ data class ProfileHeaderData(
     val overviewFieldValue: TextFieldValue = TextFieldValue(""),
     val highlightFieldValue: TextFieldValue = TextFieldValue(text = "• ", selection = TextRange(2)),
     val overviewRemainingChars: Int = 150 - overviewFieldValue.text.graphemeCount(),
-    val highlightsRemainingChars: Int = 25 - highlightFieldValue.text.graphemeCount(),
+    val highlightsRemainingChars: Int = 25 - highlightFieldValue.text.substringAfterLast("• ").graphemeCount(),
     val websiteUrl: String = "",
     val bioValidationError: UiText? = null,
 

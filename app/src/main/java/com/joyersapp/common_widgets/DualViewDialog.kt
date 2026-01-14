@@ -88,6 +88,7 @@ sealed class DialogState {
     data class Titles(val items: List<Title>) : DialogState()
     data class Subtitles(val parentTitle: String?, val items: List<SubTitle>) : DialogState()
 }
+
 //@Preview
 @Composable
 fun DualViewDialog(
@@ -95,12 +96,12 @@ fun DualViewDialog(
     viewmodel: IdentityViewModel,
     dialogState: DialogState,
     onDismiss: () -> Unit = {},
-       onItemSelected: (
-           titleId: String?,
-           titleName: String?,
-           subTitleId: String?,
-           subTitleName: String?
-               ) -> Unit = { a, b, c, d -> },
+    onItemSelected: (
+        titleId: String?,
+        titleName: String?,
+        subTitleId: String?,
+        subTitleName: String?
+    ) -> Unit = { a, b, c, d -> },
 ) {
 
     val context = LocalContext.current
@@ -113,7 +114,7 @@ fun DualViewDialog(
     LaunchedEffect(Unit) {
         viewmodel.onEvent(TitleEvent.InitTitleSelection(selectedTitle))
 
-        when(dialogState) {
+        when (dialogState) {
             is DialogState.Subtitles -> viewmodel.onEvent(TitleEvent.ShowSubtitles(dialogState.items))
             is DialogState.Titles -> viewmodel.onEvent(TitleEvent.ShowTitles(dialogState.items))
         }
@@ -144,7 +145,8 @@ fun DualViewDialog(
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false
-        )) {
+        )
+    ) {
         val dialogFocusManager = LocalFocusManager.current
         val dialogModifier = Modifier
             .pointerInput(Unit) {
@@ -187,8 +189,7 @@ fun DualViewDialog(
                 .clip(RoundedCornerShape(25.dp))
                 .background(Color.White) // Ensure background captures taps
                 .dismissKeyboardOnScroll()
-                .tapToDismissKeyboard()
-            ,shape = RoundedCornerShape(25.dp),
+                .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
 
@@ -267,9 +268,11 @@ fun DualViewDialog(
             Spacer(modifier = dialogModifier.height(15.dp))
 
             // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
-            BoxWithConstraints(modifier = Modifier
-                .padding(start = 15.dp, end = 15.dp, bottom = 25.dp)
-                .heightIn(max = maxHeight)) {
+            BoxWithConstraints(
+                modifier = Modifier
+                    .padding(start = 15.dp, end = 15.dp, bottom = 25.dp)
+                    .heightIn(max = maxHeight)
+            ) {
                 // Determine the maximum height each view can take (e.g., half of available height)
 
                 var maxHeightForViews = this.maxHeight
@@ -284,623 +287,653 @@ fun DualViewDialog(
                 val listState = rememberLazyListState()
                 val coroutineScope = rememberCoroutineScope()
 
-                Column(modifier = Modifier
-                    .animateContentSize( animationSpec = tween(durationMillis = 3, delayMillis = 10))
-                    .fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .animateContentSize(
+                            animationSpec = tween(
+                                durationMillis = 3,
+                                delayMillis = 10
+                            )
+                        )
+                        .fillMaxWidth()
+                ) {
 
                     // First Scrollable
-                     LazyColumn(
-                         state = listState,
-                            modifier = Modifier.animateContentSize( animationSpec = tween(durationMillis = 3, delayMillis = 10))
-                                .weight(1f, fill = false)
-                                .fillMaxWidth()
-                        ) {
-                            item {
-                                // Search bar and buttons
-                                Row(
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .animateContentSize(
+                                animationSpec = tween(
+                                    durationMillis = 3,
+                                    delayMillis = 10
+                                )
+                            )
+                            .weight(1f, fill = false)
+                            .fillMaxWidth()
+                    ) {
+                        item {
+                            // Search bar and buttons
+                            Row(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .height(35.dp)
+                                    .padding(horizontal = 15.dp),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                // Search field with icons
+                                Box(
                                     modifier = dialogModifier
-                                        .fillMaxWidth()
+                                        .weight(1f)
                                         .height(35.dp)
-                                        .padding(horizontal = 15.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                        .clip(shape = RoundedCornerShape(35.dp))
+                                        .background(
+                                            color = Gray20,
+                                            shape = RoundedCornerShape(35.dp)
+                                        )
+                                        .border(
+                                            1.dp,
+                                            color = GrayLightBorder,
+                                            shape = RoundedCornerShape(35.dp)
+                                        )
                                 ) {
-                                    // Search field with icons
-                                    Box(
+                                    Row(
                                         modifier = dialogModifier
-                                            .weight(1f)
-                                            .height(35.dp)
-                                            .clip(shape = RoundedCornerShape(35.dp))
-                                            .background(
-                                                color = Gray20,
-                                                shape = RoundedCornerShape(35.dp)
-                                            )
-                                            .border(
-                                                1.dp,
-                                                color = GrayLightBorder,
-                                                shape = RoundedCornerShape(35.dp)
-                                            )
+                                            .fillMaxSize(),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row(
+                                        // Leading search icon - positioned to match Material3 TextField icon spacing
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_search),
+                                            contentDescription = null,
                                             modifier = dialogModifier
-                                                .fillMaxSize(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            // Leading search icon - positioned to match Material3 TextField icon spacing
+                                                .padding(start = 16.dp, end = 0.dp)
+                                                .size(17.dp),
+                                        )
+
+                                        // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
+                                        // We account for this in our layout
+                                        AppBasicTextField(
+                                            value = state.searchQuery,
+                                            onValueChange = { query ->
+                                                viewmodel.onEvent(
+                                                    TitleEvent.SearchQueryChanged(
+                                                        query
+                                                    )
+                                                )
+                                            },
+                                            placeholder = context.getString(R.string.search_speciality),
+                                            modifier = dialogModifier
+                                                .weight(1f)
+                                                .fillMaxHeight()
+                                                .padding(bottom = 1.dp),
+                                            textStyle = TextStyle(
+                                                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                                fontFamily = fontFamilyLato,
+                                                fontWeight = FontWeight.Normal,
+                                                fontSize = 16.sp
+                                            ),
+                                            containerColor = Color.Transparent,
+                                            contentColor = lightBlackColor,
+                                            placeholderColor = hintColor,
+                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                            maxLength = 100
+                                        )
+
+                                        // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
+                                        if (state.searchQuery.isNotEmpty()) {
                                             Image(
-                                                painter = painterResource(id = R.drawable.ic_search),
+                                                painter = painterResource(id = R.drawable.ic_cancel_grey),
                                                 contentDescription = null,
                                                 modifier = dialogModifier
-                                                    .padding(start = 16.dp, end = 0.dp)
-                                                    .size(17.dp),
-                                            )
-
-                                            // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
-                                            // We account for this in our layout
-                                            AppBasicTextField(
-                                                value = state.searchQuery,
-                                                onValueChange = { query ->
-                                                    viewmodel.onEvent(TitleEvent.SearchQueryChanged(query))
-                                                },
-                                                placeholder = context.getString(R.string.search_speciality),
-                                                modifier = dialogModifier
-                                                    .weight(1f)
-                                                    .fillMaxHeight()
-                                                    .padding(bottom = 1.dp),
-                                                textStyle = TextStyle(
-                                                    platformStyle = PlatformTextStyle(includeFontPadding = false),
-                                                    fontFamily = fontFamilyLato,
-                                                    fontWeight = FontWeight.Normal,
-                                                    fontSize = 16.sp
-                                                ),
-                                                containerColor = Color.Transparent,
-                                                contentColor = lightBlackColor,
-                                                placeholderColor = hintColor,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                                maxLength = 100
-                                            )
-
-                                            // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
-                                            if (state.searchQuery.isNotEmpty()) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
-                                                    contentDescription = null,
-                                                    modifier = dialogModifier
-                                                        .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
-                                                        .size(15.dp)
-                                                        .clickable {
-                                                            viewmodel.onEvent(
-                                                                TitleEvent.SearchQueryChanged(
-                                                                    ""
-                                                                )
+                                                    .padding(
+                                                        start = 10.dp,
+                                                        end = 16.dp
+                                                    ) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
+                                                    .size(15.dp)
+                                                    .clickable {
+                                                        viewmodel.onEvent(
+                                                            TitleEvent.SearchQueryChanged(
+                                                                ""
                                                             )
-                                                        }
-                                                )
-                                            } else {
-                                                // Spacer to maintain consistent padding when icon is not visible
-                                                Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
-                                            }
-                                        }
-                                    }
-
-                                    // Search/Apply button
-                                    if (state.showApply) {
-                                        Box(
-                                            modifier = Modifier
-                                                .width(70.dp)
-                                                .height(35.dp)
-                                                .clip(RoundedCornerShape(35.dp))
-                                                .background(
-                                                    color = goldenColor,
-                                                    shape = RoundedCornerShape(35.dp)
-                                                )
-                                                .clickable {
-                                                    viewmodel.onEvent(TitleEvent.ConfirmSelection)
-////                                                keyboardController?.hide()
-//                                                    onItemSelected(selectedTitleId, selectedTitleName)
-//                                                    onDismiss()
-                                                },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = context.getString(R.string.apply),
-                                                fontSize = 12.sp,
-                                                color = Color.White,
-                                                textAlign = TextAlign.Center,
-                                                fontFamily = fontFamilyLato,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(bottom = 1.dp)
+                                                        )
+                                                    }
                                             )
-                                        }
-                                    } else {
-                                        Box(
-                                            modifier = Modifier
-                                                .width(70.dp)
-                                                .height(35.dp)
-                                                .padding(0.dp)
-                                                .clip(RoundedCornerShape(35.dp))
-                                                .background(
-                                                    color = if (state.searchQuery.isEmpty()) Gray20 else whiteColor,
-                                                    shape = RoundedCornerShape(35.dp)
-                                                )
-                                                .border(
-                                                    width = 1.dp,
-                                                    color = if (state.searchQuery.isEmpty()) GrayLightBorder else goldenColor,
-                                                    shape = RoundedCornerShape(35.dp)
-                                                )
-                                                .clickable {
-                                                    keyboardController?.hide()
-                                                },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = context.getString(R.string.search),
-                                                fontSize = 12.sp,
-                                                fontWeight = FontWeight.SemiBold,
-                                                fontFamily = fontFamilyLato,
-                                                color = if (state.searchQuery.isEmpty()) lightBlackColor else goldenColor,
-                                                textAlign = TextAlign.Center,
-                                                modifier = Modifier.padding(bottom = 1.dp)
-                                            )
+                                        } else {
+                                            // Spacer to maintain consistent padding when icon is not visible
+                                            Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
                                         }
                                     }
                                 }
-                                Spacer(modifier = dialogModifier.height(20.dp))
+
+                                // Search/Apply button
+                                if (state.showApply) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(70.dp)
+                                            .height(35.dp)
+                                            .clip(RoundedCornerShape(35.dp))
+                                            .background(
+                                                color = goldenColor,
+                                                shape = RoundedCornerShape(35.dp)
+                                            )
+                                            .clickable {
+                                                viewmodel.onEvent(TitleEvent.ConfirmSelection)
+////                                                keyboardController?.hide()
+//                                                    onItemSelected(selectedTitleId, selectedTitleName)
+//                                                    onDismiss()
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = context.getString(R.string.apply),
+                                            fontSize = 12.sp,
+                                            color = Color.White,
+                                            textAlign = TextAlign.Center,
+                                            fontFamily = fontFamilyLato,
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = Modifier.padding(bottom = 1.dp)
+                                        )
+                                    }
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(70.dp)
+                                            .height(35.dp)
+                                            .padding(0.dp)
+                                            .clip(RoundedCornerShape(35.dp))
+                                            .background(
+                                                color = if (state.searchQuery.isEmpty()) Gray20 else whiteColor,
+                                                shape = RoundedCornerShape(35.dp)
+                                            )
+                                            .border(
+                                                width = 1.dp,
+                                                color = if (state.searchQuery.isEmpty()) GrayLightBorder else goldenColor,
+                                                shape = RoundedCornerShape(35.dp)
+                                            )
+                                            .clickable {
+                                                keyboardController?.hide()
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = context.getString(R.string.search),
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontFamily = fontFamilyLato,
+                                            color = if (state.searchQuery.isEmpty()) lightBlackColor else goldenColor,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.padding(bottom = 1.dp)
+                                        )
+                                    }
+                                }
                             }
-                            val items =
+                            Spacer(modifier = dialogModifier.height(20.dp))
+                        }
+                        val items =
                             when (state.dialogState) {
                                 is DialogState.Subtitles -> state.reorderedSubtitles
                                 is DialogState.Titles -> state.reorderedTitles
                             }
-                            if (items.isEmpty()) {
-                                item {
-                                    Box(
-                                        modifier = dialogModifier
-                                            .fillMaxWidth(),
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.no_results_found),
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontFamily = fontFamilyLato,
-                                            textAlign = TextAlign.Center,
-                                            color = lightBlackColor,
-                                            lineHeight = 22.sp,
-                                            modifier = dialogModifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    top = if (isKeyBoardOpen) 95.dp else 35.dp,
-                                                    bottom = if (isKeyBoardOpen) 0.dp else 69.dp
-                                                )
-                                        )
-                                    }
-                                }
-                            } else {
-                                when(state.dialogState) {
-                                    is DialogState.Subtitles -> {
-                                        itemsIndexed(state.reorderedSubtitles) { index, subtitle ->
-                                            val isFirst = index == 0
-                                            val isLast = index == state.reorderedSubtitles.lastIndex
-                                            SubtitleItem(
-                                                isFirstItem = isFirst,
-                                                isLastItem = isLast,
-                                                modifier = Modifier,
-                                                subtitle = subtitle,
-                                                isSelected = state.selectedSubTitleId == subtitle.id,
-                                                onClick = {
-                                                    coroutineScope.launch {
-                                                        listState.animateScrollToItem(0)
-                                                    }
-                                                    viewmodel.onEvent(TitleEvent.SubtitleClicked(subtitle))
-                                                }
-                                            )
-                                        }
-                                    }
-                                    is DialogState.Titles -> {
-                                        itemsIndexed(state.reorderedTitles) { index, title ->
-                                            val isFirst = index == 0
-                                            val isLast = index == items.lastIndex
-                                            TitleItem(
-                                                isFirstItem = isFirst,
-                                                isLastItem = isLast,
-                                                title = title,
-                                                isSelected = state.selectedTitleId == title.id,
-                                                onClick = {
-                                                    coroutineScope.launch {
-                                                        listState.animateScrollToItem(0)
-                                                    }
-                                                    viewmodel.onEvent(TitleEvent.TitleClicked(title))
-                                                    keyboardController?.hide()
-                                                },
-                                                modifier = Modifier
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        val clarificationItems =
-                            when (state.dialogState) {
-                                is DialogState.Subtitles -> state.classificationSubtitles
-                                is DialogState.Titles -> state.classificationTitles
-                            }
-                        if (clarificationItems.isNotEmpty()) {
-                            Spacer(modifier = dialogModifier.height(20.dp))
-                            DashedLine(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 0.dp),
-                            )
-
-                            Spacer(modifier = dialogModifier.height(15.dp))
-
-                            Row(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 0.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
+                        if (items.isEmpty()) {
+                            item {
+                                Box(
                                     modifier = dialogModifier
+                                        .fillMaxWidth(),
                                 ) {
-                                    if (!state.isExpanded) {
-                                        Text(
-                                            text = context.getString(R.string.strik_right_space),
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Black,
-                                            fontFamily = fontFamilyLato,
-                                            color = goldenColor
-                                        )
-                                        Spacer(modifier = Modifier.width(0.dp))
-                                    }
                                     Text(
-                                        text = context.getString(R.string.clarifications),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        text = context.getString(R.string.no_results_found),
+                                        fontSize = 24.sp,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontFamily = fontFamilyLato,
+                                        textAlign = TextAlign.Center,
                                         color = lightBlackColor,
-                                        modifier = dialogModifier
-                                    )
-                                }
-                                Text(
-                                    text = if (state.isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = fontFamilyLato,
-                                    color = goldenColor,
-                                    modifier = dialogModifier.clickable {
-                                        dialogFocusManager.clearFocus()
-                                        viewmodel.onEvent(TitleEvent.ExpandClassifications(state.isExpanded))
-                                    }
-                                )
-                            }
-
-                            // Second scrollable
-                            if (clarificationItems.isNotEmpty() && state.isExpanded) {
-                                Spacer(Modifier.height(15.dp))
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .heightIn(
-                                            min = 0.dp,
-                                            max = maxHeightForSubTitles
-                                        )// Distributes remaining space equally with View 1
-                                ) {
-                                    when (state.dialogState) {
-                                        is DialogState.Subtitles -> {
-                                            itemsIndexed(state.classificationSubtitles) { index, title ->
-                                                // Scrollable only, no onClick
-                                                val isLast = index == state.classificationSubtitles.lastIndex
-                                                ClassificationItem(
-                                                    isLastItem = isLast,
-                                                    title = title.name ?: "",
-                                                    description = title.description
-                                                        ?: "",
-                                                    modifier = Modifier
-                                                )
-                                            }
-                                        }
-                                        is DialogState.Titles -> {
-                                            itemsIndexed(state.classificationTitles) { index, title ->
-                                                val isLast = index == state.classificationTitles.lastIndex
-                                                ClassificationItem(
-                                                    isLastItem = isLast,
-                                                    title = title.name ?: "",
-                                                    description = title.description
-                                                        ?: "",
-                                                    modifier = Modifier
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                  /*  } else {
-
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = maxHeightForViews)
-                        ) {
-                            item{
-                                // Search bar and buttons
-                                Row(
-                                    modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        .height(35.dp)
-                                        .padding(horizontal = 15.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    // Search field with icons
-                                    Box(
-                                        modifier = dialogModifier
-                                            .weight(1f)
-                                            .height(35.dp)
-                                            .clip(shape = RoundedCornerShape(35.dp))
-                                            .background(
-                                                color = Gray20,
-                                                shape = RoundedCornerShape(35.dp)
-                                            )
-                                            .border(
-                                                1.dp,
-                                                color = GrayLightBorder,
-                                                shape = RoundedCornerShape(35.dp)
-                                            )
-                                    ) {
-                                        Row(
-                                            modifier = dialogModifier
-                                                .fillMaxSize(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            // Leading search icon - positioned to match Material3 TextField icon spacing
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_search),
-                                                contentDescription = null,
-                                                modifier = dialogModifier
-                                                    .padding(start = 16.dp, end = 0.dp)
-                                                    .size(17.dp),
-                                                colorFilter = ColorFilter.tint(Gray80)
-                                            )
-
-                                            // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
-                                            // We account for this in our layout
-                                            AppBasicTextField(
-                                                value = state.searchQuery,
-                                                onValueChange = { query ->
-                                                    viewmodel.onEvent(TitleEvent.SearchQueryChanged(query))
-                                                },
-                                                placeholder = context.getString(R.string.search_speciality),
-                                                modifier = dialogModifier
-                                                    .weight(1f)
-                                                    .fillMaxHeight(),
-                                                textStyle = TextStyle(
-                                                    platformStyle = PlatformTextStyle(includeFontPadding = false),
-                                                    fontFamily = fontFamilyLato,
-                                                    fontWeight = FontWeight.Normal,
-                                                    fontSize = 16.sp
-                                                ),
-                                                containerColor = Color.Transparent,
-                                                contentColor = lightBlackColor,
-                                                placeholderColor = hintColor,
-                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                                maxLength = 100
-                                            )
-
-                                            // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
-                                            if (state.searchQuery.isNotEmpty()) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.ic_cancel_grey),
-                                                    contentDescription = null,
-                                                    modifier = dialogModifier
-                                                        .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
-                                                        .size(15.dp)
-                                                        .clickable {
-                                                            viewmodel.onEvent(
-                                                                TitleEvent.SearchQueryChanged(
-                                                                    ""
-                                                                )
-                                                            )
-                                                        }
-                                                )
-                                            } else {
-                                                // Spacer to maintain consistent padding when icon is not visible
-                                                Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
-                                            }
-                                        }
-                                    }
-
-                                    // Search/Apply button
-                                    if (state.showApply) {
-                                        Box(
-                                            modifier = Modifier
-                                                .width(70.dp)
-                                                .height(35.dp)
-                                                .clip(RoundedCornerShape(35.dp))
-                                                .background(
-                                                    color = goldenColor,
-                                                    shape = RoundedCornerShape(35.dp)
-                                                )
-                                                .clickable {
-                                                    viewmodel.onEvent(TitleEvent.ConfirmSelection)
-////                                                keyboardController?.hide()
-//                                                    onItemSelected(selectedTitleId, selectedTitleName)
-//                                                    onDismiss()
-                                                },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = context.getString(R.string.apply),
-                                                fontSize = 12.sp,
-                                                color = Color.White,
-                                                textAlign = TextAlign.Center,
-                                                fontFamily = fontFamilyLato,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier
-                                            )
-                                        }
-                                    } else {
-                                        Box(
-                                            modifier = Modifier
-                                                .width(70.dp)
-                                                .height(35.dp)
-                                                .padding(0.dp)
-                                                .clip(RoundedCornerShape(35.dp))
-                                                .background(
-                                                    color = if (state.searchQuery.isEmpty()) Gray20 else whiteColor,
-                                                    shape = RoundedCornerShape(35.dp)
-                                                )
-                                                .border(
-                                                    width = 1.dp,
-                                                    color = if (state.searchQuery.isEmpty()) GrayLightBorder else goldenColor,
-                                                    shape = RoundedCornerShape(35.dp)
-                                                )
-                                                .clickable {
-                                                    keyboardController?.hide()
-                                                },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = context.getString(R.string.search),
-                                                fontSize = 12.sp,
-                                                fontWeight = FontWeight.SemiBold,
-                                                fontFamily = fontFamilyLato,
-                                                color = if (state.searchQuery.isEmpty()) lightBlackColor else goldenColor,
-                                                textAlign = TextAlign.Center,
-                                                modifier = Modifier
-                                            )
-                                        }
-                                    }
-                                }
-                                Spacer(modifier = dialogModifier.height(20.dp))
-                            }
-                            if (state.reorderedTitles.isEmpty() && state.searchQuery.isNotEmpty()) {
-                                item {
-                                    Box(
+                                        lineHeight = 22.sp,
                                         modifier = dialogModifier
                                             .fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.no_results_found),
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontFamily = fontFamilyLato,
-                                            textAlign = TextAlign.Center,
-                                            color = lightBlackColor,
-                                            modifier = dialogModifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    top = if (isKeyBoardOpen) 90.dp else 30.dp,
-                                                    bottom = if (isKeyBoardOpen) 0.dp else 74.dp
-                                                )
-                                        )
-                                    }
-                                }
-                            } else {
-                                itemsIndexed(state.reorderedTitles) { index, title ->
-                                    val isFirst = index == 0
-                                    val isLast = index == state.reorderedTitles.lastIndex
-                                    TitleItem(
-                                        isFirstItem = isFirst,
-                                        isLastItem = isLast,
-                                        title = title,
-                                        isSelected = state.selectedTitleId == title.id,
-                                        onClick = {
-                                            viewmodel.onEvent(TitleEvent.TitleClicked(title))
-                                            keyboardController?.hide()
-                                        },
-                                        modifier = Modifier
+                                            .padding(
+                                                top = if (isKeyBoardOpen) 95.dp else 35.dp,
+                                                bottom = if (isKeyBoardOpen) 0.dp else 69.dp
+                                            )
                                     )
                                 }
                             }
-                        }
-
-                        if (state.classificationTitles.isNotEmpty()) {
-                            Spacer(modifier = dialogModifier.height(20.dp))
-                            DashedLine(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    //.height(3.dp)
-                                    .padding(horizontal = 0.dp),
-                                //strokeWidth = 3f
-                            )
-
-                            Spacer(dialogModifier.height(15.dp))
-
-                            Row(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 0.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = dialogModifier
-                                ) {
-                                    if (!state.isExpanded) {
-
-                                        Text(
-                                            text = context.getString(R.string.strik_right_space),
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Black,
-                                            fontFamily = fontFamilyLato,
-                                            color = goldenColor
-                                        )
-                                        Spacer(modifier = Modifier.width(1.dp))
-                                    }
-
-                                    Text(
-                                        text = context.getString(R.string.clarifications),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = fontFamilyLato,
-                                        color = lightBlackColor,
-                                        modifier = dialogModifier
-                                    )
-                                }
-                                Text(
-                                    text = if (state.isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = fontFamilyLato,
-                                    color = goldenColor,
-                                    modifier = dialogModifier.clickable {
-                                        dialogFocusManager.clearFocus()
-                                        viewmodel.onEvent(TitleEvent.ExpandClassifications(state.isExpanded))
-                                    }
-                                )
-                            }
-
-                            // View 2: Scrollable Only
-                            // This view dynamically matches the height logic of View 1
-
-                            if (state.classificationTitles.isNotEmpty() && state.isExpanded) {
-                                Spacer(dialogModifier.height(15.dp))
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .heightIn(
-                                            min = 0.dp,
-                                            max = maxHeightForViews
-                                        ) // Distributes remaining space equally with View 1
-                                ) {
-                                    itemsIndexed(state.classificationTitles) { index, title ->
-                                        val isLast = index == state.classificationTitles.lastIndex
-                                        ClassificationItem(
+                        } else {
+                            when (state.dialogState) {
+                                is DialogState.Subtitles -> {
+                                    itemsIndexed(state.reorderedSubtitles) { index, subtitle ->
+                                        val isFirst = index == 0
+                                        val isLast = index == state.reorderedSubtitles.lastIndex
+                                        SubtitleItem(
+                                            isFirstItem = isFirst,
                                             isLastItem = isLast,
-                                            title = title.name ?: "",
-                                            description = title.description
-                                                ?: "",
+                                            modifier = Modifier,
+                                            subtitle = subtitle,
+                                            isSelected = state.selectedSubTitleId == subtitle.id,
+                                            onClick = {
+                                                coroutineScope.launch {
+                                                    listState.animateScrollToItem(0)
+                                                }
+                                                viewmodel.onEvent(
+                                                    TitleEvent.SubtitleClicked(
+                                                        subtitle
+                                                    )
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+
+                                is DialogState.Titles -> {
+                                    itemsIndexed(state.reorderedTitles) { index, title ->
+                                        val isFirst = index == 0
+                                        val isLast = index == items.lastIndex
+                                        TitleItem(
+                                            isFirstItem = isFirst,
+                                            isLastItem = isLast,
+                                            title = title,
+                                            isSelected = state.selectedTitleId == title.id,
+                                            onClick = {
+                                                coroutineScope.launch {
+                                                    listState.animateScrollToItem(0)
+                                                }
+                                                viewmodel.onEvent(TitleEvent.TitleClicked(title))
+                                                keyboardController?.hide()
+                                            },
                                             modifier = Modifier
                                         )
-                                        //Spacer(modifier = Modifier.height(2.dp))
                                     }
                                 }
                             }
                         }
-//                        } ********
-                    }*/
+                    }
+
+                    val clarificationItems =
+                        when (state.dialogState) {
+                            is DialogState.Subtitles -> state.classificationSubtitles
+                            is DialogState.Titles -> state.classificationTitles
+                        }
+                    if (clarificationItems.isNotEmpty()) {
+                        Spacer(modifier = dialogModifier.height(20.dp))
+                        DashedLine(
+                            modifier = dialogModifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 0.dp),
+                        )
+
+                        Spacer(modifier = dialogModifier.height(15.dp))
+
+                        Row(
+                            modifier = dialogModifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 0.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = dialogModifier
+                            ) {
+                                if (!state.isExpanded) {
+                                    Text(
+                                        text = context.getString(R.string.strik_right_space),
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Black,
+                                        fontFamily = fontFamilyLato,
+                                        color = goldenColor
+                                    )
+                                    Spacer(modifier = Modifier.width(0.dp))
+                                }
+                                Text(
+                                    text = context.getString(R.string.clarifications),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = fontFamilyLato,
+                                    color = lightBlackColor,
+                                    modifier = dialogModifier
+                                )
+                            }
+                            Text(
+                                text = if (state.isExpanded) context.getString(R.string.hide) else context.getString(
+                                    R.string.show
+                                ),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = fontFamilyLato,
+                                color = goldenColor,
+                                modifier = dialogModifier.clickable {
+                                    dialogFocusManager.clearFocus()
+                                    viewmodel.onEvent(TitleEvent.ExpandClassifications(state.isExpanded))
+                                }
+                            )
+                        }
+
+                        // Second scrollable
+                        if (clarificationItems.isNotEmpty() && state.isExpanded) {
+                            Spacer(Modifier.height(15.dp))
+                            LazyColumn(
+                                modifier = Modifier
+                                    .heightIn(
+                                        min = 0.dp,
+                                        max = maxHeightForSubTitles
+                                    )// Distributes remaining space equally with View 1
+                            ) {
+                                when (state.dialogState) {
+                                    is DialogState.Subtitles -> {
+                                        itemsIndexed(state.classificationSubtitles) { index, title ->
+                                            // Scrollable only, no onClick
+                                            val isLast =
+                                                index == state.classificationSubtitles.lastIndex
+                                            ClassificationItem(
+                                                isLastItem = isLast,
+                                                title = title.name ?: "",
+                                                description = title.description
+                                                    ?: "",
+                                                modifier = Modifier
+                                            )
+                                        }
+                                    }
+
+                                    is DialogState.Titles -> {
+                                        itemsIndexed(state.classificationTitles) { index, title ->
+                                            val isLast =
+                                                index == state.classificationTitles.lastIndex
+                                            ClassificationItem(
+                                                isLastItem = isLast,
+                                                title = title.name ?: "",
+                                                description = title.description
+                                                    ?: "",
+                                                modifier = Modifier
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    /*  } else {
+
+                          LazyColumn(
+                              modifier = Modifier
+                                  .fillMaxWidth()
+                                  .heightIn(max = maxHeightForViews)
+                          ) {
+                              item{
+                                  // Search bar and buttons
+                                  Row(
+                                      modifier = dialogModifier
+                                          .fillMaxWidth()
+                                          .height(35.dp)
+                                          .padding(horizontal = 15.dp),
+                                      horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                  ) {
+                                      // Search field with icons
+                                      Box(
+                                          modifier = dialogModifier
+                                              .weight(1f)
+                                              .height(35.dp)
+                                              .clip(shape = RoundedCornerShape(35.dp))
+                                              .background(
+                                                  color = Gray20,
+                                                  shape = RoundedCornerShape(35.dp)
+                                              )
+                                              .border(
+                                                  1.dp,
+                                                  color = GrayLightBorder,
+                                                  shape = RoundedCornerShape(35.dp)
+                                              )
+                                      ) {
+                                          Row(
+                                              modifier = dialogModifier
+                                                  .fillMaxSize(),
+                                              verticalAlignment = Alignment.CenterVertically
+                                          ) {
+                                              // Leading search icon - positioned to match Material3 TextField icon spacing
+                                              Image(
+                                                  painter = painterResource(id = R.drawable.ic_search),
+                                                  contentDescription = null,
+                                                  modifier = dialogModifier
+                                                      .padding(start = 16.dp, end = 0.dp)
+                                                      .size(17.dp),
+                                                  colorFilter = ColorFilter.tint(Gray80)
+                                              )
+
+                                              // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
+                                              // We account for this in our layout
+                                              AppBasicTextField(
+                                                  value = state.searchQuery,
+                                                  onValueChange = { query ->
+                                                      viewmodel.onEvent(TitleEvent.SearchQueryChanged(query))
+                                                  },
+                                                  placeholder = context.getString(R.string.search_speciality),
+                                                  modifier = dialogModifier
+                                                      .weight(1f)
+                                                      .fillMaxHeight(),
+                                                  textStyle = TextStyle(
+                                                      platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                                      fontFamily = fontFamilyLato,
+                                                      fontWeight = FontWeight.Normal,
+                                                      fontSize = 16.sp
+                                                  ),
+                                                  containerColor = Color.Transparent,
+                                                  contentColor = lightBlackColor,
+                                                  placeholderColor = hintColor,
+                                                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                                  maxLength = 100
+                                              )
+
+                                              // Trailing cancel icon (conditional) - account for AppBasicTextField's 2.dp end padding
+                                              if (state.searchQuery.isNotEmpty()) {
+                                                  Image(
+                                                      painter = painterResource(id = R.drawable.ic_cancel_grey),
+                                                      contentDescription = null,
+                                                      modifier = dialogModifier
+                                                          .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
+                                                          .size(15.dp)
+                                                          .clickable {
+                                                              viewmodel.onEvent(
+                                                                  TitleEvent.SearchQueryChanged(
+                                                                      ""
+                                                                  )
+                                                              )
+                                                          }
+                                                  )
+                                              } else {
+                                                  // Spacer to maintain consistent padding when icon is not visible
+                                                  Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
+                                              }
+                                          }
+                                      }
+
+                                      // Search/Apply button
+                                      if (state.showApply) {
+                                          Box(
+                                              modifier = Modifier
+                                                  .width(70.dp)
+                                                  .height(35.dp)
+                                                  .clip(RoundedCornerShape(35.dp))
+                                                  .background(
+                                                      color = goldenColor,
+                                                      shape = RoundedCornerShape(35.dp)
+                                                  )
+                                                  .clickable {
+                                                      viewmodel.onEvent(TitleEvent.ConfirmSelection)
+  ////                                                keyboardController?.hide()
+  //                                                    onItemSelected(selectedTitleId, selectedTitleName)
+  //                                                    onDismiss()
+                                                  },
+                                              contentAlignment = Alignment.Center
+                                          ) {
+                                              Text(
+                                                  text = context.getString(R.string.apply),
+                                                  fontSize = 12.sp,
+                                                  color = Color.White,
+                                                  textAlign = TextAlign.Center,
+                                                  fontFamily = fontFamilyLato,
+                                                  fontWeight = FontWeight.SemiBold,
+                                                  modifier = Modifier
+                                              )
+                                          }
+                                      } else {
+                                          Box(
+                                              modifier = Modifier
+                                                  .width(70.dp)
+                                                  .height(35.dp)
+                                                  .padding(0.dp)
+                                                  .clip(RoundedCornerShape(35.dp))
+                                                  .background(
+                                                      color = if (state.searchQuery.isEmpty()) Gray20 else whiteColor,
+                                                      shape = RoundedCornerShape(35.dp)
+                                                  )
+                                                  .border(
+                                                      width = 1.dp,
+                                                      color = if (state.searchQuery.isEmpty()) GrayLightBorder else goldenColor,
+                                                      shape = RoundedCornerShape(35.dp)
+                                                  )
+                                                  .clickable {
+                                                      keyboardController?.hide()
+                                                  },
+                                              contentAlignment = Alignment.Center
+                                          ) {
+                                              Text(
+                                                  text = context.getString(R.string.search),
+                                                  fontSize = 12.sp,
+                                                  fontWeight = FontWeight.SemiBold,
+                                                  fontFamily = fontFamilyLato,
+                                                  color = if (state.searchQuery.isEmpty()) lightBlackColor else goldenColor,
+                                                  textAlign = TextAlign.Center,
+                                                  modifier = Modifier
+                                              )
+                                          }
+                                      }
+                                  }
+                                  Spacer(modifier = dialogModifier.height(20.dp))
+                              }
+                              if (state.reorderedTitles.isEmpty() && state.searchQuery.isNotEmpty()) {
+                                  item {
+                                      Box(
+                                          modifier = dialogModifier
+                                              .fillMaxWidth()
+                                      ) {
+                                          Text(
+                                              text = context.getString(R.string.no_results_found),
+                                              fontSize = 24.sp,
+                                              fontWeight = FontWeight.SemiBold,
+                                              fontFamily = fontFamilyLato,
+                                              textAlign = TextAlign.Center,
+                                              color = lightBlackColor,
+                                              modifier = dialogModifier
+                                                  .fillMaxWidth()
+                                                  .padding(
+                                                      top = if (isKeyBoardOpen) 90.dp else 30.dp,
+                                                      bottom = if (isKeyBoardOpen) 0.dp else 74.dp
+                                                  )
+                                          )
+                                      }
+                                  }
+                              } else {
+                                  itemsIndexed(state.reorderedTitles) { index, title ->
+                                      val isFirst = index == 0
+                                      val isLast = index == state.reorderedTitles.lastIndex
+                                      TitleItem(
+                                          isFirstItem = isFirst,
+                                          isLastItem = isLast,
+                                          title = title,
+                                          isSelected = state.selectedTitleId == title.id,
+                                          onClick = {
+                                              viewmodel.onEvent(TitleEvent.TitleClicked(title))
+                                              keyboardController?.hide()
+                                          },
+                                          modifier = Modifier
+                                      )
+                                  }
+                              }
+                          }
+
+                          if (state.classificationTitles.isNotEmpty()) {
+                              Spacer(modifier = dialogModifier.height(20.dp))
+                              DashedLine(
+                                  modifier = dialogModifier
+                                      .fillMaxWidth()
+                                      //.height(3.dp)
+                                      .padding(horizontal = 0.dp),
+                                  //strokeWidth = 3f
+                              )
+
+                              Spacer(dialogModifier.height(15.dp))
+
+                              Row(
+                                  modifier = dialogModifier
+                                      .fillMaxWidth()
+                                      .padding(horizontal = 0.dp),
+                                  horizontalArrangement = Arrangement.SpaceBetween,
+                                  verticalAlignment = Alignment.CenterVertically
+                              ) {
+                                  Row(
+                                      verticalAlignment = Alignment.CenterVertically,
+                                      modifier = dialogModifier
+                                  ) {
+                                      if (!state.isExpanded) {
+
+                                          Text(
+                                              text = context.getString(R.string.strik_right_space),
+                                              fontSize = 20.sp,
+                                              fontWeight = FontWeight.Black,
+                                              fontFamily = fontFamilyLato,
+                                              color = goldenColor
+                                          )
+                                          Spacer(modifier = Modifier.width(1.dp))
+                                      }
+
+                                      Text(
+                                          text = context.getString(R.string.clarifications),
+                                          fontSize = 16.sp,
+                                          fontWeight = FontWeight.Bold,
+                                          fontFamily = fontFamilyLato,
+                                          color = lightBlackColor,
+                                          modifier = dialogModifier
+                                      )
+                                  }
+                                  Text(
+                                      text = if (state.isExpanded) context.getString(R.string.hide) else context.getString(R.string.show),
+                                      fontSize = 12.sp,
+                                      fontWeight = FontWeight.Bold,
+                                      fontFamily = fontFamilyLato,
+                                      color = goldenColor,
+                                      modifier = dialogModifier.clickable {
+                                          dialogFocusManager.clearFocus()
+                                          viewmodel.onEvent(TitleEvent.ExpandClassifications(state.isExpanded))
+                                      }
+                                  )
+                              }
+
+                              // View 2: Scrollable Only
+                              // This view dynamically matches the height logic of View 1
+
+                              if (state.classificationTitles.isNotEmpty() && state.isExpanded) {
+                                  Spacer(dialogModifier.height(15.dp))
+                                  LazyColumn(
+                                      modifier = Modifier
+                                          .heightIn(
+                                              min = 0.dp,
+                                              max = maxHeightForViews
+                                          ) // Distributes remaining space equally with View 1
+                                  ) {
+                                      itemsIndexed(state.classificationTitles) { index, title ->
+                                          val isLast = index == state.classificationTitles.lastIndex
+                                          ClassificationItem(
+                                              isLastItem = isLast,
+                                              title = title.name ?: "",
+                                              description = title.description
+                                                  ?: "",
+                                              modifier = Modifier
+                                          )
+                                          //Spacer(modifier = Modifier.height(2.dp))
+                                      }
+                                  }
+                              }
+                          }
+  //                        } ********
+                      }*/
                 }
             }
         }
@@ -908,7 +941,6 @@ fun DualViewDialog(
 }
 
 // 2. Modifier to dismiss keyboard on tap (from previous answer)
-
 
 
 @Composable
@@ -940,7 +972,7 @@ fun TitleItem(
             //modifier = Modifier.weight(1f)
         )
         if (!title.subTitles.isNullOrEmpty()) {
-            Spacer( modifier = modifier.width(3.dp))
+            Spacer(modifier = modifier.width(3.dp))
             Image(
                 painter = painterResource(id = R.drawable.arrowdown_lite),
                 contentDescription = null,
@@ -948,7 +980,7 @@ fun TitleItem(
             )
         }
         if (!title.description.isNullOrEmpty()) {
-            Spacer( modifier = modifier.width(3.dp))
+            Spacer(modifier = modifier.width(3.dp))
             Text(
                 text = context.getString(R.string.strik_right_space),
                 fontSize = 20.sp,
@@ -988,7 +1020,7 @@ fun SubtitleItem(
             //modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
         )
         if (!subtitle.description.isNullOrEmpty()) {
-            Spacer( modifier = modifier.width(3.dp))
+            Spacer(modifier = modifier.width(3.dp))
             Text(
                 text = context.getString(R.string.strik_right_space),
                 fontSize = 20.sp,
@@ -1009,10 +1041,12 @@ fun ClassificationItem(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    Row( modifier = modifier
+    Row(
+        modifier = modifier
 
     ) {
-        Text(text = "•",
+        Text(
+            text = "•",
             modifier = modifier.padding(end = 4.dp),
             color = LightBlack,
             fontSize = 18.sp,

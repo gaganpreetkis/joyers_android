@@ -132,7 +132,7 @@ fun BaseDialog(
             Row(
                 modifier = dialogModifier
                     .fillMaxWidth()
-                    .padding(top = 16.7.dp, start = 18.dp, end = 23.dp),
+                    .padding(top = 18.dp, start = 18.dp, end = 23.04.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 // Back button (only visible in subtitle mode)
@@ -156,6 +156,7 @@ fun BaseDialog(
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         color = lightBlackColor,
+                        lineHeight = 29.sp,
                         modifier = dialogModifier.padding(top = 0.dp)
                     )
                 } else {

@@ -587,10 +587,11 @@ class UserProfileViewModel @Inject constructor(
                 // Default bullet prefix
                 val bullet = "• "
                 val bulletLine = "\n$bullet"
-                val lastLine = newText.substringAfterLast(bulletLine)
+                var lastLine = newText.substringAfterLast(bulletLine)
 
                 // Helper function to apply result
                 fun update(newStr: String) {
+                    lastLine = newStr.substringAfterLast(bullet)
                     _uiState.update {
                         it.copy(
                             profileHeaderData = it.profileHeaderData.copy(
@@ -895,7 +896,7 @@ class UserProfileViewModel @Inject constructor(
                     } else {
                         val bio = profileHeaderData.highlightFieldValue.text + selectedUsers
                         onEvent(
-                            UserProfileEvent.OnOverviewChanged(
+                            UserProfileEvent.OnHighlightChanged(
                                 TextFieldValue(
                                     text = bio,
                                     selection = TextRange(bio.length)
