@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -89,16 +90,6 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    //var username by remember { mutableStateOf("") }
-    //var password by remember { mutableStateOf("") }
-    //val passwordVisible = remember { mutableStateOf(false) }
-    //var emailPhoneError by remember { mutableStateOf(false) }
-    //var passwordError by remember { mutableStateOf(false) }
-    //val isPhoneMode = remember { mutableStateOf(false) }
-    //var showSocialDialog by remember { mutableStateOf(false) }
-    //var selectedCountryCode by remember { mutableStateOf("+1") }
-    //var selectedCountryNameCode by remember { mutableStateOf("US") }
-    //var rememberMe by remember { mutableStateOf(false) }
     var isKeyboardVisible by remember { mutableStateOf(false) }
     var logoSize by remember { mutableStateOf(155.dp to 59.dp) }
     var viewHeight by remember { mutableStateOf(45.dp) }
@@ -183,6 +174,7 @@ fun LoginScreen(
         Text(
             text = "Login",
             fontSize = 18.sp,
+            lineHeight = 22.sp,
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.SemiBold,
             color = LightBlack
@@ -416,7 +408,7 @@ fun LoginScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(16.dp)
+                        .height(17.dp)
                         .padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -443,7 +435,7 @@ fun LoginScreen(
                             fontWeight = FontWeight.Normal,
                             fontSize = 12.sp,
                             color = LightBlack60,
-                            lineHeight = 12.sp,
+                            lineHeight = 17.sp,
                         )
                     }
 
@@ -455,7 +447,7 @@ fun LoginScreen(
                         color = Golden,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
-                        lineHeight = 12.sp,
+                        lineHeight = 15.sp,
                         modifier = Modifier.clickable {
                             viewModel.onEvent(LoginEvent.UsernameChanged(""))
                             viewModel.onEvent(LoginEvent.PasswordChanged(""))
@@ -509,7 +501,7 @@ fun LoginScreen(
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
                         lineHeight = 19.sp,
-                        modifier = Modifier.padding(bottom = 1.dp)
+                        modifier = Modifier.offset(y = -1.dp)
                     )
                 }
 
@@ -519,6 +511,7 @@ fun LoginScreen(
                 Text(
                     text = "Or",
                     fontSize = 16.sp,
+                    lineHeight = 23.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Normal,
                     color = LightBlack60,
@@ -546,7 +539,7 @@ fun LoginScreen(
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 1.dp)
+                        modifier = Modifier.offset(y = -1.dp)
                     )
 
                     Spacer(modifier = Modifier.width(7.dp))
@@ -555,7 +548,7 @@ fun LoginScreen(
                         painter = painterResource(id = R.drawable.icon_awesome_caret_down),
                         contentDescription = null,
                         modifier = Modifier
-                            .width(12.dp)
+                            .width(10.dp)
                             .padding(top = 1.dp)
                     )
                 }
@@ -566,15 +559,17 @@ fun LoginScreen(
                 Text(
                     text = "A New Joyer?",
                     fontSize = 12.sp,
+                    lineHeight = 17.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Normal,
                     color = LightBlack60,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
-
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Sign Up",
                     fontSize = 16.sp,
+                    lineHeight = 19.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Bold,
                     color = Golden,

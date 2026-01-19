@@ -284,7 +284,7 @@ fun CropImageDialog(
                         modifier = Modifier
                             .offset(y = (-31).dp) // 31px up from center
                             .size(screenWidth - 40.dp)
-                            .clip(CircleShape)
+//                            .clip(CircleShape)
                     ) {
 
                         // Full image area with pan and zoom
@@ -318,9 +318,9 @@ fun CropImageDialog(
                                 // Image clipped to circle only (20dp vertical area)
                                 Box(
                                     modifier = Modifier
-                                        .size(cropSize)
+                                        .size(screenWidth)
                                         .align(Alignment.Center)
-                                        .clip(CircleShape)
+                                        .clip(RoundedCornerShape(0.dp))
                                 ) {
                                     Image(
                                         bitmap = bmp,
