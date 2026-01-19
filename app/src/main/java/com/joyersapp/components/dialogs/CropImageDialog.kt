@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,6 +52,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import com.joyersapp.R
+import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -269,9 +271,8 @@ fun CropImageDialog(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .offset(y = (-55).dp), // 55px up from center
+                        .fillMaxSize()
+                        .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
                     val screenWidth = with(density) { configuration.screenWidthDp.dp }
@@ -279,130 +280,144 @@ fun CropImageDialog(
                     val cropSizePx = with(density) { cropSize.toPx() }
                     val cropRadius = cropSizePx / 2f
 
-                    // Full image area with pan and zoom
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .pointerInput(Unit) {
-                                detectTransformGestures { _, pan, zoom, _ ->
-                                    val newScale = (scale * zoom).coerceIn(1f, 5f)
-                                    val newOffsetX = offsetX + pan.x
-                                    val newOffsetY = offsetY + pan.y
+                            .offset(y = (-31).dp) // 31px up from center
+                            .size(screenWidth - 40.dp)
+                            .clip(CircleShape)
+                    ) {
 
-                                    // Constrain pan to keep crop area within image bounds
-                                    imageBitmap?.let { bmp ->
-                                        val imgWidth = bmp.width.toFloat()
-                                        val imgHeight = bmp.height.toFloat()
-                                        val scaledWidth = imgWidth * newScale
-                                        val scaledHeight = imgHeight * newScale
+                        // Full image area with pan and zoom
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .pointerInput(Unit) {
+                                    detectTransformGestures { _, pan, zoom, _ ->
+                                        val newScale = (scale * zoom).coerceIn(1f, 5f)
+                                        val newOffsetX = offsetX + pan.x
+                                        val newOffsetY = offsetY + pan.y
 
-                                        val maxOffsetX = max(0f, (scaledWidth - cropSizePx) / 2f)
-                                        val maxOffsetY = max(0f, (scaledHeight - cropSizePx) / 2f)
+                                        // Constrain pan to keep crop area within image bounds
+                                        imageBitmap?.let { bmp ->
+                                            val imgWidth = bmp.width.toFloat()
+                                            val imgHeight = bmp.height.toFloat()
+                                            val scaledWidth = imgWidth * newScale
+                                            val scaledHeight = imgHeight * newScale
 
-                                        offsetX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                                        offsetY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
+                                            val maxOffsetX = max(0f, (scaledWidth - cropSizePx) / 2f)
+                                            val maxOffsetY = max(0f, (scaledHeight - cropSizePx) / 2f)
+
+                                            offsetX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
+                                            offsetY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
+                                        }
+                                        scale = newScale
                                     }
-                                    scale = newScale
+                                }
+                        ) {
+                            imageBitmap?.let { bmp ->
+                                // Image clipped to circle only (20dp vertical area)
+                                Box(
+                                    modifier = Modifier
+                                        .size(cropSize)
+                                        .align(Alignment.Center)
+                                        .clip(CircleShape)
+                                ) {
+                                    Image(
+                                        bitmap = bmp,
+                                        contentDescription = "Crop image",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .graphicsLayer(
+                                                scaleX = scale,
+                                                scaleY = scale,
+                                                translationX = offsetX,
+                                                translationY = offsetY
+                                            ),
+                                        contentScale = ContentScale.Fit
+                                    )
                                 }
                             }
-                    ) {
-                        imageBitmap?.let { bmp ->
-                            // Image clipped to circle only (20dp vertical area)
-                            Box(
-                                modifier = Modifier
-                                    .size(cropSize)
-                                    .align(Alignment.Center)
-                                    .clip(CircleShape)
-                            ) {
-                                Image(
-                                    bitmap = bmp,
-                                    contentDescription = "Crop image",
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .graphicsLayer(
-                                            scaleX = scale,
-                                            scaleY = scale,
-                                            translationX = offsetX,
-                                            translationY = offsetY
-                                        ),
-                                    contentScale = ContentScale.Fit
-                                )
+                        }
+
+                        // Circular crop overlay with border and grid
+                        Canvas(
+                            modifier = Modifier
+                                .size(cropSize)
+                                .align(Alignment.Center)
+                        ) {
+                            val center = Offset(size.width / 2f, size.height / 2f)
+
+                            // Draw white circle border
+                            drawCircle(
+                                color = White,
+                                radius = cropRadius,
+                                center = center,
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx())
+                            )
+
+                            // Draw grid lines (clipped to circle)
+                            val stepX = size.width / 3f
+                            val stepY = size.height / 3f
+                            for (i in 1..2) {
+                                // Vertical line at x = stepX * i
+                                val x = stepX * i
+                                val dx = x - center.x
+                                if (dx * dx <= cropRadius * cropRadius) {
+                                    val dy = kotlin.math.sqrt(cropRadius * cropRadius - dx * dx)
+                                    val y1 = center.y - dy
+                                    val y2 = center.y + dy
+                                    drawLine(
+                                        color = White.copy(alpha = 0.6f),
+                                        start = Offset(x, y1),
+                                        end = Offset(x, y2),
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
+
+                                // Horizontal line at y = stepY * i
+                                val y = stepY * i
+                                val dy = y - center.y
+                                if (dy * dy <= cropRadius * cropRadius) {
+                                    val dx = kotlin.math.sqrt(cropRadius * cropRadius - dy * dy)
+                                    val x1 = center.x - dx
+                                    val x2 = center.x + dx
+                                    drawLine(
+                                        color = White.copy(alpha = 0.6f),
+                                        start = Offset(x1, y),
+                                        end = Offset(x2, y),
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
                             }
                         }
                     }
 
-                    // Circular crop overlay with border and grid
-                    Canvas(
-                        modifier = Modifier
-                            .size(cropSize)
-                            .align(Alignment.Center)
-                    ) {
-                        val center = Offset(size.width / 2f, size.height / 2f)
-
-                        // Draw white circle border
-                        drawCircle(
-                            color = White,
-                            radius = cropRadius,
-                            center = center,
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx())
-                        )
-
-                        // Draw grid lines (clipped to circle)
-                        val stepX = size.width / 3f
-                        val stepY = size.height / 3f
-                        for (i in 1..2) {
-                            // Vertical line at x = stepX * i
-                            val x = stepX * i
-                            val dx = x - center.x
-                            if (dx * dx <= cropRadius * cropRadius) {
-                                val dy = kotlin.math.sqrt(cropRadius * cropRadius - dx * dx)
-                                val y1 = center.y - dy
-                                val y2 = center.y + dy
-                                drawLine(
-                                    color = White.copy(alpha = 0.6f),
-                                    start = Offset(x, y1),
-                                    end = Offset(x, y2),
-                                    strokeWidth = 1.dp.toPx()
-                                )
-                            }
-                            
-                            // Horizontal line at y = stepY * i
-                            val y = stepY * i
-                            val dy = y - center.y
-                            if (dy * dy <= cropRadius * cropRadius) {
-                                val dx = kotlin.math.sqrt(cropRadius * cropRadius - dy * dy)
-                                val x1 = center.x - dx
-                                val x2 = center.x + dx
-                                drawLine(
-                                    color = White.copy(alpha = 0.6f),
-                                    start = Offset(x1, y),
-                                    end = Offset(x2, y),
-                                    strokeWidth = 1.dp.toPx()
-                                )
-                            }
-                        }
-                    }
                 }
+            }
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
 
                 // Done button
                 Box(
                     modifier = Modifier
                         .padding(bottom = 60.dp)
+                        .height(35.dp)
                         .width(87.dp)
-                        .border(1.dp, White, RoundedCornerShape(18.dp))
+                        .border(1.dp, White, RoundedCornerShape(50))
                         .clickable { cropAndSave() },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "Done",
                         fontSize = 16.sp,
+                        lineHeight = 24.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         color = White,
-                        modifier = Modifier.padding(
-                            top = 7.dp,
-                            bottom = 9.dp
-                        )
+                        modifier = Modifier.offset(y = -1.dp)
                     )
                 }
             }
@@ -410,8 +425,8 @@ fun CropImageDialog(
             // Close icon - placed above everything with pointer input to intercept touches
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = 25.dp, start = 20.dp)
+                    .align(Alignment.TopEnd)
+                    .padding(top = 25.dp, end = 20.dp)
                     .zIndex(1f)
                     .pointerInput(Unit) {
                         detectTapGestures { onDismiss() }
@@ -424,7 +439,7 @@ fun CropImageDialog(
             }
 
             // More options icon placeholder - placed above everything with pointer input
-            Box(
+            /*Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 29.dp, end = 20.dp)
@@ -437,7 +452,7 @@ fun CropImageDialog(
                     painter = painterResource(id = R.drawable.ic_menu_dots_horizontal_white),
                     contentDescription = "More options",
                 )
-            }
+            }*/
         }
     }
 }

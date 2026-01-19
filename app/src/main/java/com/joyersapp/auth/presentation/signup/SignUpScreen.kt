@@ -548,7 +548,7 @@ fun SignUpScreen(
                             textStyle = TextStyle(
                                 fontSize = 16.sp,
                                 fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
+                                fontWeight = FontWeight.SemiBold,
                                 textAlign = TextAlign.Center,
                                 platformStyle = PlatformTextStyle(includeFontPadding = false)
                             ),
@@ -566,7 +566,7 @@ fun SignUpScreen(
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack,
-                                lineHeight = 22.sp,
+                                lineHeight = 23.sp,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .padding(bottom = 4.dp)
@@ -715,6 +715,7 @@ fun SignUpScreen(
                             Text(
                                 text = context.getString(R.string.strong),
                                 fontSize = 16.sp,
+                                lineHeight = 24.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Green,

@@ -188,6 +188,7 @@ I Will Make This <font color="#D69E3A"><b>PLANET</b></font> a Better Place,
     <string name="logout">Logout</string>
     <string name="my_account">My Accounts</string>
     <string name="username_error">Display name must be 2-45 characters and may include letters, numbers, hyphens, apostrophes, and accents. No emojis or special characters.</string>
+    <string name="bio_validation_error">Bio must be between 1-150 characters and may include letters, numbers, hyphens, apostrophes, and accents.</string>
     <string name="reset_password">Reset Password</string>
     <string name="get_started">Get Started!</string>
     <string name="your_password_has_been_successfully_reset">Your password has been successfully reset!</string>

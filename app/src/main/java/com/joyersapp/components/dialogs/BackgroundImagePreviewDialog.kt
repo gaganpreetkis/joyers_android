@@ -84,13 +84,13 @@ fun BackgroundImagePreviewDialog(
                     painter = painterResource(id = R.drawable.cross),
                     contentDescription = "Close",
                     modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(top = 25.dp, start = 20.dp)
+                        .align(Alignment.TopEnd)
+                        .padding(top = 25.dp, end = 20.dp)
                         .clickable { onDismiss() }
                 )
 
                 // More options icon - top right
-                Image(
+               /* Image(
                     painter = painterResource(id = R.drawable.ic_menu_dots_horizontal_white),
                     contentDescription = "More options",
                     modifier = Modifier
@@ -99,7 +99,7 @@ fun BackgroundImagePreviewDialog(
                         .clickable {
                             // TODO: Implement more options menu if needed
                         }
-                )
+                )*/
 
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -116,9 +116,6 @@ fun BackgroundImagePreviewDialog(
                             .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -148,134 +145,124 @@ fun BackgroundImagePreviewDialog(
                                 }
                             }
 
-                            // Change Picture button - 30px below image
-                            Box(
-                                modifier = Modifier
-                                    .width(148.dp)
-                                    .offset(y = (7).dp)
-                                    .border(1.dp, White, RoundedCornerShape(18.dp))
-                                    .clickable { onChangePicture() },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = if (imageUri == null) "Upload Picture" else "Change Picture",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontFamily = fontFamilyLato,
-                                    color = White,
-                                    modifier = Modifier.padding(
-                                        top = 7.dp,
-                                        bottom = 9.dp
-                                    )
-                                )
-                            }
-                        }
-                    }
 
-                    // Bottom row: show only when an image exists
-                    if (imageUri != null) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 10.dp, bottom = 60.dp, start = 30.dp, end = 30.dp),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            // Delete button - 30px from left
-                            Box(
-                                modifier = Modifier
-                                    .width(87.dp)
-                                    .border(1.dp, White, RoundedCornerShape(18.dp))
-                                    .clickable { showDeleteConfirm = true },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Delete",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontFamily = fontFamilyLato,
-                                    color = White,
-                                    modifier = Modifier.padding(
-                                        top = 7.dp,
-                                        bottom = 9.dp
-                                    )
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            // Crop button - centered between Delete and Done
-                            Box(
-                                modifier = Modifier
-                                    .width(87.dp)
-                                    .border(1.dp, White, RoundedCornerShape(18.dp))
-                                    .clickable { onCrop() },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Crop",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontFamily = fontFamilyLato,
-                                    color = White,
-                                    modifier = Modifier.padding(
-                                        top = 7.dp,
-                                        bottom = 9.dp
-                                    )
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            // Done button - 30px from right
-                            Box(
-                                modifier = Modifier
-                                    .width(87.dp)
-                                    .border(1.dp, White, RoundedCornerShape(18.dp))
-                                    .clickable { onDone() },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Done",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontFamily = fontFamilyLato,
-                                    color = White,
-                                    modifier = Modifier.padding(
-                                        top = 7.dp,
-                                        bottom = 9.dp
-                                    )
-                                )
-                            }
-                        }
-                    } else {
-                        // hidden view to show the image at correct position
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 10.dp, bottom = 60.dp, start = 30.dp, end = 30.dp),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .width(87.dp)
-                                    .border(1.dp, Color.Transparent, RoundedCornerShape(18.dp)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontFamily = fontFamilyLato,
-                                    color = White,
-                                    modifier = Modifier.padding(
-                                        top = 7.dp,
-                                        bottom = 9.dp
-                                    )
-                                )
-                            }
-                        }
                     }
                 }
+
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 0.dp)
+                    ) {
+
+                        // Change Picture button - 50px above bottom row
+                        Box(
+                            modifier = Modifier
+                                .width(148.dp)
+                                .height(35.dp)
+                                .border(1.dp, White, RoundedCornerShape(50))
+                                .clickable { onChangePicture() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (imageUri == null) "Upload Picture" else "Change Picture",
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = fontFamilyLato,
+                                color = White,
+                                modifier = Modifier.offset(y = -1.dp)
+                            )
+                        }
+
+                        Spacer(Modifier.height(50.dp))
+
+                        // Bottom row: show only when an image exists
+                        if (imageUri != null) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(35.dp)
+                                    .padding(top = 0.dp, bottom = 0.dp, start = 30.dp, end = 30.dp),
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                // Delete button - 30px from left
+                                Box(
+                                    modifier = Modifier
+                                        .width(87.dp)
+                                        .height(35.dp)
+                                        .border(1.dp, White, RoundedCornerShape(50))
+                                        .clickable { showDeleteConfirm = true },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "Delete",
+                                        fontSize = 16.sp,
+                                        lineHeight = 24.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = fontFamilyLato,
+                                        color = White,
+                                        modifier = Modifier.offset(y = -1.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.weight(1f))
+
+                                // Crop button - centered between Delete and Done
+                                Box(
+                                    modifier = Modifier
+                                        .width(87.dp)
+                                        .height(35.dp)
+                                        .border(1.dp, White, RoundedCornerShape(50))
+                                        .clickable { onCrop() },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "Crop",
+                                        fontSize = 16.sp,
+                                        lineHeight = 24.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = fontFamilyLato,
+                                        color = White,
+                                        modifier = Modifier.offset(y = -1.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.weight(1f))
+
+                                // Done button - 30px from right
+                                Box(
+                                    modifier = Modifier
+                                        .width(87.dp)
+                                        .height(35.dp)
+                                        .border(1.dp, White, RoundedCornerShape(50))
+                                        .clickable { onDone() },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "Done",
+                                        fontSize = 16.sp,
+                                        lineHeight = 24.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = fontFamilyLato,
+                                        color = White,
+                                        modifier = Modifier.offset(y = -1.dp)
+                                    )
+                                }
+                            }
+                        } else Spacer(Modifier.height(35.dp))
+
+                        Spacer(Modifier.height(60.dp))
+
+                    }
+                }
+
             }
         }
 

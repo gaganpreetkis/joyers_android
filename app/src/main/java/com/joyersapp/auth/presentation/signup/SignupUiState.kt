@@ -67,6 +67,6 @@ data class SignupUiState(
         get() = if (!showPasswordFields && isSignupButtonEnabled) {
             "Next"
         } else {
-            "Sign up"
+            "Sign Up"
         }
 }

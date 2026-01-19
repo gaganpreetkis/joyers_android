@@ -67,6 +67,7 @@ import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
+import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
@@ -95,7 +96,9 @@ import com.joyersapp.utils.noRippleClickable
 fun MagneticsScreen(
     viewModel: UserProfileViewModel,
     onBack: () -> Unit,
-    navigateToDescriptionDialog: (String) -> Unit,
+    navigateToDescriptionDialog: (List<ProfileTitlesData>) -> Unit,
+    navigateToProfileHeaderDialog: () -> Unit,
+    navigateToMentionJoyersDialog: () -> Unit,
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -105,10 +108,14 @@ fun MagneticsScreen(
         viewModel.navigationEvents.collect { event ->
             when(event) {
                 is UserProfileNavigationEvent.NavigateToUserProfile -> { onBack() }
-                is UserProfileNavigationEvent.NavigateToProfileHeaderDialog -> { onBack() }
+                is UserProfileNavigationEvent.NavigateToProfileHeaderDialog -> {
+                    navigateToProfileHeaderDialog()
+                }
+                is UserProfileNavigationEvent.NavigateToMentionJoyersDialog -> {
+                    navigateToMentionJoyersDialog()
+                }
                 is UserProfileNavigationEvent.NavigateToDescriptionDialog -> {
-                    navigateToDescriptionDialog(event.key)
-
+                    navigateToDescriptionDialog(event.list)
                 }
                 is UserProfileNavigationEvent.NavigateToIdentificationDialog -> { onBack() }
             }
@@ -212,17 +219,18 @@ fun MagneticsScreen(
         }
         if (state.showDescriptionDialog) {
             DescriptionDialog (
-                viewModel = viewModel,
-                onDismiss = {
-                    viewModel.onEvent(
-                        UserProfileEvent.ToggleDescriptionDialog(
-                            show = false,
-                            titlesData = emptyList(),
-                        )
-                    )
-                },
-                onApply = { selectedTitle, selectedSubTitle ->
-                    viewModel.onEvent(UserProfileEvent.OnApplyDescription(selectedTitle, selectedSubTitle))
+                initList = viewModel.uiState.value.titles,
+                selectedTitle = ProfileTitlesData(
+                    id = viewModel.uiState.value.magneticsData.title?.id?:"",
+                    name = viewModel.uiState.value.magneticsData.title?.name?:"",
+                ),
+                selectedSubTitle = ProfileTitlesData(
+                    id = viewModel.uiState.value.magneticsData.subTitle?.id,
+                    name = viewModel.uiState.value.magneticsData.subTitle?.name,
+                ),
+                onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false)) },
+                onApply = { title, subTitle ->
+                    viewModel.onEvent(UserProfileEvent.OnApplyDescription(title, subTitle))
                 }
             )
         }
@@ -523,7 +531,7 @@ fun DescriptionSection(state: MagneticsData, onclick: () -> Unit) {
         if (!(state.subTitle?.name?: state.title?.name).isNullOrEmpty()) {
             KeyValueText(
                 "Joyer Status",
-                state.subTitle?.name?: state.title?.name?: ""
+                state.subTitle?.name?: state.title?.name?: "Classic"
             )
         } else { ProfileEditableRow(title = "Joyer Status") }
     }
@@ -824,7 +832,7 @@ private fun KeyValueText(
     Row(
         modifier = Modifier
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
         Box(
             modifier = Modifier

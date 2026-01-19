@@ -109,7 +109,7 @@ fun LanguageSelectionDialog(
     LanguagesDialog(
         onDismiss = onDismiss,
         onApply = { onApply( currentList.filter { it.isSelected }) },
-        showApplyButton = true,
+        showApplyButton = currentList.any { it.isSelected },
         headers = headers,
         searchQuery = searchQuery,
         onSearchQueryChanged = { query ->

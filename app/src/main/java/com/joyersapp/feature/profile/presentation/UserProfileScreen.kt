@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -197,6 +198,10 @@ fun ProfileInfo(state: UserProfileUiState) {
     val gold = Golden
     val lightBlackText = LightBlack
 
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val screenWidth = with(density) { configuration.screenWidthDp.dp }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -273,6 +278,7 @@ fun ProfileInfo(state: UserProfileUiState) {
         // Name, subtitle, location
         Column(
             modifier = Modifier.offset(x = 154.dp, y = 130.dp)
+                .width(screenWidth - 174.dp)
         ) {
             // fullname
             Text(
@@ -281,7 +287,8 @@ fun ProfileInfo(state: UserProfileUiState) {
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
                 color = lightBlackText,
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
+                overflow = TextOverflow.Ellipsis
             )
 
             Spacer(Modifier.height(4.dp))

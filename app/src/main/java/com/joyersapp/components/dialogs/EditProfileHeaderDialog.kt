@@ -6,19 +6,28 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,9 +51,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -60,8 +73,11 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -72,6 +88,7 @@ import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.feature.profile.presentation.ProfileHeaderData
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
+import com.joyersapp.feature.profile.presentation.UserProfileNavigationEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.theme.DisabledTextColor
 import com.joyersapp.theme.Golden
@@ -95,6 +112,7 @@ import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
+import com.joyersapp.utils.tapToDismissKeyboard
 import com.joyersapp.utils.uriToFile
 
 @Preview
@@ -109,6 +127,7 @@ private fun preview() {
 fun EditProfileHeaderDialog(
     onDismiss: () -> Unit = {},
     onApply: (data: ProfileHeaderData) -> Unit = {},
+    navigateToMentionJoyersDialog: () -> Unit = {},
     viewModel: UserProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -135,7 +154,21 @@ fun EditProfileHeaderDialog(
         viewModel.onEvent(UserProfileEvent.UpdateProfileHeaderData(state.magneticsData.profileHeaderData))
     }
 
-    BaseDialog(
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when(event) {
+                is UserProfileNavigationEvent.NavigateToUserProfile -> {  }
+                is UserProfileNavigationEvent.NavigateToProfileHeaderDialog -> {}
+                is UserProfileNavigationEvent.NavigateToMentionJoyersDialog -> {
+                    navigateToMentionJoyersDialog()
+                }
+                is UserProfileNavigationEvent.NavigateToDescriptionDialog -> {}
+                is UserProfileNavigationEvent.NavigateToIdentificationDialog -> {  }
+            }
+        }
+    }
+
+    BaseCard (
         onDismiss = { onDismiss() },
         titles = arrayListOf("Profile Header")
 
@@ -207,25 +240,25 @@ fun EditProfileHeaderDialog(
 
             BioEditor(
                 context = context,
-                selectedTab = state.profileHeaderData.selectedTab,
-                bioValidationError = state.profileHeaderData.bioValidationError,
+                selectedTab = profileHeaderData.selectedTab,
+                bioValidationError = profileHeaderData.bioValidationError,
                 overviewText = profileHeaderData.overviewFieldValue,
                 highlightText = profileHeaderData.highlightFieldValue,
                 websiteUrl = profileHeaderData.websiteUrl,
-                remainingChars = if (state.profileHeaderData.selectedTab == "overview") {
+                remainingChars = if (profileHeaderData.selectedTab == "overview") {
                     profileHeaderData.overviewRemainingChars.toString()
                 } else {
                     profileHeaderData.highlightsRemainingChars.toString()
                 },
                 onOverviewChange = {
                     viewModel.onEvent(UserProfileEvent.OnOverviewChanged(it))
-                    if (it.text.endsWith(" @")) {
+                    if (it.text.endsWith(" @") && profileHeaderData.overviewFieldValue.text.length < it.text.length) {
                         viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                     }
                 },
                 onHighlightChange = {
                     viewModel.onEvent(UserProfileEvent.OnHighlightChanged(it))
-                    if (it.text.endsWith(" @")) {
+                    if (it.text.endsWith(" @") && profileHeaderData.highlightFieldValue.text.length < it.text.length) {
                         viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                     }
                 },
@@ -670,7 +703,7 @@ fun BioEditor(
                 HorizontalDivider(color = LightBlack10)
 
                 // ---------------------- TEXT EDITOR ----------------------
-                Box(
+                Column (
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(170.dp)
@@ -683,12 +716,12 @@ fun BioEditor(
                         fontWeight = FontWeight.Normal,
                         fontFamily = fontFamilyLato,
                         modifier = Modifier
-                            .padding(top = 5.5.dp, bottom = 1.dp, end = 7.dp)
+                            .padding(top = 5.dp, bottom = 0.dp, end = 7.dp)
                             .fillMaxWidth(),
                         textAlign = TextAlign.End
                     )
 
-                    Box(Modifier.padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 15.dp)) {
+                    Box(Modifier.padding(start = 15.dp, end = 15.dp, top = 0.dp, bottom = 15.dp)) {
                         if (selectedTab == "overview") {
                             OverviewEditor(
                                 text = overviewText,
@@ -765,11 +798,16 @@ fun OverviewEditor(
             fontSize = 16.sp,
             lineHeight = 22.sp,
             fontFamily = fontFamilyLato,
-            color = Color.Transparent // we paint using AnnotatedString
+            color = Color.Red // we paint using AnnotatedString
         ),
         modifier = Modifier.fillMaxWidth(),
+//            .defaultMinSize(minHeight = 140.dp),
         decorationBox = { inner ->
-            Box(Modifier.fillMaxSize()) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            )  {
 
                 // Editable transparent text overlay
                 inner()
@@ -807,7 +845,8 @@ fun highlightWords(text: String): AnnotatedString {
             withStyle(
                 style = SpanStyle(
                     color = color,
-                    fontWeight = fontWeight
+                    fontWeight = fontWeight,
+                    fontSize = 16.sp,
                 )
             ) {
                 append(word)
@@ -867,7 +906,8 @@ fun HighlightsEditor(
             )
         },
         textStyle = TextStyle(
-            fontSize = 15.sp,
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
             color = Color.Transparent
         ),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
@@ -878,9 +918,19 @@ fun HighlightsEditor(
             Box(
                 Modifier
                     .fillMaxSize()
-//                    .padding(4.dp)
             ) {
                 inner()
+                // Placeholder
+                if (textState.text.isEmpty() || textState.text.equals("• ")) {
+                    Text(
+                        "About Joyer",
+                        color = LightBlack40,
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp,
+                        fontFamily = fontFamilyLato,
+                        modifier = Modifier.padding(start = 10.dp)
+                    )
+                }
             }
         }
     )
@@ -973,5 +1023,155 @@ fun WebsiteTextField(
                 }
             }
         }
+    }
+}
+
+
+@Composable
+private fun BaseCard(
+    onDismiss: () -> Unit = {},
+    titles: List<String> = arrayListOf("",),
+    showBackButton: Boolean = false,
+    onBack: () -> Unit = {},
+    dialogContent: @Composable (dialogModifier: Modifier, dialogFocusManager: FocusManager, maxHeight: Dp) -> Unit = { dialogModifier, dialogFocusManager, maxHeight -> }
+) {
+
+    val context = LocalContext.current
+    val isKeyBoardOpen = rememberIsKeyboardOpen()
+
+    val goldenColor = Golden
+    val lightBlackColor = LightBlack
+
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(White)
+//    ) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+    val dialogFocusManager = LocalFocusManager.current
+    val dialogModifier = Modifier
+        .pointerInput(Unit) {
+            detectTapGestures {
+                dialogFocusManager.clearFocus()
+            }
+        }
+
+    val configuration = LocalWindowInfo.current.containerSize
+    // Calculate maximum height: screen height - 100.dp (50.dp top + 50.dp bottom)
+    val minHeight = 275.dp
+    val maxHeight = remember(configuration) {
+        configuration.height.dp - 100.dp
+    }
+
+    // Determine the height modifier dynamically
+    val dialogHeightModifier = if (isKeyBoardOpen) {
+        // When keyboard is visible, the parent Column will resize to full height
+        Modifier
+            .height(maxHeight)
+            .padding(top = 50.dp)
+    } else {
+        // When keyboard is hidden, use a standard dialog height constraint
+        Modifier
+            .wrapContentHeight()
+            .heightIn(min = minHeight, max = maxHeight)
+            .padding(top = 50.dp, bottom = 50.dp)
+    }
+
+    Card(
+        modifier = dialogModifier
+
+            .windowInsetsPadding(WindowInsets.systemBars)
+            .then(dialogHeightModifier) // Apply dynamic height
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(25.dp))
+            .background(Color.White) // Ensure background captures taps
+            .imePadding()
+//                .dismissKeyboardOnScroll()
+            .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+
+        // Header
+        Row(
+            modifier = dialogModifier
+                .fillMaxWidth()
+                .padding(top = 18.dp, start = 18.dp, end = 23.04.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            // Back button (only visible in subtitle mode)
+            if (showBackButton) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_back_arrow_golden),
+                    contentDescription = null,
+                    modifier = dialogModifier
+                        .size(20.dp, 15.dp)
+                        .noRippleClickable { onBack() }
+                )
+            } else {
+                Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
+            }
+
+            // Title or Second Title
+            if (titles.size == 1) {
+                Text(
+                    text = titles[0],
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = fontFamilyLato,
+                    color = lightBlackColor,
+                    lineHeight = 29.sp,
+                    modifier = dialogModifier.padding(top = 0.dp)
+                )
+            } else {
+                FlowRow(
+                    modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp, start = 10.dp, end = 10.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    titles.forEachIndexed { index, item ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = item,
+                                fontSize = 16.sp,
+                                lineHeight = if (index == 0) 19.sp else 22.sp,
+                                fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
+                                fontFamily = fontFamilyLato,
+                                color = lightBlackColor,
+                                modifier = dialogModifier
+                            )
+                            if (index < titles.size - 1) {
+                                Spacer(modifier = dialogModifier.width(11.dp))
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_forward_black),
+                                    contentDescription = null,
+                                    modifier = dialogModifier.size(6.dp, 10.dp)
+                                )
+                                Spacer(modifier = dialogModifier.width(10.dp))
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            // Close button
+            Image(
+                painter = painterResource(id = R.drawable.ic_cross_golden),
+                contentDescription = null,
+                modifier = dialogModifier
+                    .width(15.51.dp)
+                    .noRippleClickable { onDismiss() }
+            )
+        }
+        dialogContent(dialogModifier, dialogFocusManager, maxHeight)
+    }
+//        }
     }
 }

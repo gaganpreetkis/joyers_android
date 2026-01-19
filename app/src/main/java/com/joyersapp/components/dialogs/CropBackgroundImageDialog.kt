@@ -259,7 +259,7 @@ fun CropBackgroundImageDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .offset(y = (-48).dp), // 48px up from center
+                        .offset(y = (-23).dp), // 23px up from center
                     contentAlignment = Alignment.Center
                 ) {
                     val screenWidth = with(density) { configuration.screenWidthDp.dp }
@@ -359,34 +359,39 @@ fun CropBackgroundImageDialog(
                     }
                 }
 
+            }
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
                 // Done button
                 Box(
                     modifier = Modifier
                         .padding(bottom = 60.dp)
                         .width(87.dp)
-                        .border(1.dp, White, RoundedCornerShape(18.dp))
+                        .height(35.dp)
+                        .border(1.dp, White, RoundedCornerShape(50))
                         .clickable { cropAndSave() },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "Done",
                         fontSize = 16.sp,
+                        lineHeight = 24.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         color = White,
-                        modifier = Modifier.padding(
-                            top = 7.dp,
-                            bottom = 9.dp
-                        )
+                        modifier = Modifier.offset(y = -1.dp)
                     )
                 }
             }
-            
+
             // Close icon
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = 25.dp, start = 20.dp)
+                    .align(Alignment.TopEnd)
+                    .padding(top = 25.dp, end = 20.dp)
                     .zIndex(1f)
                     .pointerInput(Unit) {
                         detectTapGestures { onDismiss() }
@@ -399,7 +404,7 @@ fun CropBackgroundImageDialog(
             }
 
             // More options icon
-            Box(
+          /*  Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 29.dp, end = 20.dp)
@@ -412,7 +417,7 @@ fun CropBackgroundImageDialog(
                     painter = painterResource(id = R.drawable.ic_menu_dots_horizontal_white),
                     contentDescription = "More options",
                 )
-            }
+            }*/
         }
     }
 }

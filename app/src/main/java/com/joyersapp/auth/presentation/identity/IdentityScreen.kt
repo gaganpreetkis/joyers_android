@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -102,6 +103,7 @@ import com.joyersapp.theme.Red
 import com.joyersapp.utils.annotatedFromBoldTags
 import com.joyersapp.utils.containsEmoji
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.isAllowedIdentityNameChars
 import com.joyersapp.utils.isValidNameAdvanced
 import com.joyersapp.utils.uriToFile
@@ -205,11 +207,13 @@ fun IdentityScreen(
                 Text(
                     text = pageTitles[currentPage],
                     fontSize = 24.sp,
+                    lineHeight = 29.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
                     color = LightBlack,
-                    modifier = Modifier.weight(0.6f),
-                    textAlign = TextAlign.Center
+                    modifier = Modifier.weight(0.6f)
+                        .offset(y = -1.dp),
+                    textAlign = TextAlign.Center,
                 )
 
                 // Page count
@@ -221,6 +225,7 @@ fun IdentityScreen(
                     color = Golden,
                     modifier = Modifier
                         .weight(0.2f)
+                        .offset(y = -1.dp)
                         .padding(end = 20.dp),
                     textAlign = TextAlign.End
                 )
@@ -469,7 +474,7 @@ fun PageOneContent(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(37.dp)
+                                    .size(37.92.dp)
                                     .background(Color.White, CircleShape)
                                     .border(1.dp, LightBlack13, CircleShape),
                                 contentAlignment = Alignment.Center
@@ -632,17 +637,17 @@ fun PageOneContent(
                         viewModel2.onEvent(IdentityEvent.NameChanged(it))
                         if (it.isEmpty()) {
                             //remainingChars = maxLength - it.length
-                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.length))
+                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.graphemeCount()))
                             usernameError = null
                             return@AppBasicTextField
                         }
                         if (containsEmoji(it) || !isAllowedIdentityNameChars(it)) {
                             //remainingChars = maxLength - (it.length / 2)
-                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - (it.length / 2)))
+                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - (it.graphemeCount())))
                             usernameError = context.getString(R.string.username_error)
                         } else {
                             //remainingChars = maxLength - it.length
-                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.length))
+                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.graphemeCount()))
                             usernameError = null
                         }
                     }
@@ -650,7 +655,7 @@ fun PageOneContent(
                 placeholder = stringResource(R.string.joyer_name),
                 modifier = Modifier
                     .weight(0.8f)
-                    .padding(bottom = 1.dp)
+                    .offset(y = (-1).dp)
                     .fillMaxWidth()
                     .imePadding()
                     .focusRequester(remember { FocusRequester() })
@@ -667,21 +672,42 @@ fun PageOneContent(
                 maxLength = 65
             )
 
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = state.remainingChars.toString(),
-                fontSize = 12.sp,
-                color = if (state.remainingChars <= 0) redColor else hintColor,
-                modifier = Modifier.fillMaxHeight().padding(top = 4.dp, end = 6.dp),
-                fontFamily = fontFamilyLato,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 24.sp,
-                style = TextStyle(
-                    platformStyle = PlatformTextStyle(
-                        includeFontPadding = false
+            if (isUsernamFocused || state.name.isEmpty()) {
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = state.remainingChars.toString(),
+                    fontSize = 12.sp,
+                    color = if (state.remainingChars < 0) redColor else hintColor,
+                    modifier = Modifier.fillMaxHeight().padding(top = 4.dp, end = 7.dp),
+                    fontFamily = fontFamilyLato,
+                    fontWeight = FontWeight.SemiBold,
+                    lineHeight = 24.sp,
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
                     )
                 )
-            )
+            } else {
+                Spacer(modifier = Modifier.width(5.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .padding(end = 15.dp)
+                        .size(15.dp)
+                        .clickable {
+                            viewModel2.onEvent(IdentityEvent.NameChanged(""))
+                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(45))
+                                   },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_cross_round_gray),
+                        contentDescription = "Clear",
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+            }
         }
 
         if (usernameError != null) {
@@ -1615,7 +1641,11 @@ fun PageThreeContent(
             selectedTitle = selectedTitle,
             dialogState = dialogState,
             viewmodel = viewmodel,
-            onDismiss = { showTitleDialog = false },
+            onDismiss = {
+
+                viewmodel.onEvent(TitleEvent.SearchQueryChanged(""))
+                showTitleDialog = false
+                        },
             onItemSelected = { titleId, titleName, subTitleId, subTitleName ->
                 /*selectedTitle = titleName
                 selectedTitleId = titleId

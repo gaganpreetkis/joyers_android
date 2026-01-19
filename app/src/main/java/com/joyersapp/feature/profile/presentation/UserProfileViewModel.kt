@@ -36,11 +36,14 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -68,11 +71,14 @@ class UserProfileViewModel @Inject constructor(
     private val _uiStateMagnetics = MutableStateFlow(
         EditMagneticsUiState()
     )
-    private val _navigationEvents = MutableSharedFlow<UserProfileNavigationEvent>()
+    private val _navigationEvents = Channel<UserProfileNavigationEvent>(Channel.BUFFERED)
+//    private val _navigationEvents = MutableSharedFlow<UserProfileNavigationEvent>(
+//        extraBufferCapacity = 3
+//    )
 
     val uiState: StateFlow<UserProfileUiState> = _uiState.asStateFlow()
     val uiStateMagnetics: StateFlow<EditMagneticsUiState> = _uiStateMagnetics.asStateFlow()
-    val navigationEvents = _navigationEvents
+    val navigationEvents = _navigationEvents.receiveAsFlow()
 
 
     fun onEvent(event: UserProfileEvent) {
@@ -562,7 +568,7 @@ class UserProfileViewModel @Inject constructor(
             is UserProfileEvent.OnOverviewChanged -> {
                 val overviewRemainingChars = 150 - event.value.text.graphemeCount()
                 if (overviewRemainingChars >= -20) {
-                _uiState.update {
+                    _uiState.update {
                         it.copy(
                             profileHeaderData = it.profileHeaderData.copy(
 //                            bio = event.value.text,
@@ -587,7 +593,7 @@ class UserProfileViewModel @Inject constructor(
                 // Default bullet prefix
                 val bullet = "• "
                 val bulletLine = "\n$bullet"
-                var lastLine = newText.substringAfterLast(bulletLine)
+                var lastLine = newText.substringAfterLast(bullet)
 
                 // Helper function to apply result
                 fun update(newStr: String) {
@@ -606,12 +612,13 @@ class UserProfileViewModel @Inject constructor(
                 }
 
 
-
-
                 // ---------------------------------------------------------
                 // Enforce per-line limit (25 chars each bullet)
                 // ---------------------------------------------------------
-                if (lastLine.graphemeCount() > 25) return
+                if (lastLine.graphemeCount() > 25 && !(newText.length < oldText.length) && !newText.endsWith(
+                        "\n"
+                    )
+                ) return
 
                 // Restore single bullet when completely cleared
                 if (newText.isEmpty()) {
@@ -675,6 +682,7 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.OnNameChanged -> {
+
                 _uiState.update {
                     it.copy(
                         identificationData = _uiState.value.identificationData.copy(
@@ -682,15 +690,18 @@ class UserProfileViewModel @Inject constructor(
                         )
                     )
                 }
+
             }
 
             is UserProfileEvent.ToggleProfileHeaderDialog -> {
-                _uiState.update {
-                    it.copy(
+                viewModelScope.launch {
+                    _uiState.update {
+                        it.copy(
                         showEditProfileHeaderDialog = event.show,
-                        profileHeaderData = uiState.value.magneticsData.profileHeaderData
-                            ?: ProfileHeaderData()
-                    )
+                            profileHeaderData = uiState.value.magneticsData.profileHeaderData
+                        )
+                    }
+//                    _navigationEvents.send(UserProfileNavigationEvent.NavigateToProfileHeaderDialog)
                 }
             }
 
@@ -738,7 +749,9 @@ class UserProfileViewModel @Inject constructor(
                         titlesData = uiState.value.titles,
                     )
                 }
-
+//                viewModelScope.launch {
+//                    _navigationEvents.send(UserProfileNavigationEvent.NavigateToDescriptionDialog(uiState.value.titles))
+//                }
             }
 
             is UserProfileEvent.ToggleIdentificationDialog -> {
@@ -754,10 +767,13 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.ToggleMentionJoyersDialog -> {
-                _uiState.update {
-                    it.copy(
+                viewModelScope.launch {
+                    _uiState.update {
+                        it.copy(
                         showMentionJoyersDialog = event.show,
-                    )
+                        )
+                    }
+//                    _navigationEvents.send(UserProfileNavigationEvent.NavigateToMentionJoyersDialog)
                 }
             }
 
@@ -834,32 +850,32 @@ class UserProfileViewModel @Inject constructor(
                         profileHeaderData = event.profileHeaderData
                     )
 
-                /*    var overviewText = ""
-                    var highlightsText = "• "
-                    var selectedTab = ""
-                    val prefix = "Highlights\n"
-                    if (state.magneticsData.profileHeaderData?.bio?.startsWith(prefix) == true) {
-                        highlightsText = state.magneticsData.profileHeaderData.bio.removePrefix(prefix)
-                        if (highlightsText.isEmpty()) highlightsText = "• "
-                        selectedTab = "highlights"
-                    } else {
-                        overviewText = state.bio
-                        selectedTab = "overview"
-                    }
+                    /*    var overviewText = ""
+                        var highlightsText = "• "
+                        var selectedTab = ""
+                        val prefix = "Highlights\n"
+                        if (state.magneticsData.profileHeaderData?.bio?.startsWith(prefix) == true) {
+                            highlightsText = state.magneticsData.profileHeaderData.bio.removePrefix(prefix)
+                            if (highlightsText.isEmpty()) highlightsText = "• "
+                            selectedTab = "highlights"
+                        } else {
+                            overviewText = state.bio
+                            selectedTab = "overview"
+                        }
 
-                    state.copy(
-                        profileHeaderData = event.profileHeaderData.copy(
-                            selectedTab = selectedTab,
-                            overviewFieldValue = TextFieldValue(
-                                text = overviewText,
-                                selection = TextRange(overviewText.length)
-                            ),
-                            highlightFieldValue = TextFieldValue(
-                                text = highlightsText,
-                                selection = TextRange(highlightsText.length)
-                            ),
-                        )
-                    )*/
+                        state.copy(
+                            profileHeaderData = event.profileHeaderData.copy(
+                                selectedTab = selectedTab,
+                                overviewFieldValue = TextFieldValue(
+                                    text = overviewText,
+                                    selection = TextRange(overviewText.length)
+                                ),
+                                highlightFieldValue = TextFieldValue(
+                                    text = highlightsText,
+                                    selection = TextRange(highlightsText.length)
+                                ),
+                            )
+                        )*/
                 }
             }
 
@@ -958,7 +974,7 @@ class UserProfileViewModel @Inject constructor(
                         educationName = response.education?.name ?: "",
                     )
                 }
-                _navigationEvents.emit(UserProfileNavigationEvent.NavigateToUserProfile)
+                _navigationEvents.send(UserProfileNavigationEvent.NavigateToUserProfile)
             },
             onFailure = { error ->
                 _uiState.update {

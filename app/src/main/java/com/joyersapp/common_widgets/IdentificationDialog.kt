@@ -18,13 +18,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
+import com.joyersapp.auth.presentation.identity.IdentityEvent
 import com.joyersapp.components.dialogs.BaseDialog
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
@@ -42,6 +48,8 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
+import com.joyersapp.theme.Red
+import com.joyersapp.utils.graphemeCount
 
 @Composable
 fun IdentificationDialog(
@@ -113,7 +121,7 @@ fun IdentificationDialog(
                                 "Nationality",
                                 isMultiSelectEnabled = true,
                                 show = true,
-                                headers = arrayListOf("Countries List"),
+                                headers = arrayListOf("Country"),
                                 titlesData = state.countryList,
                                 selectedIds = identificationData.nationality?.map { it.dropdownCountries?.id?: "" }?: emptyList()
                             )
@@ -252,7 +260,7 @@ fun IdentificationDialog(
                                 "Joyer Location",
                                 isMultiSelectEnabled = false,
                                 show = true,
-                                headers = arrayListOf("Countries List"),
+                                headers = arrayListOf("Country"),
                                 titlesData = state.countryList,
                                 selectedIds = if (identificationData.location != null) listOf(identificationData.location?.id?: "") else emptyList()
                             )
@@ -516,25 +524,38 @@ fun LanguagesField(
                     ) {
 
                         if (!values.isNullOrEmpty()) {
-
-                            val name = values[0].language?.name?:""
-                            val level = values[0].language?.level?:""
-                            val language = buildString {
-                                append(name)
-                                if (level.isNotEmpty()) {
-                                    append(" ($level)")
+                            Row(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                val name = values[0].language?.name?:""
+                                val level = values[0].language?.level?:""
+                                val language = buildString {
+                                    append(name)
+                                    if (level.isNotEmpty()) {
+                                        append(" ($level)")
+                                    }
+                                }
+                                Text(
+                                    text = language,
+                                    fontSize = 16.sp,
+                                    lineHeight = 23.sp,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,
+                                    color = LightBlack,
+                                )
+                                if (values.size > 1) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "+${(values.size - 1)}",
+                                        fontSize = 16.sp,
+                                        lineHeight = 22.sp,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Golden,
+                                    )
                                 }
                             }
-                            Text(
-                                text = language,
-                                fontSize = 16.sp,
-                                lineHeight = 23.sp,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
-                                color = LightBlack,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
+
                             Image(
                                 painter = painterResource(id = R.drawable.ic_cross_round_gray),
                                 contentDescription = "Clear",
@@ -705,16 +726,31 @@ fun NationalityField(
                     ) {
 
                         if (values.isNotEmpty()) {
-                            Text(
-                                text = values[0].dropdownCountries?.name?: "",
-                                fontSize = 16.sp,
-                                lineHeight = 23.sp,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
-                                color = LightBlack,
+                            Row(
                                 modifier = Modifier.weight(1f)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            ) {
+
+                                Text(
+                                    text = values[0].dropdownCountries?.name?: "",
+                                    fontSize = 16.sp,
+                                    lineHeight = 23.sp,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,
+                                    color = LightBlack,
+                                )
+                                if (values.size > 1) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "+${(values.size - 1)}",
+                                        fontSize = 16.sp,
+                                        lineHeight = 22.sp,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Golden,
+                                    )
+                                }
+                            }
+
                             Image(
                                 painter = painterResource(id = R.drawable.ic_cross_round_gray),
                                 contentDescription = "Clear",
@@ -879,16 +915,30 @@ fun PoliticalIdeologyField(
                     ) {
 
                         if (values.isNotEmpty()) {
-                            Text(
-                                text = values[0].dropdownPoliticalIdeology?.name?: "",
-                                fontSize = 16.sp,
-                                lineHeight = 23.sp,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
-                                color = LightBlack,
+                            Row(
                                 modifier = Modifier.weight(1f)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            ) {
+                                Text(
+                                    text = values[0].dropdownPoliticalIdeology?.name?: "",
+                                    fontSize = 16.sp,
+                                    lineHeight = 23.sp,
+                                    fontFamily = fontFamilyLato,
+                                    fontWeight = FontWeight.Normal,
+                                    color = LightBlack,
+                                )
+                                if (values.size > 1) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "+${(values.size - 1)}",
+                                        fontSize = 16.sp,
+                                        lineHeight = 22.sp,
+                                        fontFamily = fontFamilyLato,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Golden,
+                                    )
+                                }
+                            }
+
                             Image(
                                 painter = painterResource(id = R.drawable.ic_cross_round_gray),
                                 contentDescription = "Clear",
@@ -1238,31 +1288,56 @@ fun IdentificationTextField(
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 15.dp),
+                        .fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    var isFocused by remember { mutableStateOf(false) }
                     AppBasicTextField(
                         value = value,
                         onValueChange = onValueChange,
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight(),
+                            .fillMaxHeight()
+                            .offset(y = -1.dp)
+                            .focusRequester(remember { FocusRequester() })
+                            .onFocusChanged { focusState ->
+                                isFocused = focusState.isFocused
+                            },
                         placeholder = "Joyer $label",
                         containerColor = Color.Transparent,
-                        textStyle = androidx.compose.ui.text.TextStyle(
+                        textStyle = TextStyle(
                             fontSize = 16.sp,
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
                             color = lightBlackColor
-                        )
+                        ),
+                        maxLength = 45
                     )
 
-                    if (value.isNotEmpty()) {
-                        Spacer(modifier = Modifier.width(6.dp))
+
+                    if (isFocused || value.isEmpty()) {
+                        Spacer(modifier = Modifier.width(10.dp))
+                        val remainingChars = (45 - value.graphemeCount())
+                        Text(
+                            text = remainingChars.toString(),
+                            fontSize = 12.sp,
+                            color = if (remainingChars < 0) Red else LightBlack60,
+                            modifier = Modifier.fillMaxHeight().padding(top = 4.dp, end = 14.dp),
+                            fontFamily = fontFamilyLato,
+                            fontWeight = FontWeight.SemiBold,
+                            lineHeight = 24.sp,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                )
+                            )
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.width(5.dp))
                         Box(
                             modifier = Modifier
                                 .clip(CircleShape)
+                                .padding(end = 15.dp)
                                 .size(15.dp)
                                 .clickable { onClear() },
                             contentAlignment = Alignment.Center
