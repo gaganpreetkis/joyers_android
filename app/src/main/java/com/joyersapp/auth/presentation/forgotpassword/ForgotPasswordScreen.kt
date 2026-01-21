@@ -218,24 +218,33 @@ fun ForgotPasswordScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // Description text
-            if (!state.showVerificationCode) {
+            //if (!state.showVerificationCode) {
                 Text(
-                    text = if (state.showVerificationCode) if (state.isPhoneMode) {
-                        stringResource(R.string.number_sent)
+                    text = if (!state.showVerificationCode) if (state.isPhoneMode) {
+                        //stringResource(R.string.number_sent)
+                        "Enter your mobile number"
                     } else {
-                        stringResource(R.string.email_sent)
-                    } else stringResource(R.string.reset_password_in_two_steps),
+                        //stringResource(R.string.email_sent)
+                        "Enter your username or email"
+                    } else {
+                        if (state.isPhoneMode) {
+                            //stringResource(R.string.reset_password_in_two_steps)
+                            "We’ll send a verification code to your mobile number if it matches an account."
+                        } else {
+                            "We’ll send a verification code to your email if it matches an account."
+                        }
+                    },
                     fontSize = 16.sp,
-                    lineHeight = 19.sp,
+                    lineHeight = if (!state.showVerificationCode) 19.sp else 23.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.SemiBold,
                     color = LightBlack,
                 )
-            }
-            Spacer(modifier = Modifier.height(if (state.showVerificationCode) 0.dp else 10.dp))
+            //}
+            Spacer(modifier = Modifier.height(/*if (state.showVerificationCode) 0.dp else*/ 13.dp))
 
             // Show message and masked email when verification code is shown
-            if (state.showVerificationCode) {
+            /*if (state.showVerificationCode) {
                 Text(
                     text = buildAnnotatedString {
                         // NORMAL first part
@@ -263,7 +272,7 @@ fun ForgotPasswordScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-            }
+            }*/
 
             /*// USERNAME / EMAIL BOX (LEFT BIG + RIGHT ICON)
             if (!state.isPhoneMode) {
@@ -721,16 +730,17 @@ fun ForgotPasswordScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(R.string.send_verification_code),
+                        text = "Choose how to get your verification code:", //stringResource(R.string.send_verification_code),
                         fontSize = 16.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.SemiBold,
                         color = LightBlack,
                         modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Start,
+                        lineHeight = 23.sp
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(13.dp))
 
                     // Tab buttons and underlines - matching XML layout exactly
                     Column(
