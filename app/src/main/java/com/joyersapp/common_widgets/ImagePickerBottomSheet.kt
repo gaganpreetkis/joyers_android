@@ -14,6 +14,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,19 +40,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.joyersapp.R
 import com.joyersapp.theme.Black
+import com.joyersapp.theme.DividerColor30
+import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.Red
+import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.noRippleClickable
 import kotlin.math.min
 
 @Composable
 fun ImagePickerBottomSheet(
     showBottomSheet: Boolean,
     onDismiss: () -> Unit,
-    allowMultipleSelection: Boolean = false,
     onImagesPicked: (List<Uri>) -> Unit,
     onCameraImagePicked: (Uri) -> Unit
 ) {
@@ -170,108 +177,93 @@ fun ImagePickerBottomSheet(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0x80000000))
-                    .clickable { onDismiss() },
+                    .background(LightBlack.copy(alpha = 0.3f))
+                    .noRippleClickable { onDismiss() }
+                    .systemBarsPadding(),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                        )
-                        .clickable(enabled = false) {},
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp)
                 ) {
-                    // Title
-                    Text(
-                        text = context.getString(R.string.pick_image),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Black,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 20.dp),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
+                            .background(Color.White, RoundedCornerShape(25.dp)),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
 
-                    Divider(color = Color(0xFFDDDDDD), thickness = 1.dp)
-
-                    // Camera option
-                    Text(
-                        text = context.getString(R.string.take_photo_from_camera),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                if (androidx.core.content.ContextCompat.checkSelfPermission(
-                                        context, Manifest.permission.CAMERA
-                                    ) == PackageManager.PERMISSION_GRANTED
-                                ) {
-                                    launchCamera()
-                                } else {
-                                    requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    openLegacyMediaPicker()
                                 }
-                            }
-                            .padding(vertical = 20.dp),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
+                                .padding(top = 21.5.dp, bottom = 25.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Choose Picture",
+                                fontSize = 18.sp,
+                                lineHeight = 22.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = fontFamilyLato,
+                                color = LightBlack
+                            )
+                        }
 
-                    Divider(color = Color(0xFFDDDDDD), thickness = 1.dp)
+                        HorizontalDivider(thickness = 1.dp, color = DividerColor30)
 
-                    if (allowMultipleSelection) {
-                        // Multiple selection option
-                        Text(
-                            text = context.getString(R.string.pick_multiple_images),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { openLegacyMediaPicker() }
-                                .padding(vertical = 20.dp),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                    } else {
-                        // Single selection option
-                        Text(
-                            text = context.getString(R.string.take_image_from_gallery),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { openLegacyMediaPicker() }
-                                .padding(vertical = 20.dp),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
+                                .clickable {
+                                    if (androidx.core.content.ContextCompat.checkSelfPermission(
+                                            context, Manifest.permission.CAMERA
+                                        ) == PackageManager.PERMISSION_GRANTED
+                                    ) {
+                                        launchCamera()
+                                    } else {
+                                        requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                    }
+                                }
+                                .padding(top = 21.5.dp, bottom = 25.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Take Picture",
+                                fontSize = 18.sp,
+                                lineHeight = 22.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = fontFamilyLato,
+                                color = LightBlack
+                            )
+                        }
+
                     }
 
                     Spacer(modifier = Modifier.height(15.dp))
 
-                    // Cancel button
-                    Card(
+                    // Cancel card
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 15.dp, vertical = 15.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                            .background(Color.White, RoundedCornerShape(20.dp))
+                            .clickable { onDismiss() }
+                            .padding(top = 22.dp, bottom = 24.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = context.getString(R.string.cancel),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onDismiss() }
-                                .padding(vertical = 23.dp),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            text = "Cancel",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = LightBlack
                         )
                     }
                 }
+
             }
         }
     }

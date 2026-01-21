@@ -268,29 +268,33 @@ fun CropBackgroundImageDialog(
                     val cropWidthPx = with(density) { cropWidth.toPx() }
                     val cropHeightPx = with(density) { cropHeight.toPx() }
 
+                    val imageWidth = imageBitmap?.width?.toFloat()?:1f
+                    val imageHeight = imageBitmap?.height?.toFloat()?:1f
+
+
+// scale needed so image fully covers the box in BOTH dimensions
+                    val scaleToFill = min(
+                        3f,
+                        3f
+                    )
+//                    scale = scaleToFill
+
                     // Full image area with pan and zoom
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .pointerInput(Unit) {
                                 detectTransformGestures { _, pan, zoom, _ ->
-                                    val newScale = (scale * zoom).coerceIn(1f, 5f)
+                                    val newScale = (scale * zoom).coerceIn(1f, 10f)
                                     val newOffsetX = offsetX + pan.x
                                     val newOffsetY = offsetY + pan.y
 
-                                    // Constrain pan to keep crop area within image bounds
-                                    imageBitmap?.let { bmp ->
-                                        val imgWidth = bmp.width.toFloat()
-                                        val imgHeight = bmp.height.toFloat()
-                                        val scaledWidth = imgWidth * newScale
-                                        val scaledHeight = imgHeight * newScale
+                                    val maxX = cropWidthPx/2 * (newScale - 1f)
+                                    val maxY = cropHeightPx/2 * (newScale - 1f)
 
-                                        val maxOffsetX = max(0f, (scaledWidth - cropWidthPx) / 2f)
-                                        val maxOffsetY = max(0f, (scaledHeight - cropHeightPx) / 2f)
+                                    offsetX = newOffsetX.coerceIn(-maxX, maxX)
+                                    offsetY = newOffsetY.coerceIn(-maxY, maxY)
 
-                                        offsetX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                                        offsetY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
-                                    }
                                     scale = newScale
                                 }
                             }

@@ -53,6 +53,7 @@ import com.joyersapp.utils.fontFamilyLato
 @Composable
 fun BackgroundImagePreviewDialog(
     showDialog: Boolean,
+    isImageCropped: Boolean,
     imageUri: Uri?,
     imagePath: String?,
     onDismiss: () -> Unit,
@@ -246,7 +247,7 @@ fun BackgroundImagePreviewDialog(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = "Done",
+                                        text = if (isImageCropped) "Save" else "Done",
                                         fontSize = 16.sp,
                                         lineHeight = 24.sp,
                                         fontWeight = FontWeight.SemiBold,

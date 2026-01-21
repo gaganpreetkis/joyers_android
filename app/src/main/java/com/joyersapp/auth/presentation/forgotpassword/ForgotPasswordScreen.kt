@@ -209,6 +209,7 @@ fun ForgotPasswordScreen(
             Text(
                 text = stringResource(R.string.forgot_password),
                 fontSize = 24.sp,
+                lineHeight = 29.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Bold,
                 color = LightBlack
@@ -225,10 +226,10 @@ fun ForgotPasswordScreen(
                         stringResource(R.string.email_sent)
                     } else stringResource(R.string.reset_password_in_two_steps),
                     fontSize = 16.sp,
+                    lineHeight = 19.sp,
                     fontFamily = fontFamilyLato,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.SemiBold,
                     color = LightBlack,
-                    lineHeight = 22.sp
                 )
             }
             Spacer(modifier = Modifier.height(if (state.showVerificationCode) 0.dp else 10.dp))

@@ -532,6 +532,7 @@ fun ResetPasswordScreen(
                     Text(
                         text = stringResource(R.string.strong),
                         fontSize = 16.sp,
+                        lineHeight = 24.sp,
                         fontFamily = fontFamilyLato,
                         fontWeight = FontWeight.SemiBold,
                         color = Green,

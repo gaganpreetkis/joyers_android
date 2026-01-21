@@ -36,8 +36,8 @@ fun AuthNavGraph() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-//        startDestination = Routes.Login.route
-        startDestination = "${Routes.Identity.route}/test/test"
+        startDestination = Routes.Login.route
+//        startDestination = "${Routes.Identity.route}/test/test"
     ) {
 
 //        composable(Routes.Splash.route) {

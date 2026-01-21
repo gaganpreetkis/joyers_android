@@ -345,6 +345,7 @@ fun PageOneContent(
     var showCropDialog by remember { mutableStateOf(false) }
     var selectedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
+    var isImageCropped by remember { mutableStateOf<Boolean>(false) }
     //var imagePath by remember { mutableStateOf<String?>(null) }
     //var headerPath by remember { mutableStateOf<String?>(null) }
     //var selectedCountryCode by remember { mutableStateOf("") }
@@ -895,7 +896,6 @@ fun PageOneContent(
     ImagePickerBottomSheet(
         showBottomSheet = showImagePickerBottomSheet,
         onDismiss = { showImagePickerBottomSheet = false },
-        allowMultipleSelection = false,
         /*onImagesPicked = { uris ->
             val profileImageUri = uris[0]
             showProfilePlaceholder = false
@@ -957,27 +957,32 @@ fun PageOneContent(
     // Profile Picture Preview Dialog
     ProfilePicturePreviewDialog(
         showDialog = showProfilePicturePreview,
+        isImageCropped = isImageCropped,
         imageUri = selectedProfileImageUri,
         imagePath = selectedProfileImagePath,
         onDismiss = {
             showProfilePicturePreview = false
             selectedProfileImageUri = null
             selectedProfileImagePath = null
+            isImageCropped = false
         },
         onChangePicture = {
             showImagePickerBottomSheet = true
+            isImageCropped = false
         },
         onDelete = {
             selectedProfileImageUri = null
             selectedProfileImagePath = null
             showProfilePlaceholder = true
             showProfilePicturePreview = true
+            isImageCropped = false
         },
         onCrop = {
             if (selectedProfileImageUri != null) {
                 //showProfilePicturePreview = false // Close preview before opening crop
                 showCropDialog = true
             }
+            isImageCropped = false
         },
         onDone = {
             selectedProfileImagePath?.let { path ->
@@ -987,6 +992,7 @@ fun PageOneContent(
             showProfilePicturePreview = false
             selectedProfileImageUri = null
             selectedProfileImagePath = null
+            isImageCropped = false
         }
     )
 
@@ -1008,6 +1014,7 @@ fun PageOneContent(
             selectedProfileImagePath = newPath
             // Show preview dialog with updated cropped image
             showProfilePicturePreview = true
+            isImageCropped = true
         }
     )
 
@@ -1041,27 +1048,32 @@ fun PageOneContent(
     // Background Image Preview Dialog
     BackgroundImagePreviewDialog(
         showDialog = showBackgroundImagePreview,
+        isImageCropped = isImageCropped,
         imageUri = selectedBackgroundImageUri,
         imagePath = selectedBackgroundImagePath,
         onDismiss = {
             showBackgroundImagePreview = false
             selectedBackgroundImageUri = null
             selectedBackgroundImagePath = null
+            isImageCropped = false
         },
         onChangePicture = {
             showImagePickerBottomSheetBack = true
+            isImageCropped = false
         },
         onDelete = {
             selectedBackgroundImageUri = null
             selectedBackgroundImagePath = null
             viewModel2.onEvent(IdentityEvent.BackgroundPicturePathChanged(""))
             showBackgroundImagePreview = false
+            isImageCropped = false
         },
         onCrop = {
             if (selectedBackgroundImageUri != null) {
                 //showBackgroundImagePreview = false // Close preview before opening crop
                 showBackgroundCropDialog = true
             }
+            isImageCropped = false
         },
         onDone = {
             selectedBackgroundImagePath?.let { path ->
@@ -1070,6 +1082,7 @@ fun PageOneContent(
             showBackgroundImagePreview = false
             selectedBackgroundImageUri = null
             selectedBackgroundImagePath = null
+            isImageCropped = false
         }
     )
 
@@ -1091,6 +1104,7 @@ fun PageOneContent(
             selectedBackgroundImagePath = newPath
             // Show preview dialog with updated cropped image
             showBackgroundImagePreview = true
+            isImageCropped = true
         }
     )
 }
@@ -1213,6 +1227,7 @@ fun PageTwoContent(
             Text(
                 text = context.getString(R.string.clarifications),
                 fontSize = 16.sp,
+                lineHeight = 19.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.SemiBold,
                 color = LightBlack,

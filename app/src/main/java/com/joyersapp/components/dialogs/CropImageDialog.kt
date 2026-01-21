@@ -1,8 +1,13 @@
 package com.joyersapp.components.dialogs
 
+import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.media.ExifInterface
 import android.net.Uri
 import androidx.compose.foundation.Canvas
@@ -12,6 +17,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -46,6 +55,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -231,20 +242,20 @@ fun CropImageDialog(
         )
 
         // Create circular mask
-        val circular = Bitmap.createBitmap(cropSizeInt, cropSizeInt, Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(circular)
-        val paint = android.graphics.Paint().apply {
-            isAntiAlias = true
-            color = android.graphics.Color.WHITE
-        }
-        val radius = cropSizeInt / 2f
-        canvas.drawCircle(radius, radius, radius, paint)
-        paint.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
-        canvas.drawBitmap(cropped, 0f, 0f, paint)
+//        val circular = Bitmap.createBitmap(cropSizeInt, cropSizeInt, Bitmap.Config.ARGB_8888)
+//        val canvas = android.graphics.Canvas(circular)
+//        val paint = android.graphics.Paint().apply {
+//            isAntiAlias = true
+//            color = android.graphics.Color.WHITE
+//        }
+//        val radius = cropSizeInt / 2f
+//        canvas.drawCircle(radius, radius, radius, paint)
+//        paint.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
+//        canvas.drawBitmap(cropped, 0f, 0f, paint)
 
         val destFile = File(context.cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
         FileOutputStream(destFile).use {
-            circular.compress(Bitmap.CompressFormat.JPEG, 90, it)
+            cropped.compress(Bitmap.CompressFormat.PNG, 100, it)
         }
         val newUri = Uri.fromFile(destFile)
         onCropped(newUri, destFile.path)
@@ -297,19 +308,12 @@ fun CropImageDialog(
                                         val newOffsetX = offsetX + pan.x
                                         val newOffsetY = offsetY + pan.y
 
-                                        // Constrain pan to keep crop area within image bounds
-                                        imageBitmap?.let { bmp ->
-                                            val imgWidth = bmp.width.toFloat()
-                                            val imgHeight = bmp.height.toFloat()
-                                            val scaledWidth = imgWidth * newScale
-                                            val scaledHeight = imgHeight * newScale
+                                        val maxX = cropRadius * (newScale - 1f)
+                                        val maxY = cropRadius * (newScale - 1f)
 
-                                            val maxOffsetX = max(0f, (scaledWidth - cropSizePx) / 2f)
-                                            val maxOffsetY = max(0f, (scaledHeight - cropSizePx) / 2f)
+                                        offsetX = newOffsetX.coerceIn(-maxX, maxX)
+                                        offsetY = newOffsetY.coerceIn(-maxY, maxY)
 
-                                            offsetX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                                            offsetY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
-                                        }
                                         scale = newScale
                                     }
                                 }

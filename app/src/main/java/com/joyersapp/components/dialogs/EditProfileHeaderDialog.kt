@@ -141,6 +141,7 @@ fun EditProfileHeaderDialog(
     var showCropDialog by remember { mutableStateOf(false) }
     var selectedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
+    var isImageCropped by remember { mutableStateOf<Boolean>(false) }
 
     // Background image preview and crop states
     var showBackgroundImagePreview by remember { mutableStateOf(false) }
@@ -319,7 +320,6 @@ fun EditProfileHeaderDialog(
     ImagePickerBottomSheet(
         showBottomSheet = showImagePickerBottomSheet,
         onDismiss = { showImagePickerBottomSheet = false },
-        allowMultipleSelection = false,
         onImagesPicked = { uris ->
             val profileImageUri = uris[0]
             if (profileImageUri.path!!.isNotEmpty()) {
@@ -345,27 +345,32 @@ fun EditProfileHeaderDialog(
     // Profile Picture Preview Dialog
     ProfilePicturePreviewDialog(
         showDialog = showProfilePicturePreview,
+        isImageCropped = isImageCropped,
         imageUri = selectedProfileImageUri,
         imagePath = selectedProfileImagePath,
         onDismiss = {
             showProfilePicturePreview = false
             selectedProfileImageUri = null
             selectedProfileImagePath = null
+            isImageCropped = false
         },
         onChangePicture = {
             showImagePickerBottomSheet = true
+            isImageCropped = false
         },
         onDelete = {
             selectedProfileImageUri = null
             selectedProfileImagePath = null
             showProfilePlaceholder = true
             showProfilePicturePreview = true
+            isImageCropped = false
         },
         onCrop = {
             if (selectedProfileImageUri != null) {
                 //showProfilePicturePreview = false // Close preview before opening crop
                 showCropDialog = true
             }
+            isImageCropped = false
         },
         onDone = {
             selectedProfileImagePath?.let { path ->
@@ -375,6 +380,7 @@ fun EditProfileHeaderDialog(
             showProfilePicturePreview = false
             selectedProfileImageUri = null
             selectedProfileImagePath = null
+            isImageCropped = false
         }
     )
 
@@ -396,6 +402,7 @@ fun EditProfileHeaderDialog(
             selectedProfileImagePath = newPath
             // Show preview dialog with updated cropped image
             showProfilePicturePreview = true
+            isImageCropped = true
         }
     )
 
@@ -429,15 +436,18 @@ fun EditProfileHeaderDialog(
     // Background Image Preview Dialog
     BackgroundImagePreviewDialog(
         showDialog = showBackgroundImagePreview,
+        isImageCropped = isImageCropped,
         imageUri = selectedBackgroundImageUri,
         imagePath = selectedBackgroundImagePath,
         onDismiss = {
             showBackgroundImagePreview = false
             selectedBackgroundImageUri = null
             selectedBackgroundImagePath = null
+            isImageCropped = false
         },
         onChangePicture = {
             showImagePickerBottomSheetBack = true
+            isImageCropped = false
         },
         onDelete = {
             selectedBackgroundImageUri = null
@@ -450,12 +460,14 @@ fun EditProfileHeaderDialog(
                 )
             )
             showBackgroundImagePreview = false
+            isImageCropped = false
         },
         onCrop = {
             if (selectedBackgroundImageUri != null) {
                 //showBackgroundImagePreview = false // Close preview before opening crop
                 showBackgroundCropDialog = true
             }
+            isImageCropped = false
         },
         onDone = {
             selectedBackgroundImagePath?.let { path ->
@@ -464,6 +476,7 @@ fun EditProfileHeaderDialog(
             showBackgroundImagePreview = false
             selectedBackgroundImageUri = null
             selectedBackgroundImagePath = null
+            isImageCropped = false
         }
     )
 
@@ -485,6 +498,7 @@ fun EditProfileHeaderDialog(
             selectedBackgroundImagePath = newPath
             // Show preview dialog with updated cropped image
             showBackgroundImagePreview = true
+            isImageCropped = true
         }
     )
 }
