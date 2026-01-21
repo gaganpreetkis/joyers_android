@@ -699,6 +699,7 @@ fun PageOneContent(
                         .clickable {
                             viewModel2.onEvent(IdentityEvent.NameChanged(""))
                             viewModel2.onEvent(IdentityEvent.RemainingCharChanged(45))
+                            usernameError = null
                                    },
                     contentAlignment = Alignment.Center
                 ) {
