@@ -68,6 +68,7 @@ import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
+import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -498,9 +499,8 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
         Spacer(Modifier.height(11.dp))
 
         if (!state?.politicalIdeology.isNullOrEmpty()) {
-            KeyValueText(
-                "Political Ideology",
-                state.politicalIdeology?.get(0)?.dropdownPoliticalIdeology?.name?: ""
+            PoliticalIdeoLogySection(
+                state.politicalIdeology!!
             )
         } else {
             ProfileEditableRow(title = "Political Ideology") }
@@ -1131,6 +1131,124 @@ fun NationalitySection(
                         )
 
                         if (index != nationalties.lastIndex) {
+                            Spacer(Modifier.width(10.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(LightBlack55)
+                                    .size(3.dp)
+                            )
+                            Spacer(Modifier.width(10.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun PoliticalIdeoLogySection(
+    values: List<PoliticalIdeology>
+) {
+    var seeAll by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .clip(CircleShape)
+                    .background(LightBlack)
+                    .size(6.dp)
+            )
+            Spacer(Modifier.width(10.dp))
+
+            // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = if (seeAll) 100 else 4,
+                overflow = FlowRowOverflow.expandOrCollapseIndicator(
+                    minRowsToShowCollapse = 4,
+                    expandIndicator = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            Text(
+                                text = "See All",
+                                fontSize = 12.sp,
+                                lineHeight = 22.sp,
+                                color = Golden,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(top = 9.dp)
+                                    .noRippleClickable() { seeAll = true }
+                            )
+                        }
+                    },
+                    collapseIndicator = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            Text(
+                                text = "Show Less",
+                                fontSize = 12.sp,
+                                lineHeight = 22.sp,
+                                color = Golden,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(top = 9.dp)
+                                    .noRippleClickable() { seeAll = false }
+                            )
+                        }
+                    }
+                )
+            ) {
+
+                Text(
+                    text = "Political Ideology :",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamilyLato,
+                    color = LightBlack,
+                    lineHeight = 22.sp,
+                )
+                Spacer(Modifier.width(10.dp))
+
+                values.forEachIndexed { index, item ->
+                    val name = item.dropdownPoliticalIdeology?.name?: ""
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = name,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = fontFamilyLato,
+                            color = LightBlack,
+                            lineHeight = 22.sp,
+                        )
+
+                        if (index != values.lastIndex) {
                             Spacer(Modifier.width(10.dp))
                             Box(
                                 modifier = Modifier
