@@ -102,7 +102,7 @@ fun ProfileIdentitySection(
             Column(
                 modifier = Modifier
                     .background(White)
-                    .padding(top = 0.dp, start = 15.dp, bottom = 20.dp, end = 15.dp)
+                    .padding(top = 10.dp, start = 15.dp, bottom = 12.dp, end = 15.dp)
             ) {
                 /** -------- Key-Value Rows -------- */
                 ProfileKeyValueRow(label = "Gender", value = state.gender?:"")
@@ -129,7 +129,7 @@ fun ProfileKeyValueRow(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp)
+                .padding(vertical = 8.dp)
         ) {
             Text(
                 text = label,
@@ -162,7 +162,7 @@ private fun NationalityField(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp)
+                .padding(vertical = 8.dp)
         ) {
             Text(
                 text = label,
@@ -213,7 +213,7 @@ private fun LanguageField(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp)
+                .padding(vertical = 8.dp)
         ) {
             Text(
                 text = label,

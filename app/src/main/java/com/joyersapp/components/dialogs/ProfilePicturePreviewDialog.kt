@@ -139,7 +139,7 @@ fun ProfilePicturePreviewDialog(
                                     )
                                 } else {
                                     Image(
-                                        painter = painterResource(id = R.drawable.suggestion_joy),
+                                        painter = painterResource(id = R.drawable.ic_nav_joyers_home),
                                         contentDescription = "Upload placeholder",
                                         modifier = Modifier
                                             .fillMaxSize()

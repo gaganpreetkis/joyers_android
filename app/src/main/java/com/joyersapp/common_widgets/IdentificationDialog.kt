@@ -246,7 +246,7 @@ fun IdentificationDialog(
                                 show = true,
                                 headers = arrayListOf("Identification", "Political Ideology"),
                                 titlesData = state.politicalIdeologyList,
-                                selectedIds = identificationData.politicalIdeology?.map { it.dropdownPoliticalIdeology?.id?: "" }?: emptyList()
+                                selectedIds = identificationData.politicalIdeology?.map { it.politicalIdeology?.id?: "" }?: emptyList()
                             )
                         )
                     },
@@ -747,7 +747,7 @@ fun PoliticalIdeologyField(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text = values[0].dropdownPoliticalIdeology?.name?: "",
+                                    text = values[0].politicalIdeology?.name?: "",
                                     fontSize = 16.sp,
                                     lineHeight = 23.sp,
                                     fontFamily = fontFamilyLato,
@@ -847,7 +847,7 @@ fun PoliticalIdeologyField(
                         )
                     ) {
                         values.forEachIndexed { index, item ->
-                            val name = item.dropdownPoliticalIdeology?.name?: ""
+                            val name = item.politicalIdeology?.name?: ""
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -1169,14 +1169,14 @@ data class IdentificationData(
             Pair("Birthday", birthday),
             Pair("Gender", gender),
             Pair("Nationality", nationality),
-            Pair("Ethnicity", ethnicity),
-            Pair("Faith", faith),
+            Pair("Ethnicity", ethnicity?.name),
+            Pair("Faith", faith?.name),
             Pair("Language", language),
-            Pair("Education", education),
-            Pair("Relationship", relationship),
+            Pair("Education", education?.name),
+            Pair("Relationship", relationship?.name),
 //            Pair("Children", ""),
             Pair("Political Ideology", politicalIdeology),
-            Pair("Joyer Location", location),
+            Pair("Joyer Location", location?.name),
         )
 }
 

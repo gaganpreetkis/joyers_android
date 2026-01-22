@@ -88,6 +88,7 @@ import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Golden60
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
+import com.joyersapp.theme.GrayBG5
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack55
@@ -163,7 +164,8 @@ fun MentionJoyersDialog(
                 )
             } else {
                 Row(
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    modifier = Modifier
+                        .padding(bottom = 13.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -209,16 +211,15 @@ fun MentionJoyersDialog(
             // Card with profile and header images
             Card(
                 modifier = Modifier
-                    .padding(bottom = 15.dp)
                     .width(384.dp)
                     .border(
                         width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
                     ),
                 shape = RoundedCornerShape(5.dp),
-                colors = CardDefaults.cardColors(containerColor = Gray20)
+                colors = CardDefaults.cardColors(containerColor = GrayBG5)
             ) {
                 Column() {
-                    Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
                     SearchBarRowForEditMaganetic(
                         searchQuery = searchQuery,
                         onSearchQueryChanged = { viewmodel.onEvent(MentionJoyersEvent.OnSearchQueryChanged(it)) },
@@ -228,14 +229,26 @@ fun MentionJoyersDialog(
 
                     if (!state.isAddMentionsMode) {
                         Spacer(modifier = Modifier.height(10.dp))
-                        MentionJoyersScreen(
-                            userList,
-                            onUserClick = { selectedUser ->
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 15.dp, end = 15.dp)
+                                .width(354.dp)
+                                .clip(RoundedCornerShape(5.dp))
+                                .background(
+                                    color = Color.White, shape = RoundedCornerShape(5.dp)
+                                )
+//            .border(
+//                width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
+//            ),
+                        ) {
+                            JoyersList(userList, onUserClick = { selectedUser ->
                                 viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
-                            }
-                        )
+                            })
+                        }
+                        Spacer(modifier = Modifier.height(15.dp))
                     }
-//                    Spacer(modifier = Modifier.height(15.dp))
                 }
 
 
@@ -263,14 +276,14 @@ fun SearchBarRowForEditMaganetic(
     onAddMentionsClick: () -> Unit
 ) {
     val lightBlackColor = LightBlack
-    val hintColor = Gray40
-    val whiteColor = Color.White
+    val hintColor = LightBlack.copy(alpha = 0.60f)
+    val whiteColor = White
 
     Row(
         modifier = dialogModifier
             .fillMaxWidth()
-            .height(35.dp)
-            .padding(start = 15.dp, end = 15.dp),
+            .height(30.dp)
+            .padding(start = 14.dp, end = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -280,12 +293,12 @@ fun SearchBarRowForEditMaganetic(
             modifier = dialogModifier
                 .width(314.dp) // 🔥 KEY FIX
                 .height(30.dp)
-                .clip(RoundedCornerShape(35.dp))
+                .clip(RoundedCornerShape(50))
                 .background(whiteColor)
                 .border(
                     width = 1.dp,
                     color = GrayLightBorder,
-                    shape = RoundedCornerShape(35.dp)
+                    shape = RoundedCornerShape(50)
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -300,7 +313,8 @@ fun SearchBarRowForEditMaganetic(
                     platformStyle = PlatformTextStyle(includeFontPadding = false),
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Normal,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp
                 ),
                 containerColor = Color.White,
                 contentColor = lightBlackColor,
@@ -315,13 +329,13 @@ fun SearchBarRowForEditMaganetic(
                     painter = painterResource(id = R.drawable.ic_cancel_grey),
                     contentDescription = null,
                     modifier = dialogModifier
-                        .padding(start = 10.dp, end = 16.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
+                        .padding(start = 10.dp, end = 14.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
                         .size(15.dp)
                         .clickable { onSearchQueryChanged("") }
                 )
             } else {
                 // Spacer to maintain consistent padding when icon is not visible
-                Spacer(modifier = dialogModifier.width(41.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
+                Spacer(modifier = dialogModifier.width(39.dp)) // 10.dp + 15.dp icon + 16.dp = 41.dp total
             }
         }
 
@@ -347,7 +361,7 @@ fun SearchBarRowForEditMaganetic(
 fun MentionJoyersScreen(userlist: List<EditMagneticsUserListData>, onUserClick: (EditMagneticsUserListData) -> Unit) {
     Column(
         modifier = Modifier
-            .padding( start = 15.dp, end = 15.dp)
+            .padding(start = 15.dp, end = 15.dp)
             .width(354.dp)
             .clip(RoundedCornerShape(5.dp))
             .background(
@@ -366,11 +380,13 @@ fun JoyersList(getPreviewJoyerList: List<EditMagneticsUserListData>,
                onUserClick: (EditMagneticsUserListData) -> Unit) {
     LazyColumn {
         itemsIndexed(getPreviewJoyerList) { index, user ->
-            Spacer(Modifier.height(15.dp))
-            MentionJoyerRow(showCancelButton = false, user, onUserClick = onUserClick)
-            if (getPreviewJoyerList.size -1  == index) {
-                Spacer(Modifier.height(25.dp))
-            }
+//            if (index < 5) {
+                Spacer(Modifier.height(15.dp))
+                MentionJoyerRow(showCancelButton = false, user, onUserClick = onUserClick)
+                if (getPreviewJoyerList.size - 1 == index) {
+                    Spacer(Modifier.height(25.dp))
+                }
+//            }
         }
     }
 }
@@ -496,7 +512,10 @@ fun MentionJoyerRow(
 
 //                if (joyer.showLock && joyer.starCount > 0) {
                     Spacer(modifier = Modifier.width(7.dp))
-                    Box(modifier = Modifier.size(3.dp).clip(CircleShape).background(LightBlack55))
+                    Box(modifier = Modifier
+                        .size(3.dp)
+                        .clip(CircleShape)
+                        .background(LightBlack55))
                     Spacer(modifier = Modifier.width(7.dp))
 //                }
 
@@ -523,7 +542,10 @@ fun MentionJoyerRow(
                     modifier = Modifier.weight(1f, false)
                 )
                 Spacer(modifier = Modifier.width(5.dp))
-                Box(modifier = Modifier.size(3.dp).clip(CircleShape).background(LightBlack55))
+                Box(modifier = Modifier
+                    .size(3.dp)
+                    .clip(CircleShape)
+                    .background(LightBlack55))
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = "Following",
@@ -701,7 +723,7 @@ private fun BaseMentionJoyersDialog(
             Row(
                 modifier = dialogModifier
                     .fillMaxWidth()
-                    .padding(top = 16.7.dp, start = 18.dp, end = 23.dp),
+                    .padding(top = 16.dp, start = 18.dp, end = 19.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 // Back button (only visible in subtitle mode)
@@ -722,11 +744,11 @@ private fun BaseMentionJoyersDialog(
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         color = lightBlackColor,
-                        modifier = dialogModifier.padding(top = 0.dp)
+                        modifier = dialogModifier.padding(top = 2.dp)
                     )
                 } else {
                     FlowRow(
-                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp, start = 10.dp, end = 10.dp),
+                        modifier = dialogModifier.padding(top = 4.dp, bottom = 2.dp, start = 10.dp, end = 10.dp),
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         titles.forEachIndexed { index, item ->

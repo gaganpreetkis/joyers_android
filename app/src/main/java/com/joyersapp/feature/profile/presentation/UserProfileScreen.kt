@@ -54,6 +54,7 @@ import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.dialogs.DescriptionDialog
+import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.core.NetworkConfig
@@ -114,7 +115,9 @@ fun UserProfileScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
 
-                    ProfileInfo(state)
+                    ProfileInfo(
+                        state,
+                        onEditProfile = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true)) })
 
                     BioSection(
                         bioText = state.bio?:"",
@@ -198,13 +201,28 @@ fun UserProfileScreen(
                     }
                 )
             }
+            if (state.showEditProfileHeaderDialog) {
+                EditProfileHeaderDialog(
+                    viewModel = viewModel,
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false)) },
+                    onApply = { data ->
+                        viewModel.onEvent(UserProfileEvent.InitMagneticsData)
+                        viewModel.onEvent(UserProfileEvent.OnApplyProfileHeader(data))
+                        viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false))
+                        editMagnetics()
+                    },
+                )
+            }
         }
 //    }
 }
 
 
 @Composable
-fun ProfileInfo(state: UserProfileUiState) {
+fun ProfileInfo(
+    state: UserProfileUiState,
+    onEditProfile: () -> Unit
+) {
     val gold = Golden
     val lightBlackText = LightBlack
 
@@ -243,7 +261,9 @@ fun ProfileInfo(state: UserProfileUiState) {
                 .size(35.dp)
                 .clip(CircleShape)
                 .background(White.copy(alpha = 0.75f))
-                .clickable { }
+                .clickable {
+                    onEditProfile()
+                }
         ) {
             Image(
                 painter = painterResource(R.drawable.ic_edit_pencil),
@@ -288,7 +308,7 @@ fun ProfileInfo(state: UserProfileUiState) {
         }
 
         /** Refresh badge */
-        if (!state.profilePicture.isNullOrEmpty()) {
+        /*if (!state.profilePicture.isNullOrEmpty()) {
             Box(
                 modifier = Modifier
                     .offset(x = 106.dp, y = 183.dp)
@@ -302,7 +322,7 @@ fun ProfileInfo(state: UserProfileUiState) {
                     modifier = Modifier.size(20.dp)
                 )
             }
-        }
+        }*/
 
         /** ---------------- Text Content ---------------- */
         // Name, subtitle, location

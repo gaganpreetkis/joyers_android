@@ -25,6 +25,7 @@ data class UserProfileGraphRequestDto (
     @SerializedName("education_id"          ) var educationId         : String?           = null,
     @SerializedName("relationship_id"       ) var relationshipId      : String?           = null,
     @SerializedName("political_ideology_id" ) var politicalIdeologyId : List<String>?           = null,
+    @SerializedName("sub_political_ideology_id" ) var subPoliticalIdeologyId : List<String>?           = null,
     @SerializedName("joyer_location_id"     ) var joyerLocationId     : String?           = null,
     @SerializedName("language_id"           ) var languageId          : List<LanguageReq>? = null,
     @SerializedName("sub_language_id"       ) var subLanguageId       : List<String>? = null,

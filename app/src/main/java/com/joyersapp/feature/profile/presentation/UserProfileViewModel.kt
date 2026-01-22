@@ -222,7 +222,7 @@ class UserProfileViewModel @Inject constructor(
                         it.dropdownInterests?.id ?: ""
                     },
                     politicalIdeologyId = if (magneticsData.identificationData?.politicalIdeology.isNullOrEmpty()) null else magneticsData.identificationData.politicalIdeology?.map {
-                        it.dropdownPoliticalIdeology?.id ?: ""
+                        it.politicalIdeology?.id ?: ""
                     },
                     ethnicityId = magneticsData.identificationData?.ethnicity?.id,
                     faithId = magneticsData.identificationData?.faith?.id,
@@ -398,7 +398,7 @@ class UserProfileViewModel @Inject constructor(
 
                         val selectedMeta = selected.map {
                             PoliticalIdeology(
-                                dropdownPoliticalIdeology = ProfileMeta(
+                                politicalIdeology = ProfileMeta(
                                     id = it.id,
                                     name = it.name,
                                     description = it.description,

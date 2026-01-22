@@ -79,7 +79,8 @@ data class Interests (
 )
 data class PoliticalIdeology (
 
-    @SerializedName("dropdown_political_ideology" ) var dropdownPoliticalIdeology : ProfileMeta? = ProfileMeta()
+    @SerializedName("political_ideology" ) var politicalIdeology : ProfileMeta? = ProfileMeta(),
+@SerializedName("subpolitical_ideology" ) var subpoliticalIdeology : String?            = null
 
 )
 data class Nationality (

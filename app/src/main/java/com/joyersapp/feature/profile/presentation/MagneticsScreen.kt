@@ -380,24 +380,63 @@ fun InterestsSection(state: MagneticsData, onClick: () -> Unit) {
 @Composable
 fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
 
-//    LazyColumn(
-//        Modifier
-//            .background(White)
-//            .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
-//            .noRippleClickable{ onClick() },
-//    ) {
-//        itemsIndexed(state?.dataList?.entries?.toList()!!) { key, value ->
-//
-//            when(value) {
-//                is String -> {}
-//
-//            }
-//
-//
-//        }
-//    }
-//
-//    Spacer(Modifier.height(13.dp))
+ /*   LazyColumn(
+        Modifier
+            .background(White)
+            .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
+            .noRippleClickable{ onClick() },
+    ) {
+        itemsIndexed(state?.dataList?.entries?.toList()!!) { key, value ->
+
+            when(value.key) {
+                "Name","Birthday","Gender","Ethnicity","Faith","Education", "Relationship" -> {
+
+                    val first = value.key
+                    val second = value.value as String?
+                    Spacer(Modifier.height(11.dp))
+
+                    if (!second.isNullOrEmpty()) {
+                        KeyValueText(
+                            first,
+                            second
+                        )
+                    } else { ProfileEditableRow(title = first) }
+
+                }
+                "Nationality" -> {
+
+                    Spacer(Modifier.height(11.dp))
+
+                    if (!state?.nationality.isNullOrEmpty()) {
+                        NationalitySection(state.nationality!!)
+                    } else {
+                        ProfileEditableRow(title = "Nationality") }
+                }
+                "Language" -> {
+
+                    Spacer(Modifier.height(11.dp))
+                    if (!state?.language.isNullOrEmpty()) {
+                        LanguageSection(languages = state.language!!)
+                    } else {
+                        ProfileEditableRow(title = "Language") }
+                }
+                "Political Ideology" -> {
+
+                    Spacer(Modifier.height(11.dp))
+                    if (!state?.politicalIdeology.isNullOrEmpty()) {
+                        PoliticalIdeoLogySection(
+                            state.politicalIdeology!!
+                        )
+                    } else {
+                        ProfileEditableRow(title = "Political Ideology") }
+                }
+
+            }
+        }
+    }
+    Spacer(Modifier.height(13.dp))*/
+
+
     Column(
         Modifier
             .background(White)
@@ -515,15 +554,6 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
         } else {
             ProfileEditableRow(title = "Joyer Location") }
 
-        /*val staticItems = listOf(
-            "Name", "Birthday", "Gender", "Nationality", "Ethnicity", "Faith",
-            "Language", "Education", "Relationship", "Children",
-            "Political Ideology", "Joyer Location"
-        )
-
-            staticItems.forEach { item ->
-            ProfileEditableRow(title = item)
-        }*/
     }
 }
 
@@ -1236,7 +1266,7 @@ fun PoliticalIdeoLogySection(
                 Spacer(Modifier.width(10.dp))
 
                 values.forEachIndexed { index, item ->
-                    val name = item.dropdownPoliticalIdeology?.name?: ""
+                    val name = item.politicalIdeology?.name?: ""
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(

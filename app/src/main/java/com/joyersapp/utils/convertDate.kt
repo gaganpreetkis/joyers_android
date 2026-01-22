@@ -11,7 +11,7 @@ fun convertDate(input: String?): String {
             DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
 
         val outputFormatter =
-            DateTimeFormatter.ofPattern("dd-MMM-yyyy")
+            DateTimeFormatter.ofPattern("dd MMM yyyy")
 
         return LocalDate.parse(input, inputFormatter)
             .format(outputFormatter)
