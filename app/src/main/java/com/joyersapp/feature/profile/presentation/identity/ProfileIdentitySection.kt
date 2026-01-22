@@ -96,7 +96,7 @@ fun ProfileIdentitySection(
         Spacer(Modifier.height(8.dp))
 
         if (
-            !state.gender.isNullOrEmpty() || state.nationality.isNotEmpty() || !state.ethnicity?.name.isNullOrEmpty() || !state.faith?.name.isNullOrEmpty() || state.languages.isNotEmpty() || !state.education?.name.isNullOrEmpty() || !state.location?.name.isNullOrEmpty()
+            !state.gender.isNullOrEmpty() || !state.nationality.isNullOrEmpty() || !state.ethnicity?.name.isNullOrEmpty() || !state.faith?.name.isNullOrEmpty() || !state.languages.isNullOrEmpty() || !state.education?.name.isNullOrEmpty() || !state.location?.name.isNullOrEmpty()
             ) {
 
             Column(
@@ -156,9 +156,9 @@ fun ProfileKeyValueRow(
 @Composable
 private fun NationalityField(
     label: String,
-    values: List<Nationality>
+    values: List<Nationality>?
 ) {
-    if (values.isNotEmpty()) {
+    if (!values.isNullOrEmpty()) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -207,9 +207,9 @@ private fun NationalityField(
 @Composable
 private fun LanguageField(
     label: String,
-    values: List<Languages>
+    values: List<Languages>?
 ) {
-    if (values.isNotEmpty()) {
+    if (!values.isNullOrEmpty()) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

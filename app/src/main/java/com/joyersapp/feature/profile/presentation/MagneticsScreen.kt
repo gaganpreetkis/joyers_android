@@ -89,6 +89,7 @@ import com.joyersapp.utils.filteredBio
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.noRippleClickable
+import kotlin.collections.isNullOrEmpty
 
 //@Preview
 //@Composable
@@ -148,67 +149,161 @@ fun MagneticsScreen(
             HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
             // Scrollable column
-            Column(
+            LazyColumn (
                 Modifier
-                    .verticalScroll(rememberScrollState())
             ) {
-                Spacer(Modifier.height(10.dp))
-                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
+
+                item {
+                    Spacer(Modifier.height(10.dp))
+                    HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
 
-                /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
-                ProfileHeaderSection( magneticsData.profileHeaderData) {
-                    viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true))
+                    /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
+                    ProfileHeaderSection( magneticsData.profileHeaderData) {
+                        viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true))
+                    }
                 }
 
-                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
-                Spacer(Modifier.height(10.dp))
-                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
+                item {
+                    HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
+                    Spacer(Modifier.height(10.dp))
+                    HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
 
-                /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
-                val headers = arrayListOf("Description", "Joyer Status", magneticsData.joyerStatus)
-                if (state.title != null) headers.add(state.title?.name?: "")
-                if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
-                DescriptionSection( state.magneticsData) {
-                    viewModel.onEvent(
-                        UserProfileEvent.ToggleDescriptionDialog(
-                            show = true,
-                            titlesData = state.titles,
+                    /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
+                    val headers = arrayListOf("Description", "Joyer Status", magneticsData.joyerStatus)
+                    if (state.title != null) headers.add(state.title?.name?: "")
+                    if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
+                    DescriptionSection( state.magneticsData) {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleDescriptionDialog(
+                                show = true,
+                                titlesData = state.titles,
+                            )
                         )
-                    )
+                    }
                 }
 
-                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
-                Spacer(Modifier.height(10.dp))
-                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
+                item {
+
+                    HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
+                    Spacer(Modifier.height(10.dp))
+                    HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
 
-                /** ─────────────── SECTION: IDENTIFICATION  ─────────────── **/
-                IdentificationSection( magneticsData.identificationData) {
-                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
+//                    /** ─────────────── SECTION: IDENTIFICATION  ─────────────── **/
+//                    IdentificationSection( magneticsData.identificationData) {
+//                        viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
+//                    }
+
+
                 }
 
-                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
-                Spacer(Modifier.height(10.dp))
-                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
+                item {
+                    Column (
+                        Modifier
+                            .background(White)
+                            .fillMaxWidth()
+                            .padding(top = 17.dp, bottom = 2.dp, start = 15.dp, end = 15.dp)
+                            .noRippleClickable{ viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true)) },
+                    ) {
+                        SectionHeader(title = "Identification")
+                    }
+                }
+
+                val identificationEntries =
+                    magneticsData.identificationData
+                        ?.sortedDataList
+                        ?.entries
+                        ?.toList()
+                        ?: emptyList()
+
+                itemsIndexed(identificationEntries) { key, value ->
+
+                    Column (
+                        Modifier
+                            .background(White)
+                            .padding(top = 11.dp, bottom = 0.dp, start = 15.dp, end = 15.dp)
+                            .noRippleClickable{ viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true)) },
+                    ) {
+                        when(value.key) {
+                            "Name","Birthday","Gender","Ethnicity","Faith","Education", "Relationship", "Joyer Location" -> {
+
+                                val first = value.key
+                                val second = value.value as String?
+
+                                if (!second.isNullOrEmpty()) {
+                                    KeyValueText(
+                                        first,
+                                        second
+                                    )
+                                } else { ProfileEditableRow(title = first) }
+
+                            }
+                            "Nationality" -> {
 
 
-                /** ─────────────── SECTION: INTERESTS ─────────────── **/
-                InterestsSection( magneticsData) {
-                    viewModel.onEvent(
-                        UserProfileEvent.ToggleMultipleSelectionsDialog(
-                            "Interests",
-                            isMultiSelectEnabled = true,
-                            show = true,
-                            headers = arrayListOf("Interests"),
-                            titlesData = state.interestList,
-                            selectedIds = state.magneticsData.interests?.map { it.dropdownInterests?.id?: "" }?: emptyList()
+                                if (!magneticsData.identificationData?.nationality.isNullOrEmpty()) {
+                                    NationalitySection(magneticsData.identificationData.nationality!!)
+                                } else {
+                                    ProfileEditableRow(title = "Nationality") }
+                            }
+                            "Language" -> {
+
+                                if (!magneticsData.identificationData?.language.isNullOrEmpty()) {
+                                    LanguageSection(languages = magneticsData.identificationData.language!!)
+                                } else {
+                                    ProfileEditableRow(title = "Language") }
+                            }
+                            "Political Ideology" -> {
+
+                                if (!magneticsData.identificationData?.politicalIdeology.isNullOrEmpty()) {
+                                    PoliticalIdeoLogySection(
+                                        magneticsData.identificationData.politicalIdeology!!
+                                    )
+                                } else {
+                                    ProfileEditableRow(title = "Political Ideology") }
+                            }
+                        }
+                    }
+                }
+                item {
+                    Column (
+                        Modifier
+                            .background(White)
+                            .fillMaxWidth()
+                            .noRippleClickable{ viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true)) },
+                    ) {
+                        Spacer(Modifier.height(20.dp))
+                    }
+                }
+
+
+                item {
+
+                    HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
+                    Spacer(Modifier.height(10.dp))
+                    HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
+
+
+                    /** ─────────────── SECTION: INTERESTS ─────────────── **/
+                    InterestsSection( magneticsData) {
+                        viewModel.onEvent(
+                            UserProfileEvent.ToggleMultipleSelectionsDialog(
+                                "Interests",
+                                isMultiSelectEnabled = true,
+                                show = true,
+                                headers = arrayListOf("Interests"),
+                                titlesData = state.interestList,
+                                selectedIds = state.magneticsData.interests?.map { it.dropdownInterests?.id?: "" }?: emptyList()
+                            )
                         )
-                    )
+                    }
+
+                    Spacer(Modifier.height(80.dp))
                 }
 
-                Spacer(Modifier.height(80.dp))
+
 
             }
         }
@@ -315,20 +410,20 @@ fun TopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // lock
-            Box(contentAlignment = Alignment.TopEnd) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_lock_heart_black),
-                    contentDescription = "Lock",
-                    modifier = Modifier.size(13.39.dp, 20.dp)
-                )
-            }
+//            Box(contentAlignment = Alignment.TopEnd) {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_lock_heart_black),
+//                    contentDescription = "Lock",
+//                    modifier = Modifier.size(13.39.dp, 20.dp)
+//                )
+//            }
 
-            Spacer(modifier = Modifier.width(7.01.dp))
+//            Spacer(modifier = Modifier.width(7.01.dp))
 
             // Username
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = username,
+                    text = "@$username",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = fontFamilyLato,
@@ -337,12 +432,12 @@ fun TopBar(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(Modifier.width(7.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.arrowdown_lite),
-                    contentDescription = "Dropdown",
-                    modifier = Modifier.size(14.dp, 8.dp)
-                )
+//                Spacer(Modifier.width(7.dp))
+//                Image(
+//                    painter = painterResource(id = R.drawable.arrowdown_lite),
+//                    contentDescription = "Dropdown",
+//                    modifier = Modifier.size(14.dp, 8.dp)
+//                )
             }
         }
 
@@ -380,7 +475,7 @@ fun InterestsSection(state: MagneticsData, onClick: () -> Unit) {
 @Composable
 fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
 
- /*   LazyColumn(
+    LazyColumn(
         Modifier
             .background(White)
             .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
@@ -434,10 +529,12 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
             }
         }
     }
-    Spacer(Modifier.height(13.dp))*/
+    Spacer(Modifier.height(13.dp))
 
 
-    Column(
+
+
+/*    Column(
         Modifier
             .background(White)
             .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
@@ -525,7 +622,7 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
         } else {
             ProfileEditableRow(title = "Relationship") }
 
-        /*    Spacer(Modifier.height(11.dp))
+        *//*    Spacer(Modifier.height(11.dp))
 
           if (!state?.children.isNullOrEmpty()) {
                KeyValueText(
@@ -533,7 +630,7 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
                    state.children?: ""
                )
            } else {
-               ProfileEditableRow(title = "Children") }*/
+               ProfileEditableRow(title = "Children") }*//*
 
         Spacer(Modifier.height(11.dp))
 
@@ -554,7 +651,7 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
         } else {
             ProfileEditableRow(title = "Joyer Location") }
 
-    }
+    }*/
 }
 
 @Composable
@@ -597,7 +694,7 @@ fun ProfileHeaderSection(
         } else {
             ProfileEditableRow(title = "Profile Picture")
         }
-        Spacer(Modifier.height(13.dp))
+        Spacer(Modifier.height(11.dp))
         if (!state?.bio?.filteredBio().isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
             BioSection(
                 bioText = state.bio?.filteredBio()?:"",

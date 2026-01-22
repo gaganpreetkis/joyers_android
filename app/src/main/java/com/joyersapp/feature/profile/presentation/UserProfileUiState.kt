@@ -33,13 +33,13 @@ data class UserProfileUiState(
     val subTitleName: String? = null,
     val title: ProfileMeta? = null,
     val subTitle: ProfileMeta? = null,
-    val areaOfInterest: List<Interests> = emptyList(),
+    val areaOfInterest: List<Interests>? = null,
 
     val gender: String? = null,
     val ethnicity: ProfileMeta? = null,
     val faith: ProfileMeta? = null,
     val language: String? = null,
-    val languages: List<Languages> = emptyList(),
+    val languages: List<Languages>? = null,
     val educationName: String? = null,
 
     val joySince: String? = null,
@@ -57,7 +57,7 @@ data class UserProfileUiState(
     val birthday: String? = null,
     val education: ProfileMeta? = null,
     val relationship: ProfileMeta? = null,
-    val nationality: List<Nationality> = emptyList(),
+    val nationality: List<Nationality>? = null,
     val politicalIdeology: List<PoliticalIdeology>? = null,
 
     val tabs: List<String> = listOf("Status", "Identity", "Sparks", "Cards", "Gallery"),

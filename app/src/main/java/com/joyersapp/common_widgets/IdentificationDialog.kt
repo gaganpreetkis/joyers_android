@@ -1163,8 +1163,8 @@ data class IdentificationData(
     var children: String? = null,
 
 ) {
-    val dataList: HashMap<String, Any?>
-        get() = hashMapOf(
+    val dataList: LinkedHashMap<String, Any?>
+        get() = linkedMapOf(
             Pair("Name", name),
             Pair("Birthday", birthday),
             Pair("Gender", gender),
@@ -1178,6 +1178,15 @@ data class IdentificationData(
             Pair("Political Ideology", politicalIdeology),
             Pair("Joyer Location", location?.name),
         )
+
+    val sortedDataList: LinkedHashMap<String, Any?> =
+        dataList.entries
+            .partition { it.value != null }
+            .let { (nonNull, nulls) ->
+                (nonNull + nulls)
+                    .associate { it.key to it.value }
+            }
+            .toMap(LinkedHashMap())
 }
 
 enum class Gender(val value: String) {

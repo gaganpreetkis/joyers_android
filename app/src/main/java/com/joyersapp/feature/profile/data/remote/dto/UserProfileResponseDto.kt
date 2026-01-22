@@ -41,10 +41,10 @@ data class UserProfile (
     @SerializedName("following_count"    ) var followingCount    : String?              = null,
     @SerializedName("followers_count"    ) var followersCount    : String?              = null,
     @SerializedName("account_status"     ) var accountStatus     : String?              = null,
-    @SerializedName("nationality"        ) var nationality       : ArrayList<Nationality> = arrayListOf(),
-    @SerializedName("political_ideology" ) var politicalIdeology : ArrayList<PoliticalIdeology> = arrayListOf(),
-    @SerializedName("interests"          ) var interests         : ArrayList<Interests> = arrayListOf(),
-    @SerializedName("languages"          ) var languages         : ArrayList<Languages> = arrayListOf(),
+    @SerializedName("nationality"        ) var nationality       : ArrayList<Nationality>? = null,
+    @SerializedName("political_ideology" ) var politicalIdeology : ArrayList<PoliticalIdeology>? = null,
+    @SerializedName("interests"          ) var interests         : ArrayList<Interests>? = null,
+    @SerializedName("languages"          ) var languages         : ArrayList<Languages>? = null,
 //    @SerializedName("user_bios"          ) var userBios          : ArrayList<String> = arrayListOf()
 
 )

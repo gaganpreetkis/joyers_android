@@ -324,9 +324,9 @@ fun DateInfoRow(
 @Composable
 fun InterestsRowWithDotSeparators(
     label: String,
-    values: List<Interests>
+    values: List<Interests>?
 ) {
-    if (values.isNotEmpty()) {
+    if (!values.isNullOrEmpty()) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

@@ -72,20 +72,20 @@ fun ProfileTopHeader(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // lock
-                Box(contentAlignment = Alignment.TopEnd) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace
-                        contentDescription = "Lock",
-                        modifier = Modifier.size(13.39.dp, 20.dp)
-                    )
-                }
+//                Box(contentAlignment = Alignment.TopEnd) {
+//                    Image(
+//                        painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace
+//                        contentDescription = "Lock",
+//                        modifier = Modifier.size(13.39.dp, 20.dp)
+//                    )
+//                }
 
-                Spacer(modifier = Modifier.width(7.dp))
+//                Spacer(modifier = Modifier.width(7.dp))
 
                 // Username
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = state.username,
+                        text = "@${state.username}",
                         fontSize = 22.sp,
                         lineHeight = 22.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -94,12 +94,12 @@ fun ProfileTopHeader(
                         color = LightBlack,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(Modifier.width(7.dp))
-                    Image(
-                        painter = painterResource(id = R.drawable.arrowdown_lite),
-                        contentDescription = "Dropdown",
-                        modifier = Modifier.size(14.dp, 8.dp)
-                    )
+//                    Spacer(Modifier.width(7.dp))
+//                    Image(
+//                        painter = painterResource(id = R.drawable.arrowdown_lite),
+//                        contentDescription = "Dropdown",
+//                        modifier = Modifier.size(14.dp, 8.dp)
+//                    )
                 }
             }
 
