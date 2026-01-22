@@ -275,7 +275,7 @@ fun EditProfileHeaderDialog(
             WebsiteTextField(
                 label = "Website",
                 hintText = "Domain Link",
-                value = profileHeaderData.websiteUrl,
+                value = profileHeaderData.websiteUrl?:"",
                 onValueChange = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged(it)) },
                 onClear = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged("")) }
             )
@@ -284,7 +284,7 @@ fun EditProfileHeaderDialog(
 
             // ---------- APPLY BUTTON ----------
             Button(
-                enabled = state.profileHeaderData.bioValidationError == null,
+                enabled = state.profileHeaderData.isApplyEnabled,
                 onClick = {
                     if (state.profileHeaderData.bioValidationError == null) {
                         onApply(state.profileHeaderData)
@@ -675,7 +675,7 @@ fun BioEditor(
     bioValidationError: UiText?,
     overviewText: TextFieldValue,
     highlightText: TextFieldValue,
-    websiteUrl: String,
+    websiteUrl: String?,
     remainingChars: String,
     onOverviewChange: (TextFieldValue) -> Unit,
     onHighlightChange: (TextFieldValue) -> Unit,
@@ -745,7 +745,7 @@ fun BioEditor(
                             )
                         } else {
                             HighlightsEditor(
-                                websiteUrl = websiteUrl,
+                                websiteUrl = websiteUrl?:"",
                                 textState = highlightText,
                                 onChange = {
                                     onHighlightChange(it)

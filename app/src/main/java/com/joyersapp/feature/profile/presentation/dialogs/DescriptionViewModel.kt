@@ -255,9 +255,12 @@ class DescriptionViewModel @Inject constructor(
                             )
                         }
                         is DialogMode.SubTitle -> {
+                            val selectedSubTitle = if (state.selectedTitle?.id?.equals(event.item?.id?:"") == true) {
+                                null
+                            } else {event.item}
                             state.copy(
                                 firstClick = false,
-                                selectedSubTitle = event.item
+                                selectedSubTitle = selectedSubTitle
                             )
                         }
                     }

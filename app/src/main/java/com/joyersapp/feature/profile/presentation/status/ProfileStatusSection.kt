@@ -78,7 +78,9 @@ fun ProfileStatusSection(
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
                 color = LightBlack,
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
+                modifier = Modifier
+                    .offset(-1.dp)
             )
 
             Box(
@@ -88,12 +90,12 @@ fun ProfileStatusSection(
                     .clickable {
                         onEditDescription()
                     }
-                    .padding(start = 10.dp, top = 10.dp, end = 9.3.dp, bottom = 9.38.dp)
+                    .padding(start = 10.dp, top = 9.5.dp)
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_edit_pencil),
                     contentDescription = "Edit",
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.size(15.7.dp)
                 )
             }
         }
@@ -103,16 +105,16 @@ fun ProfileStatusSection(
         Column(
             modifier = Modifier
                 .background(White)
-                .padding(top = 0.dp, start = 15.dp, bottom = 20.dp, end = 15.dp)
+                .padding(top = 10.dp, start = 15.dp, bottom = 12.dp, end = 15.dp)
         ) {
             /** -------- Key-Value Rows -------- */
-            ProfileKeyValueRow(label = "Joyer Status", value = state.joyerStatus)
-            ProfileKeyValueRow(label = "Title", value = state.titleName)
-            ProfileKeyValueRow(label = "Sub-Title", value = state.subTitleName)
+            ProfileKeyValueRow(label = "Joyer Status", value = state.joyerStatus?:"")
+            ProfileKeyValueRow(label = "Title", value = state.titleName?:"")
+            ProfileKeyValueRow(label = "Sub-Title", value = state.subTitleName?:"")
             InterestsRowWithDotSeparators("Area of Interest",state.areaOfInterest)
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(7.dp))
 
         /** -------- Joying Header -------- */
         Row(
@@ -127,14 +129,16 @@ fun ProfileStatusSection(
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
                 color = LightBlack,
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
+                modifier = Modifier
+                    .offset(-1.dp)
             )
 
             Box(
                 modifier = Modifier.size(35.dp)
                     .clip(CircleShape)
                     .background(LightBlack5)
-                    .padding(start = 10.dp, top = 10.dp, end = 9.3.dp, bottom = 9.38.dp)
+                    .padding(start = 10.dp, top = 9.5.dp)
                     .clickable {
 
                     }
@@ -142,12 +146,12 @@ fun ProfileStatusSection(
                 Image(
                     painter = painterResource(R.drawable.ic_edit_pencil),
                     contentDescription = "Edit",
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.size(15.7.dp)
                 )
             }
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(7.dp))
 
         JoyerCodeSection(state = state)
 
@@ -165,7 +169,7 @@ fun ProfileKeyValueRow(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp)
+                .padding(vertical = 8.dp)
         ) {
             Text(
                 text = label,
@@ -183,8 +187,8 @@ fun ProfileKeyValueRow(
                 fontFamily = fontFamilyLato,
                 color = LightBlack,
                 lineHeight = 22.sp,
-                modifier = Modifier.offset(x = 130.dp)
-                    .widthIn(max = 250.dp),
+                modifier = Modifier.padding(start = 130.dp)
+                    .align(Alignment.CenterStart)
             )
         }
     }
@@ -205,8 +209,8 @@ fun JoyerCodeSection(
 
         DateInfoRow(
             label = "Joying Since",
-            date = state.joySince,
-            duration = state.joySinceDuration
+            date = state.joySince?:"",
+            duration = state.joySinceDuration?:""
         )
 
         Spacer(Modifier.height(19.dp))
@@ -231,9 +235,11 @@ fun JoyerCodeSection(
                 lineHeight = 24.sp,
             )
 
-            Column(Modifier.offset(x = 130.dp).wrapContentWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(Modifier.padding(start = 130.dp).wrapContentWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
 
-                if (state.qrCode.isNotEmpty()) {
+                Spacer(Modifier.height(5.5.dp))
+
+                if (!state.qrCode.isNullOrEmpty()) {
                     AsyncImage(
                         model = "${NetworkConfig.IMAGE_BASE_URL}${state.qrCode}",
                         contentDescription = "QR Code",
@@ -253,7 +259,8 @@ fun JoyerCodeSection(
                         fontFamily = fontFamilyLato,
                         color = LightBlack,
                         lineHeight = 22.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        maxLines = 2
                     )
 
                     Spacer(Modifier.height(7.dp))
@@ -262,11 +269,11 @@ fun JoyerCodeSection(
                 Text(
                     modifier = Modifier.width(200.dp),
                     text = "@${state.username}",
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
                     color = Golden,
-                    lineHeight = 15.sp,
+                    lineHeight = 17.sp,
                     textAlign = TextAlign.Center
                 )
             }
@@ -292,7 +299,7 @@ fun DateInfoRow(
             lineHeight = 24.sp,
         )
 
-        Column(Modifier.offset(x = 130.dp)) {
+        Column(Modifier.padding(start = 130.dp)) {
             Text(
                 text = date,
                 fontSize = 16.sp,
@@ -301,7 +308,7 @@ fun DateInfoRow(
                 color = LightBlack,
                 lineHeight = 22.sp,
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(5.dp))
             Text(
                 text = duration,
                 fontSize = 12.sp,
@@ -323,7 +330,7 @@ fun InterestsRowWithDotSeparators(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp)
+                .padding(vertical = 8.dp)
         ) {
             Text(
                 text = label,
@@ -336,8 +343,7 @@ fun InterestsRowWithDotSeparators(
 
             FlowRow(
                 Modifier
-                    .offset(x = 130.dp)
-                    .widthIn(max = 250.dp),
+                    .padding(start = 130.dp),
                 itemVerticalAlignment = Alignment.CenterVertically,
             ) {
                 values.forEachIndexed { index, item ->

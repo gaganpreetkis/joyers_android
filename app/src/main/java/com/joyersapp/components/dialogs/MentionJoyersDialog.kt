@@ -152,7 +152,7 @@ fun MentionJoyersDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 35.dp)
+                .padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 25.dp)
                 .background(Color.White)
         ) {
             // ---------- HEADER SECTION ----------
@@ -209,6 +209,7 @@ fun MentionJoyersDialog(
             // Card with profile and header images
             Card(
                 modifier = Modifier
+                    .padding(bottom = 15.dp)
                     .width(384.dp)
                     .border(
                         width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
@@ -216,25 +217,28 @@ fun MentionJoyersDialog(
                 shape = RoundedCornerShape(5.dp),
                 colors = CardDefaults.cardColors(containerColor = Gray20)
             ) {
-
-                Spacer(modifier = Modifier.height(15.dp))
-                SearchBarRowForEditMaganetic(
-                    searchQuery = searchQuery,
-                    onSearchQueryChanged = { viewmodel.onEvent(MentionJoyersEvent.OnSearchQueryChanged(it)) },
-                    isAddMentionsEnabled = state.isAddMentionsEnabled,
-                    onAddMentionsClick = { viewmodel.onEvent(MentionJoyersEvent.OnAddMentionsClicked) }
-                )
-
-                if (!state.isAddMentionsMode) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    MentionJoyersScreen(
-                        userList,
-                        onUserClick = { selectedUser ->
-                            viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
-                        }
+                Column() {
+                    Spacer(modifier = Modifier.height(15.dp))
+                    SearchBarRowForEditMaganetic(
+                        searchQuery = searchQuery,
+                        onSearchQueryChanged = { viewmodel.onEvent(MentionJoyersEvent.OnSearchQueryChanged(it)) },
+                        isAddMentionsEnabled = state.isAddMentionsEnabled,
+                        onAddMentionsClick = { viewmodel.onEvent(MentionJoyersEvent.OnAddMentionsClicked) }
                     )
+
+                    if (!state.isAddMentionsMode) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        MentionJoyersScreen(
+                            userList,
+                            onUserClick = { selectedUser ->
+                                viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
+                            }
+                        )
+                    }
+//                    Spacer(modifier = Modifier.height(15.dp))
                 }
-                Spacer(modifier = Modifier.height(15.dp))
+
+
             }
 
             if (state.isAddMentionsMode) {

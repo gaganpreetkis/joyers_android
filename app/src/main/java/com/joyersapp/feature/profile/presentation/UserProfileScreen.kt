@@ -52,9 +52,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
+import com.joyersapp.common_widgets.IdentificationDialog
+import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.core.NetworkConfig
+import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
 import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
 import com.joyersapp.theme.AvatarBorder
@@ -110,20 +113,28 @@ fun UserProfileScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
+
                     ProfileInfo(state)
 
                     BioSection(
-                        bioText = state.bio,
-                        linkText = state.websiteUrl,
+                        bioText = state.bio?:"",
+                        linkText = state.websiteUrl?:"",
                         onLinkClick = {}
                     )
+
+                    if (state.bio.isNullOrEmpty() && state.websiteUrl.isNullOrEmpty()) {
+                        Spacer(Modifier.height(30.dp))
+                    }
 
                     StatsRow(state)
 
                     Spacer(modifier = Modifier.height(30.dp))
 
                     MagneticsRow(
-                        editMagnetics = editMagnetics
+                        editMagnetics = {
+                            viewModel.onEvent(UserProfileEvent.InitMagneticsData)
+                            editMagnetics()
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -134,12 +145,12 @@ fun UserProfileScreen(
                             .padding(horizontal = 20.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(11.5.dp))
+                    Spacer(modifier = Modifier.height(11.dp))
 
                     CustomScrollableTabRow(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(28.dp),
+                            .height(27.dp),
                         tabs = state.tabs,
                         onTabClick = { index ->
                             viewModel.onEvent(UserProfileEvent.TabSelected(index))
@@ -147,7 +158,7 @@ fun UserProfileScreen(
                         selectedTabIndex = state.selectedTab,
                     )
 
-                    Spacer(modifier = Modifier.height(11.5.dp))
+                    Spacer(modifier = Modifier.height(11.dp))
 
                     ProfileTabsContainer(state, viewModel)
 
@@ -155,38 +166,37 @@ fun UserProfileScreen(
             }
             // Identification Dialog
             if (state.showIdentificationDialog) {
-//                IdentificationDialog(
-//                    viewModel = viewModel,
-//                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
-//                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
-//                    identificationData = IdentificationData(
-//                        name = state.fullname,
-//                        birthday = state.birthday,
-////                gender = null,
-//                        nationality = state.nationality,
-//                        ethnicity = state.ethnicity,
-//                        faith = state.faith,
-//                        language = state.language,
-//                        education = state.educationName,
-//                        relationship = state.relationship,
-//                        politicalIdeology = state.politicalIdeology,
-//                        location = state.location
-//                    )
-//                )
-//                    onClose = {
-//                        viewModel.onEvent(UserProfileEvent.OnDialogClosed(0))
-//                    })
-
+                IdentificationDialog(
+                    viewModel = viewModel,
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
+                    onApply = {
+                        viewModel.onEvent(UserProfileEvent.InitMagneticsData)
+                        viewModel.onEvent(UserProfileEvent.OnApplyIdentification(it))
+                        viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false))
+                        // navigate to edit magnetics
+                        editMagnetics()
+                    },
+                )
             }
 
-            if (state.showMultipleSelectionsDialog) {
-//                MultipleSelectionsDialog(
-//                    titlesData = state.titlesData,
-////                    selectedItems = state.selectedItems,
-//                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(false,emptyList(),emptyList())) },
-//                    onApply = { viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(false,emptyList(),emptyList())) },
-//                    headers = state.dialogHeader
-//                )
+            if (state.showDescriptionDialog) {
+                DescriptionDialog (
+                    initList = viewModel.uiState.value.titles,
+                    selectedTitle = ProfileTitlesData(
+                        id = viewModel.uiState.value.magneticsData.title?.id?:"",
+                        name = viewModel.uiState.value.magneticsData.title?.name?:"",
+                    ),
+                    selectedSubTitle = ProfileTitlesData(
+                        id = viewModel.uiState.value.magneticsData.subTitle?.id,
+                        name = viewModel.uiState.value.magneticsData.subTitle?.name,
+                    ),
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false)) },
+                    onApply = { title, subTitle ->
+                        viewModel.onEvent(UserProfileEvent.InitMagneticsData)
+                        viewModel.onEvent(UserProfileEvent.OnApplyDescription(title, subTitle))
+                        editMagnetics()
+                    }
+                )
             }
         }
 //    }
@@ -205,7 +215,7 @@ fun ProfileInfo(state: UserProfileUiState) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(241.dp)
+//            .height(241.dp)
     ) {
 
         /** ---------------- Banner ---------------- */
@@ -215,7 +225,8 @@ fun ProfileInfo(state: UserProfileUiState) {
                 .height(120.dp)
                 .background(gold)
         )
-        if (state.backgroundPicture.isNotEmpty()) {
+
+        if (!state.backgroundPicture.isNullOrEmpty()) {
             AsyncImage(
                 model = "${NetworkConfig.IMAGE_BASE_URL}${state.backgroundPicture}",
                 contentDescription = null,
@@ -225,16 +236,33 @@ fun ProfileInfo(state: UserProfileUiState) {
                 contentScale = ContentScale.Crop,
             )
         }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(10.dp)
+                .size(35.dp)
+                .clip(CircleShape)
+                .background(White.copy(alpha = 0.75f))
+                .clickable { }
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_edit_pencil),
+                contentDescription = "Edit",
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(15.7.dp)
+            )
+        }
 
         /** ---------------- Profile Picture ---------------- */
         Box(
             modifier = Modifier
-                .offset(x = 20.dp, y = 87.dp)
+                .padding(start = 20.dp, top = 87.dp)
                 .border(width = 3.dp, color = White, shape = CircleShape)
                 .padding(3.dp)
                 .border(
                     width = 3.dp,
-                    color = if (state.profilePicture.isEmpty()) Golden else AvatarBorder,
+                    color = if (!state.profilePicture.isNullOrEmpty()) AvatarBorder else Golden,
                     shape = CircleShape
                 )
                 .padding(3.dp)
@@ -247,7 +275,7 @@ fun ProfileInfo(state: UserProfileUiState) {
                 painter = painterResource(id = R.drawable.ic_nav_joyers_home), // your J icon
                 contentDescription = "avatar", modifier = Modifier.size(66.dp)
             )
-            if (state.profilePicture.isNotEmpty()) {
+            if (!state.profilePicture.isNullOrEmpty()) {
                 AsyncImage(
                     model = "${NetworkConfig.IMAGE_BASE_URL}${state.profilePicture}",
                     contentDescription = null,
@@ -260,24 +288,26 @@ fun ProfileInfo(state: UserProfileUiState) {
         }
 
         /** Refresh badge */
-        Box(
-            modifier = Modifier
-                .offset(x = 106.dp, y = 183.dp)
-                .size(25.dp)
-                .clip(CircleShape)
-                .background(Color.White), contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_refresh_golden),
-                contentDescription = "refresh",
-                modifier = Modifier.size(20.dp)
-            )
+        if (!state.profilePicture.isNullOrEmpty()) {
+            Box(
+                modifier = Modifier
+                    .offset(x = 106.dp, y = 183.dp)
+                    .size(25.dp)
+                    .clip(CircleShape)
+                    .background(Color.White), contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_refresh_golden),
+                    contentDescription = "refresh",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
 
         /** ---------------- Text Content ---------------- */
         // Name, subtitle, location
         Column(
-            modifier = Modifier.offset(x = 154.dp, y = 130.dp)
+            modifier = Modifier.padding(start = 154.dp, top = 130.dp)
                 .width(screenWidth - 174.dp)
         ) {
             // fullname
@@ -295,7 +325,7 @@ fun ProfileInfo(state: UserProfileUiState) {
 
             // typical joyer
             Text(
-                text = state.joyerType,
+                text = state.subTitle?.name?: state.title?.name?: state.joyerStatus?:"Typical Joyer" ,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = fontFamilyLato,
@@ -306,17 +336,18 @@ fun ProfileInfo(state: UserProfileUiState) {
             Spacer(Modifier.height(4.dp))
 
             // location
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = state.location?.name?: state.joyerLocation?: "",
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = fontFamilyLato,
-                    lineHeight = 18.sp
-                )
+            if (!state.location?.name.isNullOrEmpty() || !state.joyerLocation.isNullOrEmpty()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = state.location?.name ?: state.joyerLocation ?: "",
+                        fontSize = 12.sp,
+                        color = LightBlack60,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = fontFamilyLato,
+                        lineHeight = 17.sp
+                    )
 
-                Spacer(Modifier.width(5.dp))
+                    Spacer(Modifier.width(5.dp))
 
 //                Image(
 //                    painter = painterResource(id = com.hbb20.R.drawable.flag_united_states_of_america),
@@ -324,12 +355,13 @@ fun ProfileInfo(state: UserProfileUiState) {
 //                    modifier = Modifier.size(18.76.dp, 12.22.dp)
 //                )
 
-                Text(
-                    modifier = Modifier.size(18.76.dp, 12.22.dp),
-                    text = flagEmoji(state.location?.name?: state.joyerLocation?: ""),
-                    fontSize = 12.sp,
-                    lineHeight = 12.sp
-                )
+                    Text(
+                        modifier = Modifier.size(18.76.dp, 12.22.dp),
+                        text = flagEmoji(state.location?.name ?: state.joyerLocation ?: ""),
+                        fontSize = 12.sp,
+                        lineHeight = 12.sp
+                    )
+                }
             }
         }
     }
@@ -341,63 +373,56 @@ private fun BioSection(
     linkText: String,
     onLinkClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-
-        Card(
+    if (bioText.isNotEmpty() || linkText.isNotEmpty()) {
+        Column (
             modifier = Modifier
                 .padding(horizontal = 20.dp)
+                .padding(top = 17.dp)
                 .fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
-            Column(
 
-            ) {
+            if (bioText.isNotEmpty()) {
+                // ----- BIO RICH TEXT -----
+                HighlightedText(bioText.filteredBio())
+            }
 
-                if (bioText.isNotEmpty()) {
-                    // ----- BIO RICH TEXT -----
-                    HighlightedText(bioText.filteredBio())
-                }
+            if (linkText.isNotEmpty()) {
 
-                if (linkText.isNotEmpty()) {
+                if (bioText.isNotEmpty()) Spacer(Modifier.height(10.dp))
 
-                    Spacer(Modifier.height(10.dp))
+                // ----- LINK ROW -----
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clickable { onLinkClick() }
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_link),
+                        contentDescription = null,
+                        modifier = Modifier.height(14.5.dp).width(14.5.dp)
+                    )
+                    Spacer(Modifier.width(5.dp))
 
-                    // ----- LINK ROW -----
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clickable { onLinkClick() }
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_link),
-                            contentDescription = null,
-                            modifier = Modifier.height(14.5.dp).width(14.5.dp)
-                        )
-                        Spacer(Modifier.width(5.dp))
-
-                        Text(
-                            text = linkText,
-                            fontSize = 14.sp,
-                            color = Golden,
-                            fontWeight = FontWeight.SemiBold,
-                            lineHeight = 22.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-                if (bioText.isNotEmpty() || linkText.isNotEmpty()) {
-                    Spacer(Modifier.height(15.dp))
-                    DashedLine(modifier = Modifier.fillMaxWidth())
-                    Spacer(Modifier.height(15.dp))
+                    Text(
+                        text = linkText,
+                        fontSize = 14.sp,
+                        color = Golden,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 22.sp,
+                        fontFamily = fontFamilyLato,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
+
+            Spacer(Modifier.height(15.dp))
+            DashedLine(modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(15.dp))
         }
     }
+
+
 }
 
 @Composable
@@ -423,7 +448,7 @@ fun StatsRow(state: UserProfileUiState) {
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = state.likes.toInt().toPrettyNumber(),
+                text = state.likes?.toInt()?.toPrettyNumber()?:"",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
@@ -443,7 +468,7 @@ fun StatsRow(state: UserProfileUiState) {
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = state.following.toInt().toPrettyNumber(),
+                text = state.following?.toInt()?.toPrettyNumber()?:"",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
@@ -463,7 +488,7 @@ fun StatsRow(state: UserProfileUiState) {
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = state.followers.toInt().toPrettyNumber(),
+                text = state.followers?.toInt()?.toPrettyNumber()?:"",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
@@ -504,7 +529,7 @@ fun MagneticsRow(editMagnetics: () -> Unit) {
                     lineHeight = 15.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+                    modifier = Modifier.offset(y = -1.dp)
                 )
             }
         }
@@ -558,7 +583,7 @@ fun CustomScrollableTabRow(
             Column(
                 modifier = Modifier
                     .wrapContentWidth()
-                    .height(28.dp)
+                    .height(27.dp)
                     .noRippleClickable() {
                         onTabClick(idx)
                     },
@@ -570,21 +595,21 @@ fun CustomScrollableTabRow(
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamilyLato,
                     color = if (isTabSelected) LightBlack else LightBlack60,
-                    lineHeight = 22.sp,
+                    lineHeight = 19.sp,
                     modifier = Modifier
+//                        .height(19.dp)
                         .padding(
                             start = 0.dp,
                             end = 0.dp,
                             top = 0.dp,
                             bottom = 0.dp
                         )  // No horizontal padding
-                        .height(19.dp)
                         .onGloballyPositioned { layoutCoordinates ->
                             textWidth = with(localDensity) { layoutCoordinates.size.width.toDp() }
 
                         }
                 )
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(5.dp))
                 if (isTabSelected) {
                     Box(
                         modifier = Modifier
@@ -609,7 +634,12 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
             ProfileStatusSection(
                 state = state,
                 onEditDescription = {
-//                    viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(show = true, headers = headers, titlesData = state.titles))
+                    viewModel.onEvent(
+                        UserProfileEvent.ToggleDescriptionDialog(
+                            show = true,
+                            titlesData = state.titles,
+                        )
+                    )
                 })
         }
 
@@ -617,7 +647,7 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
             ProfileIdentitySection(
                 state = state,
                 onEditIdentity = {
-//                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
+                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
                 },
             )
         }

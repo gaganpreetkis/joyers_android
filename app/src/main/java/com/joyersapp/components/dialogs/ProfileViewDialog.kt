@@ -133,11 +133,11 @@ fun ProfileViewDialog(
                 when {
                     delta > threshold -> {
                         // Scroll down → hide
-                        if (isSearchBarVisible) isSearchBarVisible = false
+//                        if (isSearchBarVisible) isSearchBarVisible = false
                     }
                     delta < -threshold -> {
                         // Scroll up → show
-                        if (!isSearchBarVisible) isSearchBarVisible = true
+//                        if (!isSearchBarVisible) isSearchBarVisible = true
                     }
                 }
 

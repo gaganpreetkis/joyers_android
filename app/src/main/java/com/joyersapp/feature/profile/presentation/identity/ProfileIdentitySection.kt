@@ -71,7 +71,9 @@ fun ProfileIdentitySection(
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
                 color = LightBlack,
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
+                modifier = Modifier
+                    .offset(-1.dp)
             )
 
             Box(
@@ -81,20 +83,21 @@ fun ProfileIdentitySection(
                         onEditIdentity()
                     }
                     .background(LightBlack5)
-                    .padding(start = 10.dp, top = 10.dp, end = 9.3.dp, bottom = 9.38.dp)
+                    .padding(start = 10.dp, top = 9.5.dp)
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_edit_pencil),
                     contentDescription = "Edit",
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.size(15.7.dp)
                 )
             }
         }
 
+        Spacer(Modifier.height(8.dp))
+
         if (
-            state.gender.isNotEmpty() || state.nationality.isNotEmpty() || !state.ethnicity?.name.isNullOrEmpty() || !state.faith?.name.isNullOrEmpty() || state.languages.isNotEmpty() || !state.education?.name.isNullOrEmpty() || !state.location?.name.isNullOrEmpty()
+            !state.gender.isNullOrEmpty() || state.nationality.isNotEmpty() || !state.ethnicity?.name.isNullOrEmpty() || !state.faith?.name.isNullOrEmpty() || state.languages.isNotEmpty() || !state.education?.name.isNullOrEmpty() || !state.location?.name.isNullOrEmpty()
             ) {
-            Spacer(Modifier.height(8.dp))
 
             Column(
                 modifier = Modifier
@@ -102,7 +105,7 @@ fun ProfileIdentitySection(
                     .padding(top = 0.dp, start = 15.dp, bottom = 20.dp, end = 15.dp)
             ) {
                 /** -------- Key-Value Rows -------- */
-                ProfileKeyValueRow(label = "Gender", value = state.gender)
+                ProfileKeyValueRow(label = "Gender", value = state.gender?:"")
                 NationalityField(label = "Nationality", values = state.nationality)
                 ProfileKeyValueRow(label = "Ethnicity", value = state.ethnicity?.name ?: "")
                 ProfileKeyValueRow(label = "Faith / Religion", value = state.faith?.name ?: "")
@@ -110,9 +113,9 @@ fun ProfileIdentitySection(
                 ProfileKeyValueRow(label = "Education", value = state.education?.name ?: "")
                 ProfileKeyValueRow(label = "Joyer Location", value = state.location?.name ?: "")
             }
-        }
 
-        Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(10.dp))
+        }
 
     }
 }
@@ -144,8 +147,8 @@ fun ProfileKeyValueRow(
                 fontFamily = fontFamilyLato,
                 color = LightBlack,
                 lineHeight = 22.sp,
-                modifier = Modifier.offset(x = 130.dp)
-                    .widthIn(max = 250.dp),
+                modifier = Modifier.padding(start = 130.dp)
+                    .align(Alignment.CenterStart)
             )
         }
     }
@@ -159,6 +162,7 @@ private fun NationalityField(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(top = 20.dp)
         ) {
             Text(
                 text = label,
@@ -171,8 +175,9 @@ private fun NationalityField(
 
             FlowRow(
                 Modifier
-                    .offset(x = 130.dp)
-                    .widthIn(max = 250.dp),
+                    .padding(start = 130.dp)
+                    .align(Alignment.CenterStart),
+//                    .widthIn(max = 230.dp),
                 itemVerticalAlignment = Alignment.CenterVertically,
             ) {
                 values.forEachIndexed { index, item ->
@@ -208,6 +213,7 @@ private fun LanguageField(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(top = 20.dp)
         ) {
             Text(
                 text = label,
@@ -220,8 +226,8 @@ private fun LanguageField(
 
             FlowRow(
                 Modifier
-                    .offset(x = 130.dp)
-                    .widthIn(max = 250.dp),
+                    .padding(start = 130.dp)
+                    .align(Alignment.CenterStart),
                 itemVerticalAlignment = Alignment.CenterVertically,
             ) {
                 values.forEachIndexed { index, item ->

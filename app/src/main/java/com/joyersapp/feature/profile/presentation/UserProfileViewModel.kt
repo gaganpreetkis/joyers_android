@@ -131,7 +131,7 @@ class UserProfileViewModel @Inject constructor(
                     if (highlightsText.isEmpty()) highlightsText = "• "
                     selectedTab = "highlights"
                 } else {
-                    overviewText = state.bio
+                    overviewText = state.bio?:""
                     selectedTab = "overview"
                 }
 
@@ -201,10 +201,10 @@ class UserProfileViewModel @Inject constructor(
                 }
 
                 val requestDto = UserProfileGraphRequestDto(
-                    profilePicture = magneticsData.profileHeaderData?.profilePicture,
-                    backgroundPicture = magneticsData.profileHeaderData?.backgroundPicture,
-                    bio = magneticsData.profileHeaderData?.bio,
-                    websiteUrl = magneticsData.profileHeaderData?.websiteUrl,
+                    profilePicture = magneticsData.profileHeaderData.profilePicture,
+                    backgroundPicture = magneticsData.profileHeaderData.backgroundPicture,
+                    bio = magneticsData.profileHeaderData.bio,
+                    websiteUrl = magneticsData.profileHeaderData.websiteUrl,
                     joyerStatus = magneticsData.joyerStatus,
                     titleId = magneticsData.title?.id,
                     subTitleId = magneticsData.subTitle?.id,
@@ -557,6 +557,11 @@ class UserProfileViewModel @Inject constructor(
 
             is UserProfileEvent.OnToggleBioEditor -> {
                 _uiState.update {
+                    if (event.tab.equals("overview")) {
+                        onEvent(UserProfileEvent.OnHighlightChanged(TextFieldValue(text = "")))
+                    } else {
+                        onEvent(UserProfileEvent.OnOverviewChanged(TextFieldValue(text = "")))
+                    }
                     it.copy(
                         profileHeaderData = _uiState.value.profileHeaderData.copy(
                             selectedTab = event.tab
@@ -636,7 +641,7 @@ class UserProfileViewModel @Inject constructor(
                 if (newText.endsWith("\n")
 //                    && !oldText.endsWith(bulletLine)
                 ) {
-                    val maxBullets = if (websiteUrl.isNotEmpty()) 4 else 5
+                    val maxBullets = if (websiteUrl.isNullOrEmpty()) 5 else 4
                     val count = oldText.count { it == '•' }
                     if (count >= maxBullets) {
                         update(oldText)   // restore previous, prevent bullet overflow
@@ -733,7 +738,7 @@ class UserProfileViewModel @Inject constructor(
 
             is UserProfileEvent.ToggleDescriptionDialog -> {
                 val state = uiState.value.magneticsData
-                val dialogHeader = arrayListOf("Description", "Joyer Status", state.joyerStatus)
+                val dialogHeader = arrayListOf("Description", "Joyer Status", state.joyerStatus?:"")
                 if (state.subTitle?.id.isNullOrEmpty()) {
                     dialogHeader.add(state.title?.name ?: "")
                 } else {
@@ -945,33 +950,33 @@ class UserProfileViewModel @Inject constructor(
                             ?: "")).trim(),
                         location = response.location,
                         joyerLocation = response.joyerLocation,
-                        profilePicture = response.profilePicture ?: "",
-                        backgroundPicture = response.backgroundPicture ?: "",
-                        bio = response.bio ?: "",
-                        websiteUrl = response.websiteUrl ?: "",
-                        likes = response.likesCount ?: "",
-                        following = response.followingCount ?: "",
-                        followers = response.followersCount ?: "",
-                        joyerStatus = response.joyerStatus ?: "",
-                        birthday = response.birthDate ?: "",
-                        gender = response.gender ?: "",
+                        profilePicture = response.profilePicture,
+                        backgroundPicture = response.backgroundPicture,
+                        bio = response.bio,
+                        websiteUrl = response.websiteUrl,
+                        likes = response.likesCount,
+                        following = response.followingCount,
+                        followers = response.followersCount,
+                        joyerStatus = response.joyerStatus,
+                        birthday = response.birthDate,
+                        gender = response.gender,
                         relationship = response.relationship,
                         education = response.education,
 //                            children = response.ch?.name?: "",
                         politicalIdeology = response.politicalIdeology,
-                        titleName = response.title?.name ?: "",
-                        subTitleName = response.subTitle?.name ?: "",
+                        titleName = response.title?.name,
+                        subTitleName = response.subTitle?.name,
                         title = response.title,
                         subTitle = response.subTitle,
                         areaOfInterest = response.interests,
                         languages = response.languages,
-                        joySince = response.joySince ?: "",
-                        joySinceDuration = response.joySinceDuration ?: "",
-                        qrCode = response.qrCode ?: "",
+                        joySince = response.joySince,
+                        joySinceDuration = response.joySinceDuration,
+                        qrCode = response.qrCode,
                         nationality = response.nationality,
                         ethnicity = response.ethnicity,
                         faith = response.faith,
-                        educationName = response.education?.name ?: "",
+                        educationName = response.education?.name,
                     )
                 }
                 _navigationEvents.send(UserProfileNavigationEvent.NavigateToUserProfile)
@@ -1034,33 +1039,33 @@ class UserProfileViewModel @Inject constructor(
                             ?: "")).trim(),
                         location = response.location,
                         joyerLocation = response.joyerLocation,
-                        profilePicture = response.profilePicture ?: "",
-                        backgroundPicture = response.backgroundPicture ?: "",
-                        bio = response.bio ?: "",
-                        websiteUrl = response.websiteUrl ?: "",
-                        likes = response.likesCount ?: "",
-                        following = response.followingCount ?: "",
-                        followers = response.followersCount ?: "",
-                        joyerStatus = response.joyerStatus ?: "",
-                        birthday = response.birthDate ?: "",
-                        gender = response.gender ?: "",
+                        profilePicture = response.profilePicture,
+                        backgroundPicture = response.backgroundPicture,
+                        bio = response.bio,
+                        websiteUrl = response.websiteUrl,
+                        likes = response.likesCount,
+                        following = response.followingCount,
+                        followers = response.followersCount,
+                        joyerStatus = response.joyerStatus,
+                        birthday = response.birthDate,
+                        gender = response.gender,
                         relationship = response.relationship,
                         education = response.education,
 //                            children = response.ch?.name?: "",
                         politicalIdeology = response.politicalIdeology,
-                        titleName = response.title?.name ?: "",
-                        subTitleName = response.subTitle?.name ?: "",
+                        titleName = response.title?.name,
+                        subTitleName = response.subTitle?.name,
                         title = response.title,
                         subTitle = response.subTitle,
                         areaOfInterest = response.interests,
                         languages = response.languages,
-                        joySince = response.joySince ?: "",
-                        joySinceDuration = response.joySinceDuration ?: "",
-                        qrCode = response.qrCode ?: "",
+                        joySince = response.joySince,
+                        joySinceDuration = response.joySinceDuration,
+                        qrCode = response.qrCode,
                         nationality = response.nationality,
                         ethnicity = response.ethnicity,
                         faith = response.faith,
-                        educationName = response.education?.name ?: "",
+                        educationName = response.education?.name,
                     )
                 }
             },

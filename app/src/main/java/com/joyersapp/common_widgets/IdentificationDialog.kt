@@ -48,12 +48,17 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
+import com.joyersapp.theme.GrayBG5
+import com.joyersapp.theme.GrayInnerBorder
+import com.joyersapp.theme.GrayOuterBorder
 import com.joyersapp.theme.Red
+import com.joyersapp.utils.convertDate
 import com.joyersapp.utils.graphemeCount
 
 @Composable
 fun IdentificationDialog(
     onDismiss: () -> Unit,
+    onApply: (IdentificationData) -> Unit,
     viewModel: UserProfileViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -77,7 +82,7 @@ fun IdentificationDialog(
                 // Name Field
                 IdentificationTextField(
                     label = "Name",
-                    value = identificationData.name,
+                    value = identificationData.name?:"",
                     onValueChange = { viewModel.onEvent(UserProfileEvent.OnNameChanged(value = it)) },
                     onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Name")) },
                 )
@@ -88,7 +93,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Birthday",
                     hintText = "Joyer Birthday",
-                    value = identificationData.birthday,
+                    value = convertDate(identificationData.birthday),
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleDatePickerDialog(
@@ -103,7 +108,7 @@ fun IdentificationDialog(
 
                 // Gender Field
                 GenderSelectionField(
-                    selectedGender = identificationData.gender,
+                    selectedGender = identificationData.gender?:"",
                     onSelection = { viewModel.onEvent(UserProfileEvent.OnGenderSelected(it.value)) }
                 )
 
@@ -274,8 +279,7 @@ fun IdentificationDialog(
                 // ---------- APPLY BUTTON ----------
                 Button (
                     onClick = {
-                        viewModel.onEvent(UserProfileEvent.OnApplyIdentification(identificationData))
-                        viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false))
+                        onApply(identificationData)
                               },
                     modifier = Modifier
                         .width(190.dp)
@@ -301,179 +305,6 @@ fun IdentificationDialog(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun IdentificationMultiselectField(
-    label: String = "label",
-    hintText: String = "hint",
-    values: MutableList<String> = arrayListOf("ghhj", "bjbnmn", "iuhjk dfsd","ghhj"),
-    onClear: () -> Unit = {},
-    onClick: () -> Unit = {}
-) {
-    val lightBlackColor = LightBlack
-    val fieldOuterBg = GrayBG
-    var seeAll by remember { mutableStateOf(false) }
-
-    Column {
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            lineHeight = 22.sp,
-            fontFamily = fontFamilyLato,
-            fontWeight = FontWeight.Bold,
-            color = lightBlackColor,
-            modifier = Modifier.padding(bottom = 10.dp)
-        )
-
-        // Outer field container (light grey rectangle)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 60.dp)
-                .noRippleClickable { onClick() }
-                .background(fieldOuterBg, RoundedCornerShape(5.dp))
-                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
-                .padding(15.dp)
-        ) {
-            Column() {
-                // Inner pill container
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 30.dp)
-                        .background(Color.White, RoundedCornerShape(30.dp))
-                        .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(30.dp)
-                            .padding(horizontal = 15.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        if (values.isNotEmpty()) {
-                            Text(
-                                text = values[0],
-                                fontSize = 16.sp,
-                                lineHeight = 23.sp,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
-                                color = LightBlack,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_cross_round_gray),
-                                contentDescription = "Clear",
-                                modifier = Modifier
-                                    .size(15.dp)
-                                    .noRippleClickable { onClear() },
-                            )
-                        } else {
-                            Text(
-                                text = hintText,
-                                fontSize = 16.sp,
-                                lineHeight = 23.sp,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
-                                color = LightBlack60,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.arrowdown_lite),
-                                contentDescription = "Drop down",
-                                modifier = Modifier
-                                    .size(10.49.dp, 6.dp)
-                            )
-                        }
-                    }
-                }
-                if (values.size > 1) {
-                    Spacer(Modifier.height(15.dp))
-                    // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        maxLines = if (seeAll) 100 else 4,
-                        overflow = FlowRowOverflow.expandOrCollapseIndicator(
-                            minRowsToShowCollapse = 4,
-                            expandIndicator = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Spacer(modifier = Modifier.weight(1f))
-
-                                    Text(
-                                        text = "See All",
-                                        fontSize = 12.sp,
-                                        lineHeight = 22.sp,
-                                        color = Golden,
-                                        fontFamily = fontFamilyLato,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier
-                                            .padding(top = 9.dp)
-                                            .noRippleClickable() { seeAll = true }
-                                    )
-                                }
-                            },
-                            collapseIndicator = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Spacer(modifier = Modifier.weight(1f))
-
-                                    Text(
-                                        text = "Show Less",
-                                        fontSize = 12.sp,
-                                        lineHeight = 22.sp,
-                                        color = Golden,
-                                        fontFamily = fontFamilyLato,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier
-                                            .padding(top = 9.dp)
-                                            .noRippleClickable() { seeAll = false }
-                                    )
-                                }
-                            }
-                        )
-                    ) {
-                        values.forEachIndexed { index, item ->
-                            val name = item
-
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = name,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    fontFamily = fontFamilyLato,
-                                    color = LightBlack,
-                                    lineHeight = 22.sp,
-                                )
-
-                                if (index != values.lastIndex) {
-                                    Spacer(Modifier.width(10.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(CircleShape)
-                                            .background(LightBlack55)
-                                            .size(3.dp)
-                                    )
-                                    Spacer(Modifier.width(10.dp))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
 fun LanguagesField(
     label: String,
     hintText: String,
@@ -482,7 +313,6 @@ fun LanguagesField(
     onClick: () -> Unit = {}
 ) {
     val lightBlackColor = LightBlack
-    val fieldOuterBg = GrayBG
     var seeAll by remember { mutableStateOf(false) }
 
     Column {
@@ -502,8 +332,8 @@ fun LanguagesField(
                 .fillMaxWidth()
                 .heightIn(min = 60.dp)
                 .noRippleClickable { onClick() }
-                .background(fieldOuterBg, RoundedCornerShape(5.dp))
-                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .background(GrayBG5, RoundedCornerShape(5.dp))
+                .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
                 .padding(15.dp)
         ) {
             Column() {
@@ -513,7 +343,7 @@ fun LanguagesField(
                         .fillMaxWidth()
                         .heightIn(min = 30.dp)
                         .background(Color.White, RoundedCornerShape(30.dp))
-                        .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                        .border(1.dp, GrayInnerBorder, RoundedCornerShape(30.dp))
                 ) {
                     Row(
                         modifier = Modifier
@@ -684,7 +514,6 @@ fun NationalityField(
     onClick: () -> Unit = {}
 ) {
     val lightBlackColor = LightBlack
-    val fieldOuterBg = GrayBG
     var seeAll by remember { mutableStateOf(false) }
 
     Column {
@@ -704,8 +533,8 @@ fun NationalityField(
                 .fillMaxWidth()
                 .heightIn(min = 60.dp)
                 .noRippleClickable { onClick() }
-                .background(fieldOuterBg, RoundedCornerShape(5.dp))
-                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .background(GrayBG5, RoundedCornerShape(5.dp))
+                .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
                 .padding(15.dp)
         ) {
             Column() {
@@ -715,7 +544,7 @@ fun NationalityField(
                         .fillMaxWidth()
                         .heightIn(min = 30.dp)
                         .background(Color.White, RoundedCornerShape(30.dp))
-                        .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                        .border(1.dp, GrayInnerBorder, RoundedCornerShape(30.dp))
                 ) {
                     Row(
                         modifier = Modifier
@@ -873,7 +702,6 @@ fun PoliticalIdeologyField(
     onClick: () -> Unit = {}
 ) {
     val lightBlackColor = LightBlack
-    val fieldOuterBg = GrayBG
     var seeAll by remember { mutableStateOf(false) }
 
     Column {
@@ -893,8 +721,8 @@ fun PoliticalIdeologyField(
                 .fillMaxWidth()
                 .heightIn(min = 60.dp)
                 .noRippleClickable { onClick() }
-                .background(fieldOuterBg, RoundedCornerShape(5.dp))
-                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .background(GrayBG5, RoundedCornerShape(5.dp))
+                .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
                 .padding(15.dp)
         ) {
             Column() {
@@ -904,7 +732,7 @@ fun PoliticalIdeologyField(
                         .fillMaxWidth()
                         .heightIn(min = 30.dp)
                         .background(Color.White, RoundedCornerShape(30.dp))
-                        .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                        .border(1.dp, GrayInnerBorder, RoundedCornerShape(30.dp))
                 ) {
                     Row(
                         modifier = Modifier
@@ -1070,8 +898,8 @@ fun GenderSelectionField(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(GrayBG, RoundedCornerShape(5.dp))
-                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .background(GrayBG5, RoundedCornerShape(5.dp))
+                .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
                 .padding(horizontal = 15.dp)
                 .padding(top = 9.dp, bottom = 11.dp)
         ) {
@@ -1098,156 +926,6 @@ fun GenderSelectionField(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun SelectionWithChipsSection(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    onClear: () -> Unit,
-    chips: List<String>,
-    onRemoveChip: (String) -> Unit,
-    showSeeAll: Boolean,
-    onSeeAllClick: () -> Unit,
-) {
-    val goldenColor = Golden
-    val outerBg = GrayBG
-
-    Column {
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            fontFamily = fontFamilyLato,
-            fontWeight = FontWeight.SemiBold,
-            color = LightBlack,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(outerBg, RoundedCornerShape(6.dp))
-                .border(1.dp, GrayLightBorder, RoundedCornerShape(6.dp))
-                .padding(12.dp)
-        ) {
-            Column {
-                // inner pill selection input (same as other text fields)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .background(Color.White, RoundedCornerShape(25.dp))
-                        .border(1.dp, GrayLightBorder, RoundedCornerShape(25.dp))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppBasicTextField(
-                            value = value,
-                            onValueChange = onValueChange,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            placeholder = "",
-                            containerColor = Color.Transparent,
-                            textStyle = androidx.compose.ui.text.TextStyle(
-                                fontSize = 16.sp,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.Normal,
-                                color = LightBlack
-                            )
-                        )
-                        if (value.isNotEmpty()) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFFE0E0E0))
-                                    .clickable { onClear() },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_cross_round_border_grey),
-                                    contentDescription = "Clear",
-                                    modifier = Modifier.size(12.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-
-                if (chips.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        chips.forEach { chip ->
-                            ChipWithRemove(
-                                text = chip,
-                                onRemove = { onRemoveChip(chip) }
-                            )
-                        }
-                    }
-
-                    if (showSeeAll) {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            Text(
-                                text = "See All",
-                                fontSize = 12.sp,
-                                fontFamily = fontFamilyLato,
-                                fontWeight = FontWeight.SemiBold,
-                                color = goldenColor,
-                                modifier = Modifier.clickable { onSeeAllClick() }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ChipWithRemove(
-    text: String,
-    onRemove: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .background(Color.White, RoundedCornerShape(16.dp))
-            .border(1.dp, GrayLightBorder, RoundedCornerShape(16.dp))
-            .padding(start = 10.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = text,
-            fontSize = 12.sp,
-            fontFamily = fontFamilyLato,
-            fontWeight = FontWeight.Normal,
-            color = LightBlack
-        )
-        Spacer(modifier = Modifier.width(6.dp))
-        Image(
-            painter = painterResource(id = R.drawable.ic_cross_round_border_grey),
-            contentDescription = "Remove",
-            modifier = Modifier
-                .size(14.dp)
-                .clickable { onRemove() }
-        )
-    }
-}
-
 @Composable
 fun IdentificationTextField(
     label: String,
@@ -1256,7 +934,6 @@ fun IdentificationTextField(
     onClear: () -> Unit
 ) {
     val lightBlackColor = LightBlack
-    val fieldOuterBg = GrayBG
 
     Column {
         Text(
@@ -1274,8 +951,8 @@ fun IdentificationTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp)
-                .background(fieldOuterBg, RoundedCornerShape(5.dp))
-                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .background(GrayBG5, RoundedCornerShape(5.dp))
+                .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
                 .padding(15.dp)
         ) {
             // Inner pill container
@@ -1284,7 +961,7 @@ fun IdentificationTextField(
                     .fillMaxWidth()
                     .height(30.dp)
                     .background(Color.White, RoundedCornerShape(30.dp))
-                    .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                    .border(1.dp, GrayInnerBorder, RoundedCornerShape(30.dp))
             ) {
                 Row(
                     modifier = Modifier
@@ -1364,7 +1041,6 @@ fun IdentificationDropdownField(
     onClear: () -> Unit
 ) {
     val lightBlackColor = LightBlack
-    val fieldOuterBg = GrayBG
 
     Column {
         Text(
@@ -1382,8 +1058,8 @@ fun IdentificationDropdownField(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp)
-                .background(fieldOuterBg, RoundedCornerShape(5.dp))
-                .border(1.dp, LightBlack10, RoundedCornerShape(5.dp))
+                .background(GrayBG5, RoundedCornerShape(5.dp))
+                .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
                 .padding(15.dp)
                 .noRippleClickable { onClick() }
         ) {
@@ -1393,7 +1069,7 @@ fun IdentificationDropdownField(
                     .fillMaxWidth()
                     .height(30.dp)
                     .background(Color.White, RoundedCornerShape(30.dp))
-                    .border(1.dp, LightBlack10, RoundedCornerShape(30.dp))
+                    .border(1.dp, GrayInnerBorder, RoundedCornerShape(30.dp))
                     .noRippleClickable { onClick() }
             ) {
                 Row(
@@ -1473,9 +1149,9 @@ fun GenderOption(
 }
 
 data class IdentificationData(
-    var name: String = "",
-    var birthday: String = "",
-    var gender: String = "",
+    var name: String? = null,
+    var birthday: String? = null,
+    var gender: String? = null,
     var ethnicity: ProfileMeta? = null,
     var faith: ProfileMeta? = null,
     var language: List<Languages>? = null,

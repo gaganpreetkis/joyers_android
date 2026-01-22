@@ -60,7 +60,7 @@ fun ProfileTopHeader(
                     painter = painterResource(id = R.drawable.ic_menu_golden),
                     contentDescription = "Back",
                     modifier = Modifier
-                        .size(20.dp, 17.dp)
+                        .size(19.51.dp, 17.dp)
                 )
             }
 
@@ -80,13 +80,14 @@ fun ProfileTopHeader(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(7.01.dp))
+                Spacer(modifier = Modifier.width(7.dp))
 
                 // Username
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = state.username,
                         fontSize = 22.sp,
+                        lineHeight = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         maxLines = 1,

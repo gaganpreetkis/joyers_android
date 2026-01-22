@@ -51,6 +51,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import com.joyersapp.R
+import com.joyersapp.theme.Black
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
@@ -248,7 +249,7 @@ fun CropBackgroundImageDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = LightBlack)
+                .background(color = Black)
                 .systemBarsPadding()
         ) {
             Column(

@@ -41,9 +41,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
@@ -72,13 +74,16 @@ import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.GrayBG
+import com.joyersapp.theme.GrayInnerBorder
 import com.joyersapp.theme.GrayLightBorder
+import com.joyersapp.theme.GrayOuterBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack10
 import com.joyersapp.theme.LightBlack55
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
 import com.joyersapp.utils.UiText
+import com.joyersapp.utils.convertDate
 import com.joyersapp.utils.filteredBio
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
@@ -139,7 +144,7 @@ fun MagneticsScreen(
                 onSave = { viewModel.onEvent(UserProfileEvent.UpdateUserData(UserProfileGraphRequestDto())) }
             )
 
-            HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+            HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
             // Scrollable column
             Column(
@@ -147,7 +152,7 @@ fun MagneticsScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 Spacer(Modifier.height(10.dp))
-                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
 
                 /** ─────────────── SECTION: PROFILE HEADER ─────────────── **/
@@ -155,9 +160,9 @@ fun MagneticsScreen(
                     viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true))
                 }
 
-                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
                 Spacer(Modifier.height(10.dp))
-                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
 
                 /** ─────────────── SECTION: DESCRIPTION ─────────────── **/
@@ -173,9 +178,9 @@ fun MagneticsScreen(
                     )
                 }
 
-                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
                 Spacer(Modifier.height(10.dp))
-                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
 
                 /** ─────────────── SECTION: IDENTIFICATION  ─────────────── **/
@@ -183,9 +188,9 @@ fun MagneticsScreen(
                     viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
                 }
 
-                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
                 Spacer(Modifier.height(10.dp))
-                HorizontalDivider(color = LightBlack10, thickness = 1.dp)
+                HorizontalDivider(color = GrayOuterBorder, thickness = 1.dp)
 
 
                 /** ─────────────── SECTION: INTERESTS ─────────────── **/
@@ -245,6 +250,10 @@ fun MagneticsScreen(
             IdentificationDialog(
                 viewModel = viewModel,
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false)) },
+                onApply = {
+                    viewModel.onEvent(UserProfileEvent.OnApplyIdentification(it))
+                    viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(false))
+                },
             )
         }
         if (state.showMultipleSelectionsDialog) {
@@ -401,7 +410,7 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
         if (!state?.name.isNullOrEmpty()) {
             KeyValueText(
                 "Name",
-                state.name
+                state.name?:""
             )
         } else { ProfileEditableRow(title = "Name") }
 
@@ -410,7 +419,7 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
         if (!state?.birthday.isNullOrEmpty()) {
             KeyValueText(
                 "Birthday",
-                state.birthday
+                convertDate(state.birthday)
             )
         } else { ProfileEditableRow(title = "Birthday") }
 
@@ -419,7 +428,7 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
         if (!state?.gender.isNullOrEmpty()) {
             KeyValueText(
                 "Gender",
-                state.gender
+                state.gender?:""
             )
         } else { ProfileEditableRow(title = "Gender") }
 
@@ -550,10 +559,10 @@ fun ProfileHeaderSection(
     ) {
         SectionHeader(title = "Profile Header")
         Spacer(Modifier.height(13.dp))
-        if (!state?.profilePicture.isNullOrEmpty()) {
+        if (!state?.profilePicture.isNullOrEmpty() || !state?.backgroundPicture.isNullOrEmpty()) {
             ProfilePicture(
-                NetworkConfig.IMAGE_BASE_URL + state?.profilePicture,
-                NetworkConfig.IMAGE_BASE_URL + state?.backgroundPicture
+                state.profilePicture,
+                state.backgroundPicture
             )
         } else {
             ProfileEditableRow(title = "Profile Picture")
@@ -561,8 +570,8 @@ fun ProfileHeaderSection(
         Spacer(Modifier.height(13.dp))
         if (!state?.bio?.filteredBio().isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
             BioSection(
-                bioText = state.bio.filteredBio(),
-                linkText = state.websiteUrl,
+                bioText = state.bio?.filteredBio()?:"",
+                linkText = state.websiteUrl?:"",
                 onLinkClick = {}
             )
         } else { ProfileEditableRow(title = "Bio") }
@@ -637,7 +646,6 @@ fun ProfilePicture(
                 fontFamily = fontFamilyLato,
                 color = LightBlack,
                 lineHeight = 19.sp,
-
                 )
         }
         Spacer(Modifier.height(10.dp))
@@ -655,7 +663,7 @@ fun ProfilePicture(
                 /** ─────────── BACKGROUND IMAGE / HEADER ─────────── **/
                 if (!backgroundImage.isNullOrEmpty()) {
                     AsyncImage(
-                        model = backgroundImage,
+                        model = NetworkConfig.IMAGE_BASE_URL + backgroundImage,
                         contentDescription = "Header",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -663,13 +671,10 @@ fun ProfilePicture(
                 }
 
                 /** ─────────── PROFILE IMAGE CIRCLE ─────────── **/
-                Box(
-                    modifier = Modifier
-                        .size(189.dp)
-                        .align(Alignment.Center)
-                ) {
+                if (profileImage.isNullOrEmpty()) {
                     Box(
                         modifier = Modifier
+                            .align(Alignment.Center)
                             .size(189.dp)
                             .clip(CircleShape)
                             .background(Color.White)
@@ -679,14 +684,54 @@ fun ProfilePicture(
                                 shape = CircleShape
                             )
                     ) {
-                        AsyncImage(
-                            model = profileImage,
-                            contentDescription = "Profile",
+                        Column(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
+                                .fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.camera_outline_colored),
+                                contentDescription = null,
+                                modifier = Modifier.size(71.dp, 55.dp)
+                            )
+                            Spacer(modifier = Modifier.height(15.dp))
+                            Text(
+                                text = stringResource(R.string.upload_picture),
+                                fontSize = 15.sp,
+                                fontFamily = fontFamilyLato,
+                                fontStyle = FontStyle.Normal,
+                                color = LightBlack60,
+                                lineHeight = 21.sp,
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(189.dp)
+                            .align(Alignment.Center)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(189.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color.Transparent,
+                                    shape = CircleShape
+                                )
+                        ) {
+                            AsyncImage(
+                                model = NetworkConfig.IMAGE_BASE_URL + profileImage,
+                                contentDescription = "Profile",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                     }
                 }
             }
@@ -733,11 +778,11 @@ private fun BioSection(
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = LightBlack10,
+                    color = GrayInnerBorder,
                     shape = RoundedCornerShape(5.dp)
                 ),
             shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = GrayBG)
+            colors = CardDefaults.cardColors(containerColor = Gray20)
         ) {
             Column(
                 modifier = Modifier.padding(
@@ -761,7 +806,7 @@ private fun BioSection(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .clickable { onLinkClick() }
+//                            .clickable { onLinkClick() }
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_link),
@@ -775,6 +820,7 @@ private fun BioSection(
                             fontSize = 14.sp,
                             color = Golden,
                             fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
                             lineHeight = 22.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -836,6 +882,7 @@ private fun KeyValueText(
     ) {
         Box(
             modifier = Modifier
+                .padding(top = 8.dp)
                 .clip(CircleShape)
                 .background(LightBlack)
                 .size(6.dp)
@@ -880,7 +927,7 @@ fun LanguageSection(
         ) {
             Box(
                 modifier = Modifier
-                    .padding(top = 7.dp)
+                    .padding(top = 8.dp)
                     .clip(CircleShape)
                     .background(LightBlack)
                     .size(6.dp)
@@ -1002,7 +1049,7 @@ fun NationalitySection(
         ) {
             Box(
                 modifier = Modifier
-                    .padding(top = 7.dp)
+                    .padding(top = 8.dp)
                     .clip(CircleShape)
                     .background(LightBlack)
                     .size(6.dp)
@@ -1119,7 +1166,7 @@ fun InterestsSection(
         ) {
             Box(
                 modifier = Modifier
-                    .padding(top = 7.dp)
+                    .padding(top = 8.dp)
                     .clip(CircleShape)
                     .background(LightBlack)
                     .size(6.dp)
@@ -1214,7 +1261,7 @@ fun InterestsSection(
 data class MagneticsData(
     val username: String = "",
     val profileHeaderData: ProfileHeaderData = ProfileHeaderData(),
-    val joyerStatus: String = "Classic",
+    val joyerStatus: String? = "Classic",
     val title: ProfileMeta? = null,
     val subTitle: ProfileMeta? = null,
     val identificationData: IdentificationData? = null,
@@ -1222,15 +1269,18 @@ data class MagneticsData(
 )
 
 data class ProfileHeaderData(
-    val profilePicture: String = "",
-    val backgroundPicture: String = "",
-    val bio: String = "",
+    val profilePicture: String? = null,
+    val backgroundPicture: String? = null,
+    val bio: String? = null,
     val overviewFieldValue: TextFieldValue = TextFieldValue(""),
     val highlightFieldValue: TextFieldValue = TextFieldValue(text = "• ", selection = TextRange(2)),
     val overviewRemainingChars: Int = 150 - overviewFieldValue.text.graphemeCount(),
     val highlightsRemainingChars: Int = 25 - highlightFieldValue.text.substringAfterLast("• ").graphemeCount(),
-    val websiteUrl: String = "",
+    val websiteUrl: String? = null,
     val bioValidationError: UiText? = null,
 
     var selectedTab: String = "overview"
-)
+) {
+    val isApplyEnabled: Boolean
+        get() = if (bioValidationError == null && (!profilePicture.isNullOrEmpty() || !backgroundPicture.isNullOrEmpty() || !websiteUrl.isNullOrEmpty() || overviewFieldValue.text.graphemeCount() != 0 || highlightFieldValue.text.graphemeCount() > 2)) true else false
+}

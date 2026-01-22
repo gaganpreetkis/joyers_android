@@ -93,7 +93,6 @@ fun DashboardNavGraph(navController: NavHostController) {
             UserProfileScreen(
                 viewModel = userProfileViewModel,
                 editMagnetics = {
-                    userProfileViewModel.onEvent(UserProfileEvent.InitMagneticsData)
                     navController.navigate(Routes.Magnetics.route)
                 },
 //                navigateToIdentificationDialog = { navController.navigate(Routes.IdentificationDialog.route) },

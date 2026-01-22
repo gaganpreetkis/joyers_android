@@ -43,6 +43,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.joyersapp.R
+import com.joyersapp.theme.Black
 import com.joyersapp.theme.DividerColor30
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
@@ -77,7 +78,7 @@ fun BackgroundImagePreviewDialog(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = LightBlack)
+                    .background(color = Black)
                     .systemBarsPadding()
             ) {
                 // Close icon - top left

@@ -63,6 +63,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import com.joyersapp.R
+import com.joyersapp.theme.Black
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.White
@@ -273,7 +274,7 @@ fun CropImageDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = LightBlack) // LightBlack background
+                .background(color = Black) // LightBlack background
                 .systemBarsPadding()
         ) {
             Column(
