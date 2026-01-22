@@ -633,6 +633,7 @@ fun PageOneContent(
                     capitalization = KeyboardCapitalization.Words
                 ),
                 onValueChange = {
+                    if (state.name == it) return@AppBasicTextField
                     if (it.length <= state.maxLength + 20) {
                         //state.name = it
                         viewModel2.onEvent(IdentityEvent.NameChanged(it))
