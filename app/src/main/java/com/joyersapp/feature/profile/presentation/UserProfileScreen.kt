@@ -68,6 +68,7 @@ import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
 import com.joyersapp.theme.AvatarBorder
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
+import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
@@ -103,7 +104,7 @@ fun UserProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(White)
+                    .background(GrayBG)
             ) {
 
                 ProfileTopHeader(
@@ -133,12 +134,16 @@ fun UserProfileScreen(
                     )
 
                     if (state.bio.isNullOrEmpty() && state.websiteUrl.isNullOrEmpty()) {
-                        Spacer(Modifier.height(30.dp))
+                        Spacer(Modifier.height(30.dp)
+                            .fillMaxWidth()
+                            .background(White))
                     }
 
                     StatsRow(state)
 
-                    Spacer(modifier = Modifier.height(30.dp))
+                    Spacer(modifier = Modifier.height(30.dp)
+                        .fillMaxWidth()
+                        .background(White))
 
                     MagneticsRow(
                         editMagnetics = {
@@ -147,15 +152,21 @@ fun UserProfileScreen(
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+//                    Spacer(modifier = Modifier.height(20.dp)
+//                        .fillMaxWidth()
+//                        .background(White))
 
                     DashedLine(
-                        Modifier
+                        modifier = Modifier
                             .fillMaxWidth()
+                            .background(White)
                             .padding(horizontal = 20.dp)
+                            .padding(top = 20.dp, bottom = 11.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(11.dp))
+//                    Spacer(modifier = Modifier.height(11.dp)
+//                        .fillMaxWidth()
+//                        .background(White))
 
                     CustomScrollableTabRow(
                         modifier = Modifier
@@ -168,7 +179,9 @@ fun UserProfileScreen(
                         selectedTabIndex = state.selectedTab,
                     )
 
-                    Spacer(modifier = Modifier.height(11.dp))
+                    Spacer(modifier = Modifier.height(11.dp)
+                        .fillMaxWidth()
+                        .background(White))
 
                     ProfileTabsContainer(state, viewModel)
 
@@ -270,6 +283,7 @@ fun ProfileInfo(
 
     Box(
         modifier = Modifier
+            .background(White)
             .fillMaxWidth()
 //            .height(241.dp)
     ) {
@@ -434,6 +448,7 @@ private fun BioSection(
     if (bioText.isNotEmpty() || linkText.isNotEmpty()) {
         Column (
             modifier = Modifier
+                .background(White)
                 .padding(horizontal = 20.dp)
                 .padding(top = 17.dp)
                 .fillMaxWidth(),
@@ -489,6 +504,7 @@ fun StatsRow(state: UserProfileUiState) {
     // Stats row
     Row(
         modifier = Modifier
+            .background(White)
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -563,6 +579,7 @@ fun MagneticsRow(editMagnetics: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
+            .background(White)
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
     ) {
@@ -628,7 +645,9 @@ fun CustomScrollableTabRow(
 ) {
     // Custom LazyRow for tabs (replaces ScrollableTabRow)
     LazyRow(
-        modifier = modifier.padding(horizontal = 20.dp),
+        modifier = modifier
+            .background(White)
+            .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(horizontal = 0.dp),  // No edge padding
         verticalAlignment = Alignment.CenterVertically

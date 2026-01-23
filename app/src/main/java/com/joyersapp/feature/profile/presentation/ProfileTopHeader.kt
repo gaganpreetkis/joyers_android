@@ -45,7 +45,7 @@ fun ProfileTopHeader(
             .fillMaxWidth()
             .height(63.dp)
             .background(White)
-            .padding(horizontal = 15.dp),
+            .padding(horizontal = 0.dp),
     ) {
         Box(
             modifier = Modifier
