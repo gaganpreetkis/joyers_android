@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -71,7 +73,7 @@ fun IdentificationDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 35.dp)
+                .padding(start = 15.dp, end = 15.dp, top = 15.dp, bottom = 35.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             // Content
@@ -79,6 +81,8 @@ fun IdentificationDialog(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
+
+                Spacer(Modifier.height(5.dp))
                 // Name Field
                 IdentificationTextField(
                     label = "Name",
@@ -109,6 +113,7 @@ fun IdentificationDialog(
                 // Gender Field
                 GenderSelectionField(
                     selectedGender = identificationData.gender?:"",
+                    sortedGenderList = identificationData.sortedGenderList,
                     onSelection = { viewModel.onEvent(UserProfileEvent.OnGenderSelected(it.value)) }
                 )
 
@@ -334,7 +339,8 @@ fun LanguagesField(
                 .noRippleClickable { onClick() }
                 .background(GrayBG5, RoundedCornerShape(5.dp))
                 .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
-                .padding(15.dp)
+                .padding(horizontal = 15.dp)
+                .padding(top = 15.dp, bottom = 13.dp)
         ) {
             Column() {
                 // Inner pill container
@@ -366,13 +372,24 @@ fun LanguagesField(
                                     }
                                 }
                                 Text(
-                                    text = language,
+                                    text = name,
                                     fontSize = 16.sp,
-                                    lineHeight = 23.sp,
+                                    lineHeight = 22.sp,
                                     fontFamily = fontFamilyLato,
-                                    fontWeight = FontWeight.Normal,
+                                    fontWeight = FontWeight.Bold,
                                     color = LightBlack,
                                 )
+                                if (level.isNotEmpty()) {
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = "($level)",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = fontFamilyLato,
+                                        color = LightBlack,
+                                        lineHeight = 22.sp,
+                                    )
+                                }
                                 if (values.size > 1) {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
@@ -397,7 +414,7 @@ fun LanguagesField(
                             Text(
                                 text = hintText,
                                 fontSize = 16.sp,
-                                lineHeight = 23.sp,
+                                lineHeight = 22.sp,
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack60,
@@ -467,7 +484,7 @@ fun LanguagesField(
                     ) {
                         values.forEachIndexed { index, item ->
                             val name = item.language?.name?:""
-                            val level = item.language?.level?:""
+                            val level = (item.language?.level?:"").trim()
                             val language = buildString {
                                 append(name)
                                 if (level.isNotEmpty()) {
@@ -477,13 +494,24 @@ fun LanguagesField(
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = language,
+                                    text = name,
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
+                                    fontWeight = FontWeight.Bold,
                                     fontFamily = fontFamilyLato,
                                     color = LightBlack,
                                     lineHeight = 22.sp,
                                 )
+                                if (level.isNotEmpty()) {
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = "($level)",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = fontFamilyLato,
+                                        color = LightBlack,
+                                        lineHeight = 22.sp,
+                                    )
+                                }
 
                                 if (index != values.lastIndex) {
                                     Spacer(Modifier.width(10.dp))
@@ -535,7 +563,8 @@ fun NationalityField(
                 .noRippleClickable { onClick() }
                 .background(GrayBG5, RoundedCornerShape(5.dp))
                 .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
-                .padding(15.dp)
+                .padding(horizontal = 15.dp)
+                .padding(top = 15.dp, bottom = 13.dp)
         ) {
             Column() {
                 // Inner pill container
@@ -723,7 +752,8 @@ fun PoliticalIdeologyField(
                 .noRippleClickable { onClick() }
                 .background(GrayBG5, RoundedCornerShape(5.dp))
                 .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
-                .padding(15.dp)
+                .padding(horizontal = 15.dp)
+                .padding(top = 15.dp, bottom = 13.dp)
         ) {
             Column() {
                 // Inner pill container
@@ -881,9 +911,11 @@ fun PoliticalIdeologyField(
 @Composable
 fun GenderSelectionField(
     selectedGender: String,
+    sortedGenderList: LinkedHashMap<String, Gender>,
     onSelection: (Gender) -> Unit = {}
 ) {
-    Column() {
+    Column(
+    ) {
         Text(
             text = "Gender",
             fontSize = 16.sp,
@@ -901,26 +933,35 @@ fun GenderSelectionField(
                 .background(GrayBG5, RoundedCornerShape(5.dp))
                 .border(1.dp, GrayOuterBorder, RoundedCornerShape(5.dp))
                 .padding(horizontal = 15.dp)
-                .padding(top = 9.dp, bottom = 11.dp)
+                .padding(top = 7.dp, bottom = 11.dp)
         ) {
-            Column {
-                GenderOption(
-                    label = "Male",
-                    isSelected = selectedGender == Gender.MALE.value,
-                    onClick = { onSelection(Gender.MALE) }
-                )
-
-                GenderOption(
-                    label = "Female",
-                    isSelected = selectedGender == Gender.FEMALE.value,
-                    onClick = { onSelection(Gender.FEMALE) }
-                )
-
-                GenderOption(
-                    label = "Other Gender",
-                    isSelected = selectedGender == Gender.OTHER.value,
-                    onClick = { onSelection(Gender.OTHER) }
-                )
+            LazyColumn(
+                Modifier.height(90.dp)
+            ) {
+                itemsIndexed(sortedGenderList.entries.toList()) { index, item ->
+                    GenderOption(
+                        label = item.value.value,
+                        isSelected = selectedGender == item.value.value,
+                        onClick = { onSelection(item.value) }
+                    )
+                }
+//                GenderOption(
+//                    label = "Male",
+//                    isSelected = selectedGender == Gender.MALE.value,
+//                    onClick = { onSelection(Gender.MALE) }
+//                )
+//
+//                GenderOption(
+//                    label = "Female",
+//                    isSelected = selectedGender == Gender.FEMALE.value,
+//                    onClick = { onSelection(Gender.FEMALE) }
+//                )
+//
+//                GenderOption(
+//                    label = "Other Gender",
+//                    isSelected = selectedGender == Gender.OTHER.value,
+//                    onClick = { onSelection(Gender.OTHER) }
+//                )
             }
         }
     }
@@ -1134,8 +1175,10 @@ fun GenderOption(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(30.dp)
             .clickable { if (!isSelected) onClick() }
-            .padding(vertical = 3.dp)
+//            .padding(vertical = 3.dp)
+        , contentAlignment = Alignment.CenterStart
     ) {
         Text(
             text = label,
@@ -1163,6 +1206,22 @@ data class IdentificationData(
     var children: String? = null,
 
 ) {
+
+    val genderList: LinkedHashMap<String, Gender>
+        get() = linkedMapOf(
+            Pair("Male", Gender.MALE),
+            Pair("Female", Gender.FEMALE),
+            Pair("Other Gender", Gender.OTHER),
+        )
+
+    val sortedGenderList: LinkedHashMap<String, Gender> =
+        genderList.entries
+            .partition { it.value.value.equals(gender) }
+            .let { (selected, unSelected) ->
+                (selected + unSelected)
+                    .associate { it.key to it.value }
+            }
+            .toMap(LinkedHashMap())
     val dataList: LinkedHashMap<String, Any?>
         get() = linkedMapOf(
             Pair("Name", name),
@@ -1192,6 +1251,6 @@ data class IdentificationData(
 enum class Gender(val value: String) {
     MALE("Male"),
     FEMALE("Female"),
-    OTHER("Other")
+    OTHER("Other Gender")
 }
 

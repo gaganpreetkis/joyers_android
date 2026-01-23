@@ -53,8 +53,12 @@ import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.common_widgets.IdentificationDialog
+import com.joyersapp.components.dialogs.BirthdayDatePickerDialog
 import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
+import com.joyersapp.components.dialogs.LanguageSelectionDialog
+import com.joyersapp.components.dialogs.MentionJoyersDialog
+import com.joyersapp.components.dialogs.MultipleSelectionsDialog
 import com.joyersapp.components.layouts.CustomProgressIndicator
 import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.core.NetworkConfig
@@ -117,7 +121,10 @@ fun UserProfileScreen(
 
                     ProfileInfo(
                         state,
-                        onEditProfile = { viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true)) })
+                        onEditProfile = {
+                            viewModel.onEvent(UserProfileEvent.InitMagneticsData)
+                            viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(true)) }
+                    )
 
                     BioSection(
                         bioText = state.bio?:"",
@@ -211,6 +218,37 @@ fun UserProfileScreen(
                         viewModel.onEvent(UserProfileEvent.ToggleProfileHeaderDialog(false))
                         editMagnetics()
                     },
+                )
+            }
+
+            if (state.showMentionJoyersDialog) {
+                MentionJoyersDialog (
+                    initList = state.editMagneticsUserList,
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(false)) },
+                    onApply = { viewModel.onEvent(UserProfileEvent.OnApplyMentionedJoyers(it)) },
+                )
+            }
+            if (state.showMultipleSelectionsDialog) {
+                MultipleSelectionsDialog(
+                    viewModel = viewModel,
+                    onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(show = false)) },
+                    onApply = { key, value ->
+                        viewModel.onEvent(UserProfileEvent.OnApplyMultipleSelections(key, value))
+                        viewModel.onEvent(UserProfileEvent.ToggleMultipleSelectionsDialog(show = false))
+                    },
+                )
+            }
+            if (state.showDatePickerDialog) {
+                BirthdayDatePickerDialog(
+                    onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleDatePickerDialog(show = false)) },
+                    onDateSelected = {  viewModel.onEvent(UserProfileEvent.OnApplyBirthday(value = it)) }
+                )
+            }
+            if (state.showLanguagesDialog) {
+                LanguageSelectionDialog(
+                    viewModel = viewModel,
+                    onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = false)) },
+                    onApply = {  viewModel.onEvent(UserProfileEvent.OnApplyLanguage(it)) }
                 )
             }
         }
@@ -408,7 +446,7 @@ private fun BioSection(
 
             if (linkText.isNotEmpty()) {
 
-                if (bioText.isNotEmpty()) Spacer(Modifier.height(10.dp))
+                if (bioText.isNotEmpty()) Spacer(Modifier.height(7.dp))
 
                 // ----- LINK ROW -----
                 Row(
@@ -654,6 +692,7 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
             ProfileStatusSection(
                 state = state,
                 onEditDescription = {
+                    viewModel.onEvent(UserProfileEvent.InitMagneticsData)
                     viewModel.onEvent(
                         UserProfileEvent.ToggleDescriptionDialog(
                             show = true,
@@ -667,6 +706,7 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
             ProfileIdentitySection(
                 state = state,
                 onEditIdentity = {
+                    viewModel.onEvent(UserProfileEvent.InitMagneticsData)
                     viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true))
                 },
             )

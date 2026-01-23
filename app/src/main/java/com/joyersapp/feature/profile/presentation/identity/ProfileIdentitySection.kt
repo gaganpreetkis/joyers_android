@@ -245,7 +245,7 @@ private fun LanguageField(
                     if (level.trim().isNotEmpty()) {
                         Spacer(Modifier.width(7.dp))
                         Text(
-                            text = level.trim(),
+                            text = "(${level.trim()})",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = fontFamilyLato,

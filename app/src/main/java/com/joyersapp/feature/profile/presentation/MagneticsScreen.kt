@@ -227,7 +227,7 @@ fun MagneticsScreen(
                             .noRippleClickable{ viewModel.onEvent(UserProfileEvent.ToggleIdentificationDialog(true)) },
                     ) {
                         when(value.key) {
-                            "Name","Birthday","Gender","Ethnicity","Faith","Education", "Relationship", "Joyer Location" -> {
+                            "Name","Gender","Ethnicity","Faith","Education", "Relationship", "Joyer Location" -> {
 
                                 val first = value.key
                                 val second = value.value as String?
@@ -240,8 +240,20 @@ fun MagneticsScreen(
                                 } else { ProfileEditableRow(title = first) }
 
                             }
-                            "Nationality" -> {
+                            "Birthday" -> {
 
+                                val first = value.key
+                                val second = convertDate(value.value as String?)
+
+                                if (second.isNotEmpty()) {
+                                    KeyValueText(
+                                        first,
+                                        second
+                                    )
+                                } else { ProfileEditableRow(title = first) }
+
+                            }
+                            "Nationality" -> {
 
                                 if (!magneticsData.identificationData?.nationality.isNullOrEmpty()) {
                                     NationalitySection(magneticsData.identificationData.nationality!!)
@@ -384,14 +396,12 @@ fun TopBar(
     onBack: () -> Unit,
     onSave: () -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(63.dp)
             .background(White)
             .padding(horizontal = 15.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = "Cancel",
@@ -400,12 +410,16 @@ fun TopBar(
             fontFamily = fontFamilyLato,
             color = Golden,
             lineHeight = 22.sp,
-            modifier = Modifier.noRippleClickable() { onBack() }
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .noRippleClickable() { onBack() }
         )
 
         // center username block
         Row(
             modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 17.dp)
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -448,7 +462,9 @@ fun TopBar(
             fontFamily = fontFamilyLato,
             color = Golden,
             lineHeight = 22.sp,
-            modifier = Modifier.noRippleClickable { onSave() }
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .noRippleClickable { onSave() }
         )
     }
 }
@@ -458,7 +474,7 @@ fun InterestsSection(state: MagneticsData, onClick: () -> Unit) {
     Column(
         Modifier
             .background(White)
-            .padding(top = 17.dp, bottom = 20.dp, start = 15.dp, end = 15.dp)
+            .padding(top = 17.dp, bottom = 13.dp, start = 15.dp, end = 15.dp)
             .noRippleClickable{ onClick() },
     ) {
         SectionHeader(title = "Interests")
@@ -913,10 +929,10 @@ private fun BioSection(
         ) {
             Column(
                 modifier = Modifier.padding(
-                    start = 15.dp,
-                    end = 15.dp,
-                    top = 11.dp,
-                    bottom = 15.dp
+                    start = 14.dp,
+                    end = 14.dp,
+                    top = 10.dp,
+                    bottom = 14.dp
                 )
             ) {
 
@@ -927,7 +943,7 @@ private fun BioSection(
 
                 if (linkText.isNotEmpty()) {
 
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(7.dp))
 
                     // ----- LINK ROW -----
                     Row(
@@ -1083,7 +1099,7 @@ fun LanguageSection(
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .padding(top = 9.dp)
+                                    .padding(top = 9.dp, bottom = 2.dp)
                                     .noRippleClickable() { seeAll = true }
                             )
                         }
@@ -1123,8 +1139,8 @@ fun LanguageSection(
                 Spacer(Modifier.width(10.dp))
 
                 languages.forEachIndexed { index, item ->
-                    val name = item.language?.name
-                    val level = item.language?.level?: ""
+                    val name = item.language?.name?:""
+                    val level = (item.language?.level?: "").trim()
                     val language = buildString {
                         append(name)
                         if (level.isNotEmpty()) append(" ($level)")
@@ -1132,13 +1148,24 @@ fun LanguageSection(
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = language,
+                            text = name,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
+                            fontWeight = FontWeight.Bold,
                             fontFamily = fontFamilyLato,
                             color = LightBlack,
                             lineHeight = 22.sp,
                         )
+                        if (level.isNotEmpty()) {
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = "($level)",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = fontFamilyLato,
+                                color = LightBlack,
+                                lineHeight = 22.sp,
+                            )
+                        }
 
                         if (index != languages.lastIndex) {
                             Spacer(Modifier.width(10.dp))
@@ -1205,7 +1232,7 @@ fun NationalitySection(
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .padding(top = 9.dp)
+                                    .padding(top = 9.dp, bottom = 2.dp)
                                     .noRippleClickable() { seeAll = true }
                             )
                         }
@@ -1323,7 +1350,7 @@ fun PoliticalIdeoLogySection(
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .padding(top = 9.dp)
+                                    .padding(top = 9.dp, bottom = 2.dp)
                                     .noRippleClickable() { seeAll = true }
                             )
                         }

@@ -68,6 +68,7 @@ import com.joyersapp.theme.LightBlack60
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isScrollingUp
 import com.joyersapp.utils.noRippleClickable
+import com.joyersapp.utils.rememberIsKeyboardOpen
 import kotlinx.coroutines.launch
 
 //@Preview
@@ -178,6 +179,7 @@ fun LanguagesDialog(
 
     val context = LocalContext.current
     var showBackButton by remember { mutableStateOf(false) }
+    val isKeyBoardOpen = rememberIsKeyboardOpen()
 
     val goldenColor = Golden
     val lightBlackColor = LightBlack
@@ -234,40 +236,66 @@ fun LanguagesDialog(
                         Spacer(modifier = dialogModifier.height(20.dp))
                     }
 
-                    itemsIndexed(titlesData,  key = { _, item -> item.id?:"" }) { index, title ->
-                        val isFirst = index == 0
-                        val isLast = index == titlesData.lastIndex
+                    if (titlesData.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = dialogModifier
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(
+                                    text = context.getString(R.string.no_results_found),
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    textAlign = TextAlign.Center,
+                                    color = lightBlackColor,
+                                    lineHeight = 22.sp,
+                                    modifier = dialogModifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            top = if (isKeyBoardOpen) 95.dp else 35.dp,
+                                            bottom = if (isKeyBoardOpen) 0.dp else 69.dp
+                                        )
+                                )
+                            }
+                        }
+                    } else {
+                        itemsIndexed(titlesData,  key = { _, item -> item.id?:"" }) { index, title ->
+                            val isFirst = index == 0
+                            val isLast = index == titlesData.lastIndex
 //                        AnimatedContent(title.isSelected) {
-                        LanguageItem(
-                            isRecentSelectedItem = recentSelectedItemId == title.id,
-                            isFirstItem = isFirst,
-                            isLastItem = isLast,
-                            language = title,
-                            isSelected = title.isSelected,
-                            onClick = {
+                            LanguageItem(
+                                isRecentSelectedItem = recentSelectedItemId == title.id,
+                                isFirstItem = isFirst,
+                                isLastItem = isLast,
+                                language = title,
+                                isSelected = title.isSelected,
+                                onClick = {
 //                                title.isSelected = !title.isSelected
-                                if (title.selections.isNullOrEmpty()) {
+                                    if (title.selections.isNullOrEmpty()) {
 
-                                    recentSelectedItemId = title.id?: ""
-                                    if (!title.isSelectionMode) {
-                                        onLanguageLevelSelected(title.id?: "", "")
-                                    } else {
-                                        onTitleSelected(title.id ?: "")
-                                        coroutineScope.launch {
-                                            listState.animateScrollToItem(0)
+                                        recentSelectedItemId = title.id?: ""
+                                        if (!title.isSelectionMode) {
+                                            onLanguageLevelSelected(title.id?: "", "")
+                                        } else {
+                                            onTitleSelected(title.id ?: "")
+                                            coroutineScope.launch {
+                                                listState.animateScrollToItem(0)
+                                            }
                                         }
+                                    } else {
+                                        showBackButton = true
+                                        onShowSubTitles(title.selections ?: emptyList())
                                     }
-                                } else {
-                                    showBackButton = true
-                                    onShowSubTitles(title.selections ?: emptyList())
-                                }
 //                                     keyboardController?.hide()
-                            },
-                            modifier = Modifier,
-                            onLanguageLevelSelected = { onLanguageLevelSelected(title.id?: "", it) }
-                        )
+                                },
+                                modifier = Modifier,
+                                onLanguageLevelSelected = { onLanguageLevelSelected(title.id?: "", it) }
+                            )
 //                        }
+                        }
                     }
+
                 }
 
             }

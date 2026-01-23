@@ -131,7 +131,7 @@ fun DescriptionDialog(
     }
 
 
-    if (!state.reorderedItems.isEmpty()) {
+    if (!state.rootItems.isEmpty()) {
         EditDescriptionDialog(
             onDismiss = onDismiss,
             onApply = { viewModel.onEvent(DescriptionEvent.OnApply) },
@@ -198,6 +198,7 @@ private fun EditDescriptionDialog(
 ) {
 
     val context = LocalContext.current
+    val isKeyBoardOpen = rememberIsKeyboardOpen()
 
     val goldenColor = Golden
     val lightBlackColor = LightBlack
@@ -220,11 +221,11 @@ private fun EditDescriptionDialog(
                 when {
                     delta > threshold -> {
                         // Scroll down → hide
-                        if (isSearchBarVisible) isSearchBarVisible = false
+//                        if (isSearchBarVisible) isSearchBarVisible = false
                     }
                     delta < -threshold -> {
                         // Scroll up → show
-                        if (!isSearchBarVisible) isSearchBarVisible = true
+//                        if (!isSearchBarVisible) isSearchBarVisible = true
                     }
                 }
 
@@ -291,18 +292,41 @@ private fun EditDescriptionDialog(
 //                        )
 //                        Spacer(modifier = dialogModifier.height(20.dp))
 //                    }
-
-                    itemsIndexed(titlesData,  key = { _, item -> item.id?:"" }) { index, item ->
-                        val isFirst = index == 0
-                        val isLast = index == titlesData.lastIndex
+                    if (titlesData.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = dialogModifier
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(
+                                    text = context.getString(R.string.no_results_found),
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    textAlign = TextAlign.Center,
+                                    color = lightBlackColor,
+                                    lineHeight = 22.sp,
+                                    modifier = dialogModifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            top = if (isKeyBoardOpen) 95.dp else 35.dp,
+                                            bottom = if (isKeyBoardOpen) 0.dp else 69.dp
+                                        )
+                                )
+                            }
+                        }
+                    } else {
+                        itemsIndexed(titlesData,  key = { _, item -> item.id?:"" }) { index, item ->
+                            val isFirst = index == 0
+                            val isLast = index == titlesData.lastIndex
 //                        AnimatedContent(title.isSelected) {
-                        DescriptionItem(
-                            isFirstItem = isFirst,
-                            isLastItem = isLast,
-                            title = item,
-                            isSelected = item.id?.equals(selectedId) == true,
-                            onClick = {
-                                onItemClicked(item)
+                            DescriptionItem(
+                                isFirstItem = isFirst,
+                                isLastItem = isLast,
+                                title = item,
+                                isSelected = item.id?.equals(selectedId) == true,
+                                onClick = {
+                                    onItemClicked(item)
 //                                title.isSelected = !title.isSelected
 //                                onTitleSelected(ProfileMeta(
 //                                    id = title.id,
@@ -318,11 +342,15 @@ private fun EditDescriptionDialog(
 //                                }
 
 //                                     keyboardController?.hide()
-                            },
-                            modifier = Modifier
-                        )
+                                },
+                                modifier = Modifier
+                            )
 //                        }
+                        }
                     }
+
+
+
                 }
 
                 if (clarificationData.isNotEmpty()) {

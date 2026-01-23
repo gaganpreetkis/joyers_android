@@ -271,11 +271,12 @@ fun EditProfileHeaderDialog(
             Spacer(modifier = Modifier.height(10.dp))
 
             // ---------- WEBSITE SECTION ----------
-
+            val count = profileHeaderData.highlightFieldValue.text.count { it == '•' }
             WebsiteTextField(
                 label = "Website",
                 hintText = "Domain Link",
                 value = profileHeaderData.websiteUrl?:"",
+                isEnabled = count <= 4,
                 onValueChange = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged(it)) },
                 onClear = { viewModel.onEvent(UserProfileEvent.OnWebsiteUrlChanged("")) }
             )
@@ -848,6 +849,7 @@ fun highlightWords(text: String): AnnotatedString {
 
             val isMention = word.startsWith("@")
             val isHashtag = word.startsWith("#")
+            val isBullet = false
             val isUrl =
                 word.startsWith("http") || word.startsWith("https") || word.startsWith("www")
 
@@ -855,12 +857,14 @@ fun highlightWords(text: String): AnnotatedString {
             val fontWeight =
                 if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
 
+            val fontSize = if (isBullet) 26.sp else 16.sp
+
 
             withStyle(
                 style = SpanStyle(
                     color = color,
                     fontWeight = fontWeight,
-                    fontSize = 16.sp,
+                    fontSize = fontSize,
                 )
             ) {
                 append(word)
@@ -956,6 +960,7 @@ fun WebsiteTextField(
     label: String,
     hintText: String,
     value: String,
+    isEnabled: Boolean,
     onValueChange: (String) -> Unit,
     onClear: () -> Unit
 ) {
@@ -1001,6 +1006,7 @@ fun WebsiteTextField(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AppBasicTextField(
+                        isEnabled = isEnabled,
                         value = value,
                         onValueChange = onValueChange,
                         modifier = Modifier

@@ -1,6 +1,7 @@
 package com.joyersapp.feature.profile.presentation
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -23,9 +24,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joyersapp.R
+import com.joyersapp.theme.Golden
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.noRippleClickable
 
 //@Preview
 @Composable
@@ -35,7 +38,77 @@ fun ProfileTopHeader(
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
 ) {
+
     val sideWidth = 56.dp
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(63.dp)
+            .background(White)
+            .padding(horizontal = 15.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .width(sideWidth)
+                .fillMaxHeight()
+                .align(Alignment.CenterStart)
+                .clickable { onBack() },
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_menu_golden),
+                contentDescription = "Back",
+                modifier = Modifier
+                    .size(19.51.dp, 17.dp)
+            )
+        }
+
+        // center username block
+        // Username
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 17.dp)
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "@${state.username}",
+                fontSize = 22.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = fontFamilyLato,
+                maxLines = 1,
+                color = LightBlack,
+                overflow = TextOverflow.Ellipsis
+            )
+//            Spacer(Modifier.width(7.dp))
+//            Image(
+//                painter = painterResource(id = R.drawable.arrowdown_lite),
+//                contentDescription = "Dropdown",
+//                modifier = Modifier.size(14.dp, 8.dp)
+//            )
+        }
+
+        // right menu
+        Box(
+            modifier = Modifier
+                .width(sideWidth)
+                .fillMaxHeight()
+                .align(Alignment.CenterEnd),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_menu_dots_horizontal),
+                contentDescription = "Menu",
+                modifier = Modifier
+                    .size(18.dp, 4.dp)
+                    .clickable { onMenu() }
+            )
+        }
+
+    }
+/*    val sideWidth = 56.dp
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -94,12 +167,12 @@ fun ProfileTopHeader(
                         color = LightBlack,
                         overflow = TextOverflow.Ellipsis
                     )
-//                    Spacer(Modifier.width(7.dp))
-//                    Image(
-//                        painter = painterResource(id = R.drawable.arrowdown_lite),
-//                        contentDescription = "Dropdown",
-//                        modifier = Modifier.size(14.dp, 8.dp)
-//                    )
+                    Spacer(Modifier.width(7.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.arrowdown_lite),
+                        contentDescription = "Dropdown",
+                        modifier = Modifier.size(14.dp, 8.dp)
+                    )
                 }
             }
 
@@ -120,5 +193,5 @@ fun ProfileTopHeader(
                 )
             }
         }
-    }
+    }*/
 }
