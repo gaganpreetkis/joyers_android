@@ -1113,7 +1113,7 @@ fun LanguageSection(
                             Spacer(modifier = Modifier.weight(1f))
 
                             Text(
-                                text = "Show Less",
+                                text = "See Less",
                                 fontSize = 12.sp,
                                 lineHeight = 22.sp,
                                 color = Golden,
@@ -1246,7 +1246,7 @@ fun NationalitySection(
                             Spacer(modifier = Modifier.weight(1f))
 
                             Text(
-                                text = "Show Less",
+                                text = "See Less",
                                 fontSize = 12.sp,
                                 lineHeight = 22.sp,
                                 color = Golden,
@@ -1364,7 +1364,7 @@ fun PoliticalIdeoLogySection(
                             Spacer(modifier = Modifier.weight(1f))
 
                             Text(
-                                text = "Show Less",
+                                text = "See Less",
                                 fontSize = 12.sp,
                                 lineHeight = 22.sp,
                                 color = Golden,
@@ -1482,7 +1482,7 @@ fun InterestsSection(
                             Spacer(modifier = Modifier.weight(1f))
 
                             Text(
-                                text = "Show Less",
+                                text = "See Less",
                                 fontSize = 12.sp,
                                 lineHeight = 22.sp,
                                 color = Golden,

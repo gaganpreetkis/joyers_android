@@ -468,7 +468,7 @@ fun LanguagesField(
                                     Spacer(modifier = Modifier.weight(1f))
 
                                     Text(
-                                        text = "Show Less",
+                                        text = "See Less",
                                         fontSize = 12.sp,
                                         lineHeight = 22.sp,
                                         color = Golden,
@@ -674,7 +674,7 @@ fun NationalityField(
                                     Spacer(modifier = Modifier.weight(1f))
 
                                     Text(
-                                        text = "Show Less",
+                                        text = "See Less",
                                         fontSize = 12.sp,
                                         lineHeight = 22.sp,
                                         color = Golden,
@@ -862,7 +862,7 @@ fun PoliticalIdeologyField(
                                     Spacer(modifier = Modifier.weight(1f))
 
                                     Text(
-                                        text = "Show Less",
+                                        text = "See Less",
                                         fontSize = 12.sp,
                                         lineHeight = 22.sp,
                                         color = Golden,

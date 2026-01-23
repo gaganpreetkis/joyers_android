@@ -80,7 +80,7 @@ data class Interests (
 data class PoliticalIdeology (
 
     @SerializedName("political_ideology" ) var politicalIdeology : ProfileMeta? = ProfileMeta(),
-@SerializedName("subpolitical_ideology" ) var subpoliticalIdeology : String?            = null
+    @SerializedName("subpolitical_ideology" ) var subpoliticalIdeology : String?            = null
 
 )
 data class Nationality (
