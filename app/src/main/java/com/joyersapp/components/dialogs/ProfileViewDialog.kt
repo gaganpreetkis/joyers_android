@@ -247,7 +247,7 @@ fun ProfileViewDialog(
                                     modifier = dialogModifier
                                         .fillMaxWidth()
                                         .padding(
-                                            top = if (isKeyBoardOpen) 95.dp else 35.dp,
+                                            top = if (isKeyBoardOpen) 95.dp else 55.dp,
                                             bottom = if (isKeyBoardOpen) 0.dp else 69.dp
                                         )
                                 )

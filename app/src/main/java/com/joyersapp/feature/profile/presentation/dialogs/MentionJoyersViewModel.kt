@@ -34,6 +34,7 @@ sealed class MentionJoyersEvent {
     data class OnUserSelectionToggled(val user: EditMagneticsUserListData) : MentionJoyersEvent()
     data class InitUserList(val userList: List<EditMagneticsUserListData>) : MentionJoyersEvent()
     data object OnApply : MentionJoyersEvent()
+    data object OnBackPressed : MentionJoyersEvent()
     data class OnSearchQueryChanged(val query: String) : MentionJoyersEvent()
     data object OnAddMentionsClicked : MentionJoyersEvent()
     data object OnSelectionsCleared : MentionJoyersEvent()
@@ -43,6 +44,7 @@ sealed class MentionJoyersEvent {
 
 sealed class MentionJoyersNavEvent {
     class OnApply(val selectedUsers: List<EditMagneticsUserListData>) : MentionJoyersNavEvent()
+    object OnDismiss : MentionJoyersNavEvent()
 
 }
 
@@ -55,6 +57,10 @@ class MentionJoyersViewModel @Inject constructor(
     val uiState: StateFlow<MentionJoyersUiState> = _uiState.asStateFlow()
     val navigationEvents = _navigationEvents
 
+    override fun onCleared() {
+        super.onCleared()
+        _uiState.update { MentionJoyersUiState() }
+    }
 
     fun onEvent(event: MentionJoyersEvent) {
         when (event) {
@@ -70,6 +76,7 @@ class MentionJoyersViewModel @Inject constructor(
             is MentionJoyersEvent.OnUserSelectionToggled -> {
                 _uiState.update { state ->
                     var selectedUsersCount = ""
+                    var isAddMentionsMode = state.isAddMentionsMode
 
                     // Update selection in FULL LIST
                     val updatedFullList = state.userList.map {
@@ -85,16 +92,37 @@ class MentionJoyersViewModel @Inject constructor(
                         }
                     }
 
-                    if (state.isAddMentionsMode) {
+                    if (isAddMentionsMode) {
                         selectedUsersCount = updatedFullList.filter { it.isSelected }.size.toString()
+                        if (selectedUsersCount.toInt() == 0) {
+                            selectedUsersCount = ""
+                            isAddMentionsMode = false
+                        }
                     }
 
                     state.copy(
                         selectedUsersCount = selectedUsersCount,
                         userList = updatedFullList,
                         filteredUserList = updatedFiltered,
-                        filteredSelectedUserList = updatedFullList.filter { it.isSelected }
+                        filteredSelectedUserList = updatedFullList.filter { it.isSelected },
+                        isAddMentionsMode = isAddMentionsMode,
                     )
+                }
+            }
+
+            is MentionJoyersEvent.OnBackPressed -> {
+                viewModelScope.launch {
+                    if (uiState.value.isAddMentionsMode) {
+                        _uiState.update { state ->
+                            state.copy(
+                                isAddMentionsMode = false,
+                                selectedUsersCount = ""
+                            )
+                        }
+                    } else {
+                        _navigationEvents.emit(MentionJoyersNavEvent.OnDismiss)
+                        onCleared()
+                    }
                 }
             }
 
@@ -109,10 +137,13 @@ class MentionJoyersViewModel @Inject constructor(
                 viewModelScope.launch {
                     _uiState.update { state ->
                         state.copy(
+                            searchQuery = "",
                             userList = state.userList.map { it.copy(isSelected = false) },
+                            filteredUserList = state.userList.map { it.copy(isSelected = false) },
                             filteredSelectedUserList = emptyList(),
                             selectedUsersCount = "",
                             isClearMentionsMode = false,
+                            isAddMentionsMode = false,
                         )
                     }
                 }

@@ -59,10 +59,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -138,22 +140,31 @@ fun MentionJoyersDialog(
         viewmodel.navigationEvents.collect { event ->
             when(event) {
                 is MentionJoyersNavEvent.OnApply -> { onApply(event.selectedUsers) }
+                is MentionJoyersNavEvent.OnDismiss -> { onDismiss() }
             }
         }
     }
 
 
     BaseMentionJoyersDialog(
-        onDismiss = { onDismiss() },
+        onDismiss = {
+            viewmodel.onEvent(MentionJoyersEvent.OnBackPressed)
+                    },
         titles = arrayListOf("Profile Header"),
         isApplyEnabled = state.isApplyEnabled,
         onApply = { viewmodel.onEvent(MentionJoyersEvent.OnApply)}
     ) { dialogModifier, dialogFocusManager, maxHeight ->
 
+        val botttomPadding = if (rememberIsKeyboardOpen()) {
+            15.dp
+        } else if (state.isAddMentionsMode) {
+            25.dp
+        } else 50.dp
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = 25.dp)
+                .padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = botttomPadding)
                 .background(Color.White)
         ) {
             // ---------- HEADER SECTION ----------
@@ -194,7 +205,7 @@ fun MentionJoyersDialog(
                         Text(
                             text = "Clear List",
                             fontSize = 12.sp,
-                            lineHeight = 24.sp,
+                            lineHeight = 19.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = fontFamilyLato,
                             color = Golden,
@@ -206,8 +217,6 @@ fun MentionJoyersDialog(
                 }
             }
 
-
-
             // Card with profile and header images
             Card(
                 modifier = Modifier
@@ -218,7 +227,9 @@ fun MentionJoyersDialog(
                 shape = RoundedCornerShape(5.dp),
                 colors = CardDefaults.cardColors(containerColor = GrayBG5)
             ) {
-                Column() {
+                Column(
+
+                ) {
                     Spacer(modifier = Modifier.height(14.dp))
                     SearchBarRowForEditMaganetic(
                         searchQuery = searchQuery,
@@ -232,36 +243,58 @@ fun MentionJoyersDialog(
 
                         Column(
                             modifier = Modifier
-                                .weight(1f)
+                                .weight(1f, fill = false)
                                 .padding(start = 15.dp, end = 15.dp)
                                 .width(354.dp)
                                 .clip(RoundedCornerShape(5.dp))
                                 .background(
                                     color = Color.White, shape = RoundedCornerShape(5.dp)
                                 )
-//            .border(
-//                width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
-//            ),
                         ) {
                             JoyersList(userList, onUserClick = { selectedUser ->
                                 viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
                             })
                         }
-                        Spacer(modifier = Modifier.height(15.dp))
                     }
+                    Spacer(modifier = Modifier.height(15.dp))
                 }
 
 
             }
 
             if (state.isAddMentionsMode) {
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(5.dp))
                 SelectedUsersColumn(
                     selectedUserList,
                     onUserClick = { selectedUser ->
                         viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
                     }
                 )
+            } else {
+                if (state.filteredUserList.isEmpty()) {
+//                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_results_found),
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = fontFamilyLato,
+                                textAlign = TextAlign.Center,
+                                color = LightBlack,
+                                lineHeight = 22.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        top = if (rememberIsKeyboardOpen()) 95.dp else 55.dp,
+                                        bottom = if (rememberIsKeyboardOpen()) 0.dp else 69.dp
+                                    )
+                            )
+                        }
+//                    }
+                }
             }
         }
     }
@@ -306,9 +339,9 @@ fun SearchBarRowForEditMaganetic(
                 value = searchQuery,
                 onValueChange = onSearchQueryChanged,
                 placeholder = "Search Joyer",
-                modifier = dialogModifier
+                modifier = Modifier
                     .fillMaxHeight()
-                    .padding(),
+                    .weight(1f),
                 textStyle = TextStyle(
                     platformStyle = PlatformTextStyle(includeFontPadding = false),
                     fontFamily = fontFamilyLato,
@@ -358,34 +391,20 @@ fun SearchBarRowForEditMaganetic(
 
 
 @Composable
-fun MentionJoyersScreen(userlist: List<EditMagneticsUserListData>, onUserClick: (EditMagneticsUserListData) -> Unit) {
-    Column(
-        modifier = Modifier
-            .padding(start = 15.dp, end = 15.dp)
-            .width(354.dp)
-            .clip(RoundedCornerShape(5.dp))
-            .background(
-                color = Color.White, shape = RoundedCornerShape(5.dp)
-            )
-//            .border(
-//                width = 1.dp, color = GrayLightBorder, shape = RoundedCornerShape(5.dp)
-//            ),
-    ) {
-        JoyersList(userlist, onUserClick = onUserClick)
-    }
-}
-
-@Composable
 fun JoyersList(getPreviewJoyerList: List<EditMagneticsUserListData>,
                onUserClick: (EditMagneticsUserListData) -> Unit) {
+
+    val isKeyBoardOpen = rememberIsKeyboardOpen()
+    val items = getPreviewJoyerList
     LazyColumn {
-        itemsIndexed(getPreviewJoyerList) { index, user ->
+
+        itemsIndexed(items) { index, user ->
 //            if (index < 5) {
                 Spacer(Modifier.height(15.dp))
                 MentionJoyerRow(showCancelButton = false, user, onUserClick = onUserClick)
-                if (getPreviewJoyerList.size - 1 == index) {
-                    Spacer(Modifier.height(25.dp))
-                }
+            if (items.size -1  == index) {
+                Spacer(Modifier.height(25.dp))
+            }
 //            }
         }
     }
@@ -395,12 +414,36 @@ fun JoyersList(getPreviewJoyerList: List<EditMagneticsUserListData>,
 fun SelectedUsersColumn(selectedUsers: List<EditMagneticsUserListData>,
                onUserClick: (EditMagneticsUserListData) -> Unit) {
     LazyColumn {
+        if (selectedUsers.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_results_found),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        textAlign = TextAlign.Center,
+                        color = LightBlack,
+                        lineHeight = 22.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = if (rememberIsKeyboardOpen()) 95.dp else 55.dp,
+                                bottom = if (rememberIsKeyboardOpen()) 0.dp else 69.dp
+                            )
+                    )
+                }
+            }
+        }
         itemsIndexed(selectedUsers) { index, user ->
             Spacer(Modifier.height(15.dp))
             MentionJoyerRow(showCancelButton = true, user, onUserClick = onUserClick)
-            if (selectedUsers.size -1  == index) {
-                Spacer(Modifier.height(25.dp))
-            }
+//            if (selectedUsers.size -1  == index) {
+//                Spacer(Modifier.height(25.dp))
+//            }
         }
     }
 }
@@ -453,17 +496,17 @@ fun MentionJoyerRow(
         // Avatar
         Box(
             modifier = Modifier
+                .size(37.dp)
                 .border(width = 1.dp, color = AvatarBorder, shape = CircleShape)
                 .padding(1.dp)
                 .border(width = 1.dp, color = White, shape = CircleShape)
-                .size(37.dp)
                 .clip(CircleShape)
                 .background(Gray20),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.avatar), // your J icon
-                contentDescription = "avatar", modifier = Modifier.size(37.dp)
+                contentDescription = "avatar", modifier = Modifier.size(34.dp)
             )
         }
 //        AsyncImage(
@@ -731,6 +774,7 @@ private fun BaseMentionJoyersDialog(
                         painter = painterResource(id = R.drawable.ic_back_arrow_golden),
                         contentDescription = null,
                         modifier = dialogModifier
+                            .padding(top = 2.dp)
                             .size(20.dp, 15.dp)
                             .noRippleClickable { onDismiss() }
                     )

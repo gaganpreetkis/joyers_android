@@ -129,7 +129,7 @@ fun IdentificationDialog(
                         viewModel.onEvent(
                             UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 "Nationality",
-                                isMultiSelectEnabled = true,
+                                isMultiSelectEnabled = false,
                                 show = true,
                                 headers = arrayListOf("Country"),
                                 titlesData = state.countryList,
@@ -247,7 +247,7 @@ fun IdentificationDialog(
                         viewModel.onEvent(
                             UserProfileEvent.ToggleMultipleSelectionsDialog(
                                 key = "Political Ideology",
-                                isMultiSelectEnabled = true,
+                                isMultiSelectEnabled = false,
                                 show = true,
                                 headers = arrayListOf("Identification", "Political Ideology"),
                                 titlesData = state.politicalIdeologyList,
