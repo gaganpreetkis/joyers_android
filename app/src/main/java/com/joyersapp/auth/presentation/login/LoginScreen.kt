@@ -557,7 +557,7 @@ fun LoginScreen(
 
                 // SIGNUP FOOTER
                 Text(
-                    text = "A New Joyer?",
+                    text = "A new Joyer?",
                     fontSize = 12.sp,
                     lineHeight = 17.sp,
                     fontFamily = fontFamilyLato,

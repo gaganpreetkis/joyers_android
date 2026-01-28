@@ -259,9 +259,12 @@ fun UserProfileScreen(
             }
             if (state.showLanguagesDialog) {
                 LanguageSelectionDialog(
-                    viewModel = viewModel,
+                    initList = state.languageList,
+                    selectedLanguages = state.identificationData.selectedLanguages,
+                    selectedSignLanguages = emptyList(),
+//                viewModel = viewModel,
                     onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = false)) },
-                    onApply = {  viewModel.onEvent(UserProfileEvent.OnApplyLanguage(it)) }
+                    onApply = { l, s ->   viewModel.onEvent(UserProfileEvent.OnApplyLanguage(l, s)) }
                 )
             }
         }

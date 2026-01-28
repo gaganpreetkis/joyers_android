@@ -67,24 +67,24 @@ data class Language (
 
 data class Languages (
 
-    @SerializedName("language"    ) var language    : Language? = Language(),
-    @SerializedName("sublanguage" ) var sublanguage : Any?         = null
+    @SerializedName("language"    ) var language    : Language? = null,
+    @SerializedName("sublanguage" ) var sublanguage : Language? = null
 
 )
 
 data class Interests (
 
-    @SerializedName("dropdown_interests" ) var dropdownInterests : ProfileMeta? = ProfileMeta()
+    @SerializedName("dropdown_interests" ) var dropdownInterests : ProfileMeta? = null
 
 )
 data class PoliticalIdeology (
 
-    @SerializedName("political_ideology" ) var politicalIdeology : ProfileMeta? = ProfileMeta(),
+    @SerializedName("political_ideology" ) var politicalIdeology : ProfileMeta? = null,
     @SerializedName("subpolitical_ideology" ) var subpoliticalIdeology : String?            = null
 
 )
 data class Nationality (
 
-    @SerializedName("dropdown_countries" ) var dropdownCountries : ProfileMeta? = ProfileMeta()
+    @SerializedName("dropdown_countries" ) var dropdownCountries : ProfileMeta? = null
 
 )

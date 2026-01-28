@@ -2,6 +2,7 @@ package com.joyersapp.feature.profile.domain.repository
 
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListResponseDto
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UploadPictureServerResponse
 import com.joyersapp.feature.profile.data.remote.dto.UserProfile
@@ -22,7 +23,7 @@ interface ProfileRepository {
     suspend fun getInterestList(): Result<List<ProfileTitlesData>>
     suspend fun getPoliticalIdeologyList(): Result<List<ProfileTitlesData>>
     suspend fun getRelationShipList(): Result<List<ProfileTitlesData>>
-    suspend fun getLanguageList(): Result<List<ProfileTitlesData>>
+    suspend fun getLanguageList(): Result<List<ProfileLanguagesData>>
 
 
     suspend fun logout()

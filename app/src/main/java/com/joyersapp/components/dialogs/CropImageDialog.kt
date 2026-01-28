@@ -92,6 +92,11 @@ fun CropImageDialog(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
+    val screenWidth = with(density) { configuration.screenWidthDp.dp }
+    val cropSize = screenWidth - 40.dp
+    val cropSizePx = with(density) { cropSize.toPx() }
+    val cropRadius = cropSizePx / 2f
+
     LaunchedEffect(imageUri) {
         imageBitmap = try {
             // Read EXIF orientation first
@@ -134,9 +139,54 @@ fun CropImageDialog(
             null
         }
         // Reset transform when image loads
-        scale = 1f
-        offsetX = 0f
-        offsetY = 0f
+        // ⭐ AUTO SCALE IMAGE TO FILL CIRCLE ⭐
+
+        imageBitmap?.let { bmp ->
+
+            val imageW = bmp.width.toFloat()
+            val imageH = bmp.height.toFloat()
+
+            // how much we must scale so image covers crop circle
+            val scaleX = cropSizePx / imageW
+            val scaleY = cropSizePx / imageH
+
+            // pick bigger -> fully covers circle
+            scale = maxOf(scaleX, scaleY)
+
+            offsetX = 0f
+            offsetY = 0f
+        }
+
+//        imageBitmap?.let { bmp ->
+//
+//            val imageW = bmp.width.toFloat()
+//            val imageH = bmp.height.toFloat()
+//
+//            val scaleX = cropSizePx / imageW
+//            val scaleY = cropSizePx / imageH
+//
+//            scale = maxOf(scaleX, scaleY)
+//
+//            offsetX = 0f
+//            offsetY = 0f
+//        }
+//        imageBitmap?.let { bmp ->
+//
+//            val imageWidth = bmp.width.toFloat()
+//            val imageHeight = bmp.height.toFloat()
+//
+//            val cropSizePx =
+//                with(density) { (configuration.screenWidthDp.dp - 40.dp).toPx() }
+//
+//            val scaleX = cropSizePx / imageWidth
+//            val scaleY = cropSizePx / imageHeight
+//
+//            // Pick larger so image always covers crop circle
+//            scale = maxOf(scaleX, scaleY)
+//
+//            offsetX = 0f
+//            offsetY = 0f
+//        }
     }
 
     fun cropAndSave() {
@@ -287,33 +337,45 @@ fun CropImageDialog(
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    val screenWidth = with(density) { configuration.screenWidthDp.dp }
-                    val cropSize = screenWidth - 40.dp
-                    val cropSizePx = with(density) { cropSize.toPx() }
-                    val cropRadius = cropSizePx / 2f
+
 
                     Box(
                         modifier = Modifier
                             .offset(y = (-31).dp) // 31px up from center
-                            .size(screenWidth - 40.dp)
+                            .size(cropSize)
 //                            .clip(CircleShape)
                     ) {
 
                         // Full image area with pan and zoom
                         Box(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .size(cropSize)
                                 .pointerInput(Unit) {
                                     detectTransformGestures { _, pan, zoom, _ ->
-                                        val newScale = (scale * zoom).coerceIn(1f, 5f)
-                                        val newOffsetX = offsetX + pan.x
-                                        val newOffsetY = offsetY + pan.y
 
-                                        val maxX = cropRadius * (newScale - 1f)
-                                        val maxY = cropRadius * (newScale - 1f)
+                                        val newScale = (scale * zoom).coerceIn(scale, 5f)
 
-                                        offsetX = newOffsetX.coerceIn(-maxX, maxX)
-                                        offsetY = newOffsetY.coerceIn(-maxY, maxY)
+                                        imageBitmap?.let { bmp ->
+
+                                            val imageRatio = bmp.height.toFloat() / bmp.width.toFloat()
+
+                                            // Because we use ContentScale.FillWidth
+                                            val displayedWidth = cropSizePx * newScale
+                                            val displayedHeight = displayedWidth * imageRatio
+
+                                            val extraY = (displayedHeight - cropSizePx).coerceAtLeast(0f)
+                                            val extraX = (displayedWidth - cropSizePx).coerceAtLeast(0f)
+
+                                            offsetY = (offsetY + pan.y).coerceIn(
+                                                -extraY / 2f,
+                                                extraY / 2f
+                                            )
+
+                                            offsetX = (offsetX + pan.x).coerceIn(
+                                                -extraX / 2f,
+                                                extraX / 2f
+                                            )
+                                        }
 
                                         scale = newScale
                                     }
@@ -323,7 +385,7 @@ fun CropImageDialog(
                                 // Image clipped to circle only (20dp vertical area)
                                 Box(
                                     modifier = Modifier
-                                        .size(screenWidth)
+                                        .size(cropSize)
                                         .align(Alignment.Center)
                                         .clip(RoundedCornerShape(0.dp))
                                 ) {
@@ -331,7 +393,7 @@ fun CropImageDialog(
                                         bitmap = bmp,
                                         contentDescription = "Crop image",
                                         modifier = Modifier
-                                            .fillMaxSize()
+                                            .size(cropSize)
                                             .graphicsLayer(
                                                 scaleX = scale,
                                                 scaleY = scale,

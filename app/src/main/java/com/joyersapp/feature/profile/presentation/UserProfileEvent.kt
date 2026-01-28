@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.components.dialogs.HighlightEvent
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -31,7 +32,7 @@ sealed class UserProfileEvent {
     data class OnApplyMentionedJoyers(val selectedUserList: List<EditMagneticsUserListData>) : UserProfileEvent()
     data class OnNameChanged(val value: String) : UserProfileEvent()
     data class OnApplyBirthday(val value: String) : UserProfileEvent()
-    data class OnApplyLanguage(val value: List<ProfileTitlesData>) : UserProfileEvent()
+    data class OnApplyLanguage(val languages: List<ProfileLanguagesData>?, val signLanguages: List<ProfileLanguagesData>?) : UserProfileEvent()
     data class OnClearMultipleSelections(val key: String) : UserProfileEvent()
     data class OnGenderSelected(val value: String) : UserProfileEvent()
     data class OnOverviewChanged(val value: TextFieldValue) : UserProfileEvent()

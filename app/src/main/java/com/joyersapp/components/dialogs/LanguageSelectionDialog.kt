@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,12 +54,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.feature.profile.data.remote.dto.Languages
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
+import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
+import com.joyersapp.feature.profile.presentation.dialogs.DescriptionEvent
+import com.joyersapp.feature.profile.presentation.dialogs.DescriptionNavEvent
+import com.joyersapp.feature.profile.presentation.dialogs.LanguagesDialogEvent
+import com.joyersapp.feature.profile.presentation.dialogs.LanguagesDialogNavEvent
+import com.joyersapp.feature.profile.presentation.dialogs.LanguagesDialogViewModel
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
@@ -74,15 +84,74 @@ import kotlinx.coroutines.launch
 //@Preview
 @Composable
 fun LanguageSelectionDialog(
-    viewModel: UserProfileViewModel,
+    initList: List<ProfileLanguagesData>,
+    selectedLanguages: List<Languages>?,
+    selectedSignLanguages: List<Languages>?,
+    viewModel: LanguagesDialogViewModel = hiltViewModel(),
     onDismiss: () -> Unit,
-    onApply: (List<ProfileTitlesData>) -> Unit
+    onApply: (List<ProfileLanguagesData>?, List<ProfileLanguagesData>?) -> Unit
 ) {
+
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(LanguagesDialogEvent.InitData(initList, selectedLanguages, selectedSignLanguages))
+        viewModel.navigationEvents.collect { event ->
+            when(event) {
+                is LanguagesDialogNavEvent.OnApply -> {
+                    onApply(
+                        event.langs,
+                        event.signLangs
+                    ) }
+            }
+        }
+    }
+
+    LanguagesDialog(
+        headers = listOf("Identification", "Language"),
+        searchQuery = state.searchQuery,
+        recentSelectedItemId = state.recentSelectedItemId,
+        titlesData = state.reorderedItems,
+        showApplyButton = state.isApplyEnabled,
+        showBackButton = state.showBackButton,
+        onSearchQueryChanged = {
+            viewModel.onEvent(
+                LanguagesDialogEvent.OnSearchQueryChanged(it)
+            )
+        },
+
+        onTitleSelected = { id ->
+            val item = state.currentItems.first { it.id == id }
+            viewModel.onEvent(
+                LanguagesDialogEvent.OnTitleClicked(item)
+            )
+        },
+
+        onLanguageLevelSelected = { id, level ->
+            viewModel.onEvent(
+                LanguagesDialogEvent.OnLanguageLevelSelected(id, level)
+            )
+        },
+
+        onBack = {
+            viewModel.onEvent(LanguagesDialogEvent.OnBack)
+        },
+
+        onApply = {
+            viewModel.onEvent(LanguagesDialogEvent.OnApply)
+        },
+        onShowSubTitles = { list ->
+            viewModel.onEvent(LanguagesDialogEvent.OnShowSignLanguages)
+        },
+        onDismiss = onDismiss,
+    )
+
+
+/*    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val key = state.key
     val isMultiselectEnabled = true
-    val languageList = state.titlesData
+    val languageList = state.lan
     val headers = arrayListOf("Identification", "Language")
 
     var searchQuery by remember { mutableStateOf("") }
@@ -105,9 +174,12 @@ fun LanguageSelectionDialog(
             // selected first, then normal
             selected + unselected
         }
-    }
+    }*/
 
-    LanguagesDialog(
+
+
+
+/*    LanguagesDialog(
         onDismiss = onDismiss,
         onApply = { onApply( currentList.filter { it.isSelected }) },
         showApplyButton = currentList.any { it.isSelected },
@@ -159,7 +231,7 @@ fun LanguageSelectionDialog(
         onBack = {
             currentList = languageList
         }
-    )
+    )*/
 }
 
 @Composable
@@ -167,10 +239,12 @@ fun LanguagesDialog(
     onDismiss: () -> Unit,
     headers: List<String>,
     searchQuery: String,
+    recentSelectedItemId: String,
     onSearchQueryChanged: (query: String) -> Unit,
-    titlesData: List<ProfileTitlesData>,
+    titlesData: List<ProfileLanguagesData>,
+    showBackButton: Boolean = false,
     showApplyButton: Boolean = false,
-    onShowSubTitles: (List<ProfileTitlesData>) -> Unit,
+    onShowSubTitles: (List<ProfileLanguagesData>) -> Unit,
     onTitleSelected: (String) -> Unit,
     onLanguageLevelSelected: (String, String) -> Unit,
     onBack: () -> Unit,
@@ -178,7 +252,6 @@ fun LanguagesDialog(
 ) {
 
     val context = LocalContext.current
-    var showBackButton by remember { mutableStateOf(false) }
     val isKeyBoardOpen = rememberIsKeyboardOpen()
 
     val goldenColor = Golden
@@ -186,16 +259,12 @@ fun LanguagesDialog(
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val isScrollingUp = listState.isScrollingUp()
-    var recentSelectedItemId by remember {
-        mutableStateOf("")
-    }
 
 
     BaseDialog(
         onDismiss = onDismiss,
         titles = headers,
         onBack = {
-            showBackButton = false
             onBack()
         },
         showBackButton = showBackButton
@@ -271,6 +340,12 @@ fun LanguagesDialog(
                                 language = title,
                                 isSelected = title.isSelected,
                                 onClick = {
+                                    coroutineScope.launch {
+                                        listState.animateScrollToItem(0)
+                                    }
+                                    onTitleSelected(title.id ?: "")
+                                },
+                    /*                {
 //                                title.isSelected = !title.isSelected
                                     if (title.selections.isNullOrEmpty()) {
 
@@ -288,7 +363,7 @@ fun LanguagesDialog(
                                         onShowSubTitles(title.selections ?: emptyList())
                                     }
 //                                     keyboardController?.hide()
-                                },
+                                },*/
                                 modifier = Modifier,
                                 onLanguageLevelSelected = { onLanguageLevelSelected(title.id?: "", it) }
                             )
@@ -470,7 +545,7 @@ private fun SearchBarRow(
 fun LanguageItem(
     isFirstItem: Boolean,
     isLastItem: Boolean,
-    language: ProfileTitlesData,
+    language: ProfileLanguagesData,
     isSelected: Boolean,
     isRecentSelectedItem: Boolean,
     modifier: Modifier = Modifier,
@@ -478,28 +553,35 @@ fun LanguageItem(
     onLanguageLevelSelected: (String) -> Unit
 ) {
 
-    val name = language.name
-    val level = language.level
-    val languageName = buildString {
-        append(name)
-        if (!level.isNullOrEmpty() && !language.isSelectionMode) {
-            append(" ($level)")
-        }
+    val name = language.name?:""
+    val level = language.level?:""
+    val languageName: String = when {
+        !language.isSelected -> name
+        language.isSelectionMode -> name
+        else -> "$name (${level})"
     }
+
+//        buildString {
+//        append(name)
+//        if (language.isSelected && !language.isSelectionMode) {
+//            append(" ($level)")
+//        }
+//    }
 
     val context = LocalContext.current
     Log.e("is last item", "$language, islastitem: $isLastItem")
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .noRippleClickable() { onClick() }
-            .padding(bottom = if (isLastItem) 0.dp else 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(bottom = if (isLastItem) 0.dp else 6.dp)
+            .noRippleClickable() { onClick() },
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.Start,
     ) {
         Text(
             text = languageName,
             fontSize = 16.sp,
+            lineHeight = 22.sp,
             fontFamily = fontFamilyLato,
             fontWeight = if (isSelected && language.selections.isNullOrEmpty()) FontWeight.SemiBold else FontWeight.Normal,
             color = if (isSelected && language.selections.isNullOrEmpty()) Golden else LightBlack,
@@ -527,6 +609,14 @@ fun LanguageItem(
         }
 
         if (isSelected && isRecentSelectedItem && language.isSelectionMode) {
+            Text(
+                text = " :",
+                fontSize = 16.sp,
+                lineHeight = 19.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamilyLato,
+                color = LightBlack,
+            )
             LanguageLevel(
                 selectedLevel = language.level?: "",
                 onTabClick = { onLanguageLevelSelected(it) }
@@ -545,9 +635,9 @@ private fun LanguageLevel(
 
     // Custom LazyRow for tabs (replaces ScrollableTabRow)
     LazyRow(
-//        modifier = modifier.padding(horizontal = 20.dp),
+        modifier = modifier.padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(horizontal = 15.dp),  // No edge padding
+        contentPadding = PaddingValues(horizontal = 5.dp),  // No edge padding
         verticalAlignment = Alignment.CenterVertically
     ) {
         val tabs = listOf("Basic", "Good", "Very Good", "Excellent")
@@ -559,7 +649,7 @@ private fun LanguageLevel(
             Column(
                 modifier = Modifier
                     .wrapContentWidth()
-                    .height(28.dp)
+//                    .height(28.dp)
                     .noRippleClickable() {
                         onTabClick(level)
                     },
@@ -579,13 +669,13 @@ private fun LanguageLevel(
                             top = 0.dp,
                             bottom = 0.dp
                         )  // No horizontal padding
-                        .height(19.dp)
+                        .height(17.dp)
                         .onGloballyPositioned { layoutCoordinates ->
                             textWidth = with(localDensity) { layoutCoordinates.size.width.toDp() }
 
                         }
                 )
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(4.dp))
                 if (isTabSelected) {
                     Box(
                         modifier = Modifier
@@ -610,7 +700,7 @@ private fun preview() {
     LanguageItem (
         isFirstItem = false,
         isLastItem = false,
-        language = ProfileTitlesData(
+        language = ProfileLanguagesData(
             name = "English",
             level = "Basic"
         ),

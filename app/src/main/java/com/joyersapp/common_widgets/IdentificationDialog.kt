@@ -188,7 +188,8 @@ fun IdentificationDialog(
                 LanguagesField(
                     label = "Language",
                     hintText = "Joyer Language",
-                    values = identificationData.language,
+                    languages = identificationData.selectedLanguages,
+                    signLanguages = identificationData.selectedSignLanguages,
                     onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Language")) },
                     onClick = {
                         viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = true))
@@ -313,7 +314,8 @@ fun IdentificationDialog(
 fun LanguagesField(
     label: String,
     hintText: String,
-    values: List<Languages>?,
+    languages: List<Languages>?,
+    signLanguages: List<Languages>?,
     onClear: () -> Unit = {},
     onClick: () -> Unit = {}
 ) {
@@ -359,18 +361,12 @@ fun LanguagesField(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        if (!values.isNullOrEmpty()) {
+                        if (!languages.isNullOrEmpty()) {
                             Row(
                                 modifier = Modifier.weight(1f)
                             ) {
-                                val name = values[0].language?.name?:""
-                                val level = values[0].language?.level?:""
-                                val language = buildString {
-                                    append(name)
-                                    if (level.isNotEmpty()) {
-                                        append(" ($level)")
-                                    }
-                                }
+                                val name = languages[0].language?.name?:""
+                                val level = languages[0].language?.level?:""
                                 Text(
                                     text = name,
                                     fontSize = 16.sp,
@@ -390,10 +386,10 @@ fun LanguagesField(
                                         lineHeight = 22.sp,
                                     )
                                 }
-                                if (values.size > 1) {
+                                if (languages.size > 1) {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "+${(values.size - 1)}",
+                                        text = "+${(languages.size - 1)}",
                                         fontSize = 16.sp,
                                         lineHeight = 22.sp,
                                         fontFamily = fontFamilyLato,
@@ -430,7 +426,7 @@ fun LanguagesField(
                         }
                     }
                 }
-                if (!values.isNullOrEmpty() && values.size > 1) {
+                if ((!languages.isNullOrEmpty() || !signLanguages.isNullOrEmpty()) && languages?.size!! > 1) {
                     Spacer(Modifier.height(15.dp))
                     // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
                     FlowRow(
@@ -482,7 +478,7 @@ fun LanguagesField(
                             }
                         )
                     ) {
-                        values.forEachIndexed { index, item ->
+                        languages?.forEachIndexed { index, item ->
                             val name = item.language?.name?:""
                             val level = (item.language?.level?:"").trim()
                             val language = buildString {
@@ -513,7 +509,7 @@ fun LanguagesField(
                                     )
                                 }
 
-                                if (index != values.lastIndex) {
+                                if (index != languages.lastIndex) {
                                     Spacer(Modifier.width(10.dp))
                                     Box(
                                         modifier = Modifier
@@ -523,6 +519,55 @@ fun LanguagesField(
                                     )
                                     Spacer(Modifier.width(10.dp))
                                 }
+                            }
+                        }
+
+//                        Spacer(modifier = Modifier.fillMaxWidth())
+//                        Text(
+//                            text = "Sign Language :",
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Bold,
+//                            fontFamily = fontFamilyLato,
+//                            color = LightBlack,
+//                            lineHeight = 22.sp,
+//                        )
+//                        Spacer(modifier = Modifier.width(10.dp))
+
+                        signLanguages?.forEachIndexed { index, item ->
+                            val name = item.language?.name?:""
+                            val level = (item.language?.level?:"").trim()
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (index != 0 ) {
+                                    Spacer(Modifier.width(10.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(LightBlack55)
+                                            .size(3.dp)
+                                    )
+                                    Spacer(Modifier.width(10.dp))
+                                }
+                                Text(
+                                    text = name,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    fontFamily = fontFamilyLato,
+                                    color = LightBlack,
+                                    lineHeight = 22.sp,
+                                )
+                                if (level.isNotEmpty()) {
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = "($level)",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = fontFamilyLato,
+                                        color = LightBlack,
+                                        lineHeight = 22.sp,
+                                    )
+                                }
+
                             }
                         }
                     }
@@ -1198,6 +1243,8 @@ data class IdentificationData(
     var ethnicity: ProfileMeta? = null,
     var faith: ProfileMeta? = null,
     var language: List<Languages>? = null,
+    var selectedLanguages: List<Languages>? = null,
+    var selectedSignLanguages: List<Languages>? = null,
     var education: ProfileMeta? = null,
     var relationship: ProfileMeta? = null,
     var nationality: List<Nationality>? = null,
@@ -1230,7 +1277,7 @@ data class IdentificationData(
             Pair("Nationality", nationality),
             Pair("Ethnicity", ethnicity?.name),
             Pair("Faith", faith?.name),
-            Pair("Language", language),
+            Pair("Language", selectedLanguages),
             Pair("Education", education?.name),
             Pair("Relationship", relationship?.name),
 //            Pair("Children", ""),

@@ -171,6 +171,8 @@ class UserProfileViewModel @Inject constructor(
                                 ethnicity = state.ethnicity,
                                 faith = state.faith,
                                 language = state.languages,
+                                selectedLanguages = state.selectedLanguages,
+                                selectedSignLanguages = state.selectedSignLanguages,
                                 education = state.education,
                                 relationship = state.relationship,
                                 politicalIdeology = state.politicalIdeology,
@@ -199,6 +201,13 @@ class UserProfileViewModel @Inject constructor(
                 val magneticsData = _uiState.value.magneticsData
 
                 val languageList = arrayListOf<LanguageReq>()
+                magneticsData.identificationData?.selectedLanguages?.forEach { item ->
+                    languageList.add(
+                        LanguageReq(item.language?.id ?: "", item.language?.level ?: "")
+                    )
+                }
+
+                val languageSubList = arrayListOf<LanguageReq>()
                 magneticsData.identificationData?.language?.forEach { item ->
                     languageList.add(
                         LanguageReq(item.language?.id ?: "", item.language?.level ?: "")
@@ -563,14 +572,17 @@ class UserProfileViewModel @Inject constructor(
 
             is UserProfileEvent.OnToggleBioEditor -> {
                 _uiState.update {
+                    var bullets = listOf(HighlightBullet())
                     if (event.tab.equals("overview")) {
                         onEvent(UserProfileEvent.OnHighlightChanged(TextFieldValue(text = "")))
                     } else {
+                        bullets = it.profileHeaderData.bullets
                         onEvent(UserProfileEvent.OnOverviewChanged(TextFieldValue(text = "")))
                     }
                     it.copy(
-                        profileHeaderData = _uiState.value.profileHeaderData.copy(
-                            selectedTab = event.tab
+                        profileHeaderData = it.profileHeaderData.copy(
+                            selectedTab = event.tab,
+                            bullets = bullets
                         ),
                     )
                 }
@@ -959,24 +971,32 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         showLanguagesDialog = event.show,
-                        titlesData = merged,
+//                        titlesData = merged,
 //                        selectedIds = selectedIds
                     )
                 }
             }
 
             is UserProfileEvent.OnApplyLanguage -> {
-                val selectedIds = event.value.associateBy({ it.id }, { it.level })
-                val selected = _uiState.value.languageList.filter() { it.id in selectedIds }
 
-                val selectedMeta = selected.map { item ->
-                    val newLevel = selectedIds?.get(item.id)
+                val selectedLangsMeta = event.languages?.map { item ->
                     Languages(
                         language = Language(
                             id = item.id,
                             name = item.name,
                             description = item.description,
-                            level = newLevel,
+                            level = item.level,
+                        )
+                    )
+                }
+
+                val selectedSignLangsMeta = event.signLanguages?.map { item ->
+                    Languages(
+                        language = Language(
+                            id = item.id,
+                            name = item.name,
+                            description = item.description,
+                            level = item.level,
                         )
                     )
                 }
@@ -984,7 +1004,10 @@ class UserProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         showLanguagesDialog = false,
-                        identificationData = _uiState.value.identificationData.copy(language = selectedMeta)
+                        identificationData = _uiState.value.identificationData.copy(
+                            selectedLanguages = selectedLangsMeta,
+                            selectedSignLanguages = selectedSignLangsMeta,
+                        )
                     )
                 }
 
@@ -1098,6 +1121,9 @@ class UserProfileViewModel @Inject constructor(
         val result = uploadUserProfileUseCase(requestDto)
         result.fold(
             onSuccess = { response ->
+
+                val selectedLanguages = response.languages?.filter { it.language != null }
+                val selectedSignLanguages = response.languages?.filter { it.sublanguage != null }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -1133,6 +1159,8 @@ class UserProfileViewModel @Inject constructor(
                         politicalIdeology = if (response.politicalIdeology.isNullOrEmpty()) null else response.politicalIdeology,
                         areaOfInterest = if (response.interests.isNullOrEmpty()) null else response.interests,
                         languages = if (response.languages.isNullOrEmpty()) null else response.languages,
+                        selectedLanguages = selectedLanguages,
+                        selectedSignLanguages = selectedSignLanguages,
                         nationality = if (response.nationality.isNullOrEmpty()) null else response.nationality,
                     )
                 }
@@ -1188,6 +1216,10 @@ class UserProfileViewModel @Inject constructor(
         val result = getUserProfileUseCase()
         result.fold(
             onSuccess = { response ->
+
+                val selectedLanguages = response.languages?.filter { it.language != null }
+                val selectedSignLanguages = response.languages?.filter { it.sublanguage != null }
+
                 _uiState.update {
                     it.copy(
                         errorMessage = null,
@@ -1222,6 +1254,8 @@ class UserProfileViewModel @Inject constructor(
                         politicalIdeology = if (response.politicalIdeology.isNullOrEmpty()) null else response.politicalIdeology,
                         areaOfInterest = if (response.interests.isNullOrEmpty()) null else response.interests,
                         languages = if (response.languages.isNullOrEmpty()) null else response.languages,
+                        selectedLanguages = selectedLanguages,
+                        selectedSignLanguages = selectedSignLanguages,
                         nationality = if (response.nationality.isNullOrEmpty()) null else response.nationality,
                     )
                 }

@@ -1,9 +1,11 @@
 package com.joyersapp.feature.profile.presentation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +25,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,17 +42,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -58,18 +74,22 @@ import com.joyersapp.R
 import com.joyersapp.common_widgets.IdentificationData
 import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.dialogs.BirthdayDatePickerDialog
+import com.joyersapp.components.dialogs.BulletRow
 import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.dialogs.MultipleSelectionsDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.dialogs.HighlightBullet
+import com.joyersapp.components.dialogs.HighlightEvent
 import com.joyersapp.components.dialogs.LanguageSelectionDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
+import com.joyersapp.components.dialogs.highlightWords
 import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
@@ -264,8 +284,8 @@ fun MagneticsScreen(
                             }
                             "Language" -> {
 
-                                if (!magneticsData.identificationData?.language.isNullOrEmpty()) {
-                                    LanguageSection(languages = magneticsData.identificationData.language!!)
+                                if (!magneticsData.identificationData?.selectedLanguages.isNullOrEmpty()) {
+                                    LanguageSection(languages = magneticsData.identificationData.selectedLanguages!!)
                                 } else {
                                     ProfileEditableRow(title = "Language") }
                             }
@@ -384,9 +404,12 @@ fun MagneticsScreen(
         }
         if (state.showLanguagesDialog) {
             LanguageSelectionDialog(
-                viewModel = viewModel,
+                initList = state.languageList,
+                selectedLanguages = state.identificationData.selectedLanguages,
+                selectedSignLanguages = emptyList(),
+//                viewModel = viewModel,
                 onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = false)) },
-                onApply = {  viewModel.onEvent(UserProfileEvent.OnApplyLanguage(it)) }
+                onApply = { l, s ->   viewModel.onEvent(UserProfileEvent.OnApplyLanguage(l, s)) }
             )
         }
 //    }
@@ -717,6 +740,7 @@ fun ProfileHeaderSection(
             BioSection(
                 bioText = state.bio?.filteredBio()?:"",
                 linkText = state.websiteUrl?:"",
+                bullets = state.bullets,
                 onLinkClick = {}
             )
         } else { ProfileEditableRow(title = "Bio") }
@@ -888,6 +912,7 @@ fun ProfilePicture(
 private fun BioSection(
     bioText: String,
     linkText: String,
+    bullets: List<HighlightBullet>,
     onLinkClick: () -> Unit
 ) {
     Column(
@@ -941,6 +966,14 @@ private fun BioSection(
                 if (bioText.isNotEmpty()) {
                     // ----- BIO RICH TEXT -----
                     HighlightedText(bioText)
+
+//                    LazyColumn {
+//                        itemsIndexed(bullets) { index, bullet ->
+//                            BulletRowText(
+//                                bullet = bullet,
+//                            )
+//                        }
+//                    }
                 }
 
                 if (linkText.isNotEmpty()) {
@@ -977,6 +1010,80 @@ private fun BioSection(
     }
 }
 
+
+@Composable
+fun BulletRowText(
+    bullet: HighlightBullet,
+) {
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 5.dp)
+    ) {
+
+        // Bullet Dot
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(LightBlack)
+        )
+
+        Spacer(Modifier.width(10.dp))
+
+        /*        // Editable Text
+                BasicTextField(
+                    value = bullet.text,
+                    onValueChange = {
+                        onEvent(
+                            HighlightEvent.OnTextChange(bullet.id, it)
+                        )
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                onEvent(
+                                    HighlightEvent.OnFocusRequested(bullet.id)
+                                )
+                            }
+                        }
+                        .onKeyEvent { keyEvent ->
+                            if (
+        //                        keyEvent.type == KeyEventType.KeyDown &&
+                                keyEvent.key == Key.Backspace &&
+                                bullet.text.isEmpty()
+                            ) {
+                                onEvent(
+                                    HighlightEvent.OnBackspaceOnEmpty(bullet.id)
+                                )
+                                true
+                            } else false
+                        },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            onEvent(HighlightEvent.OnAddBullet(bullet.id))
+                        }
+                    )
+                )*/
+
+        Text(
+            text = bullet.textValue.text,
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            color = Color.Transparent,
+            modifier = Modifier
+        )
+
+    }
+}
 @Composable
 fun HighlightedText(
     text: String,
@@ -1152,7 +1259,7 @@ fun LanguageSection(
                         Text(
                             text = name,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Normal,
                             fontFamily = fontFamilyLato,
                             color = LightBlack,
                             lineHeight = 22.sp,

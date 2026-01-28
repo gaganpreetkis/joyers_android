@@ -9,6 +9,7 @@ import com.joyersapp.feature.profile.data.remote.dto.Interests
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
@@ -40,6 +41,8 @@ data class UserProfileUiState(
     val faith: ProfileMeta? = null,
     val language: String? = null,
     val languages: List<Languages>? = null,
+    val selectedLanguages: List<Languages>? = null,
+    val selectedSignLanguages: List<Languages>? = null,
     val educationName: String? = null,
 
     val joySince: String? = null,
@@ -82,7 +85,7 @@ data class UserProfileUiState(
     val interestList: List<ProfileTitlesData> = emptyList(),
     val politicalIdeologyList: List<ProfileTitlesData> = emptyList(),
     val relationShipList: List<ProfileTitlesData> = emptyList(),
-    val languageList: List<ProfileTitlesData> = emptyList(),
+    val languageList: List<ProfileLanguagesData> = emptyList(),
 
 
 

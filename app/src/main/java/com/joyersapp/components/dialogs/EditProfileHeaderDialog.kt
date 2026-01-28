@@ -80,6 +80,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
@@ -748,7 +750,7 @@ fun BioEditor(
                         color = if (bioValidationError == null) LightBlack60 else Red,
                         fontSize = 12.sp,
                         lineHeight = 24.sp,
-                        fontWeight = FontWeight.Normal,
+                        fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         modifier = Modifier
                             .padding(top = 5.dp, bottom = 0.dp, end = 7.dp)
@@ -765,7 +767,16 @@ fun BioEditor(
                                 }
                             )
                         } else {
-
+                            if (bullets.isEmpty() || (bullets.size == 1 && bullets.get(0).textValue.text.isEmpty())) {
+                                Text(
+                                    "About Joyer",
+                                    color = LightBlack40,
+                                    fontSize = 16.sp,
+                                    lineHeight = 22.sp,
+                                    fontFamily = fontFamilyLato,
+                                    modifier = Modifier.padding(start = 16.dp)
+                                )
+                            }
                             HighlightEditor(
                                 bullets = bullets,
                                 onEvent = onEvent
@@ -835,6 +846,10 @@ fun OverviewEditor(
                 OffsetMapping.Identity
             )
         },
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            keyboardType = KeyboardType.Text
+        ),
         textStyle = TextStyle(
             fontSize = 16.sp,
             lineHeight = 22.sp,
@@ -1103,7 +1118,8 @@ fun BulletRow(
                 },
 //            singleLine = true,
             keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next
+                imeAction = ImeAction.Next,
+                capitalization = KeyboardCapitalization.Sentences
             ),
             keyboardActions = KeyboardActions(
                 onNext = {

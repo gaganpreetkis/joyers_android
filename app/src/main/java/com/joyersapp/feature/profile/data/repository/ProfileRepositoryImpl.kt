@@ -3,6 +3,7 @@ package com.joyersapp.feature.profile.data.repository
 import com.joyersapp.auth.data.local.SessionLocalDataSource
 import com.joyersapp.feature.profile.data.remote.ProfileApi
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.data.remote.dto.UploadPictureServerResponse
 import com.joyersapp.feature.profile.data.remote.dto.UserProfile
@@ -433,7 +434,7 @@ class ProfileRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
-    override suspend fun getLanguageList(): Result<List<ProfileTitlesData>> =
+    override suspend fun getLanguageList(): Result<List<ProfileLanguagesData>> =
         try {
             val response = api.getLanguageList()
             when (response.statusCode) {

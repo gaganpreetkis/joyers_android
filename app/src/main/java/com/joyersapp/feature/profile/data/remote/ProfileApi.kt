@@ -2,6 +2,8 @@ package com.joyersapp.feature.profile.data.remote
 
 import com.joyersapp.di.RequiresAuth
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListResponseDto
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesResponseDto
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileResponseDto
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesResponseDto
 import com.joyersapp.feature.profile.data.remote.dto.UploadPictureServerResponse
@@ -75,6 +77,6 @@ interface ProfileApi {
 
     @RequiresAuth
     @POST("user/get-language-list")
-    suspend fun getLanguageList(): ProfileTitlesResponseDto
+    suspend fun getLanguageList(): ProfileLanguagesResponseDto
 
 }

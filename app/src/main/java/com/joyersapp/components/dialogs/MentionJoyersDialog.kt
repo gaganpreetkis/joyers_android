@@ -441,9 +441,9 @@ fun SelectedUsersColumn(selectedUsers: List<EditMagneticsUserListData>,
         itemsIndexed(selectedUsers) { index, user ->
             Spacer(Modifier.height(15.dp))
             MentionJoyerRow(showCancelButton = true, user, onUserClick = onUserClick)
-//            if (selectedUsers.size -1  == index) {
-//                Spacer(Modifier.height(25.dp))
-//            }
+            if (selectedUsers.size -1  == index) {
+                Spacer(Modifier.height(25.dp))
+            }
         }
     }
 }

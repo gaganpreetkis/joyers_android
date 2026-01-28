@@ -110,6 +110,7 @@ fun DescriptionDialog(
     onDismiss: () -> Unit,
     onApply: (ProfileMeta?, ProfileMeta?) -> Unit
 ) {
+
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
