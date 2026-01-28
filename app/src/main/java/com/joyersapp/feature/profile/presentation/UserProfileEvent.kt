@@ -2,6 +2,7 @@ package com.joyersapp.feature.profile.presentation
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.joyersapp.common_widgets.IdentificationData
+import com.joyersapp.components.dialogs.HighlightEvent
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
@@ -34,7 +35,7 @@ sealed class UserProfileEvent {
     data class OnClearMultipleSelections(val key: String) : UserProfileEvent()
     data class OnGenderSelected(val value: String) : UserProfileEvent()
     data class OnOverviewChanged(val value: TextFieldValue) : UserProfileEvent()
-    data class OnHighlightChanged(val value: TextFieldValue) : UserProfileEvent()
+    data class OnHighlightChanged(val value: TextFieldValue, val highlightEvent: HighlightEvent = HighlightEvent.OnBulletDoubleTap("")) : UserProfileEvent()
     data class OnToggleBioEditor(val tab: String) : UserProfileEvent()
     data class OnWebsiteUrlChanged(val value: String) : UserProfileEvent()
 

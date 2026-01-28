@@ -1,12 +1,14 @@
 package com.joyersapp.components.dialogs
 
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,10 +30,13 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.verticalScroll
@@ -52,7 +57,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -114,6 +127,7 @@ import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import com.joyersapp.utils.tapToDismissKeyboard
 import com.joyersapp.utils.uriToFile
+import java.util.UUID
 
 @Preview
 @Composable
@@ -266,12 +280,16 @@ fun EditProfileHeaderDialog(
                 onSelectedTabChange = {
                     viewModel.onEvent(UserProfileEvent.OnToggleBioEditor(it))
                 },
+                bullets = profileHeaderData.bullets,
+                onEvent = {
+                    viewModel.onEvent(UserProfileEvent.OnHighlightChanged(TextFieldValue(), it))
+                }
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             // ---------- WEBSITE SECTION ----------
-            val count = profileHeaderData.highlightFieldValue.text.count { it == '•' }
+            val count = profileHeaderData.bullets.size
             WebsiteTextField(
                 label = "Website",
                 hintText = "Domain Link",
@@ -675,6 +693,8 @@ fun BioEditor(
     selectedTab: String,
     bioValidationError: UiText?,
     overviewText: TextFieldValue,
+    bullets: List<HighlightBullet>,
+    onEvent: (HighlightEvent) -> Unit,
     highlightText: TextFieldValue,
     websiteUrl: String?,
     remainingChars: String,
@@ -745,13 +765,19 @@ fun BioEditor(
                                 }
                             )
                         } else {
-                            HighlightsEditor(
-                                websiteUrl = websiteUrl?:"",
-                                textState = highlightText,
-                                onChange = {
-                                    onHighlightChange(it)
-                                }
+
+                            HighlightEditor(
+                                bullets = bullets,
+                                onEvent = onEvent
                             )
+
+//                            HighlightsEditor(
+//                                websiteUrl = websiteUrl?:"",
+//                                textState = highlightText,
+//                                onChange = {
+//                                    onHighlightChange(it)
+//                                }
+//                            )
                         }
                     }
                 }
@@ -905,6 +931,219 @@ fun HighlightsEditor(
         }
     )
 }*/
+sealed interface HighlightEvent {
+    data class OnTextChange(val id: String, val textValue: TextFieldValue) : HighlightEvent
+    data class OnAddBullet(val fromId: String) : HighlightEvent
+    data class OnDeleteBullet(val id: String) : HighlightEvent
+    data class OnBulletSingleTap(val id: String) : HighlightEvent
+    data class OnBulletDoubleTap(val id: String) : HighlightEvent
+    data class OnFocusConsumed(val id: String) : HighlightEvent
+    data class OnFocusRequested(val id: String) : HighlightEvent
+    data class OnBackspaceOnEmpty(val id: String) : HighlightEvent
+    data object NavigateToMentionJoyers : HighlightEvent
+}
+
+@Composable
+fun HighlightEditor(
+    bullets: List<HighlightBullet>,
+    onEvent: (HighlightEvent) -> Unit
+) {
+    LazyColumn {
+        itemsIndexed(bullets) { index, bullet ->
+            BulletRow(
+                bullet = bullet,
+                onEvent = onEvent
+            )
+        }
+    }
+}
+data class HighlightBullet(
+    val id: String = UUID.randomUUID().toString(),
+    val textValue: TextFieldValue = TextFieldValue(""),
+    val isDeleteVisible: Boolean = false,
+    val requestFocus: Boolean = false
+)
+
+@Composable
+fun BulletRow(
+    bullet: HighlightBullet,
+    onEvent: (HighlightEvent) -> Unit
+) {
+
+    val focusRequester = remember { FocusRequester() }
+
+    // Request focus when flag becomes true
+    LaunchedEffect(bullet.requestFocus) {
+        if (bullet.requestFocus) {
+            focusRequester.requestFocus()
+            onEvent(HighlightEvent.OnFocusConsumed(bullet.id))
+        }
+    }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 5.dp)
+    ) {
+
+        // Bullet Dot
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(LightBlack)
+        )
+//                .pointerInput(Unit) {
+//                    detectTapGestures(
+//                        onTap = {
+//                            onEvent(HighlightEvent.OnBulletSingleTap(bullet.id))
+//                        },
+//                        onDoubleTap = {
+//                            onEvent(HighlightEvent.OnBulletDoubleTap(bullet.id))
+//                        }
+//                    )
+//                },
+
+
+        Spacer(Modifier.width(10.dp))
+
+/*        // Editable Text
+        BasicTextField(
+            value = bullet.text,
+            onValueChange = {
+                onEvent(
+                    HighlightEvent.OnTextChange(bullet.id, it)
+                )
+            },
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        onEvent(
+                            HighlightEvent.OnFocusRequested(bullet.id)
+                        )
+                    }
+                }
+                .onKeyEvent { keyEvent ->
+                    if (
+//                        keyEvent.type == KeyEventType.KeyDown &&
+                        keyEvent.key == Key.Backspace &&
+                        bullet.text.isEmpty()
+                    ) {
+                        onEvent(
+                            HighlightEvent.OnBackspaceOnEmpty(bullet.id)
+                        )
+                        true
+                    } else false
+                },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    onEvent(HighlightEvent.OnAddBullet(bullet.id))
+                }
+            )
+        )*/
+
+        BasicTextField(
+            value = bullet.textValue,
+            onValueChange = { newValue ->
+                onEvent(
+                    HighlightEvent.OnTextChange(bullet.id, newValue)
+                )
+            },
+            visualTransformation = { textValue ->
+                TransformedText(
+                    highlightWords(textValue.text),
+                    OffsetMapping.Identity
+                )
+            },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                color = Color.Transparent
+            ),
+            modifier = Modifier
+//                .fillMaxWidth()
+                .weight(1f)
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        onEvent(
+                            HighlightEvent.OnFocusRequested(bullet.id)
+                        )
+                    }
+                }
+                .onKeyEvent { keyEvent ->
+
+                    return@onKeyEvent when(keyEvent.key) {
+                        Key.Backspace -> {
+                            if (bullet.textValue.text.isEmpty()) {
+                                onEvent(
+                                    HighlightEvent.OnBackspaceOnEmpty(bullet.id)
+                                )
+                                true
+                            } else false
+                        }
+
+//                        Key.At -> {
+//                                onEvent(
+//                                    HighlightEvent.NavigateToMentionJoyers
+//                                )
+//                                true
+//                        }
+
+                        else -> {false}
+                    }
+                },
+//            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    onEvent(HighlightEvent.OnAddBullet(bullet.id))
+                }
+            ),
+            decorationBox = { inner ->
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                ) {
+                    inner()
+                    // Placeholder
+//                    if (bullet.text.isEmpty() || bullet.text.equals("• ")) {
+//                        Text(
+//                            "About Joyer",
+//                            color = LightBlack40,
+//                            fontSize = 16.sp,
+//                            lineHeight = 22.sp,
+//                            fontWeight = FontWeight.Normal,
+//                            fontFamily = fontFamilyLato,
+//                        )
+//                    }
+                }
+            }
+        )
+
+        // Delete Icon
+        AnimatedVisibility(bullet.isDeleteVisible) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_cancel_grey),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 14.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
+                    .size(15.dp)
+                    .clickable { onEvent(HighlightEvent.OnDeleteBullet(bullet.id)) }
+            )
+        }
+    }
+}
 @Composable
 fun HighlightsEditor(
     websiteUrl: String,

@@ -61,6 +61,7 @@ import com.joyersapp.components.dialogs.BirthdayDatePickerDialog
 import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.dialogs.MultipleSelectionsDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
+import com.joyersapp.components.dialogs.HighlightBullet
 import com.joyersapp.components.dialogs.LanguageSelectionDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.components.layouts.HardBlockingLoader
@@ -89,6 +90,7 @@ import com.joyersapp.utils.filteredBio
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.noRippleClickable
+import com.joyersapp.utils.toHighlightBullets
 import kotlin.collections.isNullOrEmpty
 
 //@Preview
@@ -1551,8 +1553,13 @@ data class ProfileHeaderData(
     val websiteUrl: String? = null,
     val bioValidationError: UiText? = null,
 
-    var selectedTab: String = "overview"
+    var selectedTab: String = "overview",
+    val bullets: List<HighlightBullet> = listOf(HighlightBullet()),
+
 ) {
     val isApplyEnabled: Boolean
         get() = if (bioValidationError == null && (!profilePicture.isNullOrEmpty() || !backgroundPicture.isNullOrEmpty() || !websiteUrl.isNullOrEmpty() || overviewFieldValue.text.graphemeCount() != 0 || highlightFieldValue.text.graphemeCount() > 2)) true else false
+
+    val maxBullets: Int
+        get() = if (websiteUrl.isNullOrEmpty()) 5 else 4
 }

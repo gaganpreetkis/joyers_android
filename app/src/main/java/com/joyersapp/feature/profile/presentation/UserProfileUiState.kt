@@ -101,4 +101,5 @@ data class UserProfileUiState(
     val selectedIds: List<String> = arrayListOf(),
     val isMultiselectEnabled: Boolean = false,
     val isSubTitleMode: Boolean = false,
+    val highlightsFocusedId: String = "",
 )
