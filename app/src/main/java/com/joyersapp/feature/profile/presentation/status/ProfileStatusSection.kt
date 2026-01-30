@@ -259,7 +259,7 @@ fun JoyerCodeSection(
 
                     Spacer(Modifier.height(10.dp))
                 }
-                if (state.fullname.trim().isNotEmpty()) {
+                if (!state.fullname?.trim().isNullOrEmpty()) {
                     Text(
                         modifier = Modifier.width(200.dp),
                         text = state.fullname.trim(),

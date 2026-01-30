@@ -5,6 +5,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 sealed class SignupEvent {
     object SubmitClicked : SignupEvent()
     data class UsernameChanged(val value: TextFieldValue) : SignupEvent()
+    data class TestChanged(val value: TextFieldValue) : SignupEvent()
     data class EmailChanged(val value: String) : SignupEvent()
     data class PhoneChanged(val value: String) : SignupEvent()
     data class VerificationCodeChanged(val value: String) : SignupEvent()

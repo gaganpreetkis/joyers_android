@@ -3,6 +3,7 @@ package com.joyersapp.feature.profile.presentation
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.unit.Dp
 import com.joyersapp.common_widgets.IdentificationData
+import com.joyersapp.components.dialogs.HighlightBullet
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
 import com.joyersapp.feature.profile.data.remote.dto.EditProfileHeaderDialogDto
 import com.joyersapp.feature.profile.data.remote.dto.Interests
@@ -21,13 +22,16 @@ data class UserProfileUiState(
     val profileHeaderData: ProfileHeaderData = ProfileHeaderData(),
 
     val username: String = "",
-    val fullname: String = "",
+    val fullname: String? = null,
     val joyerLocation: String? = null,
     val location: ProfileMeta? = null,
     val profilePicture: String? = null,
     val backgroundPicture: String? = null,
     val bio: String? = null,
     val websiteUrl: String? = null,
+    val selectedBioTab: String? = null,
+    val overviewText: String? = null,
+    val bullets: List<HighlightBullet> = listOf(HighlightBullet()),
 
     val joyerStatus: String? = null,
     val titleName: String? = null,

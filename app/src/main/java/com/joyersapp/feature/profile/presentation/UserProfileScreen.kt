@@ -56,6 +56,7 @@ import com.joyersapp.common_widgets.IdentificationDialog
 import com.joyersapp.components.dialogs.BirthdayDatePickerDialog
 import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
+import com.joyersapp.components.dialogs.HighlightBullet
 import com.joyersapp.components.dialogs.LanguageSelectionDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.components.dialogs.MultipleSelectionsDialog
@@ -128,8 +129,10 @@ fun UserProfileScreen(
                     )
 
                     BioSection(
+                        selectedBioTab = state.selectedBioTab?:"",
                         bioText = state.bio?:"",
                         linkText = state.websiteUrl?:"",
+                        bullets = state.bullets,
                         onLinkClick = {}
                     )
 
@@ -386,7 +389,7 @@ fun ProfileInfo(
         ) {
             // fullname
             Text(
-                text = state.fullname,
+                text = state.fullname?:"",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamilyLato,
@@ -443,8 +446,10 @@ fun ProfileInfo(
 
 @Composable
 private fun BioSection(
+    selectedBioTab: String,
     bioText: String,
     linkText: String,
+    bullets: List<HighlightBullet>,
     onLinkClick: () -> Unit
 ) {
     if (bioText.isNotEmpty() || linkText.isNotEmpty()) {
@@ -458,7 +463,18 @@ private fun BioSection(
 
             if (bioText.isNotEmpty()) {
                 // ----- BIO RICH TEXT -----
-                HighlightedText(bioText.filteredBio())
+
+                if (selectedBioTab.equals("highlights")) {
+                    bullets.forEachIndexed { index, bullet ->
+                        BulletRowText(
+                            modifier = Modifier
+                                .padding(top = if (index != 0) 5.dp else 0.dp),
+                            bullet = bullet,
+                        )
+                    }
+                } else {
+                    HighlightedText(bioText.filteredBio())
+                }
             }
 
             if (linkText.isNotEmpty()) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -50,8 +52,11 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -75,13 +80,66 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.Green
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack40
 import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.highlightWords
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import kotlin.text.isNotEmpty
 
+@Composable
+fun OverviewEditor(
+    text: TextFieldValue,
+    onChange: (TextFieldValue) -> Unit
+) {
+    BasicTextField(
+        value = text,
+        onValueChange = {
+            onChange(it)
+        },
+        visualTransformation = { textValue ->
+            TransformedText(
+                highlightWords(textValue.text),
+                OffsetMapping.Identity
+            )
+        },
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            keyboardType = KeyboardType.Text
+        ),
+        textStyle = TextStyle(
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            fontFamily = fontFamilyLato,
+            color = Color.Red // we paint using AnnotatedString
+        ),
+        modifier = Modifier.fillMaxWidth()
+            .focusable(),
+//            .defaultMinSize(minHeight = 140.dp),
+        decorationBox = { inner ->
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            )  {
 
+                // Editable transparent text overlay
+                inner()
+                // Placeholder
+                if (text.text.isEmpty()) {
+                    Text(
+                        "About Joyer",
+                        color = LightBlack40,
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp,
+                        fontFamily = fontFamilyLato
+                    )
+                }
+            }
+        }
+    )
+}
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SignUpScreen(
@@ -125,8 +183,17 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 20.dp else 45.dp))
 
         AppLogo(isKeyBoardOpen, Modifier.align(Alignment.CenterHorizontally))
+//        var value by remember {
+//            mutableStateOf(TextFieldValue(""))
+//        }
+//
+//        value = value.copy(text = "klfjndksjfn")
 
-        Spacer(modifier = Modifier.height(45.dp))
+//        OverviewEditor(
+//            state.test,
+//            onChange = { viewModel.onEvent(SignupEvent.TestChanged(it)) }
+//        )
+//        Spacer(modifier = Modifier.height(45.dp))
 
 // SIGNUP LABEL
         Text(
@@ -184,7 +251,7 @@ fun SignUpScreen(
                         text.startsWith("@") -> text
                         else -> "@$text"
                     }
-                    val fieldValue = TextFieldValue(
+                    val fieldValue = newValue.copy(
                         text,
                         TextRange(text.length)
                     )
@@ -247,7 +314,7 @@ fun SignUpScreen(
                             .padding(start = 5.dp, end = 10.dp)
                             .clickable {
 //                                username = TextFieldValue(text = "")
-                                val clearValue = TextFieldValue(
+                                val clearValue = state.username.copy(
                                     text = "",
                                     TextRange(0)
                                 )

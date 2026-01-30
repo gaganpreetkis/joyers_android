@@ -87,6 +87,7 @@ sealed class LanguagesDialogEvent {
     data object OnBack : LanguagesDialogEvent()
 
     data object OnApply : LanguagesDialogEvent()
+    data object OnClearData : LanguagesDialogEvent()
     data object OnShowSignLanguages : LanguagesDialogEvent()
 }
 sealed class LanguagesDialogNavEvent {
@@ -281,6 +282,8 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                 }
             }
 
+            is LanguagesDialogEvent.OnClearData -> { onCleared() }
+
             is LanguagesDialogEvent.OnBack -> {
                 _uiState.update {
                     val items = it.rootItems
@@ -310,6 +313,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                                 rootItems = items,
                                 currentItems = items,
                                 recentSelectedItemId = "",
+                                searchQuery = "",
                             )
                         }
                     } else {
@@ -319,6 +323,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                                 uiState.value.selectedLanguages,
                             )
                         )
+                        onCleared()
                     }
                 }
             }

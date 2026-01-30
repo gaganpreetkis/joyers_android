@@ -5,6 +5,7 @@ import com.joyersapp.R
 import com.joyersapp.utils.UiText
 
 data class SignupUiState(
+    val test: TextFieldValue = TextFieldValue(""),
     val name: String = "",
     val isUsernameAvailable: Boolean? = null, // null = unknown
 //    val checkingUsername: Boolean = false,

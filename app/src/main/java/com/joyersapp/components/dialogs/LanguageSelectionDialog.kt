@@ -147,8 +147,12 @@ fun LanguageSelectionDialog(
 //            onShowSubTitles = { list ->
 //                viewModel.onEvent(LanguagesDialogEvent.OnShowSignLanguages)
 //            },
-            onDismiss = onDismiss,
+            onDismiss = {
+                viewModel.onEvent(LanguagesDialogEvent.OnClearData)
+                onDismiss()
+            }
         )
+
     }
 
 

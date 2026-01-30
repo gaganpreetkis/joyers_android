@@ -13,6 +13,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,7 +74,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,8 +93,10 @@ import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack40
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
+import com.joyersapp.utils.highlightWords
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import com.joyersapp.utils.tapToDismissKeyboard
@@ -127,6 +135,15 @@ fun HomeScreen() {
                 )
             }
         }
+//        var value by remember {
+//            mutableStateOf(TextFieldValue(""))
+//        }
+//
+//        value = value.copy(text = "klfjndksjfn")
+//        OverviewEditor(
+//            value,
+//            onChange = { value = it }
+//        )
 
 //        LanguageDialog {  }
 //        Dialog(onDismissRequest = {  },
@@ -140,6 +157,59 @@ fun HomeScreen() {
 //        }
 
     }
+}
+
+@Composable
+fun OverviewEditor(
+    text: TextFieldValue,
+    onChange: (TextFieldValue) -> Unit
+) {
+    BasicTextField(
+        value = text,
+        onValueChange = {
+            onChange(it)
+        },
+        visualTransformation = { textValue ->
+            TransformedText(
+                highlightWords(textValue.text),
+                OffsetMapping.Identity
+            )
+        },
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            keyboardType = KeyboardType.Text
+        ),
+        textStyle = TextStyle(
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            fontFamily = fontFamilyLato,
+            color = Color.Red // we paint using AnnotatedString
+        ),
+        modifier = Modifier.fillMaxWidth()
+            .focusable(),
+//            .defaultMinSize(minHeight = 140.dp),
+        decorationBox = { inner ->
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            )  {
+
+                // Editable transparent text overlay
+                inner()
+                // Placeholder
+                if (text.text.isEmpty()) {
+                    Text(
+                        "About Joyer",
+                        color = LightBlack40,
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp,
+                        fontFamily = fontFamilyLato
+                    )
+                }
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

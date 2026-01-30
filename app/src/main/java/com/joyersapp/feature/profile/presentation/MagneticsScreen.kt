@@ -741,6 +741,7 @@ fun ProfileHeaderSection(
         Spacer(Modifier.height(11.dp))
         if (!state?.bio?.filteredBio().isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
             BioSection(
+                selectedBioTab = state.selectedTab,
                 bioText = state.bio?.filteredBio()?:"",
                 linkText = state.websiteUrl?:"",
                 bullets = state.bullets,
@@ -913,6 +914,7 @@ fun ProfilePicture(
 
 @Composable
 private fun BioSection(
+    selectedBioTab: String,
     bioText: String,
     linkText: String,
     bullets: List<HighlightBullet>,
@@ -968,15 +970,18 @@ private fun BioSection(
 
                 if (bioText.isNotEmpty()) {
                     // ----- BIO RICH TEXT -----
-                    HighlightedText(bioText)
 
-//                    LazyColumn() {
-//                        itemsIndexed(bullets) { index, bullet ->
-//                            BulletRowText(
-//                                bullet = bullet,
-//                            )
-//                        }
-//                    }
+                    if (selectedBioTab.equals("highlights")) {
+                        bullets.forEachIndexed { index, bullet ->
+                            BulletRowText(
+                                modifier = Modifier
+                                    .padding(top = if (index != 0) 5.dp else 0.dp),
+                                bullet = bullet,
+                            )
+                        }
+                    } else {
+                        HighlightedText(bioText.filteredBio())
+                    }
                 }
 
                 if (linkText.isNotEmpty()) {
@@ -1016,14 +1021,14 @@ private fun BioSection(
 
 @Composable
 fun BulletRowText(
+    modifier: Modifier,
     bullet: HighlightBullet,
 ) {
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 5.dp)
     ) {
 
         // Bullet Dot
@@ -1036,53 +1041,12 @@ fun BulletRowText(
 
         Spacer(Modifier.width(10.dp))
 
-        /*        // Editable Text
-                BasicTextField(
-                    value = bullet.text,
-                    onValueChange = {
-                        onEvent(
-                            HighlightEvent.OnTextChange(bullet.id, it)
-                        )
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged {
-                            if (it.isFocused) {
-                                onEvent(
-                                    HighlightEvent.OnFocusRequested(bullet.id)
-                                )
-                            }
-                        }
-                        .onKeyEvent { keyEvent ->
-                            if (
-        //                        keyEvent.type == KeyEventType.KeyDown &&
-                                keyEvent.key == Key.Backspace &&
-                                bullet.text.isEmpty()
-                            ) {
-                                onEvent(
-                                    HighlightEvent.OnBackspaceOnEmpty(bullet.id)
-                                )
-                                true
-                            } else false
-                        },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = {
-                            onEvent(HighlightEvent.OnAddBullet(bullet.id))
-                        }
-                    )
-                )*/
-
         Text(
-            text = bullet.textValue.text,
+            highlightWords(bullet.textValue.text),
+            modifier = Modifier,
             fontSize = 16.sp,
-            lineHeight = 22.sp,
-            color = Color.Transparent,
-            modifier = Modifier
+            fontFamily = fontFamilyLato,
+            lineHeight = 22.sp
         )
 
     }

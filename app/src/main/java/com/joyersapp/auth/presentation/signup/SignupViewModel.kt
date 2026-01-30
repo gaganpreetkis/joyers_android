@@ -70,6 +70,17 @@ class SignupViewModel @Inject constructor(
                 }
             }
 
+            is SignupEvent.TestChanged -> {
+                _uiState.update {
+                    it.copy(
+                        test = it.test.copy(
+                            text = "iuiuiuiy",
+                            selection = TextRange(8)
+                        ),
+                    )
+                }
+            }
+
             is SignupEvent.UsernameFocusChanged -> {
                 val prevFocused = _uiState.value.isUsernameFocused
 
@@ -90,7 +101,7 @@ class SignupViewModel @Inject constructor(
             is SignupEvent.UsernameSuggestionClicked -> {
                 _uiState.update {
                     it.copy(
-                        username = TextFieldValue(
+                        username = it.username.copy(
                             text = "@${event.suggestion}",
                             selection = TextRange(
                                 start = event.suggestion.length + 1,
@@ -362,7 +373,7 @@ class SignupViewModel @Inject constructor(
                         "@${response.username}" // apply API-corrected username with @ prefix
                     _uiState.update {
                         it.copy(
-                            username = TextFieldValue(
+                            username = it.username.copy(
                                 text = updatedUsername,
                                 selection = TextRange(updatedUsername.length)
                             ),

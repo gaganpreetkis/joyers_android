@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -270,13 +271,13 @@ fun EditProfileHeaderDialog(
                 },
                 onOverviewChange = {
                     viewModel.onEvent(UserProfileEvent.OnOverviewChanged(it))
-                    if (it.text.endsWith(" @") && profileHeaderData.overviewFieldValue.text.length < it.text.length) {
+                    if ((it.text.endsWith(" @") || it.text.equals("@")) && profileHeaderData.overviewFieldValue.text.length < it.text.length) {
                         viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                     }
                 },
                 onHighlightChange = {
                     viewModel.onEvent(UserProfileEvent.OnHighlightChanged(it))
-                    if (it.text.endsWith(" @") && profileHeaderData.highlightFieldValue.text.length < it.text.length) {
+                    if ((it.text.endsWith(" @") || it.text.equals("@")) && profileHeaderData.highlightFieldValue.text.length < it.text.length) {
                         viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                     }
                 },
@@ -857,7 +858,8 @@ fun OverviewEditor(
             fontFamily = fontFamilyLato,
             color = Color.Red // we paint using AnnotatedString
         ),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .focusable(),
 //            .defaultMinSize(minHeight = 140.dp),
         decorationBox = { inner ->
             Box(
@@ -916,7 +918,7 @@ fun HighlightsEditor(
     )
 }*/
 sealed interface HighlightEvent {
-    data class OnTextChange(val id: String, val textValue: TextFieldValue) : HighlightEvent
+    data class OnTextChange(val id: String, val textValue: TextFieldValue?) : HighlightEvent
     data class OnAddBullet(val fromId: String) : HighlightEvent
     data class OnDeleteBullet(val id: String) : HighlightEvent
     data class OnBulletSingleTap(val id: String) : HighlightEvent
