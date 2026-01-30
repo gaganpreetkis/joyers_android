@@ -141,21 +141,21 @@ fun CropImageDialog(
         // Reset transform when image loads
         // ⭐ AUTO SCALE IMAGE TO FILL CIRCLE ⭐
 
-        imageBitmap?.let { bmp ->
-
-            val imageW = bmp.width.toFloat()
-            val imageH = bmp.height.toFloat()
-
-            // how much we must scale so image covers crop circle
-            val scaleX = cropSizePx / imageW
-            val scaleY = cropSizePx / imageH
-
-            // pick bigger -> fully covers circle
-            scale = maxOf(scaleX, scaleY)
-
-            offsetX = 0f
-            offsetY = 0f
-        }
+//        imageBitmap?.let { bmp ->
+//
+//            val imageW = bmp.width.toFloat()
+//            val imageH = bmp.height.toFloat()
+//
+//            // how much we must scale so image covers crop circle
+//            val scaleX = cropSizePx / imageW
+//            val scaleY = cropSizePx / imageH
+//
+//            // pick bigger -> fully covers circle
+//            scale = maxOf(scaleX, scaleY)
+//
+//            offsetX = 0f
+//            offsetY = 0f
+//        }
 
 //        imageBitmap?.let { bmp ->
 //
@@ -353,7 +353,7 @@ fun CropImageDialog(
                                 .pointerInput(Unit) {
                                     detectTransformGestures { _, pan, zoom, _ ->
 
-                                        val newScale = (scale * zoom).coerceIn(scale, 5f)
+                                        val newScale = (scale * zoom).coerceIn(1f, 5f)
 
                                         imageBitmap?.let { bmp ->
 

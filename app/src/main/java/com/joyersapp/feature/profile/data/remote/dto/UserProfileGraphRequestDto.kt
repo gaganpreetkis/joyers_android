@@ -19,16 +19,16 @@ data class UserProfileGraphRequestDto (
     @SerializedName("joyer_status"          ) var joyerStatus         : String?           = null,
     @SerializedName("bio"                   ) var bio                 : String?           = null,
     @SerializedName("user_bio_id"           ) var userBioId           : List<String>?     = null,
-    @SerializedName("nationality_id"        ) var nationalityId       : List<String>?     = null,
+    @SerializedName("nationality_id"        ) var nationalityId       : List<String>?     = emptyList(),
     @SerializedName("ethnicity_id"          ) var ethnicityId         : String?           = null,
     @SerializedName("faith_id"              ) var faithId             : String?           = null,
     @SerializedName("education_id"          ) var educationId         : String?           = null,
     @SerializedName("relationship_id"       ) var relationshipId      : String?           = null,
-    @SerializedName("political_ideology_id" ) var politicalIdeologyId : List<String>?           = null,
-    @SerializedName("sub_political_ideology_id" ) var subPoliticalIdeologyId : List<String>?           = null,
+    @SerializedName("political_ideology_id" ) var politicalIdeologyId : List<String>?           = emptyList(),
+    @SerializedName("sub_political_ideology_id" ) var subPoliticalIdeologyId : List<String>?           = emptyList(),
     @SerializedName("joyer_location_id"     ) var joyerLocationId     : String?           = null,
-    @SerializedName("language_id"           ) var languageId          : List<LanguageReq>? = null,
-    @SerializedName("sub_language_id"       ) var subLanguageId       : List<LanguageReq>? = null,
+    @SerializedName("language_id"           ) var languageId          : List<LanguageReq>? = emptyList(),
+    @SerializedName("sub_language_id"       ) var subLanguageId       : List<SubLanguageReq>? = emptyList(),
     @SerializedName("interest_ids"          ) var interestIds         : List<String>? = null
 
 )
@@ -36,4 +36,10 @@ data class UserProfileGraphRequestDto (
 data class LanguageReq(
     @SerializedName("id"          ) val id: String = "",
     @SerializedName("label"       ) val level: String = "",
+)
+
+data class SubLanguageReq(
+    @SerializedName("id"          ) val id: String = "",
+    @SerializedName("label"       ) val level: String = "",
+    @SerializedName("main_language_id"       ) val mainLanguageId: String = "",
 )

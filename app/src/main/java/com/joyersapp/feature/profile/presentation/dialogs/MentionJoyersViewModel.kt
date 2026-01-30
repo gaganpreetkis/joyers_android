@@ -116,6 +116,7 @@ class MentionJoyersViewModel @Inject constructor(
                         _uiState.update { state ->
                             state.copy(
                                 isAddMentionsMode = false,
+                                isClearMentionsMode = false,
                                 selectedUsersCount = ""
                             )
                         }

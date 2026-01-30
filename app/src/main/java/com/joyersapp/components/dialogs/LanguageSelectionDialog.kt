@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -28,7 +30,12 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -41,11 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -60,12 +69,6 @@ import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
-import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
-import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
-import com.joyersapp.feature.profile.presentation.UserProfileEvent
-import com.joyersapp.feature.profile.presentation.UserProfileViewModel
-import com.joyersapp.feature.profile.presentation.dialogs.DescriptionEvent
-import com.joyersapp.feature.profile.presentation.dialogs.DescriptionNavEvent
 import com.joyersapp.feature.profile.presentation.dialogs.LanguagesDialogEvent
 import com.joyersapp.feature.profile.presentation.dialogs.LanguagesDialogNavEvent
 import com.joyersapp.feature.profile.presentation.dialogs.LanguagesDialogViewModel
@@ -75,6 +78,8 @@ import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack60
+import com.joyersapp.theme.Red
+import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isScrollingUp
 import com.joyersapp.utils.noRippleClickable
@@ -86,65 +91,65 @@ import kotlinx.coroutines.launch
 fun LanguageSelectionDialog(
     initList: List<ProfileLanguagesData>,
     selectedLanguages: List<Languages>?,
-    selectedSignLanguages: List<Languages>?,
     viewModel: LanguagesDialogViewModel = hiltViewModel(),
     onDismiss: () -> Unit,
-    onApply: (List<ProfileLanguagesData>?, List<ProfileLanguagesData>?) -> Unit
+    onApply: (List<ProfileLanguagesData>?) -> Unit
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.onEvent(LanguagesDialogEvent.InitData(initList, selectedLanguages, selectedSignLanguages))
+        viewModel.onEvent(LanguagesDialogEvent.InitData(initList, selectedLanguages))
         viewModel.navigationEvents.collect { event ->
             when(event) {
                 is LanguagesDialogNavEvent.OnApply -> {
                     onApply(
-                        event.langs,
-                        event.signLangs
+                        event.langs
                     ) }
             }
         }
     }
 
-    LanguagesDialog(
-        headers = listOf("Identification", "Language"),
-        searchQuery = state.searchQuery,
-        recentSelectedItemId = state.recentSelectedItemId,
-        titlesData = state.reorderedItems,
-        showApplyButton = state.isApplyEnabled,
-        showBackButton = state.showBackButton,
-        onSearchQueryChanged = {
-            viewModel.onEvent(
-                LanguagesDialogEvent.OnSearchQueryChanged(it)
-            )
-        },
+    if (!state.rootItems.isNullOrEmpty()) {
+        LanguagesDialog(
+            headers = state.header,
+            searchQuery = state.searchQuery,
+            recentSelectedItemId = state.recentSelectedItemId,
+            titlesData = state.reorderedItems,
+            showApplyButton = state.isApplyEnabled,
+            showBackButton = state.showBackButton,
+            onSearchQueryChanged = {
+                viewModel.onEvent(
+                    LanguagesDialogEvent.OnSearchQueryChanged(it)
+                )
+            },
 
-        onTitleSelected = { id ->
-            val item = state.currentItems.first { it.id == id }
-            viewModel.onEvent(
-                LanguagesDialogEvent.OnTitleClicked(item)
-            )
-        },
+            onTitleSelected = { id ->
+                val item = state.currentItems.first { it.id == id }
+                viewModel.onEvent(
+                    LanguagesDialogEvent.OnTitleClicked(item)
+                )
+            },
 
-        onLanguageLevelSelected = { id, level ->
-            viewModel.onEvent(
-                LanguagesDialogEvent.OnLanguageLevelSelected(id, level)
-            )
-        },
+            onLanguageLevelSelected = { id, level ->
+                viewModel.onEvent(
+                    LanguagesDialogEvent.OnLanguageLevelSelected(id, level)
+                )
+            },
 
-        onBack = {
-            viewModel.onEvent(LanguagesDialogEvent.OnBack)
-        },
+            onBack = {
+                viewModel.onEvent(LanguagesDialogEvent.OnBack)
+            },
 
-        onApply = {
-            viewModel.onEvent(LanguagesDialogEvent.OnApply)
-        },
-        onShowSubTitles = { list ->
-            viewModel.onEvent(LanguagesDialogEvent.OnShowSignLanguages)
-        },
-        onDismiss = onDismiss,
-    )
+            onApply = {
+                viewModel.onEvent(LanguagesDialogEvent.OnApply)
+            },
+//            onShowSubTitles = { list ->
+//                viewModel.onEvent(LanguagesDialogEvent.OnShowSignLanguages)
+//            },
+            onDismiss = onDismiss,
+        )
+    }
 
 
 /*    val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -234,6 +239,7 @@ fun LanguageSelectionDialog(
     )*/
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguagesDialog(
     onDismiss: () -> Unit,
@@ -244,7 +250,6 @@ fun LanguagesDialog(
     titlesData: List<ProfileLanguagesData>,
     showBackButton: Boolean = false,
     showApplyButton: Boolean = false,
-    onShowSubTitles: (List<ProfileLanguagesData>) -> Unit,
     onTitleSelected: (String) -> Unit,
     onLanguageLevelSelected: (String, String) -> Unit,
     onBack: () -> Unit,
@@ -257,8 +262,8 @@ fun LanguagesDialog(
     val goldenColor = Golden
     val lightBlackColor = LightBlack
     val coroutineScope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
-    val isScrollingUp = listState.isScrollingUp()
+//    val listState = rememberLazyListState()
+//    val isScrollingUp = listState.isScrollingUp()
 
 
     BaseDialog(
@@ -268,34 +273,31 @@ fun LanguagesDialog(
             onBack()
         },
         showBackButton = showBackButton
-    ) { dialogModifier, dialogFocusManager, maxHeight ->
+    ) { dialogModifier, dialogFocusManager, maxHeight, listState ->
 
-        Spacer(modifier = dialogModifier.height(15.dp))
+        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-        // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
-
-            Column(
-                modifier = Modifier
-                    .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 30))
-                    .fillMaxWidth()
-                    .padding(start = 15.dp, end = 15.dp, bottom = 25.dp)
-                    .heightIn(max = maxHeight)
-            ) {
-
-                // First Scrollable
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .animateContentSize(
-                            animationSpec = tween(
-                                durationMillis = 3,
-                                delayMillis = 30
-                            )
-                        )
-                        .weight(1f, fill = false)
-                        .fillMaxWidth()
-                ) {
-                    item {
+        Column (
+//            containerColor = Color.Transparent,
+            modifier = Modifier
+                .wrapContentHeight()
+//                .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 3))
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
+           /* topBar = {
+                // You can replace TopAppBar with the M3 SearchBar if needed,
+                // managing its active state separately.
+                // Wrap your SearchBar inside a TopAppBar
+                TopAppBar(
+                    expandedHeight = 70.dp,
+                    modifier = Modifier.heightIn(min = 0.dp),
+                    colors = TopAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                        navigationIconContentColor = Color.Transparent,
+                        titleContentColor = Color.Transparent,
+                        actionIconContentColor = Color.Transparent
+                    ),
+                    title = {
                         SearchBarRow(
                             searchQuery = searchQuery,
                             showApplyButton = showApplyButton,
@@ -303,77 +305,151 @@ fun LanguagesDialog(
                             onSearchQueryChanged = { onSearchQueryChanged(it) }
                         )
                         Spacer(modifier = dialogModifier.height(20.dp))
-                    }
+                    },
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    scrollBehavior = scrollBehavior
+                )
+                // Or use the M3 SearchBar:
+                *//*
+                SearchBar(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    onSearch = { *//**//* handle search *//**//* },
+                active = false, // Set based on focus state if you want it to expand
+                onActiveChange = { *//**//* handle active change *//**//* },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Search items") }
+            )
+            *//*
+            },*/
+            content = {
 
-                    if (titlesData.isEmpty()) {
-                        item {
-                            Box(
-                                modifier = dialogModifier
-                                    .fillMaxWidth(),
-                            ) {
-                                Text(
-                                    text = context.getString(R.string.no_results_found),
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontFamily = fontFamilyLato,
-                                    textAlign = TextAlign.Center,
-                                    color = lightBlackColor,
-                                    lineHeight = 22.sp,
+                TopAppBar(
+                    expandedHeight = 70.dp,
+                    modifier = Modifier.heightIn(min = 0.dp),
+                    colors = TopAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                        navigationIconContentColor = Color.Transparent,
+                        titleContentColor = Color.Transparent,
+                        actionIconContentColor = Color.Transparent
+                    ),
+                    title = {
+                        SearchBarRow(
+                            searchQuery = searchQuery,
+                            showApplyButton = showApplyButton,
+                            onApply = { onApply() },
+                            onSearchQueryChanged = { onSearchQueryChanged(it) }
+                        )
+                        Spacer(modifier = dialogModifier.height(20.dp))
+                    },
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    scrollBehavior = scrollBehavior
+                )
+
+                Column(
+                    modifier = Modifier
+//                        .background(Red)
+//                        .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 3))
+                        .fillMaxWidth()
+//                        .padding(innerPadding)
+                        .padding(start = 15.dp, end = 0.dp, bottom = 25.dp)
+                        .heightIn(max = maxHeight)
+                ) {
+
+                    // First Scrollable
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+//                            .animateContentSize(
+//                                animationSpec = tween(
+//                                    durationMillis = 3,
+//                                    delayMillis = 3
+//                                )
+//                            )
+//                            .weight(1f, fill = false)
+                            .fillMaxWidth()
+                    ) {
+
+                        if (titlesData.isEmpty()) {
+                            item {
+                                Box(
                                     modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            top = if (isKeyBoardOpen) 95.dp else 55.dp,
-                                            bottom = if (isKeyBoardOpen) 0.dp else 69.dp
-                                        )
+                                        .fillMaxWidth(),
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.no_results_found),
+                                        fontSize = 24.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = fontFamilyLato,
+                                        textAlign = TextAlign.Center,
+                                        color = lightBlackColor,
+                                        lineHeight = 22.sp,
+                                        modifier = dialogModifier
+                                            .fillMaxWidth()
+                                            .padding(
+                                                top = if (isKeyBoardOpen) 95.dp else 55.dp,
+                                                bottom = if (isKeyBoardOpen) 0.dp else 69.dp
+                                            )
+                                    )
+                                }
+                            }
+                        } else {
+                            itemsIndexed(titlesData,  key = { _, item -> item.id?:"" }) { index, title ->
+                                val isFirst = index == 0
+                                val isLast = index == titlesData.lastIndex
+//                        AnimatedContent(title.isSelected) {
+                                LanguageItem(
+                                    isRecentSelectedItem = recentSelectedItemId == title.id,
+                                    isFirstItem = isFirst,
+                                    isLastItem = isLast,
+                                    language = title,
+                                    isSelected = title.isSelected,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            listState.animateScrollToItem(0)
+                                            scrollBehavior.state.heightOffset = 0f
+                                        }
+                                        onTitleSelected(title.id ?: "")
+                                    },
+                                    /*                {
+                //                                title.isSelected = !title.isSelected
+                                                    if (title.selections.isNullOrEmpty()) {
+
+                                                        recentSelectedItemId = title.id?: ""
+                                                        if (!title.isSelectionMode) {
+                                                            onLanguageLevelSelected(title.id?: "", "")
+                                                        } else {
+                                                            onTitleSelected(title.id ?: "")
+                                                            coroutineScope.launch {
+                                                                listState.animateScrollToItem(0)
+                                                            }
+                                                        }
+                                                    } else {
+                                                        showBackButton = true
+                                                        onShowSubTitles(title.selections ?: emptyList())
+                                                    }
+                //                                     keyboardController?.hide()
+                                                },*/
+                                    modifier = Modifier,
+                                    onLanguageLevelSelected = { onLanguageLevelSelected(title.id?: "", it) }
                                 )
+//                        }
                             }
                         }
-                    } else {
-                        itemsIndexed(titlesData,  key = { _, item -> item.id?:"" }) { index, title ->
-                            val isFirst = index == 0
-                            val isLast = index == titlesData.lastIndex
-//                        AnimatedContent(title.isSelected) {
-                            LanguageItem(
-                                isRecentSelectedItem = recentSelectedItemId == title.id,
-                                isFirstItem = isFirst,
-                                isLastItem = isLast,
-                                language = title,
-                                isSelected = title.isSelected,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        listState.animateScrollToItem(0)
-                                    }
-                                    onTitleSelected(title.id ?: "")
-                                },
-                    /*                {
-//                                title.isSelected = !title.isSelected
-                                    if (title.selections.isNullOrEmpty()) {
 
-                                        recentSelectedItemId = title.id?: ""
-                                        if (!title.isSelectionMode) {
-                                            onLanguageLevelSelected(title.id?: "", "")
-                                        } else {
-                                            onTitleSelected(title.id ?: "")
-                                            coroutineScope.launch {
-                                                listState.animateScrollToItem(0)
-                                            }
-                                        }
-                                    } else {
-                                        showBackButton = true
-                                        onShowSubTitles(title.selections ?: emptyList())
-                                    }
-//                                     keyboardController?.hide()
-                                },*/
-                                modifier = Modifier,
-                                onLanguageLevelSelected = { onLanguageLevelSelected(title.id?: "", it) }
-                            )
-//                        }
-                        }
                     }
 
                 }
 
             }
+        )
+
+//        Spacer(modifier = dialogModifier.height(15.dp))
+
+        // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
+
+
         }
 
 }
@@ -396,8 +472,8 @@ private fun SearchBarRow(
     Row(
         modifier = dialogModifier
             .fillMaxWidth()
-            .height(35.dp)
-            .padding(horizontal = 15.dp),
+            .padding(top = 15.dp, bottom = 20.dp, start = 15.dp, end = 30.dp)
+            .height(35.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         // Search field with icons
@@ -437,7 +513,7 @@ private fun SearchBarRow(
                     onValueChange = { query ->
                         onSearchQueryChanged(query)
                     },
-                    placeholder = context.getString(R.string.search_speciality),
+                    placeholder = "Search Language",
                     modifier = dialogModifier
                         .weight(1f)
                         .fillMaxHeight()
@@ -496,7 +572,7 @@ private fun SearchBarRow(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = context.getString(R.string.apply),
+                    text = stringResource(R.string.apply),
                     fontSize = 12.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -527,7 +603,7 @@ private fun SearchBarRow(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = context.getString(R.string.search),
+                    text = stringResource(R.string.search),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = fontFamilyLato,
@@ -557,16 +633,12 @@ fun LanguageItem(
     val level = language.level?:""
     val languageName: String = when {
         !language.isSelected -> name
-        language.isSelectionMode -> name
+        language.isSelectionMode && isRecentSelectedItem -> name
+        language.level?.isEmpty() == true -> name
         else -> "$name (${level})"
     }
 
-//        buildString {
-//        append(name)
-//        if (language.isSelected && !language.isSelectionMode) {
-//            append(" ($level)")
-//        }
-//    }
+
 
     val context = LocalContext.current
     Log.e("is last item", "$language, islastitem: $isLastItem")
@@ -581,25 +653,27 @@ fun LanguageItem(
         Text(
             text = languageName,
             fontSize = 16.sp,
-            lineHeight = 22.sp,
+            lineHeight = if (isSelected) 19.sp else 22.sp,
             fontFamily = fontFamilyLato,
-            fontWeight = if (isSelected && language.selections.isNullOrEmpty()) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (isSelected && language.selections.isNullOrEmpty()) Golden else LightBlack,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+            color = if (isSelected) Golden else LightBlack,
             //modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
             //modifier = Modifier.weight(1f)
         )
         if (!language.selections.isNullOrEmpty()) {
-            Spacer(modifier = modifier.width(3.dp))
+            Spacer(modifier = modifier.width(5.dp))
             Image(
                 painter = painterResource(id = R.drawable.arrowdown_lite),
                 contentDescription = null,
-                modifier = modifier.size(11.dp)
+                modifier = modifier
+                    .padding(top = 9.dp)
+                    .width(11.dp)
             )
         }
         if (!language.description.isNullOrEmpty()) {
             Spacer(modifier = modifier.width(3.dp))
             Text(
-                text = context.getString(R.string.strik_right_space),
+                text = stringResource(R.string.strik_right_space),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black,
                 fontFamily = fontFamilyLato,
@@ -635,9 +709,9 @@ private fun LanguageLevel(
 
     // Custom LazyRow for tabs (replaces ScrollableTabRow)
     LazyRow(
-        modifier = modifier.padding(horizontal = 10.dp),
+        modifier = modifier.padding(start = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(horizontal = 5.dp),  // No edge padding
+        contentPadding = PaddingValues(start = 5.dp),  // No edge padding
         verticalAlignment = Alignment.CenterVertically
     ) {
         val tabs = listOf("Basic", "Good", "Very Good", "Excellent")

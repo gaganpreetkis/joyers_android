@@ -79,19 +79,19 @@ import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.dialogs.MultipleSelectionsDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.dialogs.HighlightBullet
-import com.joyersapp.components.dialogs.HighlightEvent
 import com.joyersapp.components.dialogs.LanguageSelectionDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
-import com.joyersapp.components.dialogs.highlightWords
 import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.data.remote.dto.Interests
+import com.joyersapp.feature.profile.data.remote.dto.Language
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
+import com.joyersapp.feature.profile.data.remote.dto.SubLanguageWrapper
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
@@ -109,6 +109,7 @@ import com.joyersapp.utils.convertDate
 import com.joyersapp.utils.filteredBio
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
+import com.joyersapp.utils.highlightWords
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.toHighlightBullets
 import kotlin.collections.isNullOrEmpty
@@ -285,7 +286,10 @@ fun MagneticsScreen(
                             "Language" -> {
 
                                 if (!magneticsData.identificationData?.selectedLanguages.isNullOrEmpty()) {
-                                    LanguageSection(languages = magneticsData.identificationData.selectedLanguages!!)
+                                    LanguageSection(
+                                        languages = magneticsData.identificationData.selectedLanguages!!,
+                                        signLanguages = magneticsData.identificationData.selectedLanguages?.firstOrNull{ it.language?.id.equals("72338abe-4687-487f-9515-c10d2a1be8ef")}?.sublanguages,
+                                    )
                                 } else {
                                     ProfileEditableRow(title = "Language") }
                             }
@@ -406,10 +410,9 @@ fun MagneticsScreen(
             LanguageSelectionDialog(
                 initList = state.languageList,
                 selectedLanguages = state.identificationData.selectedLanguages,
-                selectedSignLanguages = emptyList(),
 //                viewModel = viewModel,
                 onDismiss = {  viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = false)) },
-                onApply = { l, s ->   viewModel.onEvent(UserProfileEvent.OnApplyLanguage(l, s)) }
+                onApply = { l ->   viewModel.onEvent(UserProfileEvent.OnApplyLanguage(l)) }
             )
         }
 //    }
@@ -552,7 +555,7 @@ fun IdentificationSection(state: IdentificationData?, onClick: () -> Unit) {
 
                     Spacer(Modifier.height(11.dp))
                     if (!state?.language.isNullOrEmpty()) {
-                        LanguageSection(languages = state.language!!)
+//                        LanguageSection(languages = state.language!!, state.selectedSignLanguages)
                     } else {
                         ProfileEditableRow(title = "Language") }
                 }
@@ -967,7 +970,7 @@ private fun BioSection(
                     // ----- BIO RICH TEXT -----
                     HighlightedText(bioText)
 
-//                    LazyColumn {
+//                    LazyColumn() {
 //                        itemsIndexed(bullets) { index, bullet ->
 //                            BulletRowText(
 //                                bullet = bullet,
@@ -1089,31 +1092,8 @@ fun HighlightedText(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    val parts = text.split(" ")
-
     Text(
-        buildAnnotatedString {
-            parts.forEachIndexed { index, word ->
-
-                val isMention = word.startsWith("@")
-                val isHashtag = word.startsWith("#")
-                val isUrl = word.startsWith("http") || word.startsWith("www")
-
-                val color = if (isMention || isHashtag || isUrl) Golden else LightBlack
-                val fontWeight = if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
-
-                withStyle(
-                    SpanStyle(
-                        color = color,
-                        fontWeight = fontWeight
-                    )
-                ) {
-                    append(word)
-                }
-
-                if (index != parts.lastIndex) append(" ")
-            }
-        },
+        highlightWords(text),
         modifier = modifier,
         fontSize = 16.sp,
         fontFamily = fontFamilyLato,
@@ -1163,7 +1143,8 @@ private fun KeyValueText(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LanguageSection(
-    languages: List<Languages>
+    languages: List<Languages>,
+    signLanguages: List<SubLanguageWrapper>?,
 ) {
     var seeAll by remember { mutableStateOf(false) }
 
@@ -1190,6 +1171,7 @@ fun LanguageSection(
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = if (seeAll) 100 else 4,
+                itemVerticalAlignment = Alignment.CenterVertically,
                 overflow = FlowRowOverflow.expandOrCollapseIndicator(
                     minRowsToShowCollapse = 4,
                     expandIndicator = {
@@ -1248,6 +1230,9 @@ fun LanguageSection(
                 Spacer(Modifier.width(10.dp))
 
                 languages.forEachIndexed { index, item ->
+
+                    if (item.language?.id.equals("72338abe-4687-487f-9515-c10d2a1be8ef")) return@forEachIndexed
+
                     val name = item.language?.name?:""
                     val level = (item.language?.level?: "").trim()
                     val language = buildString {
@@ -1255,7 +1240,19 @@ fun LanguageSection(
                         if (level.isNotEmpty()) append(" ($level)")
                     }
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+//                    Row(verticalAlignment = Alignment.CenterVertically) {
+
+                    if (index != 0) {
+                        Spacer(Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(LightBlack55)
+                                .size(3.dp)
+                        )
+                        Spacer(Modifier.width(10.dp))
+                    }
+
                         Text(
                             text = name,
                             fontSize = 16.sp,
@@ -1275,17 +1272,57 @@ fun LanguageSection(
                                 lineHeight = 22.sp,
                             )
                         }
+//                    }
+                }
 
-                        if (index != languages.lastIndex) {
-                            Spacer(Modifier.width(10.dp))
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(LightBlack55)
-                                    .size(3.dp)
+                if (!signLanguages.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.fillMaxWidth())
+                    Text(
+                        text = "Sign Language :",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack,
+                        lineHeight = 22.sp,
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    signLanguages.forEachIndexed { index, item ->
+                        val name = item.sublanguage?.name?:""
+                        val level = (item.sublanguage?.level?:"").trim()
+
+//                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (index != 0 ) {
+                                Spacer(Modifier.width(10.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(LightBlack55)
+                                        .size(3.dp)
+                                )
+                                Spacer(Modifier.width(10.dp))
+                            }
+                            Text(
+                                text = name,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = fontFamilyLato,
+                                color = LightBlack,
+                                lineHeight = 22.sp,
                             )
-                            Spacer(Modifier.width(10.dp))
-                        }
+                            if (level.isNotEmpty()) {
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    text = "($level)",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    fontFamily = fontFamilyLato,
+                                    color = LightBlack,
+                                    lineHeight = 22.sp,
+                                )
+                            }
+
+//                        }
                     }
                 }
             }

@@ -32,7 +32,7 @@ sealed class UserProfileEvent {
     data class OnApplyMentionedJoyers(val selectedUserList: List<EditMagneticsUserListData>) : UserProfileEvent()
     data class OnNameChanged(val value: String) : UserProfileEvent()
     data class OnApplyBirthday(val value: String) : UserProfileEvent()
-    data class OnApplyLanguage(val languages: List<ProfileLanguagesData>?, val signLanguages: List<ProfileLanguagesData>?) : UserProfileEvent()
+    data class OnApplyLanguage(val languages: List<ProfileLanguagesData>?) : UserProfileEvent()
     data class OnClearMultipleSelections(val key: String) : UserProfileEvent()
     data class OnGenderSelected(val value: String) : UserProfileEvent()
     data class OnOverviewChanged(val value: TextFieldValue) : UserProfileEvent()

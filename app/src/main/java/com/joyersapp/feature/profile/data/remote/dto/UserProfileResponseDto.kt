@@ -45,6 +45,7 @@ data class UserProfile (
     @SerializedName("political_ideology" ) var politicalIdeology : ArrayList<PoliticalIdeology>? = null,
     @SerializedName("interests"          ) var interests         : ArrayList<Interests>? = null,
     @SerializedName("languages"          ) var languages         : ArrayList<Languages>? = null,
+    @SerializedName("sublanguages"          ) var sublanguages         : ArrayList<Languages>? = null,
 //    @SerializedName("user_bios"          ) var userBios          : ArrayList<String> = arrayListOf()
 
 )
@@ -56,6 +57,16 @@ data class ProfileMeta(
     @SerializedName("description" )  var description : String? = null
 )
 
+data class Languages (
+
+    @SerializedName("language"    ) var language    : Language? = null,
+    @SerializedName("sublanguages" ) var sublanguages : ArrayList<SubLanguageWrapper>? = null
+
+)
+data class SubLanguageWrapper(
+    @SerializedName("sublanguage" ) val sublanguage: Language? = null
+)
+
 data class Language (
 
     @SerializedName("id"          ) var id          : String? = null,
@@ -63,15 +74,7 @@ data class Language (
     @SerializedName("description" ) var description : String? = null,
     @SerializedName("label"       ) var level       : String? = null,
 
-)
-
-data class Languages (
-
-    @SerializedName("language"    ) var language    : Language? = null,
-    @SerializedName("sublanguage" ) var sublanguage : Language? = null
-
-)
-
+    )
 data class Interests (
 
     @SerializedName("dropdown_interests" ) var dropdownInterests : ProfileMeta? = null

@@ -1,9 +1,17 @@
 package com.joyersapp.utils
 
 import android.icu.text.BreakIterator
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 import com.joyersapp.components.dialogs.HighlightBullet
+import com.joyersapp.theme.Golden
+import com.joyersapp.theme.LightBlack
 import java.util.Locale
 
 fun String.graphemeCount(): Int {
@@ -37,6 +45,40 @@ fun String.takeGraphemes(max: Int): String {
     }
 
     return result.toString()
+}
+
+fun highlightWords(text: String): AnnotatedString {
+    val parts = text.split(" ")
+
+    return buildAnnotatedString {
+        parts.forEachIndexed { index, word ->
+
+            val isMention = word.startsWith("@") && word.length > 1
+            val isHashtag = word.startsWith("#") && word.length > 1
+            val isBullet = false
+            val isUrl =
+                word.startsWith("http") || word.startsWith("https") || word.startsWith("www")
+
+            val color = if (isMention || isHashtag || isUrl) Golden else LightBlack
+            val fontWeight =
+                if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
+
+            val fontSize = if (isBullet) 26.sp else 16.sp
+
+
+            withStyle(
+                style = SpanStyle(
+                    color = color,
+                    fontWeight = fontWeight,
+                    fontSize = fontSize,
+                )
+            ) {
+                append(word)
+            }
+
+            if (index != parts.lastIndex) append(" ")
+        }
+    }
 }
 
 fun String?.toHighlightBullets(): List<HighlightBullet> {

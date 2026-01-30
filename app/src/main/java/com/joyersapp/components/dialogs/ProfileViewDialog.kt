@@ -54,6 +54,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -156,7 +157,7 @@ fun ProfileViewDialog(
             onBack()
                  },
         showBackButton = showBackButton
-        ) { dialogModifier, dialogFocusManager, maxHeight ->
+        ) { dialogModifier, dialogFocusManager, maxHeight, listState ->
 
         Spacer(modifier = dialogModifier.height(15.dp))
 
@@ -237,7 +238,7 @@ fun ProfileViewDialog(
                                     .fillMaxWidth(),
                             ) {
                                 Text(
-                                    text = context.getString(R.string.no_results_found),
+                                    text = stringResource(R.string.no_results_found),
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     fontFamily = fontFamilyLato,
@@ -308,7 +309,7 @@ fun ProfileViewDialog(
                         ) {
                             if (!isExpanded) {
                                 Text(
-                                    text = context.getString(R.string.strik_right_space),
+                                    text = stringResource(R.string.strik_right_space),
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
                                     fontFamily = fontFamilyLato,
@@ -317,7 +318,7 @@ fun ProfileViewDialog(
                                 Spacer(modifier = Modifier.width(0.dp))
                             }
                             Text(
-                                text = context.getString(R.string.clarifications),
+                                text = stringResource(R.string.clarifications),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = fontFamilyLato,
@@ -326,7 +327,7 @@ fun ProfileViewDialog(
                             )
                         }
                         Text(
-                            text = if (isExpanded) context.getString(R.string.hide) else context.getString(
+                            text = if (isExpanded) stringResource(R.string.hide) else stringResource(
                                 R.string.show
                             ),
                             fontSize = 12.sp,
@@ -429,7 +430,7 @@ private fun SearchBarRow(
                     onValueChange = { query ->
                         onSearchQueryChanged(query)
                     },
-                    placeholder = context.getString(R.string.search_speciality),
+                    placeholder = stringResource(R.string.search_speciality),
                     modifier = dialogModifier
                         .weight(1f)
                         .fillMaxHeight()
@@ -488,7 +489,7 @@ private fun SearchBarRow(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = context.getString(R.string.apply),
+                    text = stringResource(R.string.apply),
                     fontSize = 12.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -519,7 +520,7 @@ private fun SearchBarRow(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = context.getString(R.string.search),
+                    text = stringResource(R.string.search),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = fontFamilyLato,
@@ -572,7 +573,7 @@ fun TitleItem(
         if (!title.description.isNullOrEmpty()) {
             Spacer(modifier = modifier.width(3.dp))
             Text(
-                text = context.getString(R.string.strik_right_space),
+                text = stringResource(R.string.strik_right_space),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black,
                 fontFamily = fontFamilyLato,

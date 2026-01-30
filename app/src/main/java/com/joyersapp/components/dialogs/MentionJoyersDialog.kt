@@ -470,23 +470,21 @@ fun MentionJoyerRow(
                 Modifier
                     .padding(horizontal = 10.dp)
                     .size(16.dp)
-                    .clip(CircleShape)
-                    .background(if (joyer.isSelected) Golden else Color.Transparent),
+                    .clip(CircleShape),
+//                    .background(if (joyer.isSelected) Golden else Color.Transparent),
                 contentAlignment = Alignment.Center
             ) {
                 if (joyer.isSelected) {
                     Image(
-                        painterResource(R.drawable.ic_tick),
+                        painterResource(R.drawable.ic_radio_selected_tick),
                         contentDescription = "Radio Button",
-                        Modifier.size(16.3.dp, 16.2.dp),
-                        colorFilter = ColorFilter.tint(White)
+                        Modifier.size(16.dp),
                     )
                 } else {
                     Image(
-                        painterResource(R.drawable.ic_radio_button_unselected),
+                        painterResource(R.drawable.ic_radio_unselected),
                         contentDescription = "Radio Button",
                         Modifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(LightBlack)
                     )
                 }
             }
@@ -638,7 +636,7 @@ fun ClearMentionsActions(
             modifier = Modifier
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace with your icon
+                painter = painterResource(id = R.drawable.ic_clear),
                 contentDescription = null,
                 modifier = Modifier.size(14.2.dp, 15.dp)
             )

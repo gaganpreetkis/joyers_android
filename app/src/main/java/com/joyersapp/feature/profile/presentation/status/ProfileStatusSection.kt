@@ -2,6 +2,7 @@ package com.joyersapp.feature.profile.presentation.status
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -240,13 +242,20 @@ fun JoyerCodeSection(
                 Spacer(Modifier.height(5.5.dp))
 
                 if (!state.qrCode.isNullOrEmpty()) {
-                    AsyncImage(
-                        model = "${NetworkConfig.IMAGE_BASE_URL}${state.qrCode}",
-                        contentDescription = "QR Code",
+                    Box(
                         modifier = Modifier
-                            .size(200.dp),
-                        contentScale = ContentScale.Fit
-                    )
+                            .clip(RoundedCornerShape(25.dp))
+                            .border(width = 3.dp, Golden, shape = RoundedCornerShape(25.dp))
+                            .size(200.dp)
+                    ) {
+                        AsyncImage(
+                            model = "${NetworkConfig.IMAGE_BASE_URL}${state.qrCode}",
+                            contentDescription = "QR Code",
+                            modifier = Modifier
+                                .size(200.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
 
                     Spacer(Modifier.height(10.dp))
                 }

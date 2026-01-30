@@ -125,6 +125,7 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.UiText
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
+import com.joyersapp.utils.highlightWords
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import com.joyersapp.utils.tapToDismissKeyboard
@@ -882,39 +883,7 @@ fun OverviewEditor(
     )
 }
 
-fun highlightWords(text: String): AnnotatedString {
-    val parts = text.split(" ")
 
-    return buildAnnotatedString {
-        parts.forEachIndexed { index, word ->
-
-            val isMention = word.startsWith("@")
-            val isHashtag = word.startsWith("#")
-            val isBullet = false
-            val isUrl =
-                word.startsWith("http") || word.startsWith("https") || word.startsWith("www")
-
-            val color = if (isMention || isHashtag || isUrl) Golden else LightBlack
-            val fontWeight =
-                if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
-
-            val fontSize = if (isBullet) 26.sp else 16.sp
-
-
-            withStyle(
-                style = SpanStyle(
-                    color = color,
-                    fontWeight = fontWeight,
-                    fontSize = fontSize,
-                )
-            ) {
-                append(word)
-            }
-
-            if (index != parts.lastIndex) append(" ")
-        }
-    }
-}
 
 /*@Composable
 fun HighlightsEditor(

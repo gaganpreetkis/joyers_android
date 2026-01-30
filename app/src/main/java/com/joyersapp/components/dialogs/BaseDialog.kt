@@ -20,13 +20,17 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,7 +66,7 @@ fun BaseDialog(
     titles: List<String> = arrayListOf("",),
     showBackButton: Boolean = false,
     onBack: () -> Unit = {},
-    dialogContent: @Composable (dialogModifier: Modifier, dialogFocusManager: FocusManager, maxHeight: Dp) -> Unit = { dialogModifier, dialogFocusManager, maxHeight -> }
+    dialogContent: @Composable (dialogModifier: Modifier, dialogFocusManager: FocusManager, maxHeight: Dp, listState: LazyListState) -> Unit = { dialogModifier, dialogFocusManager, maxHeight, listState -> }
 ) {
 
     val context = LocalContext.current
@@ -70,6 +74,13 @@ fun BaseDialog(
 
     val goldenColor = Golden
     val lightBlackColor = LightBlack
+
+    val listState = rememberLazyListState()
+    val isScrollable by remember {
+        derivedStateOf {
+            listState.canScrollForward || listState.canScrollBackward
+        }
+    }
 
 //    Box(
 //        modifier = Modifier
@@ -106,19 +117,25 @@ fun BaseDialog(
             Modifier
                 .height(maxHeight)
                 .padding(top = 50.dp)
-        } else {
-            // When keyboard is hidden, use a standard dialog height constraint
+        } else if (isScrollable) {
             Modifier
-                .wrapContentHeight()
-                .heightIn(min = minHeight, max = maxHeight)
-                .padding(top = 50.dp, bottom = 50.dp)
-        }
+                .height(maxHeight)
+                .padding(vertical = 50.dp)
+        } else{
+                // When keyboard is hidden, use a standard dialog height constraint
+                Modifier
+                    .wrapContentHeight()
+                    .heightIn(min = minHeight, max = maxHeight)
+                    .padding(top = 50.dp, bottom = 50.dp)
+            }
+
 
         Card(
             modifier = dialogModifier
 
                 .windowInsetsPadding(WindowInsets.systemBars)
                 .then(dialogHeightModifier) // Apply dynamic height
+//                .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 3))
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(25.dp))
                 .background(Color.White) // Ensure background captures taps
@@ -169,7 +186,7 @@ fun BaseDialog(
                                 Text(
                                     text = item,
                                     fontSize = 16.sp,
-                                    lineHeight = if (index == 0) 19.sp else 22.sp,
+                                    lineHeight = if (index == 0) 22.sp else 22.sp,
                                     fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
                                     fontFamily = fontFamilyLato,
                                     color = lightBlackColor,
@@ -180,7 +197,7 @@ fun BaseDialog(
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_forward_black),
                                         contentDescription = null,
-                                        modifier = dialogModifier.size(6.dp, 10.dp)
+                                        modifier = dialogModifier.size(6.dp, 10.5.dp)
                                     )
                                     Spacer(modifier = dialogModifier.width(10.dp))
                                 }
@@ -199,7 +216,7 @@ fun BaseDialog(
                         .noRippleClickable { onDismiss() }
                 )
             }
-            dialogContent(dialogModifier, dialogFocusManager, maxHeight)
+            dialogContent(dialogModifier, dialogFocusManager, maxHeight, listState)
         }
 //        }
     }

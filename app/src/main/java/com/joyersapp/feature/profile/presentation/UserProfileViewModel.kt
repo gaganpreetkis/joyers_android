@@ -17,6 +17,8 @@ import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
+import com.joyersapp.feature.profile.data.remote.dto.SubLanguageReq
+import com.joyersapp.feature.profile.data.remote.dto.SubLanguageWrapper
 import com.joyersapp.feature.profile.data.remote.dto.UserProfileGraphRequestDto
 import com.joyersapp.feature.profile.domain.usecase.GetCountryListUseCase
 import com.joyersapp.feature.profile.domain.usecase.GetEducationListUseCase
@@ -172,7 +174,7 @@ class UserProfileViewModel @Inject constructor(
                                 faith = state.faith,
                                 language = state.languages,
                                 selectedLanguages = state.selectedLanguages,
-                                selectedSignLanguages = state.selectedSignLanguages,
+//                                selectedSignLanguages = state.selectedSignLanguages,
                                 education = state.education,
                                 relationship = state.relationship,
                                 politicalIdeology = state.politicalIdeology,
@@ -201,18 +203,34 @@ class UserProfileViewModel @Inject constructor(
                 val magneticsData = _uiState.value.magneticsData
 
                 val languageList = arrayListOf<LanguageReq>()
+                val subLanguageList = arrayListOf<SubLanguageReq>()
+
                 magneticsData.identificationData?.selectedLanguages?.forEach { item ->
                     languageList.add(
                         LanguageReq(item.language?.id ?: "", item.language?.level ?: "")
                     )
+                    if (item.sublanguages.isNullOrEmpty()) return@forEach
+                    item.sublanguages?.forEach { subLang ->
+                        subLanguageList.add(
+                            SubLanguageReq(
+                                subLang.sublanguage?.id?:"",
+                                subLang.sublanguage?.level?:"",
+                                item.language?.id?:""
+                            )
+                        )
+                    }
                 }
 
-                val languageSubList = arrayListOf<LanguageReq>()
-                magneticsData.identificationData?.language?.forEach { item ->
-                    languageList.add(
-                        LanguageReq(item.language?.id ?: "", item.language?.level ?: "")
-                    )
-                }
+
+//                magneticsData.identificationData?.selectedSignLanguages?.forEach { item ->
+//                    subLanguageList.add(
+//                        SubLanguageReq(
+//                            item.sublanguage?.id ?: "",
+//                            item.sublanguage?.level ?: "",
+//
+//                            )
+//                    )
+//                }
 
                 val requestDto = UserProfileGraphRequestDto(
                     profilePicture = magneticsData.profileHeaderData.profilePicture,
@@ -229,13 +247,14 @@ class UserProfileViewModel @Inject constructor(
                     birthDate = magneticsData.identificationData?.birthday,
                     gender = magneticsData.identificationData?.gender,
                     languageId = languageList,
-                    nationalityId = if (magneticsData.identificationData?.nationality.isNullOrEmpty()) null else magneticsData.identificationData.nationality?.map {
+                    subLanguageId = subLanguageList,
+                    nationalityId = if (magneticsData.identificationData?.nationality.isNullOrEmpty()) emptyList() else magneticsData.identificationData.nationality?.map {
                         it.dropdownCountries?.id ?: ""
                     },
                     interestIds = if (magneticsData.interests.isNullOrEmpty()) null else magneticsData.interests?.map {
                         it.dropdownInterests?.id ?: ""
                     },
-                    politicalIdeologyId = if (magneticsData.identificationData?.politicalIdeology.isNullOrEmpty()) null else magneticsData.identificationData.politicalIdeology?.map {
+                    politicalIdeologyId = if (magneticsData.identificationData?.politicalIdeology.isNullOrEmpty()) emptyList() else magneticsData.identificationData.politicalIdeology?.map {
                         it.politicalIdeology?.id ?: ""
                     },
                     ethnicityId = magneticsData.identificationData?.ethnicity?.id,
@@ -512,7 +531,8 @@ class UserProfileViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 identificationData = _uiState.value.identificationData.copy(
-                                    language = null
+                                    language = null,
+                                    selectedLanguages = null,
                                 )
                             )
                         }
@@ -986,27 +1006,30 @@ class UserProfileViewModel @Inject constructor(
                             name = item.name,
                             description = item.description,
                             level = item.level,
-                        )
-                    )
-                }
-
-                val selectedSignLangsMeta = event.signLanguages?.map { item ->
-                    Languages(
-                        language = Language(
-                            id = item.id,
-                            name = item.name,
-                            description = item.description,
-                            level = item.level,
-                        )
+                        ),
+                        sublanguages = (if (item.selections.isNullOrEmpty() || item.selections?.any {it.isSelected} == false)
+                            null
+                        else {
+                            item.selections?.filter { it.isSelected }?.map {
+                                SubLanguageWrapper(
+                                    Language(
+                                        id = it.id,
+                                        name = it.name,
+                                        description = it.description,
+                                        level = it.level,
+                                    )
+                                )
+                            }
+                        }) as ArrayList<SubLanguageWrapper>?
                     )
                 }
 
                 _uiState.update {
                     it.copy(
                         showLanguagesDialog = false,
-                        identificationData = _uiState.value.identificationData.copy(
+                        identificationData = it.identificationData.copy(
                             selectedLanguages = selectedLangsMeta,
-                            selectedSignLanguages = selectedSignLangsMeta,
+//                            selectedSignLanguages = selectedSignLangsMeta,
                         )
                     )
                 }
@@ -1123,7 +1146,7 @@ class UserProfileViewModel @Inject constructor(
             onSuccess = { response ->
 
                 val selectedLanguages = response.languages?.filter { it.language != null }
-                val selectedSignLanguages = response.languages?.filter { it.sublanguage != null }
+//                val selectedSignLanguages = response.sublanguages?.filter { it.sublanguage != null }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -1160,7 +1183,7 @@ class UserProfileViewModel @Inject constructor(
                         areaOfInterest = if (response.interests.isNullOrEmpty()) null else response.interests,
                         languages = if (response.languages.isNullOrEmpty()) null else response.languages,
                         selectedLanguages = selectedLanguages,
-                        selectedSignLanguages = selectedSignLanguages,
+//                        selectedSignLanguages = selectedSignLanguages,
                         nationality = if (response.nationality.isNullOrEmpty()) null else response.nationality,
                     )
                 }
@@ -1218,7 +1241,7 @@ class UserProfileViewModel @Inject constructor(
             onSuccess = { response ->
 
                 val selectedLanguages = response.languages?.filter { it.language != null }
-                val selectedSignLanguages = response.languages?.filter { it.sublanguage != null }
+//                val selectedSignLanguages = response.sublanguages?.filter { it.sublanguage != null }
 
                 _uiState.update {
                     it.copy(
@@ -1255,7 +1278,7 @@ class UserProfileViewModel @Inject constructor(
                         areaOfInterest = if (response.interests.isNullOrEmpty()) null else response.interests,
                         languages = if (response.languages.isNullOrEmpty()) null else response.languages,
                         selectedLanguages = selectedLanguages,
-                        selectedSignLanguages = selectedSignLanguages,
+//                        selectedSignLanguages = selectedSignLanguages,
                         nationality = if (response.nationality.isNullOrEmpty()) null else response.nationality,
                     )
                 }

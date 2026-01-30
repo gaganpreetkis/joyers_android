@@ -42,7 +42,7 @@ data class UserProfileUiState(
     val language: String? = null,
     val languages: List<Languages>? = null,
     val selectedLanguages: List<Languages>? = null,
-    val selectedSignLanguages: List<Languages>? = null,
+//    val selectedSignLanguages: List<Languages>? = null,
     val educationName: String? = null,
 
     val joySince: String? = null,

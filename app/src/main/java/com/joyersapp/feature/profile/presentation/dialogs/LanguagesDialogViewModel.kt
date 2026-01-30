@@ -6,6 +6,7 @@ import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,11 +17,13 @@ import kotlinx.coroutines.launch
 
 data class LanguagesDialogUiState(
 
+    val initialItems: List<ProfileLanguagesData> = emptyList(),
     val rootItems: List<ProfileLanguagesData> = emptyList(),
-    val signLanguages: List<ProfileLanguagesData> = emptyList(),
+//    val signLanguages: List<ProfileLanguagesData> = emptyList(),
     val currentItems: List<ProfileLanguagesData> = emptyList(),
 
     val searchQuery: String = "",
+    val signLangId: String = "72338abe-4687-487f-9515-c10d2a1be8ef",
 
     val isMultiSelectEnabled: Boolean = true,
     val recentSelectedItemId: String = "",
@@ -45,12 +48,20 @@ data class LanguagesDialogUiState(
         get() = currentItems != rootItems
 
     val isApplyEnabled: Boolean
-        get() = rootItems.any { it.isSelected }
+        get() = /*currentItems.any { it.isSelected }*/
+    if (showBackButton)
+            rootItems.firstOrNull(){it.id.equals(signLangId)}?.selections != currentItems
+        else
+        initialItems != currentItems
+
+    val header: List<String>
+        get() = if (showBackButton) listOf("Identification", "Language", "Sign Language")
+        else listOf("Identification", "Language")
 
     val selectedLanguages: List<ProfileLanguagesData>
         get() = rootItems.filter { it.isSelected }
-    val selectedSignLanguages: List<ProfileLanguagesData>
-        get() = signLanguages.filter { it.isSelected }
+//    val selectedSignLanguages: List<ProfileLanguagesData>
+//        get() = signLanguages.filter { it.isSelected }
 }
 
 enum class LanguageLevel(val label: String) {
@@ -62,7 +73,7 @@ enum class LanguageLevel(val label: String) {
 
 sealed class LanguagesDialogEvent {
 
-    data class InitData(val items: List<ProfileLanguagesData>,val selectedLanguages: List<Languages>?,val selectedSignLanguages: List<Languages>?) : LanguagesDialogEvent()
+    data class InitData(val items: List<ProfileLanguagesData>,val selectedLanguages: List<Languages>?) : LanguagesDialogEvent()
 
     data class OnSearchQueryChanged(val query: String) : LanguagesDialogEvent()
 
@@ -79,7 +90,7 @@ sealed class LanguagesDialogEvent {
     data object OnShowSignLanguages : LanguagesDialogEvent()
 }
 sealed class LanguagesDialogNavEvent {
-    data class OnApply(val langs: List<ProfileLanguagesData>?, val signLangs: List<ProfileLanguagesData>?) : LanguagesDialogNavEvent()
+    data class OnApply(val langs: List<ProfileLanguagesData>?) : LanguagesDialogNavEvent()
 }
 
 @HiltViewModel
@@ -93,6 +104,11 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
 
     val navigationEvents = _navigationEvents.receiveAsFlow()
 
+    override fun onCleared() {
+        super.onCleared()
+        _uiState.update { LanguagesDialogUiState() }
+    }
+
     fun onEvent(event: LanguagesDialogEvent) {
         when (event) {
 
@@ -102,43 +118,60 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                         event.items
                     } else {
                         event.items.map { item ->
-                            val isSelected =
-                                item.id in event.selectedLanguages.map { it.language?.id }
+                            val isSelected = item.id in event.selectedLanguages.map { it.language?.id }
+//                            if (item.id.equals(uiState.value.signLangId) && !event.selectedSignLanguages.isNullOrEmpty()) true
+//                            else
+//                                item.id in event.selectedLanguages.map { it.language?.id }
+                            val level = if (item.id.equals(uiState.value.signLangId)) ""
+                            else if (isSelected)
+                                event.selectedLanguages.find {
+                                it.language?.id.equals(
+                                    item.id
+                                )
+                            }?.language?.level else item.level
+                            val selections =
+                                if (!item.selections.isNullOrEmpty()) {
+                                    item.selections?.map { subItem ->
+                                        val selectedSubLangs = event.selectedLanguages.firstOrNull{it.language?.id.equals(item.id)}?.sublanguages
+                                        subItem.copy(
+                                            isSelected = (selectedSubLangs?.map { it.sublanguage?.id }?.contains(subItem.id) == true),
+                                            level = selectedSubLangs?.firstOrNull { it.sublanguage?.id.equals(subItem.id)}?.sublanguage?.level?:"Basic"
+                                        )
+                                    }
+                                } else null
                             item.copy(
                                 isSelected = isSelected,
-                                level = if (isSelected) event.selectedLanguages.find {
-                                    it.language?.id.equals(
-                                        item.id
-                                    )
-                                }?.language?.level else "Basic"
+                                level = level,
+                                selections = selections as ArrayList<ProfileLanguagesData>?
                             )
                         }
                     }
 
-                val signLangList = event.items.firstOrNull { it.id.equals("72338abe-4687-487f-9515-c10d2a1be8ef") }?.selections?: emptyList()
-                val signLanguagesWithSelections =
-                    if (event.selectedSignLanguages.isNullOrEmpty()) {
-                        signLangList
-                    } else {
-                        signLangList.map { item ->
-                            val isSelected =
-                                item.id in event.selectedSignLanguages.map { it.sublanguage?.id }
-                            item.copy(
-                                isSelected = isSelected,
-                                level = if (isSelected) event.selectedSignLanguages.find {
-                                    it.sublanguage?.id.equals(
-                                        item.id
-                                    )
-                                }?.sublanguage?.level else "Basic"
-                            )
-                        }
-                    }
+//                val signLangList = event.items.firstOrNull { it.id.equals(uiState.value.signLangId) }?.selections?: emptyList()
+//                val signLanguagesWithSelections =
+//                    if (event.selectedSignLanguages.isNullOrEmpty()) {
+//                        signLangList
+//                    } else {
+//                        signLangList.map { item ->
+//                            val isSelected =
+//                                item.id in event.selectedSignLanguages.map { it.sublanguage?.id }
+//                            item.copy(
+//                                isSelected = isSelected,
+//                                level = if (isSelected) event.selectedSignLanguages.find {
+//                                    it.sublanguage?.id.equals(
+//                                        item.id
+//                                    )
+//                                }?.sublanguage?.level else "Basic"
+//                            )
+//                        }
+//                    }
 
                 _uiState.update {
                     it.copy(
                         rootItems = rootListWithSelections,
                         currentItems = rootListWithSelections,
-                        signLanguages = signLanguagesWithSelections,
+                        initialItems = rootListWithSelections,
+//                        signLanguages = signLanguagesWithSelections,
                     )
                 }
             }
@@ -146,7 +179,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
             is LanguagesDialogEvent.OnShowSignLanguages -> {
                 _uiState.update {
                     it.copy(
-                        currentItems = it.signLanguages,
+//                        currentItems = it.signLanguages,
                         )
                 }
             }
@@ -160,38 +193,32 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
             is LanguagesDialogEvent.OnTitleClicked -> {
 
                 val state = _uiState.value
-
                 // Has sub languages
                 if (!event.item.selections.isNullOrEmpty()) {
                     _uiState.update {
                         it.copy(
                             currentItems = event.item.selections!!,
-                            searchQuery = ""
+                            searchQuery = "",
+                            recentSelectedItemId = "",
                         )
                     }
                     return
                 }
 
+
                 if (state.showBackButton) {
                     // sign languages
                     // Toggle selection
                     _uiState.update { state ->
-                        val updated = state.signLanguages.map { item ->
+                        val updated = state.currentItems.map { item ->
                             if (item.id == event.item.id) {
-//                            if (state.isMultiSelectEnabled) {
                                 item.copy(isSelected = !item.isSelected, isSelectionMode = !item.isSelected)
-//                            } else {
-//                                item.copy(isSelected = true)
-//                            }
                             } else {
                                 item.copy(isSelectionMode = false)
-//                            if (state.isMultiSelectEnabled) item
-//                            else item.copy(isSelected = false)
                             }
                         }
 
                         state.copy(
-                            signLanguages = updated,
                             currentItems = updated,
                             recentSelectedItemId = event.item.id ?: ""
                         )
@@ -202,15 +229,9 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                     _uiState.update { state ->
                         val updated = state.rootItems.map { item ->
                             if (item.id == event.item.id) {
-//                            if (state.isMultiSelectEnabled) {
                                 item.copy(isSelected = !item.isSelected, isSelectionMode = !item.isSelected)
-//                            } else {
-//                                item.copy(isSelected = true)
-//                            }
                             } else {
                                 item.copy(isSelectionMode = false)
-//                            if (state.isMultiSelectEnabled) item
-//                            else item.copy(isSelected = false)
                             }
                         }
 
@@ -221,8 +242,6 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                         )
                     }
                 }
-
-
             }
 
             is LanguagesDialogEvent.OnLanguageLevelSelected -> {
@@ -230,7 +249,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
 
                     if (state.showBackButton) {
                         // sign languages
-                        val updated = state.signLanguages.map { item ->
+                        val updated = state.currentItems.map { item ->
                             if (item.id?.contains(event.id) == true) {
                                 item.copy(
                                     level = event.level,
@@ -240,7 +259,6 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                         }
 
                         state.copy(
-                            signLanguages = updated,
                             currentItems = updated
                         )
                     } else {
@@ -265,24 +283,43 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
 
             is LanguagesDialogEvent.OnBack -> {
                 _uiState.update {
+                    val items = it.rootItems
                     it.copy(
-                        currentItems = it.rootItems,
-                        searchQuery = ""
+                        rootItems = items,
+                        currentItems = items,
+                        searchQuery = "",
+                        recentSelectedItemId = "",
                     )
                 }
             }
 
             is LanguagesDialogEvent.OnApply -> {
+                viewModelScope.launch(Dispatchers.Default) {
                 val state = _uiState.value
-                val langs = if (state.selectedLanguages.isNotEmpty()) state.selectedLanguages else null
-                val signLangs = if (state.selectedSignLanguages.isNotEmpty()) state.selectedSignLanguages else null
-                viewModelScope.launch {
-                    _navigationEvents.send(
-                        LanguagesDialogNavEvent.OnApply(
-                            langs,
-                            emptyList(),
+
+                    if (state.showBackButton) {
+                        // Apply Sub Languages
+                        val items =  state.rootItems.map {
+                            it.copy(
+                                isSelected = if (it.id.equals(state.signLangId)) state.currentItems.any {it.isSelected} else it.isSelected,
+                                selections = (if (it.id.equals(state.signLangId)) state.currentItems else it.selections) as ArrayList<ProfileLanguagesData>?
+                            )
+                        }
+                        _uiState.update {
+                            it.copy(
+                                rootItems = items,
+                                currentItems = items,
+                                recentSelectedItemId = "",
+                            )
+                        }
+                    } else {
+                        // Save Languages to identification data
+                        _navigationEvents.send(
+                            LanguagesDialogNavEvent.OnApply(
+                                uiState.value.selectedLanguages,
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

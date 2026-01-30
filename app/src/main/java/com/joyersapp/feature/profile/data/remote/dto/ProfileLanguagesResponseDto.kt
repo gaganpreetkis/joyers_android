@@ -16,7 +16,7 @@ data class ProfileLanguagesData (
     @SerializedName("id"            ) var id           : String? = null,
     @SerializedName("name"          ) var name         : String? = null,
     @SerializedName("description"   ) var description  : String? = null,
-    @SerializedName("dropdown_sub_langauge_list"    ) var selections   : List<ProfileLanguagesData>? = null,
+    @SerializedName("dropdown_sub_langauge_list"    ) var selections   : ArrayList<ProfileLanguagesData>? = null,
 
     @SerializedName("label"         ) var level        : String? = "Basic",
 //    @SerializedName("selection_count") var selectionCount : String? = null,

@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.auth.presentation.identity.IdentityEvent
 import com.joyersapp.components.dialogs.BaseDialog
+import com.joyersapp.feature.profile.data.remote.dto.Language
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.PoliticalIdeology
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
@@ -50,6 +51,7 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
+import com.joyersapp.feature.profile.data.remote.dto.SubLanguageWrapper
 import com.joyersapp.theme.GrayBG5
 import com.joyersapp.theme.GrayInnerBorder
 import com.joyersapp.theme.GrayOuterBorder
@@ -69,7 +71,7 @@ fun IdentificationDialog(
     BaseDialog(
         onDismiss = onDismiss,
         titles = arrayListOf("Identification")
-    ) { dialogModifier, dialogFocusManager, maxHeight ->
+    ) { dialogModifier, dialogFocusManager, maxHeight, listState ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -189,7 +191,7 @@ fun IdentificationDialog(
                     label = "Language",
                     hintText = "Joyer Language",
                     languages = identificationData.selectedLanguages,
-                    signLanguages = identificationData.selectedSignLanguages,
+                    signLanguages = identificationData.selectedLanguages?.firstOrNull{ it.language?.id.equals("72338abe-4687-487f-9515-c10d2a1be8ef")}?.sublanguages,
                     onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Language")) },
                     onClick = {
                         viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = true))
@@ -280,7 +282,7 @@ fun IdentificationDialog(
                     onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Joyer Location")) }
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
                 // ---------- APPLY BUTTON ----------
                 Button (
@@ -315,7 +317,7 @@ fun LanguagesField(
     label: String,
     hintText: String,
     languages: List<Languages>?,
-    signLanguages: List<Languages>?,
+    signLanguages: List<SubLanguageWrapper>?,
     onClear: () -> Unit = {},
     onClick: () -> Unit = {}
 ) {
@@ -426,12 +428,13 @@ fun LanguagesField(
                         }
                     }
                 }
-                if ((!languages.isNullOrEmpty() || !signLanguages.isNullOrEmpty()) && languages?.size!! > 1) {
+                if ((!languages.isNullOrEmpty() && languages.size > 1 || !signLanguages.isNullOrEmpty())) {
                     Spacer(Modifier.height(15.dp))
                     // ---- FLOW ROW WITH WRAPPED LANGUAGES ----
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         maxLines = if (seeAll) 100 else 4,
+                        itemVerticalAlignment = Alignment.CenterVertically,
                         overflow = FlowRowOverflow.expandOrCollapseIndicator(
                             minRowsToShowCollapse = 4,
                             expandIndicator = {
@@ -479,6 +482,9 @@ fun LanguagesField(
                         )
                     ) {
                         languages?.forEachIndexed { index, item ->
+
+                            if (item.language?.id.equals("72338abe-4687-487f-9515-c10d2a1be8ef")) return@forEachIndexed
+
                             val name = item.language?.name?:""
                             val level = (item.language?.level?:"").trim()
                             val language = buildString {
@@ -488,7 +494,19 @@ fun LanguagesField(
                                 }
                             }
 
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+//                            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                            if (index != 0) {
+                                Spacer(Modifier.width(10.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(LightBlack55)
+                                        .size(3.dp)
+                                )
+                                Spacer(Modifier.width(10.dp))
+                            }
+
                                 Text(
                                     text = name,
                                     fontSize = 16.sp,
@@ -508,66 +526,57 @@ fun LanguagesField(
                                         lineHeight = 22.sp,
                                     )
                                 }
-
-                                if (index != languages.lastIndex) {
-                                    Spacer(Modifier.width(10.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(CircleShape)
-                                            .background(LightBlack55)
-                                            .size(3.dp)
-                                    )
-                                    Spacer(Modifier.width(10.dp))
-                                }
-                            }
+//                            }
                         }
 
-//                        Spacer(modifier = Modifier.fillMaxWidth())
-//                        Text(
-//                            text = "Sign Language :",
-//                            fontSize = 16.sp,
-//                            fontWeight = FontWeight.Bold,
-//                            fontFamily = fontFamilyLato,
-//                            color = LightBlack,
-//                            lineHeight = 22.sp,
-//                        )
-//                        Spacer(modifier = Modifier.width(10.dp))
+                        if (!signLanguages.isNullOrEmpty()) {
+                            Spacer(modifier = Modifier.fillMaxWidth())
+                            Text(
+                                text = "Sign Language :",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = fontFamilyLato,
+                                color = LightBlack,
+                                lineHeight = 22.sp,
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
 
-                        signLanguages?.forEachIndexed { index, item ->
-                            val name = item.language?.name?:""
-                            val level = (item.language?.level?:"").trim()
+                            signLanguages.forEachIndexed { index, item ->
+                                val name = item.sublanguage?.name?:""
+                                val level = (item.sublanguage?.level?:"").trim()
 
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (index != 0 ) {
-                                    Spacer(Modifier.width(10.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(CircleShape)
-                                            .background(LightBlack55)
-                                            .size(3.dp)
-                                    )
-                                    Spacer(Modifier.width(10.dp))
-                                }
-                                Text(
-                                    text = name,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    fontFamily = fontFamilyLato,
-                                    color = LightBlack,
-                                    lineHeight = 22.sp,
-                                )
-                                if (level.isNotEmpty()) {
-                                    Spacer(Modifier.width(6.dp))
+//                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (index != 0 ) {
+                                        Spacer(Modifier.width(10.dp))
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(CircleShape)
+                                                .background(LightBlack55)
+                                                .size(3.dp)
+                                        )
+                                        Spacer(Modifier.width(10.dp))
+                                    }
                                     Text(
-                                        text = "($level)",
+                                        text = name,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Normal,
                                         fontFamily = fontFamilyLato,
                                         color = LightBlack,
                                         lineHeight = 22.sp,
                                     )
-                                }
+                                    if (level.isNotEmpty()) {
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(
+                                            text = "($level)",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            fontFamily = fontFamilyLato,
+                                            color = LightBlack,
+                                            lineHeight = 22.sp,
+                                        )
+                                    }
 
+//                                }
                             }
                         }
                     }
@@ -1244,7 +1253,7 @@ data class IdentificationData(
     var faith: ProfileMeta? = null,
     var language: List<Languages>? = null,
     var selectedLanguages: List<Languages>? = null,
-    var selectedSignLanguages: List<Languages>? = null,
+//    var selectedSignLanguages: List<Languages>? = null,
     var education: ProfileMeta? = null,
     var relationship: ProfileMeta? = null,
     var nationality: List<Nationality>? = null,
