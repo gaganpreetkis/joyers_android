@@ -1046,7 +1046,9 @@ fun BulletRowText(
             modifier = Modifier,
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
-            lineHeight = 22.sp
+            lineHeight = 22.sp,
+            fontWeight = FontWeight.Normal,
+            color = LightBlack // we paint using AnnotatedString
         )
 
     }
@@ -1061,7 +1063,9 @@ fun HighlightedText(
         modifier = modifier,
         fontSize = 16.sp,
         fontFamily = fontFamilyLato,
-        lineHeight = 22.sp
+        lineHeight = 22.sp,
+        fontWeight = FontWeight.Normal,
+        color = LightBlack // we paint using AnnotatedString
     )
 }
 
@@ -1646,7 +1650,7 @@ data class MagneticsData(
     val joyerStatus: String? = "Classic",
     val title: ProfileMeta? = null,
     val subTitle: ProfileMeta? = null,
-    val identificationData: IdentificationData? = null,
+    val identificationData: IdentificationData? = IdentificationData(),
     var interests: List<Interests>? = null,
 )
 

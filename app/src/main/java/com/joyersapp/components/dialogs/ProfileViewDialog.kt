@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,12 +29,17 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -83,6 +89,7 @@ import kotlinx.coroutines.launch
 
 
 //@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileViewDialog(
     onDismiss: () -> Unit,
@@ -106,47 +113,6 @@ fun ProfileViewDialog(
     val lightBlackColor = LightBlack
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-    val isScrollingUp = listState.isScrollingUp()
-    val showSearchBar by remember {
-        derivedStateOf { isScrollingUp }
-    }
-
-    var isSearchBarVisible by remember { mutableStateOf(true) }
-
-
-
-    val searchHeight by animateDpAsState(
-        targetValue = if (isSearchBarVisible) 56.dp else 0.dp,
-        animationSpec = tween(180),
-        label = "search-bar-anim"
-    )
-
-    LaunchedEffect(listState) {
-        var lastOffset = 0
-        val threshold = 8    // ⬅️ adjust sensitivity (4..12 works best)
-
-        snapshotFlow { listState.firstVisibleItemScrollOffset }
-//            .debounce(40) // ms interval
-            .distinctUntilChanged()
-            .collect { offset ->
-
-                val delta = offset - lastOffset
-
-                when {
-                    delta > threshold -> {
-                        // Scroll down → hide
-//                        if (isSearchBarVisible) isSearchBarVisible = false
-                    }
-                    delta < -threshold -> {
-                        // Scroll up → show
-//                        if (!isSearchBarVisible) isSearchBarVisible = true
-                    }
-                }
-
-                lastOffset = offset
-            }
-    }
-
 
 
     BaseDialog(
@@ -159,214 +125,205 @@ fun ProfileViewDialog(
         showBackButton = showBackButton
         ) { dialogModifier, dialogFocusManager, maxHeight, listState ->
 
-        Spacer(modifier = dialogModifier.height(15.dp))
-
-        // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
-        BoxWithConstraints(
-            modifier = Modifier
-                .padding(start = 15.dp, end = 15.dp, bottom = 25.dp)
-                .heightIn(max = maxHeight)
-        ) {
-
-
-
-
-
-            // Determine the maximum height each view can take (50dp margin)
-
-            val maxHeightForViews = this.maxHeight
-            val maxHeightForSubTitles = maxHeightForViews - 35.dp - 179.dp - 70.dp
-
-
-            Column(
-                modifier = Modifier
-                    .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 30))
-                    .fillMaxWidth()
-            ) {
-
-                AnimatedVisibility(
-                    visible = isSearchBarVisible,
-                    enter = fadeIn() + slideInVertically(initialOffsetY = { -it }),
-                    exit = fadeOut() + slideOutVertically(targetOffsetY = { -it })
-                ) {
-                    SearchBarRow(
-                        searchQuery = searchQuery,
-                        showApplyButton = showApplyButton,
-                        onApply = { onApply() },
-                        onSearchQueryChanged = { onSearchQueryChanged(it) }
-                    )
-//                    Spacer(modifier = dialogModifier.height(20.dp))
-                }
-
-                // First Scrollable
-                LazyColumn(
-                    state = listState,
+                // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
+                BoxWithConstraints(
                     modifier = Modifier
-//                        .nestedScroll(remember {
-//                        object : NestedScrollConnection {
-//                            override fun onPreScroll(
-//                                available: Offset,
-//                                source: NestedScrollSource
-//                            ): Offset {
-//                                if (available.y < -4) {    // scrolling up
-//                                    if (isSearchBarVisible) isSearchBarVisible = false
-//                                } else if (available.y > 4) { // scrolling down
-//                                    if (!isSearchBarVisible) isSearchBarVisible = true
-//                                }
-//                                return Offset.Zero
-//                            }
-//                        }
-//                    })
-                        .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 30))
-                        .weight(1f, fill = false)
-                        .fillMaxWidth()
+                        .padding(start = 15.dp, end = 15.dp, bottom = 25.dp)
+                        .heightIn(max = maxHeight)
                 ) {
-                    item {
-                        /*SearchBarRow(
-                            searchQuery = searchQuery,
-                            showApplyButton = showApplyButton,
-                            onApply = { onApply() },
-                            onSearchQueryChanged = { onSearchQueryChanged(it) }
-                        )
-                        Spacer(modifier = dialogModifier.height(20.dp))*/
-                    }
+                    // Determine the maximum height each view can take (50dp margin)
 
-                    if (titlesData.isEmpty()) {
-                        item {
-                            Box(
-                                modifier = dialogModifier
-                                    .fillMaxWidth(),
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.no_results_found),
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontFamily = fontFamilyLato,
-                                    textAlign = TextAlign.Center,
-                                    color = lightBlackColor,
-                                    lineHeight = 22.sp,
-                                    modifier = dialogModifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            top = if (isKeyBoardOpen) 95.dp else 55.dp,
-                                            bottom = if (isKeyBoardOpen) 0.dp else 69.dp
-                                        )
-                                )
+                    val maxHeightForViews = this.maxHeight
+                    val maxHeightForSubTitles = maxHeightForViews - 35.dp - 179.dp - 70.dp
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+
+                        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+                        val isScrollable by remember {
+                            derivedStateOf {
+                                listState.canScrollForward || listState.canScrollBackward
                             }
                         }
-                    } else {
-                        itemsIndexed(titlesData,  key = { _, item -> item.id?:"" }) { index, title ->
-                            val isFirst = index == 0
-                            val isLast = index == titlesData.lastIndex
-//                        AnimatedContent(title.isSelected) {
-                            TitleItem(
-                                isFirstItem = isFirst,
-                                isLastItem = isLast,
-                                title = title,
-                                isSelected = title.isSelected,
-                                onClick = {
-//                                title.isSelected = !title.isSelected
-                                    if (title.selections.isNullOrEmpty()) {
-                                        onTitleSelected(title.id ?: "")
-                                        coroutineScope.launch {
-                                            listState.animateScrollToItem(0)
+
+                        Column (
+                            modifier = Modifier
+//                                .wrapContentHeight()
+                                .weight(1f, fill = false)
+                                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                            content = {
+
+                                Spacer(Modifier.height(15.dp))
+
+                                TopAppBar(
+                                    expandedHeight = 55.dp,
+                                    modifier = Modifier.heightIn(min = 0.dp),
+                                    colors = TopAppBarColors(
+                                        containerColor = Color.Transparent,
+                                        scrolledContainerColor = Color.Transparent,
+                                        navigationIconContentColor = Color.Transparent,
+                                        titleContentColor = Color.Transparent,
+                                        actionIconContentColor = Color.Transparent
+                                    ),
+                                    title = {
+                                        SearchBarRow(
+                                            searchQuery = searchQuery,
+                                            showApplyButton = showApplyButton,
+                                            onApply = { onApply() },
+                                            onSearchQueryChanged = { onSearchQueryChanged(it) }
+                                        )
+                                    },
+                                    windowInsets = WindowInsets(0, 0, 0, 0),
+                                    scrollBehavior = if (isScrollable) scrollBehavior else null
+                                )
+
+                                // First Scrollable
+                                LazyColumn(
+                                    state = listState,
+                                    modifier = Modifier
+                                        .weight(1f, fill = false)
+                                        .fillMaxWidth()
+                                ) {
+                                    if (titlesData.isEmpty()) {
+                                        item {
+                                            Box(
+                                                modifier = dialogModifier
+                                                    .fillMaxWidth(),
+                                            ) {
+                                                Text(
+                                                    text = stringResource(R.string.no_results_found),
+                                                    fontSize = 24.sp,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    fontFamily = fontFamilyLato,
+                                                    textAlign = TextAlign.Center,
+                                                    color = lightBlackColor,
+                                                    lineHeight = 22.sp,
+                                                    modifier = dialogModifier
+                                                        .fillMaxWidth()
+                                                        .padding(
+                                                            top = if (isKeyBoardOpen) 90.dp else 35.dp,
+                                                            bottom = if (isKeyBoardOpen) 0.dp else 69.dp
+                                                        )
+                                                )
+                                            }
                                         }
                                     } else {
-                                        showBackButton = true
-                                        onShowSubTitles(title.selections ?: emptyList())
+                                        itemsIndexed(
+                                            titlesData,
+                                            key = { _, item -> item.id ?: "" }) { index, title ->
+                                            val isFirst = index == 0
+                                            val isLast = index == titlesData.lastIndex
+                                            TitleItem(
+                                                isFirstItem = isFirst,
+                                                isLastItem = isLast,
+                                                title = title,
+                                                isSelected = title.isSelected,
+                                                onClick = {
+                                                    if (title.selections.isNullOrEmpty()) {
+                                                        onTitleSelected(title.id ?: "")
+                                                        coroutineScope.launch {
+                                                            listState.animateScrollToItem(0)
+                                                            scrollBehavior.state.heightOffset = 0f
+                                                        }
+                                                    } else {
+                                                        showBackButton = true
+                                                        onShowSubTitles(
+                                                            title.selections ?: emptyList()
+                                                        )
+                                                    }
+                                                },
+                                                modifier = Modifier
+                                            )
+                                        }
                                     }
-//                                     keyboardController?.hide()
-                                },
-                                modifier = Modifier
-                            )
-//                        }
-                        }
-                    }
 
-                }
-
-                if (clarificationData.isNotEmpty()) {
-                    var isExpanded by remember { mutableStateOf(false) }
-                    Spacer(modifier = dialogModifier.height(20.dp))
-                    DashedLine(
-                        modifier = dialogModifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 0.dp),
-                    )
-
-                    Spacer(modifier = dialogModifier.height(15.dp))
-
-                    Row(
-                        modifier = dialogModifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 0.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = dialogModifier
-                        ) {
-                            if (!isExpanded) {
-                                Text(
-                                    text = stringResource(R.string.strik_right_space),
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Black,
-                                    fontFamily = fontFamilyLato,
-                                    color = goldenColor
-                                )
-                                Spacer(modifier = Modifier.width(0.dp))
-                            }
-                            Text(
-                                text = stringResource(R.string.clarifications),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = fontFamilyLato,
-                                color = lightBlackColor,
-                                modifier = dialogModifier
-                            )
-                        }
-                        Text(
-                            text = if (isExpanded) stringResource(R.string.hide) else stringResource(
-                                R.string.show
-                            ),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = fontFamilyLato,
-                            color = goldenColor,
-                            modifier = dialogModifier.clickable {
-                                dialogFocusManager.clearFocus()
-                                isExpanded = !isExpanded
+                                }
                             }
                         )
-                    }
 
-                    // Second scrollable
-                    if (clarificationData.isNotEmpty() && isExpanded) {
-                        Spacer(Modifier.height(15.dp))
-                        LazyColumn(
-                            modifier = Modifier
-                                .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 30))
-                                .heightIn(
-                                    min = 0.dp,
-                                    max = maxHeightForSubTitles
-                                )// Distributes remaining space equally with View 1
-                        ) {
-                            itemsIndexed(clarificationData) { index, title ->
-                                // Scrollable only, no onClick
-                                val isLast = index == clarificationData.lastIndex
-                                ClassificationItem(
-                                    isLastItem = isLast,
-                                    title = title.name?: "",
-                                    description = title.description?: "",
-                                    modifier = Modifier
+                        if (clarificationData.isNotEmpty()) {
+                            var isExpanded by remember { mutableStateOf(false) }
+                            Spacer(modifier = dialogModifier.height(20.dp))
+                            DashedLine(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 0.dp),
+                            )
+
+                            Spacer(modifier = dialogModifier.height(15.dp))
+
+                            Row(
+                                modifier = dialogModifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 0.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = dialogModifier
+                                ) {
+                                    if (!isExpanded) {
+                                        Text(
+                                            text = stringResource(R.string.strik_right_space),
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Black,
+                                            fontFamily = fontFamilyLato,
+                                            color = goldenColor
+                                        )
+                                        Spacer(modifier = Modifier.width(0.dp))
+                                    }
+                                    Text(
+                                        text = stringResource(R.string.clarifications),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = fontFamilyLato,
+                                        color = lightBlackColor,
+                                        modifier = dialogModifier
+                                    )
+                                }
+                                Text(
+                                    text = if (isExpanded) stringResource(R.string.hide) else stringResource(
+                                        R.string.show
+                                    ),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = fontFamilyLato,
+                                    color = goldenColor,
+                                    modifier = dialogModifier.clickable {
+                                        dialogFocusManager.clearFocus()
+                                        isExpanded = !isExpanded
+                                    }
                                 )
+                            }
+
+                            // Second scrollable
+                            if (clarificationData.isNotEmpty() && isExpanded) {
+                                Spacer(Modifier.height(15.dp))
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .heightIn(
+                                            min = 0.dp,
+                                            max = maxHeightForSubTitles
+                                        )// Distributes remaining space equally with View 1
+                                ) {
+                                    itemsIndexed(clarificationData) { index, title ->
+                                        // Scrollable only, no onClick
+                                        val isLast = index == clarificationData.lastIndex
+                                        ClassificationItem(
+                                            isLastItem = isLast,
+                                            title = title.name ?: "",
+                                            description = title.description ?: "",
+                                            modifier = Modifier
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
     }
 }
 
@@ -388,7 +345,7 @@ private fun SearchBarRow(
     Row(
         modifier = dialogModifier
             .fillMaxWidth()
-            .padding(bottom = 20.dp)
+            .padding(top = 0.dp, bottom = 20.dp)
             .height(35.dp)
             .padding(horizontal = 15.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)

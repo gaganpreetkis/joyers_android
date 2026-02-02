@@ -280,11 +280,11 @@ fun AppBasicTextField(
                 value = tfValue,
                 onValueChange = { newValue ->
 
-                    val asciiFiltered = filterAscii(newValue.text, maxLength)
+//                    val asciiFiltered = filterAscii(newValue.text, maxLength)
 
                     if (keyboardOptions.capitalization == KeyboardCapitalization.Words) {
 
-                        val caseFiltered = filterNameCase(asciiFiltered)
+                        val caseFiltered = filterNameCase(newValue.text)
 
                         if (caseFiltered != newValue.text) {
                             val updated = newValue.copy(
@@ -300,17 +300,17 @@ fun AppBasicTextField(
 
                     } else {
 
-                        if (asciiFiltered != newValue.text) {
-                            val updated = newValue.copy(
-                                text = asciiFiltered,
-                                selection = TextRange(asciiFiltered.length)
-                            )
-                            tfValue = updated
-                            onValueChange(asciiFiltered)
-                        } else {
+//                        if (asciiFiltered != newValue.text) {
+//                            val updated = newValue.copy(
+//                                text = asciiFiltered,
+//                                selection = TextRange(asciiFiltered.length)
+//                            )
+//                            tfValue = updated
+//                            onValueChange(asciiFiltered)
+//                        } else {
                             tfValue = newValue
                             onValueChange(newValue.text)
-                        }
+//                        }
                     }
                 },
                 singleLine = true,
@@ -512,6 +512,8 @@ fun AppBasicTextFieldWithCursorHandling(
     contentColor: Color = Black,
     placeholderColor: Color = Gray40
 ) {
+
+
     val focusManager = LocalFocusManager.current
     Row(
         modifier = modifier
@@ -536,9 +538,20 @@ fun AppBasicTextFieldWithCursorHandling(
                 )
             }
 
+            // 1. Remember a local state to handle immediate cursor updates
+            var localValue by remember { mutableStateOf(value) }
+
+            // 2. Sync local state when the ViewModel pushes a programmatic change
+            LaunchedEffect(value) {
+                if (value.text != localValue.text || value.selection != localValue.selection) {
+                    localValue = value
+                }
+            }
             BasicTextField(
-                value = value,
+                value = localValue,
                 onValueChange = { newValue ->
+                    localValue = newValue // Update UI instantly
+
                     val filtered = filterAscii(newValue.text, maxLength)
                     if (filtered != newValue.text) {
                         val updated = newValue.copy(

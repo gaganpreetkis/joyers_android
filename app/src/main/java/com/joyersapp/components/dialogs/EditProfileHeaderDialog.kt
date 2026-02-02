@@ -390,7 +390,7 @@ fun EditProfileHeaderDialog(
         },
         onCrop = {
             if (selectedProfileImageUri != null) {
-                //showProfilePicturePreview = false // Close preview before opening crop
+                // showProfilePicturePreview = false // Close preview before opening crop
                 showCropDialog = true
             }
             isImageCropped = false
@@ -836,11 +836,21 @@ fun OverviewEditor(
     text: TextFieldValue,
     onChange: (TextFieldValue) -> Unit
 ) {
+    // 1. Remember a local state to handle immediate cursor updates
+    var localValue by remember { mutableStateOf(text) }
+
+    // 2. Sync local state when the ViewModel pushes a programmatic change
+    LaunchedEffect(text) {
+        if (text.text != localValue.text || text.selection != localValue.selection) {
+            localValue = text
+        }
+    }
     BasicTextField(
-        value = text,
-        onValueChange = {
+        value = localValue,
+        onValueChange = { newValue ->
+            localValue = newValue // Update UI instantly newValue ->
 //            if (it.text.graphemeCount() > 150) return@BasicTextField
-            onChange(it)
+            onChange(newValue)
         },
         visualTransformation = { textValue ->
             TransformedText(
@@ -856,7 +866,8 @@ fun OverviewEditor(
             fontSize = 16.sp,
             lineHeight = 22.sp,
             fontFamily = fontFamilyLato,
-            color = Color.Red // we paint using AnnotatedString
+            fontWeight = FontWeight.Normal,
+            color = LightBlack // we paint using AnnotatedString
         ),
         modifier = Modifier.fillMaxWidth()
             .focusable(),
@@ -994,51 +1005,19 @@ fun BulletRow(
 
 
         Spacer(Modifier.width(10.dp))
+        // 1. Remember a local state to handle immediate cursor updates
+        var localValue by remember { mutableStateOf(bullet.textValue) }
 
-/*        // Editable Text
+        // 2. Sync local state when the ViewModel pushes a programmatic change
+        LaunchedEffect(bullet.textValue) {
+            if (bullet.textValue.text != localValue.text || bullet.textValue.selection != localValue.selection) {
+                localValue = bullet.textValue
+            }
+        }
         BasicTextField(
-            value = bullet.text,
-            onValueChange = {
-                onEvent(
-                    HighlightEvent.OnTextChange(bullet.id, it)
-                )
-            },
-            modifier = Modifier
-                .weight(1f)
-                .focusRequester(focusRequester)
-                .onFocusChanged {
-                    if (it.isFocused) {
-                        onEvent(
-                            HighlightEvent.OnFocusRequested(bullet.id)
-                        )
-                    }
-                }
-                .onKeyEvent { keyEvent ->
-                    if (
-//                        keyEvent.type == KeyEventType.KeyDown &&
-                        keyEvent.key == Key.Backspace &&
-                        bullet.text.isEmpty()
-                    ) {
-                        onEvent(
-                            HighlightEvent.OnBackspaceOnEmpty(bullet.id)
-                        )
-                        true
-                    } else false
-                },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = {
-                    onEvent(HighlightEvent.OnAddBullet(bullet.id))
-                }
-            )
-        )*/
-
-        BasicTextField(
-            value = bullet.textValue,
+            value = localValue,
             onValueChange = { newValue ->
+                localValue = newValue // Update UI instantly newValue ->
                 onEvent(
                     HighlightEvent.OnTextChange(bullet.id, newValue)
                 )
@@ -1052,7 +1031,8 @@ fun BulletRow(
             textStyle = TextStyle(
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
-                color = Color.Transparent
+                fontWeight = FontWeight.Normal,
+                color = LightBlack // we paint using AnnotatedString
             ),
             modifier = Modifier
 //                .fillMaxWidth()
@@ -1137,10 +1117,19 @@ fun HighlightsEditor(
     textState: TextFieldValue,
     onChange: (TextFieldValue) -> Unit
 ) {
+    // 1. Remember a local state to handle immediate cursor updates
+    var localValue by remember { mutableStateOf(textState) }
 
+    // 2. Sync local state when the ViewModel pushes a programmatic change
+    LaunchedEffect(textState) {
+        if (textState.text != localValue.text || textState.selection != localValue.selection) {
+            localValue = textState
+        }
+    }
     BasicTextField(
-        value = textState,
+        value = localValue,
         onValueChange = { newValue ->
+            localValue = newValue // Update UI instantly newValue ->
             onChange(newValue)
         },
         visualTransformation = { textValue ->
@@ -1152,7 +1141,8 @@ fun HighlightsEditor(
         textStyle = TextStyle(
             fontSize = 16.sp,
             lineHeight = 22.sp,
-            color = Color.Transparent
+            fontWeight = FontWeight.Normal,
+            color = LightBlack // we paint using AnnotatedString
         ),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
         modifier = Modifier

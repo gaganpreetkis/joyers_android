@@ -72,11 +72,14 @@ class SignupViewModel @Inject constructor(
 
             is SignupEvent.TestChanged -> {
                 _uiState.update {
+                    val newText = "iuiuiuiy"
                     it.copy(
                         test = it.test.copy(
-                            text = "iuiuiuiy",
-                            selection = TextRange(8)
-                        ),
+                            text = newText,
+                            // Ensure selection is within new text bounds
+                            selection = TextRange(newText.length),
+                            composition = null
+                        )
                     )
                 }
             }

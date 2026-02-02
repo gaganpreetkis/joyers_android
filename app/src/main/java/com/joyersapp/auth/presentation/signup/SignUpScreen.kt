@@ -35,7 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -93,9 +95,19 @@ fun OverviewEditor(
     text: TextFieldValue,
     onChange: (TextFieldValue) -> Unit
 ) {
+    // 1. Remember a local state to handle immediate cursor updates
+    var localValue by remember { mutableStateOf(text) }
+
+    // 2. Sync local state when the ViewModel pushes a programmatic change
+    LaunchedEffect(text) {
+        if (text.text != localValue.text || text.selection != localValue.selection) {
+            localValue = text
+        }
+    }
     BasicTextField(
-        value = text,
+        value = localValue,
         onValueChange = {
+            localValue = it // Update UI instantly
             onChange(it)
         },
         visualTransformation = { textValue ->
@@ -193,7 +205,8 @@ fun SignUpScreen(
 //            state.test,
 //            onChange = { viewModel.onEvent(SignupEvent.TestChanged(it)) }
 //        )
-//        Spacer(modifier = Modifier.height(45.dp))
+
+        Spacer(modifier = Modifier.height(45.dp))
 
 // SIGNUP LABEL
         Text(

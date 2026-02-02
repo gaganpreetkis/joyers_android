@@ -34,9 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -59,6 +61,7 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.max
 import kotlin.math.min
+import androidx.core.graphics.createBitmap
 
 @Composable
 fun CropBackgroundImageDialog(
@@ -73,6 +76,13 @@ fun CropBackgroundImageDialog(
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+
+
+    // Get crop rectangle size in pixels
+    val cropWidth = configuration.screenWidthDp.dp
+    val cropHeight = 120.dp
+    val cropHeightPx = with(density) { cropHeight.toPx() }
+    val cropWidthPx = with(density) { cropWidth.toPx() }
 
     // Transform state for pan and zoom
     var scale by remember { mutableStateOf(1f) }
@@ -126,107 +136,24 @@ fun CropBackgroundImageDialog(
         offsetY = 0f
     }
 
+    // Initial scale to ensure image covers the circle
+    LaunchedEffect(imageBitmap) {
+        imageBitmap?.let {
+            val minScaleX = cropWidthPx / it.width
+            val minScaleY = cropHeightPx / it.height
+            scale = maxOf(minScaleX, minScaleY)
+        }
+    }
+
     fun cropAndSave() {
         val bitmap = imageBitmap ?: return
-        val androidBitmap = bitmap.asAndroidBitmap()
 
-        // Get crop rectangle size in pixels
-        val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
-        val cropHeightPx = with(density) { 120.dp.toPx() }
-        val cropWidthPx = screenWidthPx
-
-        // Original image dimensions
-        val imageWidth = androidBitmap.width.toFloat()
-        val imageHeight = androidBitmap.height.toFloat()
-        val imageAspect = imageWidth / imageHeight
-
-        // The image is displayed in a Box with ContentScale.Fit
-        // Calculate the actual displayed image size (after ContentScale.Fit, before graphicsLayer transform)
-        val boxWidth = cropWidthPx
-        val boxHeight = cropHeightPx
-        val displayedImageWidth: Float
-        val displayedImageHeight: Float
-
-        if (imageAspect > boxWidth / boxHeight) {
-            // Image is wider relative to box - fit to box width
-            displayedImageWidth = boxWidth
-            displayedImageHeight = boxWidth / imageAspect
-        } else {
-            // Image is taller relative to box - fit to box height
-            displayedImageHeight = boxHeight
-            displayedImageWidth = boxHeight * imageAspect
-        }
-
-        // The displayed image (after ContentScale.Fit) is centered in the Box
-        // Displayed image bounds in Box coordinates (before graphicsLayer transform)
-        val displayedImageLeft = (boxWidth - displayedImageWidth) / 2f
-        val displayedImageTop = (boxHeight - displayedImageHeight) / 2f
-        val displayedImageRight = displayedImageLeft + displayedImageWidth
-        val displayedImageBottom = displayedImageTop + displayedImageHeight
-
-        // Now account for graphicsLayer transform (scale and translation)
-        // The graphicsLayer transform: scale is applied around pivot (center), then translation
-        // For a point (x, y) in Image coordinates: 
-        //   transformed = center + (x - center) * scale + translation
-        // Inverse: x = center + (transformed - center - translation) / scale
-        
-        // The Image composable's center (pivot point for scaling)
-        val pivotX = boxWidth / 2f
-        val pivotY = boxHeight / 2f
-        
-        // Rectangle center in Box coordinates
-        val rectCenterBoxX = boxWidth / 2f
-        val rectCenterBoxY = boxHeight / 2f
-        
-        // Apply inverse transform: find the point in Image's coordinate system that maps to rectangle center
-        val pointInImageCoordX = pivotX + (rectCenterBoxX - pivotX - offsetX) / scale
-        val pointInImageCoordY = pivotY + (rectCenterBoxY - pivotY - offsetY) / scale
-
-        // Convert to coordinates relative to displayed image's top-left corner
-        val relativeX = pointInImageCoordX - displayedImageLeft
-        val relativeY = pointInImageCoordY - displayedImageTop
-
-        // Map from displayed image coordinates to original bitmap coordinates
-        val scaleX = imageWidth / displayedImageWidth
-        val scaleY = imageHeight / displayedImageHeight
-
-        // Center point in original bitmap coordinates
-        val cropCenterX = relativeX * scaleX
-        val cropCenterY = relativeY * scaleY
-
-        // Calculate crop size in original image coordinates
-        // The rectangle size in Box coordinates is cropWidthPx x cropHeightPx
-        // After inverse transform: (cropWidthPx / scale) x (cropHeightPx / scale) in displayed image coordinates
-        // Map to original bitmap coordinates
-        val cropWidthInDisplayed = cropWidthPx / scale
-        val cropHeightInDisplayed = cropHeightPx / scale
-        val cropWidthInImage = cropWidthInDisplayed * scaleX
-        val cropHeightInImage = cropHeightInDisplayed * scaleY
-
-        // Ensure crop size is valid and doesn't exceed image dimensions
-        val validCropWidth = cropWidthInImage.coerceAtLeast(1f).coerceAtMost(imageWidth)
-        val validCropHeight = cropHeightInImage.coerceAtLeast(1f).coerceAtMost(imageHeight)
-
-        // Calculate crop bounds (rectangle centered at cropCenterX, cropCenterY)
-        val halfCropWidth = validCropWidth / 2f
-        val halfCropHeight = validCropHeight / 2f
-        
-        // Calculate crop position, ensuring it stays within image bounds
-        val cropX = (cropCenterX - halfCropWidth).coerceIn(0f, imageWidth - validCropWidth)
-        val cropY = (cropCenterY - halfCropHeight).coerceIn(0f, imageHeight - validCropHeight)
-
-        // Create rectangular crop from bitmap
-        val cropWidthInt = validCropWidth.toInt().coerceAtLeast(1).coerceAtMost(imageWidth.toInt())
-        val cropHeightInt = validCropHeight.toInt().coerceAtLeast(1).coerceAtMost(imageHeight.toInt())
-        val finalCropX = cropX.toInt().coerceIn(0, (imageWidth.toInt() - cropWidthInt).coerceAtLeast(0))
-        val finalCropY = cropY.toInt().coerceIn(0, (imageHeight.toInt() - cropHeightInt).coerceAtLeast(0))
-        
-        val cropped = Bitmap.createBitmap(
-            androidBitmap,
-            finalCropX,
-            finalCropY,
-            cropWidthInt,
-            cropHeightInt
+        val cropped = getCroppedBitmap(
+            bitmap,
+            Offset(offsetX, offsetY),
+            scale,
+            cropWidthPx,
+            cropHeightPx
         )
 
         val destFile = File(context.cacheDir, "cropped_background_${System.currentTimeMillis()}.jpg")
@@ -263,22 +190,6 @@ fun CropBackgroundImageDialog(
                         .offset(y = (-23).dp), // 23px up from center
                     contentAlignment = Alignment.Center
                 ) {
-                    val screenWidth = with(density) { configuration.screenWidthDp.dp }
-                    val cropWidth = screenWidth
-                    val cropHeight = 120.dp
-                    val cropWidthPx = with(density) { cropWidth.toPx() }
-                    val cropHeightPx = with(density) { cropHeight.toPx() }
-
-                    val imageWidth = imageBitmap?.width?.toFloat()?:1f
-                    val imageHeight = imageBitmap?.height?.toFloat()?:1f
-
-
-// scale needed so image fully covers the box in BOTH dimensions
-                    val scaleToFill = min(
-                        3f,
-                        3f
-                    )
-//                    scale = scaleToFill
 
                     // Full image area with pan and zoom
                     Box(
@@ -286,53 +197,47 @@ fun CropBackgroundImageDialog(
                             .fillMaxSize()
                             .pointerInput(Unit) {
                                 detectTransformGestures { _, pan, zoom, _ ->
-                                    val newScale = (scale * zoom).coerceIn(1f, 10f)
-                                    val newOffsetX = offsetX + pan.x
-                                    val newOffsetY = offsetY + pan.y
+                                    imageBitmap?.let { bitmap ->
+                                        // 1. Update Scale (with a minimum floor)
+                                        val minScale = maxOf(cropWidthPx / bitmap.width, cropHeightPx / bitmap.height)
+                                        scale = (scale * zoom).coerceAtLeast(minScale)
 
-                                    val maxX = cropWidthPx/2 * (newScale - 1f)
-                                    val maxY = cropHeightPx/2 * (newScale - 1f)
+                                        // 2. Calculate New Offset
+                                        val newOffsetX = offsetX + pan.x
+                                        val newOffsetY = offsetY + pan.y
 
-                                    offsetX = newOffsetX.coerceIn(-maxX, maxX)
-                                    offsetY = newOffsetY.coerceIn(-maxY, maxY)
+                                        // 3. Clamp Offset to keep image covering the circle
+                                        val maxOffsetHorizontal = (bitmap.width * scale - cropWidthPx) / 2
+                                        val maxOffsetVertical = (bitmap.height * scale - cropHeightPx) / 2
 
-                                    scale = newScale
+                                        offsetX = newOffsetX.coerceIn(-maxOffsetHorizontal, maxOffsetHorizontal)
+                                        offsetY = newOffsetY.coerceIn(-maxOffsetVertical, maxOffsetVertical)
+                                    }
                                 }
                             }
-                    ) {
-                        imageBitmap?.let { bmp ->
-                            // Image clipped to rectangle
-                            Box(
-                                modifier = Modifier
-                                    .width(cropWidth)
-                                    .height(cropHeight)
-                                    .align(Alignment.Center)
-                                    .clip(RoundedCornerShape(0.dp))
-                            ) {
-                                Image(
-                                    bitmap = bmp,
-                                    contentDescription = "Crop background image",
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .graphicsLayer(
-                                            scaleX = scale,
-                                            scaleY = scale,
-                                            translationX = offsetX,
-                                            translationY = offsetY
-                                        ),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                        }
-                    }
+                    )
 
                     // Rectangular crop overlay with border and grid
                     Canvas(
                         modifier = Modifier
                             .width(cropWidth)
                             .height(cropHeight)
-                            .align(Alignment.Center)
-                    ) {
+                            .align(Alignment.Center).graphicsLayer {
+                                compositingStrategy = CompositingStrategy.Offscreen
+                            }) {
+
+                        val center = Offset(size.width / 2f, size.height / 2f)
+
+                        // Draw Scaled and Panned Image
+                        withTransform({
+                            translate(center.x + offsetX, center.y + offsetY)
+                            scale(scale, scale, Offset(0f, 0f)) // Scale from image center
+                        }) {
+                            // Center the bitmap drawing
+                            imageBitmap?.let { bitmap ->
+                                drawImage(bitmap, topLeft = Offset(-bitmap.width / 2f, -bitmap.height / 2f))
+                            }
+                        }
                         // Draw white rectangle border
                         /*drawRect(
                             color = White,
@@ -427,3 +332,23 @@ fun CropBackgroundImageDialog(
     }
 }
 
+private fun getCroppedBitmap(
+    source: ImageBitmap,
+    offset: Offset,
+    scale: Float,
+    cropWidth: Float,
+    cropHeight: Float,
+): Bitmap {
+    val output = Bitmap.createBitmap(cropWidth.toInt(), cropHeight.toInt(), Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(output)
+
+    val matrix = android.graphics.Matrix().apply {
+        postTranslate(-source.width / 2f, -source.height / 2f)
+        postScale(scale, scale)
+        // Center the crop area
+        postTranslate(cropWidth / 2f + offset.x, cropHeight / 2f + offset.y)
+    }
+
+    canvas.drawBitmap(source.asAndroidBitmap(), matrix, android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG))
+    return output
+}

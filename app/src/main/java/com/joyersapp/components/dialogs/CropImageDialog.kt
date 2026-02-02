@@ -44,9 +44,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -63,6 +65,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import com.joyersapp.R
+import com.joyersapp.components.chips.CircleImageCropper
 import com.joyersapp.theme.Black
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack
@@ -87,7 +90,11 @@ fun CropImageDialog(
     val configuration = LocalConfiguration.current
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
-    // Transform state for pan and zoom
+// Circle size: Screen Width - 40px (convert
+    val circleDiameterPx = with(density){ (configuration.screenWidthDp - 40).dp.toPx() }
+        val circleRadiusPx = circleDiameterPx / 2
+
+        // Transform state for pan and zoom
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
@@ -138,175 +145,30 @@ fun CropImageDialog(
             e.printStackTrace()
             null
         }
-        // Reset transform when image loads
-        // ⭐ AUTO SCALE IMAGE TO FILL CIRCLE ⭐
+    }
 
-//        imageBitmap?.let { bmp ->
-//
-//            val imageW = bmp.width.toFloat()
-//            val imageH = bmp.height.toFloat()
-//
-//            // how much we must scale so image covers crop circle
-//            val scaleX = cropSizePx / imageW
-//            val scaleY = cropSizePx / imageH
-//
-//            // pick bigger -> fully covers circle
-//            scale = maxOf(scaleX, scaleY)
-//
-//            offsetX = 0f
-//            offsetY = 0f
-//        }
-
-//        imageBitmap?.let { bmp ->
-//
-//            val imageW = bmp.width.toFloat()
-//            val imageH = bmp.height.toFloat()
-//
-//            val scaleX = cropSizePx / imageW
-//            val scaleY = cropSizePx / imageH
-//
-//            scale = maxOf(scaleX, scaleY)
-//
-//            offsetX = 0f
-//            offsetY = 0f
-//        }
-//        imageBitmap?.let { bmp ->
-//
-//            val imageWidth = bmp.width.toFloat()
-//            val imageHeight = bmp.height.toFloat()
-//
-//            val cropSizePx =
-//                with(density) { (configuration.screenWidthDp.dp - 40.dp).toPx() }
-//
-//            val scaleX = cropSizePx / imageWidth
-//            val scaleY = cropSizePx / imageHeight
-//
-//            // Pick larger so image always covers crop circle
-//            scale = maxOf(scaleX, scaleY)
-//
-//            offsetX = 0f
-//            offsetY = 0f
-//        }
+    // Initial scale to ensure image covers the circle
+    LaunchedEffect(imageBitmap) {
+        imageBitmap?.let {
+            val minScaleX = circleDiameterPx / it.width
+            val minScaleY = circleDiameterPx / it.height
+            scale = maxOf(minScaleX, minScaleY)
+        }
     }
 
     fun cropAndSave() {
+
         val bitmap = imageBitmap ?: return
-        val androidBitmap = bitmap.asAndroidBitmap()
-
-        // Get crop circle size in pixels
-        val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
-        val paddingPx = with(density) { 40.dp.toPx() }
-        val cropSizePx = screenWidthPx - paddingPx
-        val cropRadius = cropSizePx / 2f
-
-        // Original image dimensions
-        val imageWidth = androidBitmap.width.toFloat()
-        val imageHeight = androidBitmap.height.toFloat()
-        val imageAspect = imageWidth / imageHeight
-
-        // The image is displayed in a Box of size cropSizePx x cropSizePx with ContentScale.Fit
-        // Calculate the actual displayed image size (after ContentScale.Fit, before graphicsLayer transform)
-        val boxSize = cropSizePx
-        val displayedImageWidth: Float
-        val displayedImageHeight: Float
-
-        if (imageAspect > 1f) {
-            // Image is wider - fit to box width
-            displayedImageWidth = boxSize
-            displayedImageHeight = boxSize / imageAspect
-        } else {
-            // Image is taller - fit to box height
-            displayedImageHeight = boxSize
-            displayedImageWidth = boxSize * imageAspect
-        }
-
-        // Box coordinate system: (0,0) at top-left, (boxSize, boxSize) at bottom-right
-        // Circle center in Box coordinates
-        val circleCenterBoxX = boxSize / 2f
-        val circleCenterBoxY = boxSize / 2f
-
-        // The displayed image (after ContentScale.Fit) is centered in the Box
-        // Displayed image bounds in Box coordinates (before graphicsLayer transform)
-        val displayedImageLeft = (boxSize - displayedImageWidth) / 2f
-        val displayedImageTop = (boxSize - displayedImageHeight) / 2f
-        val displayedImageRight = displayedImageLeft + displayedImageWidth
-        val displayedImageBottom = displayedImageTop + displayedImageHeight
-
-        // Now account for graphicsLayer transform (scale and translation)
-        // The graphicsLayer transform: scale is applied around pivot (center), then translation
-        // For a point (x, y) in Image coordinates: 
-        //   transformed = center + (x - center) * scale + translation
-        // Inverse: x = center + (transformed - center - translation) / scale
-        
-        // The Image composable's center (pivot point for scaling) - same as circle center
-        val pivotX = boxSize / 2f
-        val pivotY = boxSize / 2f
-        
-        // Apply inverse transform: find the point in Image's coordinate system that maps to circle center
-        // Since circleCenterBoxX == pivotX, this simplifies to: point = pivot - offset / scale
-        val pointInImageCoordX = pivotX + (circleCenterBoxX - pivotX - offsetX) / scale
-        val pointInImageCoordY = pivotY + (circleCenterBoxY - pivotY - offsetY) / scale
-
-        // Convert to coordinates relative to displayed image's top-left corner
-        val relativeX = pointInImageCoordX - displayedImageLeft
-        val relativeY = pointInImageCoordY - displayedImageTop
-
-        // Map from displayed image coordinates to original bitmap coordinates
-        // For ContentScale.Fit, the scale factors are the same for both dimensions
-        val scaleX = imageWidth / displayedImageWidth
-        val scaleY = imageHeight / displayedImageHeight
-        // Use the same scale for both since we're creating a square crop
-        val imageScale = scaleX // scaleX == scaleY for ContentScale.Fit
-
-        // Center point in original bitmap coordinates
-        val cropCenterX = relativeX * imageScale
-        val cropCenterY = relativeY * imageScale
-
-        // Calculate crop size in original image coordinates
-        // The circle diameter in Box coordinates is cropSizePx
-        // After inverse transform: (cropSizePx / scale) in displayed image coordinates
-        // Map to original bitmap coordinates
-        val cropDiameterInDisplayed = cropSizePx / scale
-        val cropSizeInImage = cropDiameterInDisplayed * imageScale
-
-        // Ensure crop size is valid and doesn't exceed image dimensions
-        val validCropSize = cropSizeInImage.coerceAtLeast(1f).coerceAtMost(min(imageWidth, imageHeight))
-
-        // Calculate crop bounds (square crop centered at cropCenterX, cropCenterY)
-        val halfCropSize = validCropSize / 2f
-        
-        // Calculate crop position, ensuring it stays within image bounds
-        val cropX = (cropCenterX - halfCropSize).coerceIn(0f, imageWidth - validCropSize)
-        val cropY = (cropCenterY - halfCropSize).coerceIn(0f, imageHeight - validCropSize)
-
-        // Create square crop from bitmap
-        val cropSizeInt = validCropSize.toInt().coerceAtLeast(1).coerceAtMost(min(imageWidth.toInt(), imageHeight.toInt()))
-        val finalCropX = cropX.toInt().coerceIn(0, (imageWidth.toInt() - cropSizeInt).coerceAtLeast(0))
-        val finalCropY = cropY.toInt().coerceIn(0, (imageHeight.toInt() - cropSizeInt).coerceAtLeast(0))
-        
-        val cropped = Bitmap.createBitmap(
-            androidBitmap,
-            finalCropX,
-            finalCropY,
-            cropSizeInt,
-            cropSizeInt
+        val croppedBitmap = getCircularCroppedBitmap(
+            bitmap,
+            Offset(x = offsetX, y = offsetY),
+            scale,
+            circleRadiusPx
         )
-
-        // Create circular mask
-//        val circular = Bitmap.createBitmap(cropSizeInt, cropSizeInt, Bitmap.Config.ARGB_8888)
-//        val canvas = android.graphics.Canvas(circular)
-//        val paint = android.graphics.Paint().apply {
-//            isAntiAlias = true
-//            color = android.graphics.Color.WHITE
-//        }
-//        val radius = cropSizeInt / 2f
-//        canvas.drawCircle(radius, radius, radius, paint)
-//        paint.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
-//        canvas.drawBitmap(cropped, 0f, 0f, paint)
 
         val destFile = File(context.cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
         FileOutputStream(destFile).use {
-            cropped.compress(Bitmap.CompressFormat.PNG, 100, it)
+            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
         }
         val newUri = Uri.fromFile(destFile)
         onCropped(newUri, destFile.path)
@@ -337,82 +199,58 @@ fun CropImageDialog(
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-
-
                     Box(
                         modifier = Modifier
                             .offset(y = (-31).dp) // 31px up from center
                             .size(cropSize)
-//                            .clip(CircleShape)
                     ) {
-
                         // Full image area with pan and zoom
                         Box(
                             modifier = Modifier
                                 .size(cropSize)
-                                .pointerInput(Unit) {
+                                .pointerInput(imageBitmap) {
                                     detectTransformGestures { _, pan, zoom, _ ->
 
-                                        val newScale = (scale * zoom).coerceIn(1f, 5f)
+                                        imageBitmap?.let { bitmap ->
+                                            // 1. Update Scale (with a minimum floor)
+                                            val minScale = maxOf(circleDiameterPx / bitmap.width, circleDiameterPx / bitmap.height)
+                                            scale = (scale * zoom).coerceAtLeast(minScale)
 
-                                        imageBitmap?.let { bmp ->
+                                            // 2. Calculate New Offset
+                                            val newOffsetX = offsetX + pan.x
+                                            val newOffsetY = offsetY + pan.y
 
-                                            val imageRatio = bmp.height.toFloat() / bmp.width.toFloat()
+                                            // 3. Clamp Offset to keep image covering the circle
+                                            val maxOffsetHorizontal = (bitmap.width * scale - circleDiameterPx) / 2
+                                            val maxOffsetVertical = (bitmap.height * scale - circleDiameterPx) / 2
 
-                                            // Because we use ContentScale.FillWidth
-                                            val displayedWidth = cropSizePx * newScale
-                                            val displayedHeight = displayedWidth * imageRatio
-
-                                            val extraY = (displayedHeight - cropSizePx).coerceAtLeast(0f)
-                                            val extraX = (displayedWidth - cropSizePx).coerceAtLeast(0f)
-
-                                            offsetY = (offsetY + pan.y).coerceIn(
-                                                -extraY / 2f,
-                                                extraY / 2f
-                                            )
-
-                                            offsetX = (offsetX + pan.x).coerceIn(
-                                                -extraX / 2f,
-                                                extraX / 2f
-                                            )
+                                            offsetX = newOffsetX.coerceIn(-maxOffsetHorizontal, maxOffsetHorizontal)
+                                            offsetY = newOffsetY.coerceIn(-maxOffsetVertical, maxOffsetVertical)
                                         }
-
-                                        scale = newScale
                                     }
                                 }
-                        ) {
-                            imageBitmap?.let { bmp ->
-                                // Image clipped to circle only (20dp vertical area)
-                                Box(
-                                    modifier = Modifier
-                                        .size(cropSize)
-                                        .align(Alignment.Center)
-                                        .clip(RoundedCornerShape(0.dp))
-                                ) {
-                                    Image(
-                                        bitmap = bmp,
-                                        contentDescription = "Crop image",
-                                        modifier = Modifier
-                                            .size(cropSize)
-                                            .graphicsLayer(
-                                                scaleX = scale,
-                                                scaleY = scale,
-                                                translationX = offsetX,
-                                                translationY = offsetY
-                                            ),
-                                        contentScale = ContentScale.Fit
-                                    )
-                                }
-                            }
-                        }
+                        )
 
                         // Circular crop overlay with border and grid
                         Canvas(
                             modifier = Modifier
                                 .size(cropSize)
-                                .align(Alignment.Center)
-                        ) {
+                                .align(Alignment.Center).graphicsLayer {
+                                    compositingStrategy = CompositingStrategy.Offscreen
+                                })
+                        {
                             val center = Offset(size.width / 2f, size.height / 2f)
+
+                            // Draw Scaled and Panned Image
+                            withTransform({
+                                translate(center.x + offsetX, center.y + offsetY)
+                                scale(scale, scale, Offset(0f, 0f)) // Scale from image center
+                            }) {
+                                // Center the bitmap drawing
+                                imageBitmap?.let { bitmap ->
+                                    drawImage(bitmap, topLeft = Offset(-bitmap.width / 2f, -bitmap.height / 2f))
+                                }
+                            }
 
                             // Draw white circle border
                             drawCircle(
@@ -458,7 +296,6 @@ fun CropImageDialog(
                             }
                         }
                     }
-
                 }
             }
 
@@ -504,22 +341,31 @@ fun CropImageDialog(
                     contentDescription = "Close",
                 )
             }
-
-            // More options icon placeholder - placed above everything with pointer input
-            /*Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 29.dp, end = 20.dp)
-                    .zIndex(1f)
-                    .pointerInput(Unit) {
-                        // Add click handler here if needed
-                    }
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_menu_dots_horizontal_white),
-                    contentDescription = "More options",
-                )
-            }*/
         }
     }
+}
+
+private fun getCircularCroppedBitmap(
+    source: ImageBitmap,
+    offset: Offset,
+    scale: Float,
+    circleRadiusPx: Float
+): Bitmap {
+    val androidBitmap = source.asAndroidBitmap()
+    val diameter = (circleRadiusPx * 2).toInt()
+
+    //  Create a blank square bitmap (the size of your circle)
+    val output = Bitmap.createBitmap(diameter, diameter, Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(output)
+    val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+
+    //  Draw the image with the SAME transformations used in the UI
+    val matrix = android.graphics.Matrix()
+    matrix.postTranslate(-source.width / 2f, -source.height / 2f) // Center image
+    matrix.postScale(scale, scale) // Apply zoom
+    matrix.postTranslate(circleRadiusPx + offset.x, circleRadiusPx + offset.y) // Apply pan
+
+    canvas.drawBitmap(androidBitmap, matrix, paint)
+
+    return output
 }

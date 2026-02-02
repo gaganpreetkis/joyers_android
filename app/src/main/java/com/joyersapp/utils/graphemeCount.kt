@@ -48,36 +48,57 @@ fun String.takeGraphemes(max: Int): String {
 }
 
 fun highlightWords(text: String): AnnotatedString {
-    val parts = text.split(" ")
+
+    val mentionHashtagUrlRegex = Regex(
+        "(@[A-Za-z0-9_]+)|" +
+                "(#[A-Za-z0-9_]+)|" +
+                "(www\\.[A-Za-z0-9][A-Za-z0-9\\-]*\\.(com|org|net|co|in)(?=[^A-Za-z0-9]|$)(/[^\\s]*)?)",
+        RegexOption.IGNORE_CASE
+    )
 
     return buildAnnotatedString {
-        parts.forEachIndexed { index, word ->
 
-            val isMention = word.startsWith("@") && word.length > 1
-            val isHashtag = word.startsWith("#") && word.length > 1
-            val isBullet = false
-            val isUrl =
-                word.startsWith("http") || word.startsWith("https") || word.startsWith("www")
+        var lastIndex = 0
 
-            val color = if (isMention || isHashtag || isUrl) Golden else LightBlack
+        mentionHashtagUrlRegex.findAll(text).forEach { match ->
+
+            val start = match.range.first
+            val end = match.range.last + 1
+            val value = match.value
+
+            // Append normal text before match
+            append(text.substring(lastIndex, start))
+
+            val isMention = value.startsWith("@")
+            val isHashtag = value.startsWith("#")
+            val isUrl = value.startsWith("www", true)
+
+            val color =
+                if (isMention || isHashtag || isUrl) Golden else LightBlack
+
             val fontWeight =
-                if (isMention || isHashtag || isUrl) FontWeight.SemiBold else FontWeight.Normal
+                if (isMention || isHashtag || isUrl)
+                    FontWeight.SemiBold
+                else
+                    FontWeight.Normal
 
-            val fontSize = if (isBullet) 26.sp else 16.sp
-
-
-            withStyle(
-                style = SpanStyle(
+            pushStyle(
+                SpanStyle(
                     color = color,
                     fontWeight = fontWeight,
-                    fontSize = fontSize,
+                    fontSize = 16.sp
                 )
-            ) {
-                append(word)
-            }
+            )
 
-            if (index != parts.lastIndex) append(" ")
+            append(value)
+
+            pop()
+
+            lastIndex = end
         }
+
+        // Append remaining text
+        append(text.substring(lastIndex))
     }
 }
 

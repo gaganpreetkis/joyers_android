@@ -280,56 +280,23 @@ fun LanguagesDialog(
     ) { dialogModifier, dialogFocusManager, maxHeight, listState ->
 
         val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+        val isScrollable by remember {
+            derivedStateOf {
+                listState.canScrollForward || listState.canScrollBackward
+            }
+        }
 
         Column (
-//            containerColor = Color.Transparent,
             modifier = Modifier
                 .wrapContentHeight()
-//                .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 3))
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
-           /* topBar = {
-                // You can replace TopAppBar with the M3 SearchBar if needed,
-                // managing its active state separately.
-                // Wrap your SearchBar inside a TopAppBar
-                TopAppBar(
-                    expandedHeight = 70.dp,
-                    modifier = Modifier.heightIn(min = 0.dp),
-                    colors = TopAppBarColors(
-                        containerColor = Color.Transparent,
-                        scrolledContainerColor = Color.Transparent,
-                        navigationIconContentColor = Color.Transparent,
-                        titleContentColor = Color.Transparent,
-                        actionIconContentColor = Color.Transparent
-                    ),
-                    title = {
-                        SearchBarRow(
-                            searchQuery = searchQuery,
-                            showApplyButton = showApplyButton,
-                            onApply = { onApply() },
-                            onSearchQueryChanged = { onSearchQueryChanged(it) }
-                        )
-                        Spacer(modifier = dialogModifier.height(20.dp))
-                    },
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    scrollBehavior = scrollBehavior
-                )
-                // Or use the M3 SearchBar:
-                *//*
-                SearchBar(
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
-                    onSearch = { *//**//* handle search *//**//* },
-                active = false, // Set based on focus state if you want it to expand
-                onActiveChange = { *//**//* handle active change *//**//* },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search items") }
-            )
-            *//*
-            },*/
+
             content = {
 
+                Spacer(Modifier.height(15.dp))
+
                 TopAppBar(
-                    expandedHeight = 70.dp,
+                    expandedHeight = 55.dp,
                     modifier = Modifier.heightIn(min = 0.dp),
                     colors = TopAppBarColors(
                         containerColor = Color.Transparent,
@@ -345,18 +312,15 @@ fun LanguagesDialog(
                             onApply = { onApply() },
                             onSearchQueryChanged = { onSearchQueryChanged(it) }
                         )
-                        Spacer(modifier = dialogModifier.height(20.dp))
+//                        Spacer(modifier = dialogModifier.height(20.dp))
                     },
                     windowInsets = WindowInsets(0, 0, 0, 0),
-                    scrollBehavior = scrollBehavior
+                    scrollBehavior = if (isScrollable) scrollBehavior else null
                 )
 
                 Column(
                     modifier = Modifier
-//                        .background(Red)
-//                        .animateContentSize(animationSpec = tween(durationMillis = 3, delayMillis = 3))
                         .fillMaxWidth()
-//                        .padding(innerPadding)
                         .padding(start = 15.dp, end = 0.dp, bottom = 25.dp)
                         .heightIn(max = maxHeight)
                 ) {
@@ -392,7 +356,7 @@ fun LanguagesDialog(
                                         modifier = dialogModifier
                                             .fillMaxWidth()
                                             .padding(
-                                                top = if (isKeyBoardOpen) 95.dp else 55.dp,
+                                                top = if (isKeyBoardOpen) 90.dp else 35.dp,
                                                 bottom = if (isKeyBoardOpen) 0.dp else 69.dp
                                             )
                                     )
@@ -476,7 +440,7 @@ private fun SearchBarRow(
     Row(
         modifier = dialogModifier
             .fillMaxWidth()
-            .padding(top = 15.dp, bottom = 20.dp, start = 15.dp, end = 30.dp)
+            .padding(top = 0.dp, bottom = 20.dp, start = 15.dp, end = 30.dp)
             .height(35.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {

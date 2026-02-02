@@ -207,8 +207,8 @@ fun DashboardNavGraph(navController: NavHostController) {
         }
 
         composable(BottomTab.CONTACTS.route) {
-            HomeScreen()
-//            IdentityScreen("test", "test")
+//            HomeScreen()
+            IdentityScreen("test", "test")
         }
 
         composable(BottomTab.NOTIFICATIONS.route) {

@@ -609,6 +609,7 @@ fun MentionJoyerRow(
             Image(
                 painter = painterResource(id = R.drawable.ic_cross), // your J icon
                 contentDescription = "cross",
+                modifier = Modifier.size(7.5.dp)
             )
         } else {
             Spacer(modifier = Modifier.width(15.dp))
