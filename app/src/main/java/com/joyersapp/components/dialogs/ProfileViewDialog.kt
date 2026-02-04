@@ -58,6 +58,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -140,6 +141,29 @@ fun ProfileViewDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
+
+//                        val density = LocalDensity.current
+//// Convert 70.dp to pixels once
+//                        val thresholdPx = with(density) { 70.dp.toPx() }
+//
+//                        val isScrollableEnough by remember(thresholdPx) {
+//                            derivedStateOf {
+//                                val layoutInfo = listState.layoutInfo
+//                                val visibleItems = layoutInfo.visibleItemsInfo
+//
+//                                if (visibleItems.isEmpty()) return@derivedStateOf false
+//
+//                                // Calculate if total content height is at least 70dp larger than the viewport
+//                                val totalChildrenHeight = visibleItems.sumOf { it.size }
+//                                val viewportHeight = layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset
+//
+//                                // If we have more items than visible, or visible items exceed viewport by threshold
+//                                val isContentLongEnough = layoutInfo.totalItemsCount > visibleItems.size ||
+//                                        (totalChildrenHeight - viewportHeight) > thresholdPx
+//
+//                                isContentLongEnough
+//                            }
+//                        }
 
                         val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
                         val isScrollable by remember {
@@ -430,7 +454,7 @@ private fun SearchBarRow(
         }
 
         // Search/Apply button
-        if (showApplyButton) {
+        if (showApplyButton && searchQuery.isEmpty()) {
             Box(
                 modifier = Modifier
                     .width(70.dp)

@@ -132,7 +132,10 @@ fun DescriptionDialog(
 
     if (!state.rootItems.isEmpty()) {
         EditDescriptionDialog(
-            onDismiss = onDismiss,
+            onDismiss = {
+                viewModel.onEvent(DescriptionEvent.OnClearData)
+                onDismiss()
+            },
             onApply = { viewModel.onEvent(DescriptionEvent.OnApply) },
             showApplyButton = state.isApplyEnabled,
             showBackButton = state.showBackButton,
@@ -309,7 +312,7 @@ private fun EditDescriptionDialog(
                                                 isFirstItem = isFirst,
                                                 isLastItem = isLast,
                                                 title = item,
-                                                isSelected = item.id?.equals(selectedId) == true,
+                                                isSelected = item.isSelected,
                                                 onClick = {
                                                     onItemClicked(item)
                                                     coroutineScope.launch {
@@ -512,7 +515,7 @@ private fun SearchBarRow(
         }
 
         // Search/Apply button
-        if (showApplyButton) {
+        if (showApplyButton && searchQuery.isEmpty()) {
             Box(
                 modifier = Modifier
                     .width(70.dp)
@@ -596,8 +599,8 @@ fun DescriptionItem(
             text = title.name ?: "",
             fontSize = 16.sp,
             fontFamily = fontFamilyLato,
-            fontWeight = if (isSelected && title.selections.isNullOrEmpty()) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (isSelected && title.selections.isNullOrEmpty()) Golden else LightBlack,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+            color = if (isSelected) Golden else LightBlack,
             //modifier = modifier.padding(top = if (isFirstItem && isSelected) 2.dp else 0.dp, bottom = if (isFirstItem && isSelected) 2.dp else 0.dp)
             //modifier = Modifier.weight(1f)
         )

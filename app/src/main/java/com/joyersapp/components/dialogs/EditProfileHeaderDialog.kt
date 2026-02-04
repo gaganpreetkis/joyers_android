@@ -136,8 +136,13 @@ import java.util.UUID
 @Preview
 @Composable
 private fun preview() {
-    EditProfileHeaderDialog(
-        viewModel = hiltViewModel()
+    EditableProfilePictureCard(
+        backgroundPicturePath = "",
+        profilePicturePath = "",
+        onHeaderPicker = {},
+        onClearHeaderImage = {},
+        onProfilePicturePicker = {},
+        onClearProfilePicture = {},
     )
 }
 
@@ -262,8 +267,6 @@ fun EditProfileHeaderDialog(
                 selectedTab = profileHeaderData.selectedTab,
                 bioValidationError = profileHeaderData.bioValidationError,
                 overviewText = profileHeaderData.overviewFieldValue,
-                highlightText = profileHeaderData.highlightFieldValue,
-                websiteUrl = profileHeaderData.websiteUrl,
                 remainingChars = if (profileHeaderData.selectedTab == "overview") {
                     profileHeaderData.overviewRemainingChars.toString()
                 } else {
@@ -275,17 +278,11 @@ fun EditProfileHeaderDialog(
                         viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                     }
                 },
-                onHighlightChange = {
-                    viewModel.onEvent(UserProfileEvent.OnHighlightChanged(it))
-                    if ((it.text.endsWith(" @") || it.text.equals("@")) && profileHeaderData.highlightFieldValue.text.length < it.text.length) {
-                        viewModel.onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
-                    }
-                },
                 onSelectedTabChange = {
                     viewModel.onEvent(UserProfileEvent.OnToggleBioEditor(it))
                 },
                 bullets = profileHeaderData.bullets,
-                onEvent = {
+                onHighlightEvent = {
                     viewModel.onEvent(UserProfileEvent.OnHighlightChanged(TextFieldValue(), it))
                 }
             )
@@ -527,14 +524,13 @@ fun EditProfileHeaderDialog(
 }
 
 @Composable
-fun EditableProfilePictureCard(
+private fun EditableProfilePictureCard(
     backgroundPicturePath: String,
     profilePicturePath: String,
     onHeaderPicker: () -> Unit,
     onClearHeaderImage: () -> Unit,
     onProfilePicturePicker: () -> Unit,
     onClearProfilePicture: () -> Unit
-
 ) {
     // Card with profile and header images
     Card(
@@ -550,8 +546,6 @@ fun EditableProfilePictureCard(
         colors = CardDefaults.cardColors(containerColor = GrayBG5)
     ) {
 
-        var showHeaderPicker by remember { mutableStateOf(false) }
-
         Box(modifier = Modifier.fillMaxSize()) {
             // Header/Background Image
             if (backgroundPicturePath.isNotEmpty()) {
@@ -566,7 +560,7 @@ fun EditableProfilePictureCard(
                     painter = painterResource(id = R.drawable.ic_cancel_round_golden),
                     contentDescription = null,
                     modifier = Modifier
-                        .padding(15.dp)
+                        .padding(top = 15.dp, end = 15.dp)
                         .size(40.dp)
                         .align(Alignment.TopEnd)
                         .clickable {
@@ -578,7 +572,7 @@ fun EditableProfilePictureCard(
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(vertical = 15.dp, horizontal = 14.97.dp)
+                        .padding(top = 15.dp, end = 14.97.dp)
                         .noRippleClickable {
                             onHeaderPicker()
                         },
@@ -587,7 +581,7 @@ fun EditableProfilePictureCard(
                     Box(
                         modifier = Modifier
                             .size(37.92.dp)
-                            .background(Color.White, CircleShape)
+                            .background(White, CircleShape)
                             .border(1.dp, LightBlack13, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
@@ -614,49 +608,63 @@ fun EditableProfilePictureCard(
                 }
             }
 
+            // Profile Image (centered)
             Box(
                 modifier = Modifier
-                    .size(189.dp)
+                    .size(200.dp)
                     .align(Alignment.Center)
             ) {
+                if (profilePicturePath.isNotEmpty()) {
+                    AsyncImage(
+                        model = "https://joyers-api-dev.krishnais.com/uploads/$profilePicturePath",
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
 
-                // Profile Image (centered)
-                Box(
-                    modifier = Modifier
-                        .size(189.dp)
-                        .align(Alignment.Center)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(
-                            2.dp,
-                            if (profilePicturePath.isNotEmpty()) Color.Transparent else LightBlack9,
-                            CircleShape
-                        )
-                ) {
-                    if (profilePicturePath.isNotEmpty()) {
-                        AsyncImage(
-                            model = "https://joyers-api-dev.krishnais.com/uploads/$profilePicturePath",
+                        // Close button for profile
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_cross_round_border_golden),
                             contentDescription = null,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
+                                .padding(bottom = 5.dp, end = 15.dp)
+                                .size(40.dp)
+                                .align(Alignment.BottomEnd)
+                                .clickable {
+                                    onClearProfilePicture()
+                                }
                         )
+                } else {
 
-                    } else {
+                    // Profile Placeholder (centered)
+                    Box(
+                        modifier = Modifier
+                            .size(189.32.dp)
+                            .align(Alignment.Center)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(
+                                2.dp,
+                                if (profilePicturePath.isNotEmpty()) Color.Transparent else LightBlack9,
+                                CircleShape
+                            )
+                            .clickable {
+                                onProfilePicturePicker()
+                            }
+                    ) {
+
                         Column(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .clickable {
-                                    onProfilePicturePicker()
-                                },
+                                .fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.camera_outline_colored),
                                 contentDescription = null,
-                                modifier = Modifier.size(71.dp, 55.dp)
+                                modifier = Modifier.size(71.14.dp, 55.06.dp)
                             )
                             Spacer(modifier = Modifier.height(15.dp))
                             Text(
@@ -670,22 +678,6 @@ fun EditableProfilePictureCard(
                         }
                     }
                 }
-
-                if (profilePicturePath.isNotEmpty()) {
-                    // Close button for profile
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_cross_round_border_golden),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .size(40.dp)
-                            .align(Alignment.BottomEnd)
-                            .clickable {
-                                onClearProfilePicture()
-                            }
-                    )
-                }
-
             }
         }
     }
@@ -698,12 +690,9 @@ fun BioEditor(
     bioValidationError: UiText?,
     overviewText: TextFieldValue,
     bullets: List<HighlightBullet>,
-    onEvent: (HighlightEvent) -> Unit,
-    highlightText: TextFieldValue,
-    websiteUrl: String?,
+    onHighlightEvent: (HighlightEvent) -> Unit,
     remainingChars: String,
     onOverviewChange: (TextFieldValue) -> Unit,
-    onHighlightChange: (TextFieldValue) -> Unit,
     onSelectedTabChange: (String) -> Unit,
 ) {
 
@@ -781,16 +770,8 @@ fun BioEditor(
                             }
                             HighlightEditor(
                                 bullets = bullets,
-                                onEvent = onEvent
+                                onEvent = onHighlightEvent
                             )
-
-//                            HighlightsEditor(
-//                                websiteUrl = websiteUrl?:"",
-//                                textState = highlightText,
-//                                onChange = {
-//                                    onHighlightChange(it)
-//                                }
-//                            )
                         }
                     }
                 }
@@ -896,38 +877,6 @@ fun OverviewEditor(
     )
 }
 
-
-
-/*@Composable
-fun HighlightsEditor(
-) {
-    var bullets by remember { mutableStateOf("• ") }
-
-    BasicTextField(
-        value = bullets,
-        onValueChange = { newValue ->
-            bullets = newValue
-
-            // Auto-add bullet when pressing Enter
-            if (newValue.endsWith("\n")) {
-                bullets += "• "
-            }
-        },
-        textStyle = TextStyle(fontSize = 15.sp, color = Color.Black),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(180.dp),
-        decorationBox = { inner ->
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(4.dp)
-            ) {
-                inner()
-            }
-        }
-    )
-}*/
 sealed interface HighlightEvent {
     data class OnTextChange(val id: String, val textValue: TextFieldValue?) : HighlightEvent
     data class OnAddBullet(val fromId: String) : HighlightEvent
@@ -1110,64 +1059,6 @@ fun BulletRow(
             )
         }
     }
-}
-@Composable
-fun HighlightsEditor(
-    websiteUrl: String,
-    textState: TextFieldValue,
-    onChange: (TextFieldValue) -> Unit
-) {
-    // 1. Remember a local state to handle immediate cursor updates
-    var localValue by remember { mutableStateOf(textState) }
-
-    // 2. Sync local state when the ViewModel pushes a programmatic change
-    LaunchedEffect(textState) {
-        if (textState.text != localValue.text || textState.selection != localValue.selection) {
-            localValue = textState
-        }
-    }
-    BasicTextField(
-        value = localValue,
-        onValueChange = { newValue ->
-            localValue = newValue // Update UI instantly newValue ->
-            onChange(newValue)
-        },
-        visualTransformation = { textValue ->
-            TransformedText(
-                highlightWords(textValue.text),
-                OffsetMapping.Identity
-            )
-        },
-        textStyle = TextStyle(
-            fontSize = 16.sp,
-            lineHeight = 22.sp,
-            fontWeight = FontWeight.Normal,
-            color = LightBlack // we paint using AnnotatedString
-        ),
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(180.dp),
-        decorationBox = { inner ->
-            Box(
-                Modifier
-                    .fillMaxSize()
-            ) {
-                inner()
-                // Placeholder
-                if (textState.text.isEmpty() || textState.text.equals("• ")) {
-                    Text(
-                        "About Joyer",
-                        color = LightBlack40,
-                        fontSize = 16.sp,
-                        lineHeight = 22.sp,
-                        fontFamily = fontFamilyLato,
-                        modifier = Modifier.padding(start = 10.dp)
-                    )
-                }
-            }
-        }
-    )
 }
 
 //@Preview

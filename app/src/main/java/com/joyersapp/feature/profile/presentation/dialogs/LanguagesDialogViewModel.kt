@@ -50,7 +50,7 @@ data class LanguagesDialogUiState(
     val isApplyEnabled: Boolean
         get() = /*currentItems.any { it.isSelected }*/
     if (showBackButton)
-            rootItems.firstOrNull(){it.id.equals(signLangId)}?.selections != currentItems
+        rootItems.firstOrNull(){it.id.equals(signLangId)}?.selections != currentItems
         else
         initialItems != currentItems
 
@@ -221,6 +221,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
 
                         state.copy(
                             currentItems = updated,
+                            searchQuery = "",
                             recentSelectedItemId = event.item.id ?: ""
                         )
                     }
@@ -239,6 +240,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                         state.copy(
                             rootItems = updated,
                             currentItems = updated,
+                            searchQuery = "",
                             recentSelectedItemId = event.item.id ?: ""
                         )
                     }

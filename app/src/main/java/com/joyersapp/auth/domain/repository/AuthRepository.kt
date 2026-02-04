@@ -18,6 +18,7 @@ import com.joyersapp.auth.data.remote.dto.identity.TitlesResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.RegisterResponseDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
+import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
@@ -42,7 +43,7 @@ interface AuthRepository {
     suspend fun resetPasswordVerifyOtp(params: ResetPasswordRequestDto): Result<ResetPasswordResponseDto>
 
     suspend fun login(params: LoginRequestDto): Result<LoginResponseDto>
-    suspend fun fetchTitles(): Result<List<Title>>
+    suspend fun fetchTitles(): Result<List<ProfileTitlesData>>
 
     suspend fun multiStepRegister(params: MultiStepRegisterRequestDto, profilePicturePath: String, backgroundPicturePath: String): Result<MultiStepRegisterResponseDto>
 

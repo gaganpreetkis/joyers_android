@@ -3,13 +3,14 @@ package com.joyersapp.auth.presentation.identity
 import com.joyersapp.auth.data.remote.dto.identity.Title
 import com.joyersapp.auth.data.remote.dto.identity.SubTitle
 import com.joyersapp.common_widgets.DialogState
+import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
 data class TitlesDialogUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 
     val dialogState: DialogState = DialogState.Titles(emptyList()),
-    val titles: List<Title> = emptyList(),
+    val titles: List<ProfileTitlesData> = emptyList(),
     val subTitles: List<SubTitle> = emptyList(),
 
     val selectedTitleId: String? = null,

@@ -524,7 +524,7 @@ private fun SearchBarRow(
         }
 
         // Search/Apply button
-        if (showApplyButton) {
+        if (showApplyButton && searchQuery.isEmpty()) {
             Box(
                 modifier = Modifier
                     .width(70.dp)

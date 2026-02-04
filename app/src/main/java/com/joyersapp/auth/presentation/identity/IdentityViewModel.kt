@@ -9,6 +9,7 @@ import com.joyersapp.common_widgets.DialogState
 import com.joyersapp.utils.UiText.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -168,12 +169,12 @@ class IdentityViewModel @Inject constructor(
             }
 
             TitleEvent.NavigateToAllTitles -> {
-                _uiState.update { it.copy(
-                    errorMessage = null,
-                    dialogState = DialogState.Titles(_uiState.value.titles),
-                    selectedSubTitleId = null,
-                    selectedSubTitleName = null
-                ) }
+//                _uiState.update { it.copy(
+//                    errorMessage = null,
+//                    dialogState = DialogState.Titles(_uiState.value.titles),
+//                    selectedSubTitleId = null,
+//                    selectedSubTitleName = null
+//                ) }
             }
 
 
@@ -314,7 +315,7 @@ class IdentityViewModel @Inject constructor(
 
     private fun loadTitles(){
         val state = _uiState.value
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             val result =
@@ -326,11 +327,11 @@ class IdentityViewModel @Inject constructor(
                         old.copy(
                             isLoading = false,
                             titles = titles,
-                            dialogState = DialogState.Titles(titles),
+//                            dialogState = DialogState.Titles(titles),
                             errorMessage = null
                         )
                     }
-                    recalcTitles(_uiState.value, titles)
+//                    recalcTitles(_uiState.value, titles)
                 },
                 onFailure = { error ->
                     _uiState.update {

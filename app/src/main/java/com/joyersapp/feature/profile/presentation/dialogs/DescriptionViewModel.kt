@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
+import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.presentation.dialogs.DialogMode
@@ -55,12 +56,14 @@ data class DescriptionUiState(
     val rootItems: List<ProfileTitlesData> = emptyList(),
     val currentItems: List<ProfileTitlesData> = emptyList(),
     val currentUiMode: DialogMode = DialogMode.Title,
+    val preSelectedTitle: ProfileTitlesData? = null,
     val selectedTitle: ProfileTitlesData? = null,
+    val localTitle: ProfileTitlesData? = null,
+    val preSelectedSubTitle: ProfileTitlesData? = null,
     val selectedSubTitle: ProfileTitlesData? = null,
     val firstClick: Boolean = true,
-
-
     val searchQuery: String = ""
+
 ) {
 
     val filteredItems: List<ProfileTitlesData>
@@ -71,14 +74,10 @@ data class DescriptionUiState(
             }
 
     val reorderedItems: List<ProfileTitlesData>
-        get() =  when (currentUiMode) {
-            DialogMode.Title -> {
-                filteredItems.sortedByDescending { it.id.equals(selectedTitle?.id) }
-            }
-
-            DialogMode.SubTitle -> {
-                filteredItems.sortedByDescending { it.id.equals(selectedSubTitle?.id) }
-            }
+        get() {
+            val selected = filteredItems.filter { it.isSelected }
+            val unselected = filteredItems.filterNot { it.isSelected }
+            return selected + unselected
         }
 
     val clarificationItems: List<ProfileTitlesData>
@@ -112,7 +111,15 @@ data class DescriptionUiState(
 
 
     val isApplyEnabled: Boolean
-        get() = (currentItems.any { it.id.equals(selectedId) } && !firstClick)
+        get() = when (currentUiMode) {
+            DialogMode.Title -> {
+                rootItems.firstOrNull{ it.isSelected }?.id.equals(preSelectedTitle?.id) == false
+            }
+
+            DialogMode.SubTitle -> {
+                currentItems.any(){ it.isSelected } && currentItems.firstOrNull{ it.isSelected }?.id?.equals(preSelectedSubTitle?.id) == false
+            }
+        }
 }
 
 
@@ -125,6 +132,7 @@ sealed class DescriptionEvent {
     data class OnSearchQueryChanged(val query: String) : DescriptionEvent()
 
     data object OnApply : DescriptionEvent()
+    data object OnClearData : DescriptionEvent()
 
 
 }
@@ -174,36 +182,78 @@ class DescriptionViewModel @Inject constructor(
 //            .launchIn(viewModelScope)
 //    }
 
+    override fun onCleared() {
+        super.onCleared()
+        _uiState.update { DescriptionUiState() }
+    }
+
 
     fun onEvent(event: DescriptionEvent) {
         when (event) {
             is DescriptionEvent.OnApply -> {
+                val state = uiState.value
+
+                val selectedTitle = if (state.currentUiMode is DialogMode.SubTitle) {
+                    state.localTitle
+                } else state.rootItems.firstOrNull{ it.isSelected }
+                val selectedSubTitle = if (state.currentUiMode is DialogMode.SubTitle) {
+                    state.currentItems.firstOrNull{ it.isSelected }
+                } else null
                 viewModelScope.launch {
                     _navigationEvents.send(
                         DescriptionNavEvent.OnApply(
-                            Title = uiState.value.selectedTitle,
-                            SubTitle = uiState.value.selectedSubTitle,
+                            Title = selectedTitle,
+                            SubTitle = selectedSubTitle,
                         )
                     )
+                    onCleared()
                 }
+            }
+            is DescriptionEvent.OnClearData -> {
+                onCleared()
             }
             is DescriptionEvent.InitData -> {
                 if (event.selectedSubTitle?.id.isNullOrEmpty()) {
                     _uiState.update {
+                        val items = event.items.map { title ->
+                            if (title.id?.equals(event.selectedTitle?.id) == true) {
+                                title.copy(
+                                    isSelected = true,
+                                )
+                            } else title.copy(isSelected = false)
+                        }
                         it.copy(
-                            rootItems = event.items,
-                            currentItems =  event.items,
+                            rootItems = items,
+                            currentItems =  items,
+                            preSelectedTitle = event.selectedTitle,
                             selectedTitle = event.selectedTitle,
+                            preSelectedSubTitle = event.selectedSubTitle,
                             selectedSubTitle = event.selectedSubTitle,
                         )
                     }
                 } else {
                     _uiState.update {
+                        var subItems = emptyList<ProfileTitlesData>()
+                        val items = event.items.map { title ->
+                            if (title.id?.equals(event.selectedTitle?.id) == true) {
+                                subItems = title.selections?.map { subtitle ->
+                                    subtitle.copy(
+                                        isSelected = (event.selectedSubTitle.id.equals(subtitle.id) == true)
+                                    )
+                                }?:emptyList()
+                                title.copy(
+                                    isSelected = true,
+                                    selections = subItems
+                                )
+                            } else title.copy(isSelected = false)
+                        }
                         it.copy(
-                            rootItems = event.items,
-                            currentItems = event.items.firstOrNull{ it.id?.equals(event.selectedTitle?.id) == true }?.selections?:emptyList(),
+                            rootItems = items,
+                            currentItems = subItems,
                             searchQuery = "",
+                            preSelectedTitle = event.selectedTitle,
                             selectedTitle = event.selectedTitle,
+                            preSelectedSubTitle = event.selectedSubTitle,
                             selectedSubTitle = event.selectedSubTitle,
                             currentUiMode = DialogMode.SubTitle,
                         )
@@ -216,7 +266,9 @@ class DescriptionViewModel @Inject constructor(
                     it.copy(
                         currentItems = it.rootItems,
                         currentUiMode = DialogMode.Title,
-                        selectedTitle = null
+                        localTitle = null,
+//                        selectedTitle = null,
+//                        selectedSubTitle = null
                     )
                 }
             }
@@ -234,7 +286,7 @@ class DescriptionViewModel @Inject constructor(
                             currentItems = event.item.selections!!,
                             currentUiMode = DialogMode.SubTitle,
                             searchQuery = "",
-                            selectedTitle = event.item
+                            localTitle = event.item
                         )
                     }
                 } else {
@@ -245,22 +297,28 @@ class DescriptionViewModel @Inject constructor(
                 _uiState.update { state ->
                     when (state.currentUiMode) {
                         is DialogMode.Title -> {
-                            val selectedTitle = if (state.selectedTitle?.id?.equals(event.item?.id?:"") == true) {
-                                null
-                            } else {event.item}
+                            val updated = state.rootItems.map {
+                                it.copy(
+                                    isSelected = if (event.item?.id?.equals(it.id) == true) !it.isSelected else false
+                                )
+                            }
                             state.copy(
                                 firstClick = false,
-                                selectedTitle = selectedTitle,
-                                selectedSubTitle = null
+                                searchQuery = "",
+                                rootItems = updated,
+                                currentItems = updated,
                             )
                         }
                         is DialogMode.SubTitle -> {
-                            val selectedSubTitle = if (state.selectedTitle?.id?.equals(event.item?.id?:"") == true) {
-                                null
-                            } else {event.item}
+                            val updated = state.currentItems.map { item ->
+                                item.copy(
+                                    isSelected = if (item.id == event.item?.id) !item.isSelected else false
+                                )
+                            }
                             state.copy(
                                 firstClick = false,
-                                selectedSubTitle = selectedSubTitle
+                                searchQuery = "",
+                                currentItems = updated
                             )
                         }
                     }

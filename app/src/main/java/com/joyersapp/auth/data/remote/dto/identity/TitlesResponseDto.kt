@@ -1,12 +1,13 @@
 package com.joyersapp.auth.data.remote.dto.identity
 
 import com.google.gson.annotations.SerializedName
+import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 
 
 data class TitlesResponseDto (
 
     @SerializedName("statusCode" ) var statusCode : Int?            = null,
-    @SerializedName("data"       ) var data       : ArrayList<Title> = arrayListOf(),
+    @SerializedName("data"       ) var data       : ArrayList<ProfileTitlesData> = arrayListOf(),
     @SerializedName("message"    ) var message    : String?         = null
 
 )

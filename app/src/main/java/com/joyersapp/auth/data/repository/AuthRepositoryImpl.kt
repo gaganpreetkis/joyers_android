@@ -26,6 +26,7 @@ import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpRequestDto
 import com.joyersapp.auth.data.remote.dto.signup.VerifyOtpResponseDto
 import com.joyersapp.auth.domain.model.AuthState
 import com.joyersapp.auth.domain.repository.AuthRepository
+import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.utils.ApiErrorException
 import com.joyersapp.utils.emptyPart
 import com.joyersapp.utils.parseNetworkError
@@ -470,7 +471,7 @@ class AuthRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
-    override suspend fun fetchTitles(): Result<List<Title>> =
+    override suspend fun fetchTitles(): Result<List<ProfileTitlesData>> =
         try {
             val response = api.titleType()
             when (response.statusCode) {

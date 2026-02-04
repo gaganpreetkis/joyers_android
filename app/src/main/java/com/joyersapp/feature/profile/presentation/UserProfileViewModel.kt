@@ -622,7 +622,7 @@ class UserProfileViewModel @Inject constructor(
                             profileHeaderData = it.profileHeaderData.copy(
 //                            bio = event.value.text,
                                 overviewFieldValue = event.value.copy(selection = TextRange(event.value.text.length)),
-                                overviewRemainingChars = 150 - event.value.text.graphemeCount(),
+//                                overviewRemainingChars = 150 - event.value.text.graphemeCount(),
                                 bioValidationError = if (overviewRemainingChars <= -1) UiText.StringResource(
                                     R.string.bio_validation_error
                                 ) else null,
@@ -633,230 +633,156 @@ class UserProfileViewModel @Inject constructor(
             }
 
             is UserProfileEvent.OnHighlightChanged -> {
+                viewModelScope.launch(Dispatchers.Default) {
+                    when(event.highlightEvent   ) {
 
-                when(event.highlightEvent   ) {
-
-                    is HighlightEvent.OnFocusConsumed -> {
-                        _uiState.update {
-                            it.copy(
-                                profileHeaderData = it.profileHeaderData.copy(
-                                    bullets = it.profileHeaderData.bullets.map { b ->
-                                        if (b.id == event.highlightEvent.id) b.copy(requestFocus = false)
-                                        else b
-                                    }
-                                ),
-                            )
-                        }
-                    }
-
-                    is HighlightEvent.OnFocusRequested -> {
-                        _uiState.update {
-                            val text = it.profileHeaderData.bullets.firstOrNull { it.id == event.highlightEvent.id}?.textValue?.text?:""
-                            it.copy(
-                                profileHeaderData = it.profileHeaderData.copy(
-                                    highlightsRemainingChars = 25 - text.graphemeCount(),
-//                                    bullets = it.profileHeaderData.bullets.map { b ->
-//                                        if (b.id == event.highlightEvent.id) b.copy(requestFocus = true)
-//                                        else b
-//                                    }
-                                ),
-                            )
-                        }
-                    }
-
-                    is HighlightEvent.NavigateToMentionJoyers -> {
-                       onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
-                    }
-
-                    is HighlightEvent.OnTextChange -> {
-                        var oldText = ""
-                        val updatedText = event.highlightEvent.textValue?.text?.takeGraphemes(25)?:""
-                        _uiState.update {
-                            val bullets = it.profileHeaderData.bullets.map { b ->
-                                if (b.id == event.highlightEvent.id) {
-                                    oldText = b.textValue.text
-                                    b.copy(textValue = b.textValue.copy(
-                                        updatedText,
-                                        TextRange(updatedText.length)
-                                    ))
-                                } else b
+                        is HighlightEvent.OnFocusConsumed -> {
+                            _uiState.update {
+                                it.copy(
+                                    profileHeaderData = it.profileHeaderData.copy(
+                                        bullets = it.profileHeaderData.bullets.map { b ->
+                                            if (b.id == event.highlightEvent.id) b.copy(requestFocus = false)
+                                            else b
+                                        }
+                                    ),
+                                )
                             }
-
-                            it.copy(
-                                profileHeaderData = it.profileHeaderData.copy(
-                                    highlightsRemainingChars = 25 - updatedText.graphemeCount(),
-                                    bullets = bullets
-                                ),
-                            )
                         }
 
-                        if (
-                            (updatedText.endsWith(" @") || updatedText.equals("@")) && updatedText.graphemeCount() > oldText.graphemeCount()
-                        ) {
-                            _uiState.update { it.copy(highlightsFocusedId = event.highlightEvent.id) }
+                        is HighlightEvent.OnFocusRequested -> {
+                            _uiState.update {
+                                val text = it.profileHeaderData.bullets.firstOrNull { it.id == event.highlightEvent.id}?.textValue?.text?:""
+                                it.copy(
+                                    profileHeaderData = it.profileHeaderData.copy(
+//                                    highlightsRemainingChars = 25 - text.graphemeCount(),
+                                        bullets = it.profileHeaderData.bullets.map { b ->
+                                            if (b.id == event.highlightEvent.id) b.copy(requestFocus = true)
+                                            else b
+                                        }
+                                    ),
+                                )
+                            }
+                        }
+
+                        is HighlightEvent.NavigateToMentionJoyers -> {
                             onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
                         }
-                    }
 
-                    is HighlightEvent.OnAddBullet -> {
-                        _uiState.update { it ->
-                            val state = it.profileHeaderData
-                            if (state.bullets.size >= state.maxBullets || state.bullets.lastOrNull()?.textValue?.text.isNullOrEmpty()) return
+                        is HighlightEvent.OnTextChange -> {
+                            var oldText = ""
+                            val updatedText = event.highlightEvent.textValue?.text?.takeGraphemes(25)?:""
+                            _uiState.update {
+                                val bullets = it.profileHeaderData.bullets.map { b ->
+                                    if (b.id == event.highlightEvent.id) {
+                                        oldText = b.textValue.text
+                                        b.copy(textValue = b.textValue.copy(
+                                            updatedText,
+                                            TextRange(updatedText.length)
+                                        ))
+                                    } else b
+                                }
 
-                            val index = state.bullets.indexOfFirst { it.id == event.highlightEvent.fromId }
-
-                            val newList = state.bullets.map {
-                                it.copy(requestFocus = false)
-                            }.toMutableList()
-
-                            newList.add(
-                                index + 1,
-                                HighlightBullet(requestFocus = true)
-                            )
-
-
-                            it.copy(
-                                profileHeaderData = state.copy(
-                                    bullets = newList
-                                ),
-
-                            )
-                        }
-                    }
-
-                    is HighlightEvent.OnDeleteBullet -> {
-                        _uiState.update {
-                            val updated = it.profileHeaderData.bullets.filterNot { b -> b.id == event.highlightEvent.id }
-                            it.copy(
-                                profileHeaderData = it.profileHeaderData.copy(
-                                    bullets = if (updated.isEmpty()) listOf(HighlightBullet()) else updated
+                                it.copy(
+                                    profileHeaderData = it.profileHeaderData.copy(
+//                                    highlightsRemainingChars = 25 - updatedText.graphemeCount(),
+                                        bullets = bullets
+                                    ),
                                 )
-                            )
-                        }
-                    }
-
-                    is HighlightEvent.OnBackspaceOnEmpty -> {
-                        _uiState.update { state ->
-
-                            val index = state.profileHeaderData.bullets.indexOfFirst { it.id == event.highlightEvent.id }
-
-                            if (index <= 0) return  // first bullet can't delete itself
-
-                            val newList = state.profileHeaderData.bullets.toMutableList()
-                            newList.removeAt(index)
-
-                            // move focus to previous bullet
-                            val updated = newList.mapIndexed { i, bullet ->
-                                if (i == index - 1)
-                                    bullet.copy(requestFocus = true)
-                                else
-                                    bullet.copy(requestFocus = false)
                             }
 
-                            state.copy(profileHeaderData = state.profileHeaderData.copy( bullets = updated))
+                            if (
+                                (updatedText.endsWith(" @") || updatedText.equals("@")) && updatedText.graphemeCount() > oldText.graphemeCount()
+                            ) {
+                                _uiState.update { it.copy(highlightsFocusedId = event.highlightEvent.id) }
+                                onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
+                            }
                         }
-                    }
 
-                    is HighlightEvent.OnBulletSingleTap -> {
-                        _uiState.update {
-                            it.copy(
-                                profileHeaderData = it.profileHeaderData.copy(
-                                    bullets = it.profileHeaderData.bullets.map { b ->
-                                        b.copy(isDeleteVisible = b.id == event.highlightEvent.id)
-                                    }
-                                ),
-                            )
-                        }
-                    }
+                        is HighlightEvent.OnAddBullet -> {
+                            _uiState.update { it ->
+                                val state = it.profileHeaderData
+                                if (state.bullets.size >= state.maxBullets || state.bullets.lastOrNull()?.textValue?.text.isNullOrEmpty()) return@launch
 
-                    is HighlightEvent.OnBulletDoubleTap -> {
-                        _uiState.update {
-                            it.copy(
-                                profileHeaderData = it.profileHeaderData.copy(
-                                    bullets = it.profileHeaderData.bullets.map { b ->
-                                        if (b.id == event.highlightEvent.id) b.copy(isDeleteVisible = false)
-                                        else b
-                                    }
+                                val index = state.bullets.indexOfFirst { it.id == event.highlightEvent.fromId }
+
+                                val newList = state.bullets.map {
+                                    it.copy(requestFocus = false)
+                                }.toMutableList()
+
+                                newList.add(
+                                    index + 1,
+                                    HighlightBullet(requestFocus = true)
                                 )
-                            )
+
+
+                                it.copy(
+                                    profileHeaderData = state.copy(
+                                        bullets = newList
+                                    ),
+
+                                    )
+                            }
+                        }
+
+                        is HighlightEvent.OnDeleteBullet -> {
+                            _uiState.update {
+                                val updated = it.profileHeaderData.bullets.filterNot { b -> b.id == event.highlightEvent.id }
+                                it.copy(
+                                    profileHeaderData = it.profileHeaderData.copy(
+                                        bullets = if (updated.isEmpty()) listOf(HighlightBullet()) else updated
+                                    )
+                                )
+                            }
+                        }
+
+                        is HighlightEvent.OnBackspaceOnEmpty -> {
+                            _uiState.update { state ->
+
+                                val index = state.profileHeaderData.bullets.indexOfFirst { it.id == event.highlightEvent.id }
+
+                                if (index <= 0) return@launch  // first bullet can't delete itself
+
+                                val newList = state.profileHeaderData.bullets.toMutableList()
+                                newList.removeAt(index)
+
+                                // move focus to previous bullet
+                                val updated = newList.mapIndexed { i, bullet ->
+                                    if (i == index - 1)
+                                        bullet.copy(requestFocus = true)
+                                    else
+                                        bullet.copy(requestFocus = false)
+                                }
+
+                                state.copy(profileHeaderData = state.profileHeaderData.copy( bullets = updated))
+                            }
+                        }
+
+                        is HighlightEvent.OnBulletSingleTap -> {
+                            _uiState.update {
+                                it.copy(
+                                    profileHeaderData = it.profileHeaderData.copy(
+                                        bullets = it.profileHeaderData.bullets.map { b ->
+                                            b.copy(isDeleteVisible = b.id == event.highlightEvent.id)
+                                        }
+                                    ),
+                                )
+                            }
+                        }
+
+                        is HighlightEvent.OnBulletDoubleTap -> {
+                            _uiState.update {
+                                it.copy(
+                                    profileHeaderData = it.profileHeaderData.copy(
+                                        bullets = it.profileHeaderData.bullets.map { b ->
+                                            if (b.id == event.highlightEvent.id) b.copy(isDeleteVisible = false)
+                                            else b
+                                        }
+                                    )
+                                )
+                            }
                         }
                     }
                 }
-
-              /*  val websiteUrl = _uiState.value.profileHeaderData.websiteUrl
-                val old = _uiState.value.profileHeaderData.highlightFieldValue
-                val oldText = old.text
-                val newText = event.value.text
-
-                // Default bullet prefix
-                val bullet = "• "
-                val bulletLine = "\n$bullet"
-                var lastLine = newText.substringAfterLast(bullet)
-
-                // Helper function to apply result
-                fun update(newStr: String) {
-                    lastLine = newStr.substringAfterLast(bullet)
-                    _uiState.update {
-                        it.copy(
-                            profileHeaderData = it.profileHeaderData.copy(
-                                highlightFieldValue = TextFieldValue(
-                                    text = newStr,
-                                    selection = TextRange(newStr.length)
-                                ),
-                                highlightsRemainingChars = 25 - lastLine.graphemeCount()
-                            ),
-                        )
-                    }
-                }
-
-
-                // ---------------------------------------------------------
-                // Enforce per-line limit (25 chars each bullet)
-                // ---------------------------------------------------------
-                if (lastLine.graphemeCount() > 25 && !(newText.length < oldText.length) && !newText.endsWith(
-                        "\n"
-                    )
-                ) return
-
-                // Restore single bullet when completely cleared
-                if (newText.isEmpty()) {
-                    update(bullet)
-                    return
-                }
-
-                // Guard: prevent state "•" (missing trailing space)
-                if (newText == "•" && !oldText.contains("\n")) {
-                    update(bullet)
-                    return
-                }
-
-                // Detect "Enter" → add a new bullet
-                if (newText.endsWith("\n")
-//                    && !oldText.endsWith(bulletLine)
-                ) {
-                    val maxBullets = if (websiteUrl.isNullOrEmpty()) 5 else 4
-                    val count = oldText.count { it == '•' }
-                    if (count >= maxBullets) {
-                        update(oldText)   // restore previous, prevent bullet overflow
-                        return
-                    }
-
-                    update(newText + bullet)
-                    return
-                }
-
-                // delete empty bullet
-                if (
-                    oldText.endsWith(bulletLine) &&
-                    newText.length < oldText.length
-                ) {
-                    val trimmed = oldText.removeSuffix(bulletLine)
-                    update(trimmed)
-                    return
-                }
-
-                // Normal typing or deletion
-                update(newText)*/
             }
 
             is UserProfileEvent.OnWebsiteUrlChanged -> {

@@ -64,7 +64,7 @@ fun MultipleSelectionsDialog(
     ProfileViewDialog(
         onDismiss = onDismiss,
         onApply = { onApply(key, currentList.filter { it.isSelected }) },
-        showApplyButton = currentList.any { it.isSelected },
+        showApplyButton = currentList != titlesData,
         headers = headers,
         searchQuery = searchQuery,
         onSearchQueryChanged = { query ->
@@ -86,11 +86,13 @@ fun MultipleSelectionsDialog(
                     if (item.id == titleId) item.copy(isSelected = !item.isSelected)
                     else item
                 }
+                searchQuery = ""
             } else {
                 currentList = currentList.map { item ->
                     if (item.id == titleId) item.copy(isSelected = !item.isSelected)
                     else item.copy(isSelected = false)
                 }
+                searchQuery = ""
             }
         },
         onBack = {

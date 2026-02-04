@@ -1660,8 +1660,6 @@ data class ProfileHeaderData(
     val bio: String? = null,
     val overviewFieldValue: TextFieldValue = TextFieldValue(""),
     val highlightFieldValue: TextFieldValue = TextFieldValue(text = "• ", selection = TextRange(2)),
-    val overviewRemainingChars: Int = 150 - overviewFieldValue.text.graphemeCount(),
-    val highlightsRemainingChars: Int = 25 - highlightFieldValue.text.substringAfterLast("• ").graphemeCount(),
     val websiteUrl: String? = null,
     val bioValidationError: UiText? = null,
 
@@ -1669,6 +1667,11 @@ data class ProfileHeaderData(
     val bullets: List<HighlightBullet> = listOf(HighlightBullet()),
 
 ) {
+    val overviewRemainingChars: Int
+        get() = 150 - overviewFieldValue.text.graphemeCount()
+    val highlightsRemainingChars: Int
+        get() =  25 - (bullets.firstOrNull{it.requestFocus}?.textValue?.text?.graphemeCount()?:0)
+
     val isApplyEnabled: Boolean
         get() = if (bioValidationError == null && (!profilePicture.isNullOrEmpty() || !backgroundPicture.isNullOrEmpty() || !websiteUrl.isNullOrEmpty() || overviewFieldValue.text.graphemeCount() != 0 || highlightFieldValue.text.graphemeCount() > 2)) true else false
 
