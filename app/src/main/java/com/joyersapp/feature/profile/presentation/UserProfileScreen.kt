@@ -350,7 +350,7 @@ fun ProfileInfo(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_nav_joyers_home), // your J icon
-                contentDescription = "avatar", modifier = Modifier.size(66.dp)
+                contentDescription = "avatar", modifier = Modifier.size(44.4.dp, 75.7.dp)
             )
             if (!state.profilePicture.isNullOrEmpty()) {
                 AsyncImage(
@@ -466,6 +466,7 @@ private fun BioSection(
 
                 if (selectedBioTab.equals("highlights")) {
                     bullets.forEachIndexed { index, bullet ->
+                        if (bullet.textValue.text.isEmpty()) return@forEachIndexed
                         BulletRowText(
                             modifier = Modifier
                                 .padding(top = if (index != 0) 5.dp else 0.dp),
@@ -485,7 +486,7 @@ private fun BioSection(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .clickable { onLinkClick() }
+                        .noRippleClickable { onLinkClick() }
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_link),

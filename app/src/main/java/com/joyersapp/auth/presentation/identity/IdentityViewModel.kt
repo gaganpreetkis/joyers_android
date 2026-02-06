@@ -315,7 +315,7 @@ class IdentityViewModel @Inject constructor(
 
     private fun loadTitles(){
         val state = _uiState.value
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             val result =

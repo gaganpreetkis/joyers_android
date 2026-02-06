@@ -43,9 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.withTransform
@@ -235,7 +237,8 @@ fun CropImageDialog(
                         Canvas(
                             modifier = Modifier
                                 .size(cropSize)
-                                .align(Alignment.Center).graphicsLayer {
+                                .align(Alignment.Center)
+                                .graphicsLayer {
                                     compositingStrategy = CompositingStrategy.Offscreen
                                 })
                         {
@@ -252,12 +255,32 @@ fun CropImageDialog(
                                 }
                             }
 
+                            // 2. Create a path that is a Rectangle MINUS a Circle
+                            val pathWithHole = Path().apply {
+                                // Add the outer rectangle
+                                addRect(androidx.compose.ui.geometry.Rect(Offset.Zero, size))
+
+                                // Add the inner circle
+                                addOval(androidx.compose.ui.geometry.Rect(center, cropRadius))
+
+                                // This is the "Magic" part: it tells Compose to fill the area
+                                // between the rect and the circle, leaving the circle empty.
+                                fillType = androidx.compose.ui.graphics.PathFillType.EvenOdd
+                            }
+
+                            // 3. Draw that specific shape with 30% opacity
+                            drawPath(
+                                path = pathWithHole,
+                                color = LightBlack,
+                                alpha = 0.7f
+                            )
+
                             // Draw white circle border
                             drawCircle(
                                 color = White,
-                                radius = cropRadius,
+                                radius = cropRadius - 2,
                                 center = center,
-                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx())
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()),
                             )
 
                             // Draw grid lines (clipped to circle)

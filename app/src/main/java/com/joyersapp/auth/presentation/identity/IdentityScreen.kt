@@ -118,6 +118,8 @@ import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.uriToFile
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
+import com.joyersapp.components.dialogs.TitlesDialog
+import com.joyersapp.utils.tapToDismissKeyboard
 
 //@Preview
 @Composable
@@ -193,7 +195,7 @@ fun IdentityScreen(
                     modifier = Modifier
                         .weight(0.2f)
                         .fillMaxSize()
-                        .clickable(enabled = currentPage > 0) {
+                        .noRippleClickable(enabled = currentPage > 0) {
                             if (currentPage > 0) {
                                 coroutineScope.launch {
                                     pagerState.animateScrollToPage(currentPage - 1)
@@ -642,7 +644,9 @@ fun PageOneContent(
                 .height(55.dp)
                 .background(Gray20, RoundedCornerShape(5.dp))
                 .border(1.dp, GrayLightBorder, RoundedCornerShape(5.dp))
+                .tapToDismissKeyboard()
                 .clickable(enabled = state.joyerLocation.isEmpty()) {
+                    focusManager.clearFocus()
                     showCCPDialog(
                         context,
                         showPhoneCode = false
@@ -660,7 +664,9 @@ fun PageOneContent(
                 fontFamily = fontFamilyLato,
                 color = if (state.joyerLocation.isNotEmpty()) lightBlackColor else hintColor,
                 fontWeight = if (state.joyerLocation.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
-                modifier = Modifier.padding(bottom = 1.dp)
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = 15.dp, end = 48.dp, bottom = 1.dp)
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -676,10 +682,7 @@ fun PageOneContent(
                         .padding(end = 15.dp)
                         .size(30.dp)
                         .clip(shape = CircleShape)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) {
+                        .noRippleClickable {
                             if (state.joyerLocation.isEmpty()) {
                                 showCCPDialog(
                                     context,
@@ -1440,7 +1443,7 @@ fun PageThreeContent(
                                 .clickable {
 //                                    selectedTitle = null
 //                                    dialogState = DialogState.Titles(state.titles)
-                                    showTitleDialog = !showTitleDialog
+                                    showTitleDialog = true
                                 },
                             contentAlignment = Alignment.Center
                         ) {
@@ -1486,7 +1489,7 @@ fun PageThreeContent(
 //                                        subTitles = arrayListOf()
 //                                    )
 //                                    dialogState = DialogState.Subtitles(selectedSubTitle?.id, state.subTitles)
-                                    showTitleDialog = !showTitleDialog
+                                    showTitleDialog = true
                                 },
                             contentAlignment = Alignment.Center
                         ) {
@@ -1536,23 +1539,23 @@ fun PageThreeContent(
 
 
     // Title Selection Dialog
-    if (showTitleDialog) {
+/*    if (showTitleDialog) {
         DualViewDialog(
             selectedTitle = selectedTitle,
             dialogState = dialogState,
             viewmodel = viewmodel,
             onDismiss = {
 
-                viewmodel.onEvent(TitleEvent.SearchQueryChanged(""))
+//                viewmodel.onEvent(TitleEvent.SearchQueryChanged(""))
                 showTitleDialog = false
                         },
             onItemSelected = { titleId, titleName, subTitleId, subTitleName ->
-                /*selectedTitle = titleName
+                *//*selectedTitle = titleName
                 selectedTitleId = titleId
                 showNextButton = true
                 showTitleDialog = false
                 viewModel2.onEvent(IdentityEvent.TitleIdChanged(selectedTitleId ?: ""))
-                viewModel2.onEvent(IdentityEvent.SubTitleIdChanged(subTitleId ?: ""))*/
+                viewModel2.onEvent(IdentityEvent.SubTitleIdChanged(subTitleId ?: ""))*//*
                 selectedTitle = Title(          // or selectedTitle?.copy(...)
                     id = titleId,
                     name = titleName,
@@ -1570,21 +1573,27 @@ fun PageThreeContent(
                 viewModel2.onEvent(IdentityEvent.SubTitleIdChanged(subTitleId ?: ""))
             },
         )
-    }
+    }*/
 
-    if (showTitleDialog) {
-        DescriptionDialog (
-            initList = state.titles,
-            selectedTitle = ProfileTitlesData(
+    if (showTitleDialog && state.titles.isNotEmpty()) {
+        val title2 = if (selectedSubTitle != null) {
+            ProfileTitlesData(
                 id = selectedTitle?.id,
                 name = selectedTitle?.name,
-            ),
-            selectedSubTitle = ProfileTitlesData(
-                id = selectedSubTitle?.id,
-                name = selectedSubTitle?.name,
-            ),
+            )
+        } else null
+        val sub2 = if (selectedSubTitle != null) {
+            ProfileTitlesData(
+                id = selectedSubTitle.id,
+                name = selectedSubTitle.name,
+            )
+        } else null
+        TitlesDialog (
+            initList = state.titles,
+            selectedTitle = title2,
+            selectedSubTitle = sub2,
             onDismiss = {
-                viewmodel.onEvent(TitleEvent.SearchQueryChanged(""))
+//                viewmodel.onEvent(TitleEvent.SearchQueryChanged(""))
                 showTitleDialog = false
             },
             onApply = { title, subTitle ->

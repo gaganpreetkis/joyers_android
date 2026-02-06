@@ -52,7 +52,7 @@ fun ProfileTopHeader(
                 .width(sideWidth)
                 .fillMaxHeight()
                 .align(Alignment.CenterStart)
-                .clickable { onBack() },
+                .noRippleClickable { onBack() },
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -103,7 +103,7 @@ fun ProfileTopHeader(
                 contentDescription = "Menu",
                 modifier = Modifier
                     .size(18.dp, 4.dp)
-                    .clickable { onMenu() }
+                    .noRippleClickable { onMenu() }
             )
         }
 

@@ -36,7 +36,7 @@ sealed class UserProfileEvent {
     data class OnClearMultipleSelections(val key: String) : UserProfileEvent()
     data class OnGenderSelected(val value: String) : UserProfileEvent()
     data class OnOverviewChanged(val value: TextFieldValue) : UserProfileEvent()
-    data class OnHighlightChanged(val value: TextFieldValue?, val highlightEvent: HighlightEvent = HighlightEvent.OnBulletDoubleTap("")) : UserProfileEvent()
+    data class OnHighlightChanged(val highlightEvent: HighlightEvent = HighlightEvent.OnBulletDoubleTap("")) : UserProfileEvent()
     data class OnToggleBioEditor(val tab: String) : UserProfileEvent()
     data class OnWebsiteUrlChanged(val value: String) : UserProfileEvent()
 

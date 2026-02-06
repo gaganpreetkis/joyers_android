@@ -104,6 +104,7 @@ fun ProfileStatusSection(
 
         Spacer(Modifier.height(8.dp))
 
+        if (!state.joyerStatus.isNullOrEmpty() || !state.titleName.isNullOrEmpty() || !state.subTitleName.isNullOrEmpty() || !state.areaOfInterest.isNullOrEmpty())
         Column(
             modifier = Modifier
                 .background(White)
@@ -275,16 +276,18 @@ fun JoyerCodeSection(
                     Spacer(Modifier.height(7.dp))
                 }
 
-                Text(
-                    modifier = Modifier.width(200.dp),
-                    text = "@${state.username}",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamilyLato,
-                    color = Golden,
-                    lineHeight = 17.sp,
-                    textAlign = TextAlign.Center
-                )
+                if (state.username.trim().isNotEmpty()) {
+                    Text(
+                        modifier = Modifier.width(200.dp),
+                        text = "@${state.username}",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = Golden,
+                        lineHeight = 17.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

@@ -41,6 +41,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,6 +75,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
@@ -86,6 +88,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.CustomTextField3
+import com.joyersapp.components.dialogs.HighlightEvent
 import com.joyersapp.components.layouts.JoyersHeader
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
@@ -100,6 +104,9 @@ import com.joyersapp.utils.highlightWords
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import com.joyersapp.utils.tapToDismissKeyboard
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -135,27 +142,6 @@ fun HomeScreen() {
                 )
             }
         }
-//        var value by remember {
-//            mutableStateOf(TextFieldValue(""))
-//        }
-//
-//        value = value.copy(text = "klfjndksjfn")
-//        OverviewEditor(
-//            value,
-//            onChange = { value = it }
-//        )
-
-//        LanguageDialog {  }
-//        Dialog(onDismissRequest = {  },
-//            properties = DialogProperties(
-//                dismissOnBackPress = true,
-//                dismissOnClickOutside = true,
-//                usePlatformDefaultWidth = false,
-//                decorFitsSystemWindows = false
-//            )) {
-//            HideSearchBarOnScrollScreen()
-//        }
-
     }
 }
 

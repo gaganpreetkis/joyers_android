@@ -376,7 +376,9 @@ fun LanguagesDialog(
                                     onClick = {
                                         coroutineScope.launch {
                                             listState.animateScrollToItem(0)
-                                            scrollBehavior.state.heightOffset = 0f
+                                            if (isScrollable) {
+                                                scrollBehavior.state.heightOffset = 0f
+                                            }
                                         }
                                         onTitleSelected(title.id ?: "")
                                     },

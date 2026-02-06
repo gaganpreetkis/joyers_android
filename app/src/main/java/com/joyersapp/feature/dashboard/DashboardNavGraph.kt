@@ -1,9 +1,27 @@
 package com.joyersapp.feature.dashboard
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -22,6 +40,7 @@ import com.joyersapp.feature.profile.presentation.UserProfileScreen
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
 import com.joyersapp.utils.defaultEnterTransition
 import com.joyersapp.utils.defaultPopEnterTransition
+import com.joyersapp.utils.noRippleClickable
 
 
 sealed class Routes(val route: String) {
@@ -36,6 +55,10 @@ sealed class Routes(val route: String) {
 
 @Composable
 fun DashboardNavGraph(navController: NavHostController) {
+    val context = LocalContext.current
+    BackHandler(enabled = true) {
+        (context as? Activity)?.finish()
+    }
 
     val userProfileViewModel = hiltViewModel<UserProfileViewModel>()
     val bottomRoutes = BottomTab.entries.map { it.route }
@@ -93,6 +116,7 @@ fun DashboardNavGraph(navController: NavHostController) {
             UserProfileScreen(
                 viewModel = userProfileViewModel,
                 editMagnetics = {
+//                    navController.navigate("test")
                     navController.navigate(Routes.Magnetics.route)
                 },
 //                navigateToIdentificationDialog = { navController.navigate(Routes.IdentificationDialog.route) },
@@ -200,20 +224,60 @@ fun DashboardNavGraph(navController: NavHostController) {
 //            )
 //        }
 
+        composable("test") {
+            var showPopup by remember { mutableStateOf(false) }
 
+            Box(Modifier.fillMaxSize()) {
+                Button(onClick = { showPopup = true }) {
+                    Text("Open Full-Screen Popup")
+                }
+
+                if (showPopup) {
+                    FullScreenPopupOverlay(onDismiss = { showPopup = false }) {
+                        Text("I am a full-screen popup!")
+                    }
+                }
+            }
+        }
 
         composable(BottomTab.POST.route) {
             HomeScreen()
         }
 
         composable(BottomTab.CONTACTS.route) {
-            HomeScreen()
-//            IdentityScreen("test", "test")
+//            HomeScreen()
+            IdentityScreen("test", "test")
         }
 
         composable(BottomTab.NOTIFICATIONS.route) {
             HomeScreen()
         }
 
+    }
+}
+
+@Composable
+fun FullScreenPopupOverlay(
+    onDismiss: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Popup(
+        onDismissRequest = onDismiss,
+        properties = PopupProperties(
+            focusable = true,
+            dismissOnBackPress = true
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f)) // The full-screen background
+                .noRippleClickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(Modifier.clickable(enabled = false) { }) {
+                content()
+            }
+        }
     }
 }

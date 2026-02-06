@@ -1,5 +1,6 @@
 package com.joyersapp.components.dialogs
 
+
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -59,6 +60,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -75,6 +77,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
+import com.joyersapp.auth.presentation.identity.TitlesDialogViewmodel
+import com.joyersapp.auth.presentation.identity.TitlesEvent
+import com.joyersapp.auth.presentation.identity.TitlesNavEvent
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.feature.dashboard.Routes
@@ -100,11 +105,11 @@ import kotlinx.coroutines.launch
 
 //@Preview
 @Composable
-fun DescriptionDialog(
+fun TitlesDialog(
     initList: List<ProfileTitlesData>,
     selectedTitle: ProfileTitlesData?,
     selectedSubTitle: ProfileTitlesData?,
-    viewModel: DescriptionViewModel = hiltViewModel(),
+    viewModel: TitlesDialogViewmodel = hiltViewModel(),
     onDismiss: () -> Unit,
     onApply: (ProfileMeta?, ProfileMeta?) -> Unit
 ) {
@@ -112,10 +117,10 @@ fun DescriptionDialog(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.onEvent(DescriptionEvent.InitData(initList, selectedTitle, selectedSubTitle))
+        viewModel.onEvent(TitlesEvent.InitData(initList, selectedTitle, selectedSubTitle))
         viewModel.navigationEvents.collect { event ->
-            when(event) {
-                is DescriptionNavEvent.OnApply -> {
+            when (event) {
+                is TitlesNavEvent.OnApply -> {
                     onApply(
                         ProfileMeta(
                             id = event.Title?.id,
@@ -124,26 +129,27 @@ fun DescriptionDialog(
                         ProfileMeta(
                             id = event.SubTitle?.id,
                             name = event.SubTitle?.name,
-                        )) }
+                        )
+                    )
+                }
             }
         }
     }
 
 
     if (!state.rootItems.isEmpty()) {
-        EditDescriptionDialog(
+        EditDescriptionDialog2(
             onDismiss = {
-                viewModel.onEvent(DescriptionEvent.OnClearData)
+                viewModel.onEvent(TitlesEvent.OnClearData)
                 onDismiss()
             },
-            onApply = { viewModel.onEvent(DescriptionEvent.OnApply) },
+            onApply = { viewModel.onEvent(TitlesEvent.OnApply) },
             showApplyButton = state.isApplyEnabled,
             showBackButton = state.showBackButton,
             headers = state.headers,
             searchQuery = state.searchQuery,
-            selectedId = state.selectedId,
             onSearchQueryChanged = { query ->
-                viewModel.onEvent(DescriptionEvent.OnSearchQueryChanged(query))
+                viewModel.onEvent(TitlesEvent.OnSearchQueryChanged(query))
 //            searchQuery = query
 //            CoroutineScope(Dispatchers.Default).launch {
 //                itemsList =
@@ -159,7 +165,7 @@ fun DescriptionDialog(
 //        },
             onItemClicked = { title ->
 
-                viewModel.onEvent(DescriptionEvent.OnItemClicked(title))
+                viewModel.onEvent(TitlesEvent.OnItemClicked(title))
 
 //            if (isSubTitleMode) {
 //                selectedSubTitle = title
@@ -171,7 +177,7 @@ fun DescriptionDialog(
 
             },
             onBack = {
-                viewModel.onEvent(DescriptionEvent.OnBackButton)
+                viewModel.onEvent(TitlesEvent.OnBackButton)
 //            currentList = titlesData
 //            isSubTitleMode = false
 //            selectedSubTitle = null
@@ -181,14 +187,12 @@ fun DescriptionDialog(
 }
 
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EditDescriptionDialog(
+private fun EditDescriptionDialog2(
     onDismiss: () -> Unit,
     headers: List<String>,
     searchQuery: String,
-    selectedId: String,
     onSearchQueryChanged: (query: String) -> Unit,
     titlesData: List<ProfileTitlesData>,
     clarificationData: List<ProfileTitlesData> = emptyList(),
@@ -217,200 +221,200 @@ private fun EditDescriptionDialog(
         showBackButton = showBackButton
     ) { dialogModifier, dialogFocusManager, maxHeight ->
 
-                // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
-                BoxWithConstraints(
+        // Use BoxWithConstraints to get the maximum height available within the Card/Dialog
+        BoxWithConstraints(
+            modifier = Modifier
+                .padding(start = 15.dp, end = 15.dp, bottom = 25.dp)
+                .heightIn(max = maxHeight)
+        ) {
+            // Determine the maximum height each view can take (50dp margin)
+
+            val maxHeightForViews = this.maxHeight
+            val maxHeightForSubTitles = maxHeightForViews - 35.dp - 179.dp - 70.dp
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+
+                val scrollBehavior = if (headers.size == 3) TopAppBarDefaults.pinnedScrollBehavior()
+                else TopAppBarDefaults.enterAlwaysScrollBehavior()
+                val isScrollable by remember {
+                    derivedStateOf {
+                        listState.canScrollForward || listState.canScrollBackward
+                    }
+                }
+
+                Column(
                     modifier = Modifier
-                        .padding(start = 15.dp, end = 15.dp, bottom = 25.dp)
-                        .heightIn(max = maxHeight)
-                ) {
-                    // Determine the maximum height each view can take (50dp margin)
+                        .wrapContentHeight()
+                        .weight(1f, fill = false)
+                        .nestedScroll(scrollBehavior.nestedScrollConnection),
+                    content = {
 
-                    val maxHeightForViews = this.maxHeight
-                    val maxHeightForSubTitles = maxHeightForViews - 35.dp - 179.dp - 70.dp
+                        Spacer(Modifier.height(15.dp))
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-
-                        val scrollBehavior = if (headers.size == 3) TopAppBarDefaults.pinnedScrollBehavior()
-                        else TopAppBarDefaults.enterAlwaysScrollBehavior()
-                        val isScrollable by remember {
-                            derivedStateOf {
-                                listState.canScrollForward || listState.canScrollBackward
-                            }
-                        }
-
-                        Column (
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .weight(1f, fill = false)
-                                .nestedScroll(scrollBehavior.nestedScrollConnection),
-                            content = {
-
-                                Spacer(Modifier.height(15.dp))
-
-                                TopAppBar(
-                                    expandedHeight = 55.dp,
-                                    modifier = Modifier.heightIn(min = 0.dp),
-                                    colors = TopAppBarColors(
-                                        containerColor = Color.Transparent,
-                                        scrolledContainerColor = Color.Transparent,
-                                        navigationIconContentColor = Color.Transparent,
-                                        titleContentColor = Color.Transparent,
-                                        actionIconContentColor = Color.Transparent
-                                    ),
-                                    title = {
-                                        SearchBarRow(
-                                            searchQuery = searchQuery,
-                                            showApplyButton = showApplyButton,
-                                            onApply = { onApply() },
-                                            onSearchQueryChanged = { onSearchQueryChanged(it) }
-                                        )
-                                    },
-                                    windowInsets = WindowInsets(0, 0, 0, 0),
-                                    scrollBehavior = if (isScrollable) scrollBehavior else null
+                        TopAppBar(
+                            expandedHeight = 55.dp,
+                            modifier = Modifier.heightIn(min = 0.dp),
+                            colors = TopAppBarColors(
+                                containerColor = Color.Transparent,
+                                scrolledContainerColor = Color.Transparent,
+                                navigationIconContentColor = Color.Transparent,
+                                titleContentColor = Color.Transparent,
+                                actionIconContentColor = Color.Transparent
+                            ),
+                            title = {
+                                SearchBarRow(
+                                    searchQuery = searchQuery,
+                                    showApplyButton = showApplyButton,
+                                    onApply = { onApply() },
+                                    onSearchQueryChanged = { onSearchQueryChanged(it) }
                                 )
-                                // First Scrollable
-                                LazyColumn(
-                                    state = listState,
-                                    modifier = Modifier
-                                        .weight(1f, fill = false)
-                                        .fillMaxWidth()
-                                ) {
-                                    if (titlesData.isEmpty()) {
-                                        item {
-                                            Box(
-                                                modifier = dialogModifier
-                                                    .fillMaxWidth(),
-                                            ) {
-                                                Text(
-                                                    text = context.getString(R.string.no_results_found),
-                                                    fontSize = 24.sp,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    fontFamily = fontFamilyLato,
-                                                    textAlign = TextAlign.Center,
-                                                    color = lightBlackColor,
-                                                    lineHeight = 22.sp,
-                                                    modifier = dialogModifier
-                                                        .fillMaxWidth()
-                                                        .padding(
-                                                            top = if (isKeyBoardOpen) 90.dp else 35.dp,
-                                                            bottom = if (isKeyBoardOpen) 0.dp else 69.dp
-                                                        )
-                                                )
-                                            }
-                                        }
-                                    } else {
-                                        itemsIndexed(
-                                            titlesData,
-                                            key = { _, item -> item.id ?: "" }) { index, item ->
-                                            val isFirst = index == 0
-                                            val isLast = index == titlesData.lastIndex
-//                        AnimatedContent(title.isSelected) {
-                                            DescriptionItem(
-                                                isFirstItem = isFirst,
-                                                isLastItem = isLast,
-                                                title = item,
-                                                isSelected = item.isSelected,
-                                                onClick = {
-                                                    coroutineScope.launch {
-                                                        listState.animateScrollToItem(0)
-                                                        if (isScrollable) {
-                                                            scrollBehavior.state.heightOffset = 0f
-                                                        }
-                                                    }
-                                                    onItemClicked(item)
-                                                },
-                                                modifier = Modifier
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                            },
+                            windowInsets = WindowInsets(0, 0, 0, 0),
+                            scrollBehavior = if (isScrollable) scrollBehavior else null
                         )
-
-                        if (clarificationData.isNotEmpty()) {
-                            var isExpanded by remember { mutableStateOf(false) }
-                            Spacer(modifier = dialogModifier.height(20.dp))
-                            DashedLine(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 0.dp),
-                            )
-
-                            Spacer(modifier = dialogModifier.height(15.dp))
-
-                            Row(
-                                modifier = dialogModifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 0.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = dialogModifier
-                                ) {
-                                    if (!isExpanded) {
-                                        Text(
-                                            text = context.getString(R.string.strik_right_space),
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Black,
-                                            fontFamily = fontFamilyLato,
-                                            color = goldenColor
-                                        )
-                                        Spacer(modifier = Modifier.width(0.dp))
-                                    }
-                                    Text(
-                                        text = context.getString(R.string.clarifications),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = fontFamilyLato,
-                                        color = lightBlackColor,
+                        // First Scrollable
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .fillMaxWidth()
+                        ) {
+                            if (titlesData.isEmpty()) {
+                                item {
+                                    Box(
                                         modifier = dialogModifier
-                                    )
-                                }
-                                Text(
-                                    text = if (isExpanded) context.getString(R.string.hide) else context.getString(
-                                        R.string.show
-                                    ),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = fontFamilyLato,
-                                    color = goldenColor,
-                                    modifier = dialogModifier.noRippleClickable {
-                                        dialogFocusManager.clearFocus()
-                                        isExpanded = !isExpanded
-                                    }
-                                )
-                            }
-
-                            // Second scrollable
-                            if (clarificationData.isNotEmpty() && isExpanded) {
-                                Spacer(Modifier.height(15.dp))
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .heightIn(
-                                            min = 0.dp,
-                                            max = maxHeightForSubTitles
-                                        )// Distributes remaining space equally with View 1
-                                ) {
-                                    itemsIndexed(clarificationData) { index, title ->
-                                        // Scrollable only, no onClick
-                                        val isLast = index == clarificationData.lastIndex
-                                        ClassificationItem(
-                                            isLastItem = isLast,
-                                            title = title.name ?: "",
-                                            description = title.description ?: "",
-                                            modifier = Modifier
+                                            .fillMaxWidth(),
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.no_results_found),
+                                            fontSize = 24.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontFamily = fontFamilyLato,
+                                            textAlign = TextAlign.Center,
+                                            color = lightBlackColor,
+                                            lineHeight = 22.sp,
+                                            modifier = dialogModifier
+                                                .fillMaxWidth()
+                                                .padding(
+                                                    top = if (isKeyBoardOpen) 90.dp else 35.dp,
+                                                    bottom = if (isKeyBoardOpen) 0.dp else 69.dp
+                                                )
                                         )
                                     }
+                                }
+                            } else {
+                                itemsIndexed(
+                                    titlesData,
+                                    key = { _, item -> item.id ?: "" }) { index, item ->
+                                    val isFirst = index == 0
+                                    val isLast = index == titlesData.lastIndex
+//                        AnimatedContent(title.isSelected) {
+                                    TitlesItem(
+                                        isFirstItem = isFirst,
+                                        isLastItem = isLast,
+                                        title = item,
+                                        isSelected = item.isSelected,
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                listState.animateScrollToItem(0)
+                                                if (isScrollable) {
+                                                    scrollBehavior.state.heightOffset = 0f
+                                                }
+                                            }
+                                            onItemClicked(item)
+                                        },
+                                        modifier = Modifier
+                                    )
                                 }
                             }
                         }
                     }
+                )
+
+                if (clarificationData.isNotEmpty()) {
+                    var isExpanded by remember { mutableStateOf(false) }
+                    Spacer(modifier = dialogModifier.height(20.dp))
+                    DashedLine(
+                        modifier = dialogModifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 0.dp),
+                    )
+
+                    Spacer(modifier = dialogModifier.height(15.dp))
+
+                    Row(
+                        modifier = dialogModifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 0.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = dialogModifier
+                        ) {
+                            if (!isExpanded) {
+                                Text(
+                                    text = stringResource(R.string.strik_right_space),
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Black,
+                                    fontFamily = fontFamilyLato,
+                                    color = goldenColor
+                                )
+                                Spacer(modifier = Modifier.width(0.dp))
+                            }
+                            Text(
+                                text = stringResource(R.string.clarifications),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = fontFamilyLato,
+                                color = lightBlackColor,
+                                modifier = dialogModifier
+                            )
+                        }
+                        Text(
+                            text = if (isExpanded) stringResource(R.string.hide) else stringResource(
+                                R.string.show
+                            ),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = fontFamilyLato,
+                            color = goldenColor,
+                            modifier = dialogModifier.noRippleClickable {
+                                dialogFocusManager.clearFocus()
+                                isExpanded = !isExpanded
+                            }
+                        )
+                    }
+
+                    // Second scrollable
+                    if (clarificationData.isNotEmpty() && isExpanded) {
+                        Spacer(Modifier.height(15.dp))
+                        LazyColumn(
+                            modifier = Modifier
+                                .heightIn(
+                                    min = 0.dp,
+                                    max = maxHeightForSubTitles
+                                )// Distributes remaining space equally with View 1
+                        ) {
+                            itemsIndexed(clarificationData) { index, title ->
+                                // Scrollable only, no onClick
+                                val isLast = index == clarificationData.lastIndex
+                                ClassificationItem(
+                                    isLastItem = isLast,
+                                    title = title.name ?: "",
+                                    description = title.description ?: "",
+                                    modifier = Modifier
+                                )
+                            }
+                        }
+                    }
                 }
+            }
+        }
     }
 }
 
@@ -434,7 +438,7 @@ private fun SearchBarRow(
             .fillMaxWidth()
             .padding(top = 0.dp, bottom = 20.dp)
             .height(35.dp)
-            .padding(end = 15.dp),
+            .padding(horizontal = 15.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         // Search field with icons
@@ -474,7 +478,7 @@ private fun SearchBarRow(
                     onValueChange = { query ->
                         onSearchQueryChanged(query)
                     },
-                    placeholder = context.getString(R.string.search_speciality),
+                    placeholder = stringResource(R.string.search_speciality),
                     modifier = dialogModifier
                         .weight(1f)
                         .fillMaxHeight()
@@ -505,7 +509,7 @@ private fun SearchBarRow(
                                 end = 16.dp
                             ) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
                             .size(15.dp)
-                            .noRippleClickable {
+                            .clickable {
                                 onSearchQueryChanged("")
                             }
                     )
@@ -533,7 +537,7 @@ private fun SearchBarRow(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = context.getString(R.string.apply),
+                    text = stringResource(R.string.apply),
                     fontSize = 12.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -564,7 +568,7 @@ private fun SearchBarRow(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = context.getString(R.string.search),
+                    text = stringResource(R.string.search),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = fontFamilyLato,
@@ -579,7 +583,7 @@ private fun SearchBarRow(
 
 
 @Composable
-fun DescriptionItem(
+fun TitlesItem(
     isFirstItem: Boolean,
     isLastItem: Boolean,
     title: ProfileTitlesData,
@@ -617,7 +621,7 @@ fun DescriptionItem(
         if (!title.description.isNullOrEmpty()) {
             Spacer(modifier = modifier.width(3.dp))
             Text(
-                text = context.getString(R.string.strik_right_space),
+                text = stringResource(R.string.strik_right_space),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black,
                 fontFamily = fontFamilyLato,
@@ -636,10 +640,12 @@ private fun ClassificationItem(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    Row( modifier = modifier
+    Row(
+        modifier = modifier
 
     ) {
-        Text(text = "•",
+        Text(
+            text = "•",
             modifier = modifier.padding(end = 4.dp),
             color = LightBlack,
             fontSize = 18.sp,
@@ -667,7 +673,7 @@ private fun ClassificationItem(
 @Composable
 private fun BaseCard(
     onDismiss: () -> Unit = {},
-    titles: List<String> = arrayListOf("",),
+    titles: List<String> = arrayListOf(""),
     showBackButton: Boolean = false,
     onBack: () -> Unit = {},
     dialogContent: @Composable (dialogModifier: Modifier, dialogFocusManager: FocusManager, maxHeight: Dp) -> Unit = { dialogModifier, dialogFocusManager, maxHeight -> }
@@ -769,7 +775,12 @@ private fun BaseCard(
                     )
                 } else {
                     FlowRow(
-                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp, start = 10.dp, end = 10.dp),
+                        modifier = dialogModifier.padding(
+                            top = 2.dp,
+                            bottom = 2.dp,
+                            start = 10.dp,
+                            end = 10.dp
+                        ),
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         titles.forEachIndexed { index, item ->

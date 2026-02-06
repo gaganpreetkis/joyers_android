@@ -1,5 +1,6 @@
 package com.joyersapp.feature.profile.presentation
 
+import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -133,7 +134,7 @@ class UserProfileViewModel @Inject constructor(
                 val prefix = "Highlights\n"
                 if (state?.bio?.startsWith(prefix) == true) {
                     highlightsText = state.bio.removePrefix(prefix)
-                    if (highlightsText.isEmpty()) highlightsText = "• "
+//                    if (highlightsText.isEmpty()) highlightsText = "• "
                     selectedTab = "highlights"
                 } else {
                     overviewText = state.bio?:""
@@ -293,7 +294,7 @@ class UserProfileViewModel @Inject constructor(
                 }
                 val profileHeaderData = event.value.copy(
                     bio = bio,
-                    bullets = bullets
+                    bullets = bullets.ifEmpty { uiState.value.profileHeaderData.bullets }
                 )
                 val magneticsData =
                     _uiState.value.magneticsData.copy(profileHeaderData = profileHeaderData)
@@ -602,7 +603,7 @@ class UserProfileViewModel @Inject constructor(
                     if (event.tab.equals("overview")) {
 //                        onEvent(UserProfileEvent.OnHighlightChanged(TextFieldValue(text = "")))
                     } else {
-                        bullets = it.profileHeaderData.bullets
+                        if (it.profileHeaderData.bullets.isNotEmpty()) bullets = it.profileHeaderData.bullets
                         onEvent(UserProfileEvent.OnOverviewChanged(it.profileHeaderData.overviewFieldValue.copy(text = "")))
                     }
                     it.copy(
@@ -653,8 +654,9 @@ class UserProfileViewModel @Inject constructor(
                             _uiState.update {
                                 val text = it.profileHeaderData.bullets.firstOrNull { it.id == event.highlightEvent.id}?.textValue?.text?:""
                                 it.copy(
+                                    highlightsFocusedId = event.highlightEvent.id,
                                     profileHeaderData = it.profileHeaderData.copy(
-//                                    highlightsRemainingChars = 25 - text.graphemeCount(),
+                                    highlightsRemainingChars = 25 - text.graphemeCount(),
                                         bullets = it.profileHeaderData.bullets.map { b ->
                                             if (b.id == event.highlightEvent.id) b.copy(requestFocus = true)
                                             else b
@@ -684,7 +686,7 @@ class UserProfileViewModel @Inject constructor(
 
                                 it.copy(
                                     profileHeaderData = it.profileHeaderData.copy(
-//                                    highlightsRemainingChars = 25 - updatedText.graphemeCount(),
+                                    highlightsRemainingChars = 25 - updatedText.graphemeCount(),
                                         bullets = bullets
                                     ),
                                 )
@@ -698,6 +700,17 @@ class UserProfileViewModel @Inject constructor(
                             }
                         }
 
+              /*          {
+                            var oldText = ""
+                            val updatedText = event.highlightEvent.textState?.text?.toString()?.takeGraphemes(25)?:""
+                            if (
+                                (updatedText.endsWith(" @") || updatedText.equals("@")) && updatedText.graphemeCount() > oldText.graphemeCount()
+                            ) {
+                                _uiState.update { it.copy(highlightsFocusedId = event.highlightEvent.id) }
+                                onEvent(UserProfileEvent.ToggleMentionJoyersDialog(true))
+                            }
+                        }
+*/
                         is HighlightEvent.OnAddBullet -> {
                             _uiState.update { it ->
                                 val state = it.profileHeaderData
@@ -717,7 +730,8 @@ class UserProfileViewModel @Inject constructor(
 
                                 it.copy(
                                     profileHeaderData = state.copy(
-                                        bullets = newList
+                                        bullets = newList,
+                                        highlightsRemainingChars = 25
                                     ),
 
                                     )
@@ -822,7 +836,11 @@ class UserProfileViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                         showEditProfileHeaderDialog = event.show,
-                            profileHeaderData = uiState.value.magneticsData.profileHeaderData
+                            profileHeaderData = if (event.show) {
+                                it.magneticsData.profileHeaderData.copy(
+                                    bullets = it.magneticsData.profileHeaderData.bullets.ifEmpty { listOf(HighlightBullet()) }
+                                )
+                            } else ProfileHeaderData()
                         )
                     }
 //                    _navigationEvents.send(UserProfileNavigationEvent.NavigateToProfileHeaderDialog)
@@ -1056,11 +1074,36 @@ class UserProfileViewModel @Inject constructor(
                         )
                         onEvent(
                             UserProfileEvent.OnHighlightChanged(
-                                bioValue,
                                 highlightEvent = HighlightEvent.OnTextChange(focusedBullet?.id?:"", bioValue)
                             )
                         )
                     }
+
+         /*           {
+                        val focusedBullet = profileHeaderData.bullets.firstOrNull { it.id == _uiState.value.highlightsFocusedId }
+                        focusedBullet?.textState?.edit {
+                            val maxLength = 25
+                            val currentLength = toString().graphemeCount()
+                            val availableSpace = maxLength - currentLength
+
+                            if (availableSpace > 0) {
+                                // Only append what fits
+                                val textToAppend = if (selectedUsers.graphemeCount() > availableSpace) {
+                                    selectedUsers.take(availableSpace)
+                                } else {
+                                    selectedUsers
+                                }
+
+                                append(textToAppend)
+                                placeCursorAtEnd()
+                            }
+                        }
+//                        onEvent(
+//                            UserProfileEvent.OnHighlightChanged(
+//                                highlightEvent = HighlightEvent.OnTextChange(focusedBullet?.id?:"", focusedBullet?.textState)
+//                            )
+//                        )
+                    }*/
                     _uiState.update { state ->
                         state.copy(
                             showMentionJoyersDialog = false
@@ -1078,7 +1121,7 @@ class UserProfileViewModel @Inject constructor(
         result.fold(
             onSuccess = { response ->
 
-                val selectedLanguages = response.languages?.filter { it.language != null }
+                val selectedLanguages = if (!response.languages.isNullOrEmpty())response.languages?.filter { it.language != null } else null
                 val fullname = ((response.firstName ?: "") + " " + (response.lastName ?: "")).trim()
 
                 var overviewText = ""
@@ -1087,7 +1130,7 @@ class UserProfileViewModel @Inject constructor(
                 val prefix = "Highlights\n"
                 if (response.bio?.startsWith(prefix) == true) {
                     highlightsText = response.bio?.removePrefix(prefix)?:""
-                    if (highlightsText.isEmpty()) highlightsText = "• "
+//                    if (highlightsText.isEmpty()) highlightsText = "• "
                     selectedTab = "highlights"
                 } else {
                     overviewText = response.bio?:""
@@ -1189,8 +1232,21 @@ class UserProfileViewModel @Inject constructor(
         result.fold(
             onSuccess = { response ->
 
-                val selectedLanguages = response.languages?.filter { it.language != null }
+                val selectedLanguages = if (!response.languages.isNullOrEmpty())response.languages?.filter { it.language != null } else null
                 val fullname = ((response.firstName ?: "") + " " + (response.lastName ?: "")).trim()
+
+                var overviewText = ""
+                var highlightsText = "• "
+                var selectedTab = ""
+                val prefix = "Highlights\n"
+                if (response.bio?.startsWith(prefix) == true) {
+                    highlightsText = response.bio?.removePrefix(prefix)?:""
+//                    if (highlightsText.isEmpty()) highlightsText = "• "
+                    selectedTab = "highlights"
+                } else {
+                    overviewText = response.bio?:""
+                    selectedTab = "overview"
+                }
 
                 _uiState.update {
                     it.copy(
@@ -1203,6 +1259,9 @@ class UserProfileViewModel @Inject constructor(
                         profilePicture = response.profilePicture,
                         backgroundPicture = response.backgroundPicture,
                         bio = response.bio,
+                        overviewText = overviewText,
+                        bullets = highlightsText.toHighlightBullets(),
+                        selectedBioTab = selectedTab,
                         websiteUrl = response.websiteUrl,
                         likes = response.likesCount,
                         following = response.followingCount,

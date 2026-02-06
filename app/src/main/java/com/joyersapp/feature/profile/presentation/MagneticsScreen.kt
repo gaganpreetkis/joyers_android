@@ -358,14 +358,14 @@ fun MagneticsScreen(
         }
         if (state.showDescriptionDialog) {
             DescriptionDialog (
-                initList = viewModel.uiState.value.titles,
+                initList = state.titles,
                 selectedTitle = ProfileTitlesData(
-                    id = viewModel.uiState.value.magneticsData.title?.id?:"",
-                    name = viewModel.uiState.value.magneticsData.title?.name?:"",
+                    id = state.magneticsData.title?.id?:"",
+                    name = state.magneticsData.title?.name?:"",
                 ),
                 selectedSubTitle = ProfileTitlesData(
-                    id = viewModel.uiState.value.magneticsData.subTitle?.id,
-                    name = viewModel.uiState.value.magneticsData.subTitle?.name,
+                    id = state.magneticsData.subTitle?.id,
+                    name = state.magneticsData.subTitle?.name,
                 ),
                 onDismiss = { viewModel.onEvent(UserProfileEvent.ToggleDescriptionDialog(false)) },
                 onApply = { title, subTitle ->
@@ -973,6 +973,7 @@ private fun BioSection(
 
                     if (selectedBioTab.equals("highlights")) {
                         bullets.forEachIndexed { index, bullet ->
+                            if (bullet.textValue.text.isEmpty()) return@forEachIndexed
                             BulletRowText(
                                 modifier = Modifier
                                     .padding(top = if (index != 0) 5.dp else 0.dp),
@@ -1662,15 +1663,15 @@ data class ProfileHeaderData(
     val highlightFieldValue: TextFieldValue = TextFieldValue(text = "• ", selection = TextRange(2)),
     val websiteUrl: String? = null,
     val bioValidationError: UiText? = null,
-
     var selectedTab: String = "overview",
     val bullets: List<HighlightBullet> = listOf(HighlightBullet()),
+    val highlightsRemainingChars: Int =  25 - (bullets.firstOrNull{it.requestFocus}?.textValue?.text?.graphemeCount()?:0),
 
 ) {
     val overviewRemainingChars: Int
         get() = 150 - overviewFieldValue.text.graphemeCount()
-    val highlightsRemainingChars: Int
-        get() =  25 - (bullets.firstOrNull{it.requestFocus}?.textValue?.text?.graphemeCount()?:0)
+//    val highlightsRemainingChars: Int
+//        get() =  25 - (bullets.firstOrNull{it.requestFocus}?.textValue?.text?.graphemeCount()?:0)
 
     val isApplyEnabled: Boolean
         get() = if (bioValidationError == null && (!profilePicture.isNullOrEmpty() || !backgroundPicture.isNullOrEmpty() || !websiteUrl.isNullOrEmpty() || overviewFieldValue.text.graphemeCount() != 0 || highlightFieldValue.text.graphemeCount() > 2)) true else false

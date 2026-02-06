@@ -83,6 +83,7 @@ import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isScrollingUp
+import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -246,11 +247,13 @@ fun ProfileViewDialog(
                                                 isSelected = title.isSelected,
                                                 onClick = {
                                                     if (title.selections.isNullOrEmpty()) {
-                                                        onTitleSelected(title.id ?: "")
                                                         coroutineScope.launch {
                                                             listState.animateScrollToItem(0)
-                                                            scrollBehavior.state.heightOffset = 0f
+                                                            if (isScrollable) {
+                                                                scrollBehavior.state.heightOffset = 0f
+                                                            }
                                                         }
+                                                        onTitleSelected(title.id ?: "")
                                                     } else {
                                                         showBackButton = true
                                                         onShowSubTitles(
@@ -316,7 +319,7 @@ fun ProfileViewDialog(
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = fontFamilyLato,
                                     color = goldenColor,
-                                    modifier = dialogModifier.clickable {
+                                    modifier = dialogModifier.noRippleClickable {
                                         dialogFocusManager.clearFocus()
                                         isExpanded = !isExpanded
                                     }
@@ -371,7 +374,7 @@ private fun SearchBarRow(
             .fillMaxWidth()
             .padding(top = 0.dp, bottom = 20.dp)
             .height(35.dp)
-            .padding(horizontal = 15.dp),
+            .padding(end = 15.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         // Search field with icons
@@ -495,7 +498,7 @@ private fun SearchBarRow(
                         color = if (searchQuery.isEmpty()) GrayLightBorder else goldenColor,
                         shape = RoundedCornerShape(35.dp)
                     )
-                    .clickable {
+                    .noRippleClickable {
                         keyboardController?.hide()
                     },
                 contentAlignment = Alignment.Center
@@ -529,7 +532,7 @@ fun TitleItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .noRippleClickable { onClick() }
             .padding(bottom = if (isLastItem) 0.dp else 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,

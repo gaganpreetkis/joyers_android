@@ -304,7 +304,8 @@ fun SearchBarRowForEditMaganetic(
         /* ---------------- SEARCH BAR ---------------- */
         Row(
             modifier = dialogModifier
-                .width(314.dp) // 🔥 KEY FIX
+//                .width(314.dp) // 🔥 KEY FIX
+                .weight(1f, fill = true)
                 .height(30.dp)
                 .clip(RoundedCornerShape(50))
                 .background(whiteColor)
@@ -665,7 +666,7 @@ fun ActionChip(
                 color = Golden,
                 shape = RoundedCornerShape(50)
             )
-            .clickable { onClick() },
+            .noRippleClickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Text(

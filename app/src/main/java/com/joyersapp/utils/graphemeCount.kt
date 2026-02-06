@@ -1,6 +1,7 @@
 package com.joyersapp.utils
 
 import android.icu.text.BreakIterator
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -86,7 +87,7 @@ fun highlightWords(text: String): AnnotatedString {
                 SpanStyle(
                     color = color,
                     fontWeight = fontWeight,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
                 )
             )
 

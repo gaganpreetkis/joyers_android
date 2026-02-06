@@ -39,6 +39,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -100,6 +102,8 @@ import coil.compose.AsyncImage
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.CustomTextField
+import com.joyersapp.common_widgets.CustomTextField2
+import com.joyersapp.common_widgets.CustomTextField3
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
 import com.joyersapp.feature.profile.presentation.ProfileHeaderData
@@ -283,7 +287,7 @@ fun EditProfileHeaderDialog(
                 },
                 bullets = profileHeaderData.bullets,
                 onHighlightEvent = {
-                    viewModel.onEvent(UserProfileEvent.OnHighlightChanged(TextFieldValue(), it))
+                    viewModel.onEvent(UserProfileEvent.OnHighlightChanged( it))
                 }
             )
 
@@ -761,11 +765,13 @@ fun BioEditor(
                             if (bullets.isEmpty() || (bullets.size == 1 && bullets.get(0).textValue.text.isEmpty())) {
                                 Text(
                                     "About Joyer",
-                                    color = LightBlack40,
+                                    color = LightBlack60,
                                     fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
                                     lineHeight = 22.sp,
                                     fontFamily = fontFamilyLato,
                                     modifier = Modifier.padding(start = 16.dp)
+                                        .offset( y = -3.dp)
                                 )
                             }
                             HighlightEditor(
@@ -826,7 +832,47 @@ fun OverviewEditor(
             localValue = text
         }
     }
-    BasicTextField(
+    CustomTextField2(
+        text = text.text,
+        onValueChange = { newValue ->
+//            localValue = newValue // Update UI instantly newValue ->
+//            if (it.text.graphemeCount() > 150) return@BasicTextField
+            onChange(TextFieldValue(newValue))
+        },
+        highlightWords = true,
+        singleLine = false,
+        maxLines = 30,
+        maxLength = 170,
+        contentAlignment = Alignment.TopStart,
+//        visualTransformation = { textValue ->
+//            TransformedText(
+//                highlightWords(textValue.text),
+//                OffsetMapping.Identity
+//            )
+//        },
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            keyboardType = KeyboardType.Text
+        ),
+        textStyle = TextStyle(
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            fontFamily = fontFamilyLato,
+            fontWeight = FontWeight.Normal,
+            color = LightBlack // we paint using AnnotatedString
+        ),
+        placeholder = "About Joyer",
+        placeHolderTextStyle = TextStyle(
+            color = LightBlack60,
+            fontSize = 16.sp,
+            lineHeight = 22.sp,
+            fontWeight = FontWeight.Normal,
+            fontFamily = fontFamilyLato
+        ),
+        modifier = Modifier.fillMaxWidth()
+            .focusable(),
+    )
+   /* BasicTextField(
         value = localValue,
         onValueChange = { newValue ->
             localValue = newValue // Update UI instantly newValue ->
@@ -866,7 +912,7 @@ fun OverviewEditor(
                 if (text.text.isEmpty()) {
                     Text(
                         "About Joyer",
-                        color = LightBlack40,
+                        color = LightBlack60,
                         fontSize = 16.sp,
                         lineHeight = 22.sp,
                         fontFamily = fontFamilyLato
@@ -874,7 +920,7 @@ fun OverviewEditor(
                 }
             }
         }
-    )
+    )*/
 }
 
 sealed interface HighlightEvent {
@@ -909,6 +955,7 @@ data class HighlightBullet(
     val isDeleteVisible: Boolean = false,
     val requestFocus: Boolean = false
 )
+
 
 @Composable
 fun BulletRow(
@@ -966,6 +1013,7 @@ fun BulletRow(
         BasicTextField(
             value = localValue,
             onValueChange = { newValue ->
+                if (newValue.text.graphemeCount() > 25) return@BasicTextField
                 localValue = newValue // Update UI instantly newValue ->
                 onEvent(
                     HighlightEvent.OnTextChange(bullet.id, newValue)
@@ -1061,6 +1109,209 @@ fun BulletRow(
     }
 }
 
+
+@Composable
+fun BulletRow2(
+    bullet: HighlightBullet,
+    onEvent: (HighlightEvent) -> Unit
+) {
+
+    val focusRequester = remember { FocusRequester() }
+
+    // Request focus when flag becomes true
+    LaunchedEffect(bullet.requestFocus) {
+        if (bullet.requestFocus) {
+            focusRequester.requestFocus()
+            onEvent(HighlightEvent.OnFocusConsumed(bullet.id))
+        }
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 5.dp)
+    ) {
+
+        // Bullet Dot
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(LightBlack)
+        )
+//                .pointerInput(Unit) {
+//                    detectTapGestures(
+//                        onTap = {
+//                            onEvent(HighlightEvent.OnBulletSingleTap(bullet.id))
+//                        },
+//                        onDoubleTap = {
+//                            onEvent(HighlightEvent.OnBulletDoubleTap(bullet.id))
+//                        }
+//                    )
+//                },
+
+
+        Spacer(Modifier.width(10.dp))
+
+     /*   CustomTextField3(
+            textState = bullet.textState,
+            onValueChange = { newState ->
+            },
+            keyEvent = {
+                if (it.equals("@")) {
+                    onEvent(HighlightEvent.NavigateToMentionJoyers)
+                } else if (it.equals("back")) {
+                    onEvent(HighlightEvent.OnDeleteBullet(bullet.id))
+                }
+            },
+            highlightWords = true,
+            singleLine = true,
+            maxLines = 1,
+            maxLength = 25,
+            contentAlignment = Alignment.CenterStart,
+//        visualTransformation = { textValue ->
+//            TransformedText(
+//                highlightWords(textValue.text),
+//                OffsetMapping.Identity
+//            )
+//        },
+            focusRequester = focusRequester,
+            onFocusChanged = {
+                if (it.isFocused) {
+                    onEvent(
+                        HighlightEvent.OnFocusRequested(bullet.id)
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                capitalization = KeyboardCapitalization.Sentences,
+                keyboardType = KeyboardType.Text
+            ),
+            keyboardActions = {
+                onEvent(HighlightEvent.OnAddBullet(bullet.id))
+
+                // Optional: Call performDefaultAction() to let the system
+                // handle the usual "Next" behavior (like moving focus)
+//                this.performDefaultAction()
+            },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.Normal,
+                color = LightBlack
+            ),
+            placeholder = "About Joyer",
+            placeHolderTextStyle = TextStyle(
+                color = Color.Transparent,
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight.Normal,
+                fontFamily = fontFamilyLato
+            ),
+            modifier = Modifier.fillMaxWidth()
+                .focusable()
+        )*/
+
+      /*  BasicTextField(
+            value = localValue,
+            onValueChange = { newValue ->
+                localValue = newValue // Update UI instantly newValue ->
+                onEvent(
+                    HighlightEvent.OnTextChange(bullet.id, newValue)
+                )
+            },
+            visualTransformation = { textValue ->
+                TransformedText(
+                    highlightWords(textValue.text),
+                    OffsetMapping.Identity
+                )
+            },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight.Normal,
+                color = LightBlack // we paint using AnnotatedString
+            ),
+            modifier = Modifier
+//                .fillMaxWidth()
+                .weight(1f)
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        onEvent(
+                            HighlightEvent.OnFocusRequested(bullet.id)
+                        )
+                    }
+                }
+                .onKeyEvent { keyEvent ->
+
+                    return@onKeyEvent when(keyEvent.key) {
+                        Key.Backspace -> {
+                            if (bullet.textValue.text.isEmpty()) {
+                                onEvent(
+                                    HighlightEvent.OnBackspaceOnEmpty(bullet.id)
+                                )
+                                true
+                            } else false
+                        }
+
+//                        Key.At -> {
+//                                onEvent(
+//                                    HighlightEvent.NavigateToMentionJoyers
+//                                )
+//                                true
+//                        }
+
+                        else -> {false}
+                    }
+                },
+//            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                capitalization = KeyboardCapitalization.Sentences
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    onEvent(HighlightEvent.OnAddBullet(bullet.id))
+                }
+            ),
+            decorationBox = { inner ->
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                ) {
+                    inner()
+                    // Placeholder
+//                    if (bullet.text.isEmpty() || bullet.text.equals("• ")) {
+//                        Text(
+//                            "About Joyer",
+//                            color = LightBlack40,
+//                            fontSize = 16.sp,
+//                            lineHeight = 22.sp,
+//                            fontWeight = FontWeight.Normal,
+//                            fontFamily = fontFamilyLato,
+//                        )
+//                    }
+                }
+            }
+        )*/
+        // Delete Icon
+        AnimatedVisibility(bullet.isDeleteVisible) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_cancel_grey),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 14.dp) // 10.dp to account for AppBasicTextField's 2.dp end padding + 8.dp spacing
+                    .size(15.dp)
+                    .clickable { onEvent(HighlightEvent.OnDeleteBullet(bullet.id)) }
+            )
+        }
+    }
+}
+
 //@Preview
 @Composable
 fun WebsiteTextField(
@@ -1121,6 +1372,7 @@ fun WebsiteTextField(
                             .fillMaxHeight()
                             .offset(y = -1.dp),
                         placeholder = hintText,
+                        placeholderColor = LightBlack60,
                         containerColor = Color.Transparent,
                         textStyle = androidx.compose.ui.text.TextStyle(
                             fontSize = 16.sp,
@@ -1132,7 +1384,7 @@ fun WebsiteTextField(
                     )
 
                     if (value.isNotEmpty()) {
-                        Spacer(modifier = Modifier.width(5.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
                         Box(
                             modifier = Modifier
                                 .clip(CircleShape)

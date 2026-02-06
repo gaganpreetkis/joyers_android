@@ -1,5 +1,6 @@
 package com.joyersapp.common_widgets
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,6 +9,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -21,6 +23,7 @@ import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.forEachChange
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +43,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
@@ -56,6 +64,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.substring
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -71,6 +80,7 @@ import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
 import com.joyersapp.utils.filterAscii
 import com.joyersapp.utils.filterNameCase
+import com.joyersapp.utils.filterSentenceCase
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.highlightWords
@@ -213,18 +223,20 @@ fun CustomTextField2(
     maxLines: Int = 1,
     singleLine: Boolean = true,
     textOverflow: TextOverflow = TextOverflow.Clip,
+    focusRequester: FocusRequester? = null,
     onFocusChanged: (FocusState) -> Unit = { },
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActionHandler? = null,
     textStyle: TextStyle = TextStyle(/* ... same as your code ... */),
     placeHolderTextStyle: TextStyle = TextStyle(/* ... same as your code ... */),
+    contentAlignment: Alignment = Alignment.Center
 ) {
     // 1. Create the new persistent state
     val state = remember { TextFieldState(initialText = text) }
 
 //    Track focus state locally
     var isFocused by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
+    val localFocusRequester = focusRequester?: remember { FocusRequester() }
 
     // 2. Sync State with external 'text' prop (Programmatic updates)
     LaunchedEffect(text) {
@@ -245,7 +257,7 @@ fun CustomTextField2(
         state = state,
         modifier = modifier
             .fillMaxWidth()
-            .focusRequester(focusRequester ?: FocusRequester.Default)
+            .focusRequester(localFocusRequester)
             .onFocusChanged {
                 if (it.isFocused && !isFocused) {
                     state.edit { placeCursorAtEnd() }
@@ -272,6 +284,12 @@ fun CustomTextField2(
                     replace(0, length, filtered)
                 }
             }
+            if (keyboardOptions.capitalization == KeyboardCapitalization.Sentences) {
+                val filtered = filterSentenceCase(asCharSequence().toString())
+                if (filtered != asCharSequence().toString()) {
+                    replace(0, length, filtered)
+                }
+            }
         },
         // 5. Highlighting via OutputTransformation (Auto-handles cursor!)
         outputTransformation = if (highlightWords) {
@@ -291,8 +309,8 @@ fun CustomTextField2(
         } else null,
         decorator = { innerTextField ->
             Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = contentAlignment
             ) {
 
                 Box(modifier = Modifier.alpha(if (isFocused) 1f else 0f)) {
@@ -307,6 +325,134 @@ fun CustomTextField2(
                     Text(
                         if (highlightWords) highlightWords(state.text.toString())
                         else AnnotatedString(state.text.toString()),
+                        style = textStyle,
+                        overflow = textOverflow,
+                        maxLines = maxLines
+                    )
+                }
+            }
+        }
+    )
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CustomTextField3(
+    modifier: Modifier = Modifier,
+    textState: TextFieldState,
+    onValueChange: (TextFieldState) -> Unit,
+    keyEvent: (String) -> Unit,
+    placeholder: String = "",
+    isEnabled: Boolean = true,
+    highlightWords: Boolean = false,
+    maxLength: Int = 1000,
+    maxLines: Int = 1,
+    singleLine: Boolean = true,
+    textOverflow: TextOverflow = TextOverflow.Clip,
+    focusRequester: FocusRequester? = null,
+    onFocusChanged: (FocusState) -> Unit = { },
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActionHandler? = null,
+    textStyle: TextStyle = TextStyle(/* ... same as your code ... */),
+    placeHolderTextStyle: TextStyle = TextStyle(/* ... same as your code ... */),
+    contentAlignment: Alignment = Alignment.Center
+) {
+//    Track focus state locally
+    var isFocused by remember { mutableStateOf(false) }
+    val localFocusRequester = focusRequester?: remember { FocusRequester() }
+
+    // 3. Observe state changes to trigger onValueChange
+//    LaunchedEffect(textState.text) {
+//        onValueChange(textState)
+//    }
+    val oldText = textState.text.toString()
+
+    BasicTextField(
+        state = textState,
+        modifier = modifier
+            .fillMaxWidth()
+            .focusRequester(localFocusRequester)
+            .onFocusChanged {
+                if (it.isFocused && !isFocused) {
+                    textState.edit { placeCursorAtEnd() }
+                }
+                isFocused = it.isFocused
+                onFocusChanged(it)
+            },
+        enabled = isEnabled,
+        lineLimits = if (singleLine) TextFieldLineLimits.SingleLine
+        else TextFieldLineLimits.MultiLine(1, maxLines),
+        keyboardOptions = keyboardOptions,
+        onKeyboardAction = keyboardActions,
+        textStyle = textStyle,
+        // 4. Handle MaxLength and Case Filtering via InputTransformation
+        inputTransformation = InputTransformation {
+            // Max length check
+            if (asCharSequence().toString().graphemeCount() > maxLength) {
+                revertAllChanges()
+            }
+            // Case filtering logic
+            if (keyboardOptions.capitalization == KeyboardCapitalization.Words) {
+                val filtered = filterNameCase(asCharSequence().toString())
+                if (filtered != asCharSequence().toString()) {
+                    replace(0, length, filtered)
+                }
+            }
+
+            if (asCharSequence().isEmpty() && changes.changeCount > 0) {
+                // Check if the operation was actually a deletion (optional logic)
+                keyEvent("back")
+            }
+            changes.forEachChange { sourceRange, replacedLength ->
+                val a = sourceRange
+                val b = replacedLength
+                val string = asCharSequence().toString()
+                val newString = asCharSequence().substring(sourceRange)
+                if (newString.equals("@") && (string.equals("@") || string.endsWith(" @"))) keyEvent("@")
+                if (newString.equals("") && string.equals("")) keyEvent("back")
+                asCharSequence().length < textState.text.length
+            }
+        },
+        // 5. Highlighting via OutputTransformation (Auto-handles cursor!)
+        outputTransformation = if (highlightWords) {
+            OutputTransformation {
+                // 1. Get the current text from the buffer
+                val rawText = asCharSequence().toString()
+
+                // 2. Process your highlighting logic (returning AnnotatedString)
+                val highlighted = highlightWords(rawText)
+
+                // 3. Apply styles directly to the buffer
+                // In Compose 1.7+, use addStyle or insertAttributes
+                highlighted.spanStyles.forEach { range ->
+                    addStyle(range.item, range.start, range.end)
+                }
+            }
+        } else null,
+        decorator = { innerTextField ->
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = contentAlignment
+            ) {
+
+                Box(modifier = Modifier.alpha(if (isFocused) 1f else 0f)) {
+                    innerTextField()
+                }
+
+                if (textState.text.isEmpty()) {
+                    Text(if (highlightWords) highlightWords(placeholder)
+                    else AnnotatedString(textState.text.toString()),
+                        style = placeHolderTextStyle,
+                        overflow = textOverflow,
+                        maxLines = maxLines
+                    )
+                }
+
+                if (!isFocused) {
+                    Text(
+                        if (highlightWords) highlightWords(textState.text.toString())
+                        else AnnotatedString(textState.text.toString()),
                         style = textStyle,
                         overflow = textOverflow,
                         maxLines = maxLines
