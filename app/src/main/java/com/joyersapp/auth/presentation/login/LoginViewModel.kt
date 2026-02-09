@@ -228,7 +228,7 @@ class LoginViewModel @Inject constructor(
                         if (error.message!!.contains("password", true)) {
                             _uiState.update { it.copy(isLoading = false, apiErrorMessage = error.message ?: "Something went wrong"/*, verificationCodeError = error.message ?: "Something went wrong"*/) }
                         } else {
-                            _uiState.update { it.copy(isLoading = false, apiOnlyUsernameErrorMessage = error.message ?: "Something went wrong"/*, verificationCodeError = error.message ?: "Something went wrong"*/) }
+                            _uiState.update { it.copy(isLoading = false, apiFailedErrorMessage = "Login failed. Please try again."/*, verificationCodeError = error.message ?: "Something went wrong"*/) }
                         }
                     } else {
                         _uiState.update { it.copy(isLoading = false, apiFailedErrorMessage = "Login failed. Please try again."/*, verificationCodeError = error.message ?: "Something went wrong"*/) }

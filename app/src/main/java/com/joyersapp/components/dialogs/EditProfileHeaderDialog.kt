@@ -748,7 +748,7 @@ fun BioEditor(
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = fontFamilyLato,
                         modifier = Modifier
-                            .padding(top = 5.dp, bottom = 0.dp, end = 7.dp)
+                            .padding(top = 5.dp, bottom = 0.dp, end = 6.dp)
                             .fillMaxWidth(),
                         textAlign = TextAlign.End
                     )

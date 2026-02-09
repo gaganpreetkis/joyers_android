@@ -62,7 +62,9 @@ data class DescriptionUiState(
     val preSelectedSubTitle: ProfileTitlesData? = null,
     val selectedSubTitle: ProfileTitlesData? = null,
     val firstClick: Boolean = true,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+
+    val headers: MutableList<String> =  mutableListOf("Description", "Joyer Status", "Classic")
 
 ) {
 
@@ -87,16 +89,16 @@ data class DescriptionUiState(
         get() = currentUiMode is DialogMode.SubTitle
 
 
-    val headers: List<String>
-        get() =  when (currentUiMode) {
-            DialogMode.Title -> {
-                arrayListOf("Description", "Joyer Status", "Classic")
-            }
-
-            DialogMode.SubTitle -> {
-                arrayListOf("Description", "Joyer Status", "Classic", selectedTitle?.name)
-            }
-        }
+//    val headers: MutableList<String>
+//        get() =  when (currentUiMode) {
+//            DialogMode.Title -> {
+//                mutableListOf("Description", "Joyer Status", "Classic")
+//            }
+//
+//            DialogMode.SubTitle -> {
+//                mutableListOf("Description", "Joyer Status", "Classic", selectedTitle?.name?:"")
+//            }
+//        }
 
     val selectedId: String
         get() =  when (currentUiMode) {
@@ -213,7 +215,9 @@ class DescriptionViewModel @Inject constructor(
                 onCleared()
             }
             is DescriptionEvent.InitData -> {
+
                 if (event.selectedSubTitle?.id.isNullOrEmpty()) {
+
                     _uiState.update {
                         val items = event.items.map { title ->
                             if (title.id?.equals(event.selectedTitle?.id) == true) {
@@ -232,6 +236,9 @@ class DescriptionViewModel @Inject constructor(
                         )
                     }
                 } else {
+
+                    uiState.value.headers.add(event.selectedTitle?.name?:"")
+
                     _uiState.update {
                         var subItems = emptyList<ProfileTitlesData>()
                         val items = event.items.map { title ->
@@ -262,6 +269,7 @@ class DescriptionViewModel @Inject constructor(
 
             }
             is DescriptionEvent.OnBackButton -> {
+               uiState.value.headers.removeLast()
                 _uiState.update {
                     it.copy(
                         currentItems = it.rootItems,
@@ -279,6 +287,7 @@ class DescriptionViewModel @Inject constructor(
             }
             is DescriptionEvent.OnItemClicked -> {
                 if (!event.item.selections.isNullOrEmpty()) {
+                    uiState.value.headers.add(event.item.name?:"")
                     // 👉 Navigate to child list
                     _uiState.update {
                         it.copy(

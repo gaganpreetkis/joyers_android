@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,6 +75,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.AppBasicTextField2
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.theme.Golden
@@ -101,7 +103,7 @@ fun ProfileViewDialog(
     titlesData: List<ProfileTitlesData>,
     clarificationData: List<ProfileTitlesData> = emptyList(),
     showApplyButton: Boolean = false,
-    onShowSubTitles: (List<ProfileTitlesData>) -> Unit,
+    onShowSubTitles: (ProfileTitlesData) -> Unit,
     onTitleSelected: (String) -> Unit,
     onBack: () -> Unit,
     onApply: () -> Unit
@@ -195,6 +197,7 @@ fun ProfileViewDialog(
                                     title = {
                                         SearchBarRow(
                                             searchQuery = searchQuery,
+                                            placeholder = "Search ${headers.lastOrNull()?:""}",
                                             showApplyButton = showApplyButton,
                                             onApply = { onApply() },
                                             onSearchQueryChanged = { onSearchQueryChanged(it) }
@@ -240,11 +243,13 @@ fun ProfileViewDialog(
                                             key = { _, item -> item.id ?: "" }) { index, title ->
                                             val isFirst = index == 0
                                             val isLast = index == titlesData.lastIndex
+                                            val showClarificationStars = headers.getOrNull(1)?.equals("Political Ideology") == false
                                             TitleItem(
                                                 isFirstItem = isFirst,
                                                 isLastItem = isLast,
                                                 title = title,
                                                 isSelected = title.isSelected,
+                                                showClarificationStars = showClarificationStars,
                                                 onClick = {
                                                     if (title.selections.isNullOrEmpty()) {
                                                         coroutineScope.launch {
@@ -256,9 +261,7 @@ fun ProfileViewDialog(
                                                         onTitleSelected(title.id ?: "")
                                                     } else {
                                                         showBackButton = true
-                                                        onShowSubTitles(
-                                                            title.selections ?: emptyList()
-                                                        )
+                                                        onShowSubTitles(title)
                                                     }
                                                 },
                                                 modifier = Modifier
@@ -357,6 +360,7 @@ fun ProfileViewDialog(
 @Composable
 private fun SearchBarRow(
     dialogModifier: Modifier = Modifier,
+    placeholder: String,
     searchQuery: String,
     showApplyButton: Boolean,
     onApply: () -> Unit,
@@ -409,16 +413,16 @@ private fun SearchBarRow(
 
                 // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
                 // We account for this in our layout
-                AppBasicTextField(
+                AppBasicTextField2(
                     value = searchQuery,
                     onValueChange = { query ->
                         onSearchQueryChanged(query)
                     },
-                    placeholder = stringResource(R.string.search_speciality),
+                    placeholder = placeholder,
                     modifier = dialogModifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .padding(bottom = 1.dp),
+                        .padding(start = 10.dp, bottom = 1.dp),
                     textStyle = TextStyle(
                         platformStyle = PlatformTextStyle(
                             includeFontPadding = false
@@ -524,6 +528,7 @@ fun TitleItem(
     isLastItem: Boolean,
     title: ProfileTitlesData,
     isSelected: Boolean,
+    showClarificationStars: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -554,7 +559,7 @@ fun TitleItem(
                 modifier = modifier.size(11.dp)
             )
         }
-        if (!title.description.isNullOrEmpty()) {
+        if (showClarificationStars && !title.description.isNullOrEmpty()) {
             Spacer(modifier = modifier.width(3.dp))
             Text(
                 text = stringResource(R.string.strik_right_space),
@@ -579,11 +584,18 @@ private fun ClassificationItem(
     Row( modifier = modifier
 
     ) {
-        Text(text = "•",
-            modifier = modifier.padding(end = 4.dp),
-            color = LightBlack,
-            fontSize = 18.sp,
-            fontFamily = fontFamilyLato,
+//        Text(text = "•",
+//            modifier = modifier.padding(end = 4.dp),
+//            color = LightBlack,
+//            fontSize = 18.sp,
+//            fontFamily = fontFamilyLato,
+//        )
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp, end = 10.dp)
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(LightBlack)
         )
         Text(
             buildAnnotatedString {

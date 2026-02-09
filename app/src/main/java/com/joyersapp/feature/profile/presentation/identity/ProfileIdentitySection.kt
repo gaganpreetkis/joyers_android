@@ -9,14 +9,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joyersapp.R
@@ -33,29 +37,88 @@ import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.Nationality
 import com.joyersapp.feature.profile.data.remote.dto.SubLanguageWrapper
 import com.joyersapp.feature.profile.presentation.UserProfileUiState
+import com.joyersapp.theme.AvatarBorder
 import com.joyersapp.theme.GrayBG
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack5
 import com.joyersapp.theme.LightBlack55
 import com.joyersapp.theme.LightBlack60
+import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 
-//@Preview
-//@Composable
-//fun preProfile() {
-//    ProfileIdentitySection()
+@Preview
+@Composable
+fun preProfile() {
+
+//Column(
+//    Modifier.fillMaxSize().background(Red)
+//) {
+//    Text( text = "JKHDjkh", Modifier.fillMaxWidth().background(White))
+//    Spacer(modifier = Modifier.height(20.dp))
+//    Text( text = "JKHDjkh", Modifier.fillMaxWidth().background(White))
+//    Spacer(modifier = Modifier.height(20.dp))
+//    Text( text = "JKHDjkh", Modifier.fillMaxWidth().background(White))
+//    Spacer(modifier = Modifier.height(20.dp))
+//
+//    when(1) {
+//
+//        1 -> {
+//            Column(Modifier.fillMaxSize().background(AvatarBorder)) {
+//                Box(
+//                    Modifier
+//                        .fillMaxSize()
+//                        .background(Red.copy(alpha = 0.5f))
+//                        .weight(0.5f, fill = true),
+////                    .weight(1f),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Text(
+//                        text = "No Identity yet!",
+//                        fontSize = 24.sp,
+//                        fontWeight = FontWeight.Bold,
+//                        fontFamily = fontFamilyLato,
+//                        color = LightBlack,
+//                        lineHeight = 34.sp,
+//                        modifier = Modifier
+//                            .offset(y = -39.dp)
+//                    )
+//                }
+//            }
+//        }
+//    }
 //}
+
+
+    LazyColumn(
+        Modifier.background(Red).fillMaxSize()
+    ) {
+        item {
+            Spacer(Modifier.height(8.dp))
+
+            ProfileIdentitySection(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(White),
+//                .weight(1f, false),
+                {},
+                UserProfileUiState()
+            )
+        }
+    }
+
+
+}
 
 @Composable
 fun ProfileIdentitySection(
-    onEditIdentity: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onEditIdentity: () -> Unit = {},
     state: UserProfileUiState
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(GrayBG)
     ) {
         Spacer(Modifier.height(8.dp))
@@ -122,6 +185,29 @@ fun ProfileIdentitySection(
 
             Spacer(Modifier.height(10.dp))
         }
+        else {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .background(White),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No Identity yet!",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamilyLato,
+                    color = LightBlack,
+                    lineHeight = 34.sp,
+                    modifier = Modifier
+                        .padding(bottom = 39.dp)
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
+        }
+
 
     }
 }

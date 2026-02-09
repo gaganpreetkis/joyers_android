@@ -57,6 +57,7 @@ import com.joyersapp.theme.GrayInnerBorder
 import com.joyersapp.theme.GrayOuterBorder
 import com.joyersapp.theme.Red
 import com.joyersapp.utils.convertDate
+import com.joyersapp.utils.flagEmoji
 import com.joyersapp.utils.graphemeCount
 
 @Composable
@@ -1176,16 +1177,29 @@ fun IdentificationDropdownField(
                 ) {
 
                     if (value.isNotEmpty()) {
-                        Text(
-                            text = value,
-                            fontSize = 16.sp,
-                            lineHeight = 23.sp,
-                            fontFamily = fontFamilyLato,
-                            fontWeight = FontWeight.Normal,
-                            color = LightBlack,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
+
+                        Row(  modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = value,
+                                fontSize = 16.sp,
+                                lineHeight = 23.sp,
+                                fontFamily = fontFamilyLato,
+                                fontWeight = FontWeight.Normal,
+                                color = LightBlack,
+
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            if (label.equals("Joyer Location")) {
+                                Text(
+                                    modifier = Modifier
+                                        .size(18.76.dp, 12.22.dp)
+                                        .align(Alignment.CenterVertically),
+                                    text = flagEmoji(value),
+                                    fontSize = 12.sp,
+                                    lineHeight = 12.sp
+                                )
+                            }
+                        }
                         Image(
                             painter = painterResource(id = R.drawable.ic_cross_round_gray),
                             contentDescription = "Clear",

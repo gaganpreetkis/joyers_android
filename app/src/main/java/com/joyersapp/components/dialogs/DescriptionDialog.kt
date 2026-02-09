@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -76,6 +77,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.AppBasicTextField2
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.feature.dashboard.Routes
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
@@ -262,6 +264,7 @@ private fun EditDescriptionDialog(
                                     ),
                                     title = {
                                         SearchBarRow(
+                                            placeholder = "Search ${headers.lastOrNull()?:""}",
                                             searchQuery = searchQuery,
                                             showApplyButton = showApplyButton,
                                             onApply = { onApply() },
@@ -417,6 +420,7 @@ private fun EditDescriptionDialog(
 @Composable
 private fun SearchBarRow(
     dialogModifier: Modifier = Modifier,
+    placeholder: String,
     searchQuery: String,
     showApplyButton: Boolean,
     onApply: () -> Unit,
@@ -469,16 +473,16 @@ private fun SearchBarRow(
 
                 // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
                 // We account for this in our layout
-                AppBasicTextField(
+                AppBasicTextField2(
                     value = searchQuery,
                     onValueChange = { query ->
                         onSearchQueryChanged(query)
                     },
-                    placeholder = context.getString(R.string.search_speciality),
+                    placeholder = placeholder,
                     modifier = dialogModifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .padding(bottom = 1.dp),
+                        .padding(start = 10.dp, bottom = 1.dp),
                     textStyle = TextStyle(
                         platformStyle = PlatformTextStyle(
                             includeFontPadding = false
@@ -639,11 +643,18 @@ private fun ClassificationItem(
     Row( modifier = modifier
 
     ) {
-        Text(text = "•",
-            modifier = modifier.padding(end = 4.dp),
-            color = LightBlack,
-            fontSize = 18.sp,
-            fontFamily = fontFamilyLato,
+//        Text(text = "•",
+//            modifier = modifier.padding(end = 4.dp),
+//            color = LightBlack,
+//            fontSize = 18.sp,
+//            fontFamily = fontFamilyLato,
+//        )
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp, end = 10.dp)
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(LightBlack)
         )
         Text(
             buildAnnotatedString {

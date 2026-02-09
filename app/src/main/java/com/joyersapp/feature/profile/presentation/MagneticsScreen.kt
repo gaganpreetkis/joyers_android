@@ -1674,7 +1674,7 @@ data class ProfileHeaderData(
 //        get() =  25 - (bullets.firstOrNull{it.requestFocus}?.textValue?.text?.graphemeCount()?:0)
 
     val isApplyEnabled: Boolean
-        get() = if (bioValidationError == null && (!profilePicture.isNullOrEmpty() || !backgroundPicture.isNullOrEmpty() || !websiteUrl.isNullOrEmpty() || overviewFieldValue.text.graphemeCount() != 0 || highlightFieldValue.text.graphemeCount() > 2)) true else false
+        get() = if (bioValidationError == null && (!profilePicture.isNullOrEmpty() || !backgroundPicture.isNullOrEmpty() || !websiteUrl.isNullOrEmpty() || overviewFieldValue.text.graphemeCount() != 0 || bullets.firstOrNull()?.textValue?.text.toString().graphemeCount() != 0)) true else false
 
     val maxBullets: Int
         get() = if (websiteUrl.isNullOrEmpty()) 5 else 4

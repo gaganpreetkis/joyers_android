@@ -67,6 +67,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joyersapp.R
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.AppBasicTextField2
 import com.joyersapp.feature.profile.data.remote.dto.Languages
 import com.joyersapp.feature.profile.data.remote.dto.ProfileLanguagesData
 import com.joyersapp.feature.profile.presentation.dialogs.LanguagesDialogEvent
@@ -112,7 +113,7 @@ fun LanguageSelectionDialog(
 
     if (!state.rootItems.isNullOrEmpty()) {
         LanguagesDialog(
-            headers = state.header,
+            headers = state.headers,
             searchQuery = state.searchQuery,
             recentSelectedItemId = state.recentSelectedItemId,
             titlesData = state.reorderedItems,
@@ -308,6 +309,7 @@ fun LanguagesDialog(
                     title = {
                         SearchBarRow(
                             searchQuery = searchQuery,
+                            placeholder = "Search ${headers.lastOrNull()?:""}",
                             showApplyButton = showApplyButton,
                             onApply = { onApply() },
                             onSearchQueryChanged = { onSearchQueryChanged(it) }
@@ -427,6 +429,7 @@ fun LanguagesDialog(
 @Composable
 private fun SearchBarRow(
     dialogModifier: Modifier = Modifier,
+    placeholder: String,
     searchQuery: String,
     showApplyButton: Boolean,
     onApply: () -> Unit,
@@ -478,16 +481,16 @@ private fun SearchBarRow(
 
                 // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
                 // We account for this in our layout
-                AppBasicTextField(
+                AppBasicTextField2(
                     value = searchQuery,
                     onValueChange = { query ->
                         onSearchQueryChanged(query)
                     },
-                    placeholder = "Search Language",
+                    placeholder = placeholder,
                     modifier = dialogModifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .padding(bottom = 1.dp),
+                        .padding(start = 10.dp, bottom = 1.dp),
                     textStyle = TextStyle(
                         platformStyle = PlatformTextStyle(
                             includeFontPadding = false
@@ -681,7 +684,7 @@ private fun LanguageLevel(
     LazyRow(
         modifier = modifier.padding(start = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(start = 5.dp),  // No edge padding
+        contentPadding = PaddingValues(start = 5.dp, end = 15.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val tabs = listOf("Basic", "Good", "Very Good", "Excellent")

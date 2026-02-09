@@ -78,8 +78,35 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.iosBounceScroll
 
-@OptIn(ExperimentalLayoutApi::class)
 @Preview
+@Composable
+fun LoginScreenPreview() {
+    Box(contentAlignment = Alignment.Center) {
+
+        Box(
+            modifier = Modifier
+                .border(shape = CircleShape, width = 1.5.dp, color = Golden)
+                .padding(1.5.dp)
+                .border(shape = CircleShape, width = 2.5.dp, color = White)
+                .background(shape = CircleShape, color = Gray20)
+                .size(27.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = Modifier
+                    .size(10.33.dp, 18.4.dp),
+                painter = painterResource(id = R.drawable.suggestion_joy),
+                contentDescription = null,
+            )
+        }
+        Box(
+            Modifier.size(23.dp)
+        )
+    }
+}
+
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit = {},
@@ -697,37 +724,67 @@ fun RecentUserItem(
         if (!isEmail) {
             // Profile picture icon for username - circular with colored background
             if (user.profile_picture != null && user.profile_picture?.isNotEmpty() == true) {
-                AsyncImage(
-                    model = "${NetworkConfig.IMAGE_BASE_URL}${user.profile_picture}",
-                    contentDescription = null,
+
+                Box(
                     modifier = Modifier
-                        .size(28.dp)
                         .border(shape = CircleShape, width = 1.5.dp, color = AvatarBorder)
-                        .padding(4.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                    fallback = painterResource(id = R.drawable.avatar),
-                    error = painterResource(id = R.drawable.avatar),
-                    placeholder = painterResource(id = R.drawable.avatar)
-                )
-            } else {
-                Image(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .border(shape = CircleShape, width = 1.5.dp, color = Golden)
-                        .padding(4.dp)
+                        .padding(1.5.dp)
+                        .border(shape = CircleShape, width = 2.5.dp, color = White)
                         .background(shape = CircleShape, color = Gray20)
-                        .padding(2.3.dp),
-                    painter = painterResource(id = R.drawable.suggestion_joy),
-                    contentDescription = null,
-                )
+                        .size(27.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = "${NetworkConfig.IMAGE_BASE_URL}${user.profile_picture}",
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(23.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                        fallback = painterResource(id = R.drawable.avatar),
+                        error = painterResource(id = R.drawable.avatar),
+                        placeholder = painterResource(id = R.drawable.avatar)
+                    )
+                }
+//                AsyncImage(
+//                    model = "${NetworkConfig.IMAGE_BASE_URL}${user.profile_picture}",
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .size(28.dp)
+//                        .border(shape = CircleShape, width = 1.5.dp, color = AvatarBorder)
+//                        .padding(4.dp)
+//                        .clip(CircleShape),
+//                    contentScale = ContentScale.Crop,
+//                    fallback = painterResource(id = R.drawable.avatar),
+//                    error = painterResource(id = R.drawable.avatar),
+//                    placeholder = painterResource(id = R.drawable.avatar)
+//                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .border(shape = CircleShape, width = 1.5.dp, color = Golden)
+                        .padding(1.5.dp)
+                        .border(shape = CircleShape, width = 2.5.dp, color = White)
+                        .background(shape = CircleShape, color = Gray20)
+                        .size(27.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .size(10.33.dp, 18.4.dp),
+                        painter = painterResource(id = R.drawable.suggestion_joy),
+                        contentDescription = null,
+                    )
+                }
             }
         } else {
             // Envelope icon for email
             Image(
                 painter = painterResource(id = R.drawable.ic_mail),
                 contentDescription = null,
-                modifier = Modifier.size(width = 28.dp, height = 17.12.dp),
+                modifier = Modifier
+                    .padding(start = 3.dp)
+                    .size(width = 22.5.dp, height = 17.12.dp),
             )
         }
 
@@ -740,7 +797,7 @@ fun RecentUserItem(
             fontFamily = fontFamilyLato,
             fontWeight = FontWeight.Normal,
             color = LightBlack,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).padding(start = if (isEmail) 2.5.dp else 0.dp),
             lineHeight = 24.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis

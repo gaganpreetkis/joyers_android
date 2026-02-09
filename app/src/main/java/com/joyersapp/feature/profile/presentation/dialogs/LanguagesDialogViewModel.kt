@@ -28,6 +28,8 @@ data class LanguagesDialogUiState(
     val isMultiSelectEnabled: Boolean = true,
     val recentSelectedItemId: String = "",
 
+    val headers: MutableList<String> =  mutableListOf("Identification", "Language")
+
     ) {
 
     val filteredItems: List<ProfileLanguagesData>
@@ -54,9 +56,9 @@ data class LanguagesDialogUiState(
         else
         initialItems != currentItems
 
-    val header: List<String>
-        get() = if (showBackButton) listOf("Identification", "Language", "Sign Language")
-        else listOf("Identification", "Language")
+//    val header: List<String>
+//        get() = if (showBackButton) listOf("Identification", "Language", "Sign Language")
+//        else listOf("Identification", "Language")
 
     val selectedLanguages: List<ProfileLanguagesData>
         get() = rootItems.filter { it.isSelected }
@@ -132,6 +134,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                             }?.language?.level else item.level
                             val selections =
                                 if (!item.selections.isNullOrEmpty()) {
+                                    uiState.value.headers.add("Sign Language")
                                     item.selections?.map { subItem ->
                                         val selectedSubLangs = event.selectedLanguages.firstOrNull{it.language?.id.equals(item.id)}?.sublanguages
                                         subItem.copy(
@@ -196,6 +199,8 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                 val state = _uiState.value
                 // Has sub languages
                 if (!event.item.selections.isNullOrEmpty()) {
+
+                    uiState.value.headers.add("Sign Language")
                     _uiState.update {
                         it.copy(
                             currentItems = event.item.selections!!,
@@ -287,6 +292,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
             is LanguagesDialogEvent.OnClearData -> { onCleared() }
 
             is LanguagesDialogEvent.OnBack -> {
+                uiState.value.headers.removeLast()
                 _uiState.update {
                     val items = it.rootItems
                     it.copy(

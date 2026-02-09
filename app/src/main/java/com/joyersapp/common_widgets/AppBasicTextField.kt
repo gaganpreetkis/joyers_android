@@ -642,6 +642,181 @@ fun AppBasicTextField(
     }
 }
 
+
+@Composable
+fun AppBasicTextField2(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    isPassword: Boolean = false,
+    passwordVisible: Boolean = false,
+    isCentered: Boolean = false,
+    isEnabled: Boolean = true,
+    maxLength: Int = 100,
+    onPasswordToggle: (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    textStyle: TextStyle = TextStyle(
+        fontSize = 16.sp,
+        fontFamily = fontFamilyLato,
+        fontWeight = FontWeight.Normal,
+        platformStyle = PlatformTextStyle(includeFontPadding = false)
+    ),
+    containerColor: Color = Gray20,
+    contentColor: Color = Black,
+    placeholderColor: Color = Gray40,
+    onFocusChanged: ((Boolean) -> Unit)? = null
+) {
+
+    val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
+
+    // Internal TextFieldValue to control cursor position
+    var tfValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = value,
+                selection = TextRange(value.length)
+            )
+        )
+    }
+
+    // Sync if external value changes - always sync to handle clearing
+    LaunchedEffect(value) {
+        // Always sync tfValue with external value changes
+        // This ensures clearing works even when field is focused
+        if (tfValue.text != value) {
+            tfValue = tfValue.copy(text = value, selection = TextRange(value.length))
+        }
+    }
+
+    val focusManager = LocalFocusManager.current
+
+    Row(
+        modifier = modifier
+            .background(containerColor, shape = RoundedCornerShape(8.dp))
+            .fillMaxHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                    onFocusChanged?.invoke(focusState.isFocused)
+                }
+        ) {
+
+            // --------------------------------------------------
+            // 1️⃣ SHOW ELLIPSIZED TEXT ONLY WHEN NOT FOCUSED
+            // --------------------------------------------------
+            if (!isFocused && tfValue.text.isNotEmpty()) {
+                Text(
+                    text = tfValue.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = textStyle.copy(color = contentColor),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            // Focus the field
+                            focusRequester.requestFocus()
+
+                            // Set cursor to END
+                            tfValue = tfValue.copy(
+                                selection = TextRange(tfValue.text.length)
+                            )
+                        }
+                )
+            }
+
+            // --------------------------------------------------
+            // 2️⃣ PLACEHOLDER WHEN EMPTY (show even when focused)
+            // --------------------------------------------------
+            if (tfValue.text.isEmpty()) {
+                Text(
+                    text = placeholder,
+                    color = placeholderColor,
+                    style = textStyle,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // --------------------------------------------------
+            // 3️⃣ BASIC TEXT FIELD (VISIBLE ONLY WHEN FOCUSED)
+            // --------------------------------------------------
+            BasicTextField(
+                value = tfValue,
+                onValueChange = { newValue ->
+
+//                    val asciiFiltered = filterAscii(newValue.text, maxLength)
+
+                    if (keyboardOptions.capitalization == KeyboardCapitalization.Words) {
+
+                        val caseFiltered = filterNameCase(newValue.text)
+
+                        if (caseFiltered != newValue.text) {
+                            val updated = newValue.copy(
+                                text = caseFiltered,
+                                selection = TextRange(caseFiltered.length)
+                            )
+                            tfValue = updated
+                            onValueChange(caseFiltered)
+                        } else {
+                            tfValue = newValue
+                            onValueChange(newValue.text)
+                        }
+
+                    } else {
+
+//                        if (asciiFiltered != newValue.text) {
+//                            val updated = newValue.copy(
+//                                text = asciiFiltered,
+//                                selection = TextRange(asciiFiltered.length)
+//                            )
+//                            tfValue = updated
+//                            onValueChange(asciiFiltered)
+//                        } else {
+                            tfValue = newValue
+                            onValueChange(newValue.text)
+//                        }
+                    }
+                },
+                singleLine = true,
+                enabled = isEnabled,
+                textStyle = textStyle.copy(color = contentColor),
+                visualTransformation = if (isPassword && !passwordVisible)
+                    PasswordVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = keyboardOptions,
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                cursorBrush = SolidColor(Black),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .alpha(if (isFocused) 1f else 0f) // hide when not focused
+            )
+        }
+
+        // --------------------------------------------------
+        // 4️⃣ PASSWORD TOGGLE BUTTON
+        // --------------------------------------------------
+        if (isPassword && onPasswordToggle != null && value.trim().isNotEmpty()) {
+            Image(
+                painter = painterResource(
+                    if (passwordVisible) R.drawable.show_password
+                    else R.drawable.password_hide),
+                contentDescription = "Toggle Password",
+                Modifier
+                    .padding(start = 5.dp, end = 15.dp)
+                    .size(24.dp)
+                    .clickable {
+                        onPasswordToggle()
+                    } )
+        }
+    }
+}
+
 @Composable
 fun AppBasicTextFieldForLetterSpacing(
     value: String,

@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -1045,12 +1046,19 @@ fun ClassificationItem(
         modifier = modifier
 
     ) {
-        Text(
-            text = "•",
-            modifier = modifier.padding(end = 4.dp),
-            color = LightBlack,
-            fontSize = 18.sp,
-            fontFamily = fontFamilyLato,
+//        Text(
+//            text = "•",
+//            modifier = modifier.padding(end = 4.dp),
+//            color = LightBlack,
+//            fontSize = 18.sp,
+//            fontFamily = fontFamilyLato,
+//        )
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp, end = 10.dp)
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(LightBlack)
         )
         Text(
             buildAnnotatedString {

@@ -125,9 +125,9 @@ class ForgotPasswordViewModel @Inject constructor(
                 },
                 onFailure = { error ->
                     if (uiState.value.isPhoneMode) {
-                        _uiState.update { it.copy(isLoading = false, phoneError = error.message ?: "Something went wrong") }
+                        _uiState.update { it.copy(isLoading = false, phoneError = "Reset Password failed. Please try again.") }
                     } else {
-                        _uiState.update { it.copy(isLoading = false, usernameEmailError = error.message ?: "Something went wrong") }
+                        _uiState.update { it.copy(isLoading = false, usernameEmailError = "Reset Password failed. Please try again.") }
                     }
                 }
             )

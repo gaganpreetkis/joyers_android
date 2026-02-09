@@ -105,7 +105,7 @@ fun UserProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(GrayBG)
+                    .background(White)
             ) {
 
                 ProfileTopHeader(
@@ -186,7 +186,11 @@ fun UserProfileScreen(
                         .fillMaxWidth()
                         .background(White))
 
-                    ProfileTabsContainer(state, viewModel)
+                    val identityModifier = if (
+                        !state.gender.isNullOrEmpty() || !state.nationality.isNullOrEmpty() || !state.ethnicity?.name.isNullOrEmpty() || !state.faith?.name.isNullOrEmpty() || !state.languages.isNullOrEmpty() || !state.education?.name.isNullOrEmpty() || !state.location?.name.isNullOrEmpty()
+                    ) Modifier.fillMaxSize() else Modifier.weight(1f, fill = true)
+
+                    ProfileTabsContainer(modifier = Modifier.then(identityModifier), state, viewModel)
 
                 }
             }
@@ -720,10 +724,10 @@ fun CustomScrollableTabRow(
 }
 
 @Composable
-fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewModel) {
+fun ProfileTabsContainer(modifier: Modifier, state: UserProfileUiState, viewModel: UserProfileViewModel) {
     // Tab content
     when (state.selectedTab) {
-        0 -> Column {
+        0 -> {
             val headers = arrayListOf("Description", "Joyer Status", state.joyerStatus)
             if (state.title != null) headers.add(state.title?.name?: "")
             if (state.subTitle != null) headers.add(state.subTitle?.name?: "")
@@ -740,8 +744,10 @@ fun ProfileTabsContainer(state: UserProfileUiState, viewModel: UserProfileViewMo
                 })
         }
 
-        1 -> Column {
+        1 -> {
+
             ProfileIdentitySection(
+                modifier = modifier,
                 state = state,
                 onEditIdentity = {
                     viewModel.onEvent(UserProfileEvent.InitMagneticsData)

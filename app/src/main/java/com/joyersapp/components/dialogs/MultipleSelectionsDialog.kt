@@ -24,6 +24,7 @@ fun MultipleSelectionsDialog(
     val isMultiselectEnabled = uiStateMagnetics.isMultiselectEnabled
     val titlesData = state.titlesData
     val headers = state.dialogHeader
+    val localHeader = state.dialogHeader.toMutableList()
 
   /*  var searchQuery by remember { mutableStateOf("") }
     var itemsList by remember { mutableStateOf(titlesData) }
@@ -65,7 +66,7 @@ fun MultipleSelectionsDialog(
         onDismiss = onDismiss,
         onApply = { onApply(key, currentList.filter { it.isSelected }) },
         showApplyButton = currentList != titlesData,
-        headers = headers,
+        headers = localHeader,
         searchQuery = searchQuery,
         onSearchQueryChanged = { query ->
             searchQuery = query
@@ -77,8 +78,9 @@ fun MultipleSelectionsDialog(
         },
         titlesData = reorderedTitles,
         clarificationData = clarificationTitles,
-        onShowSubTitles = { list ->
-            currentList = list
+        onShowSubTitles = { title ->
+            localHeader.add(title.name?:"")
+            currentList = title.selections?: emptyList()
         },
         onTitleSelected = { titleId ->
             if (isMultiselectEnabled) {
@@ -96,6 +98,7 @@ fun MultipleSelectionsDialog(
             }
         },
         onBack = {
+            localHeader.removeLast()
             currentList = titlesData
         }
     )
