@@ -32,6 +32,7 @@ import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.feature.home.presentation.HomeScreen
+import com.joyersapp.feature.post.presentation.CreateJoyScreen
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.presentation.MagneticsScreen
@@ -241,7 +242,9 @@ fun DashboardNavGraph(navController: NavHostController) {
         }
 
         composable(BottomTab.POST.route) {
-            HomeScreen()
+            CreateJoyScreen(
+                viewModel = hiltViewModel()
+            )
         }
 
         composable(BottomTab.CONTACTS.route) {
