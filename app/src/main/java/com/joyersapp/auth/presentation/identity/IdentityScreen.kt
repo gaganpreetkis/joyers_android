@@ -140,18 +140,18 @@ fun IdentityScreen(
     viewModel2.onEvent(IdentityEvent.UserIdChanged(userId))
     viewModel2.onEvent(IdentityEvent.TokenChanged(token))
     val context = LocalContext.current
-    val pagerState = rememberPagerState(initialPage = initialPage) { 3 }
+    val pagerState = rememberPagerState(initialPage = initialPage) { 2 }
     var currentPage by remember { mutableStateOf(initialPage) }
     val coroutineScope = rememberCoroutineScope()
 
     val pageTitles = listOf(
         stringResource(R.string.identity),
-        stringResource(R.string.status),
+//        stringResource(R.string.status),
         stringResource(R.string.status)
     )
 
-    val pageCounts = listOf("1/3", "2/3", "3/3")
-    val progressValues = listOf(33, 66, 100)
+    val pageCounts = listOf("1/2", "2/2")
+    val progressValues = listOf(50, 100)
 
     // Update current page when pager state changes
     LaunchedEffect(pagerState.currentPage) {
@@ -278,7 +278,8 @@ fun IdentityScreen(
 //                        activity = activity
                     )
 
-                    1 -> PageTwoContent(
+                    // Removed in sprint 3
+/*                    1 -> PageTwoContent(
                         viewModel2 = viewModel2,
                         onNext = {
                             coroutineScope.launch {
@@ -293,9 +294,9 @@ fun IdentityScreen(
 ////                        signupViewModel = signupViewModel,
 ////                        preferencesManager = preferencesManager,
 ////                        activity = activity
-                    )
+                    )*/
 
-                    2 -> PageThreeContent(
+                    1 -> PageThreeContent(
                         viewModel2 = viewModel2,
                         onBack = {
                             coroutineScope.launch {
@@ -407,8 +408,9 @@ fun PageOneContent(
     }
 
     val showNextButton = remember(state.name, state.joyerLocation) {
-        state.name.isNotEmpty() && state.joyerLocation.isNotEmpty() &&
-                /*isValidNameAdvanced(username) && */state.name.length > 1
+        state.name.isNotEmpty() && state.name.length > 1
+//                && state.joyerLocation.isNotEmpty()
+//                && isValidNameAdvanced(username)
     }
 
     val showSkipButton = remember(state.name, state.joyerLocation) {
@@ -623,16 +625,16 @@ fun PageOneContent(
                 color = lightBlackColor,
                 modifier = Modifier
             )
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(
-                text = "*",
-                fontSize = 22.sp,
-                fontFamily = fontFamilyLato,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 22.sp,
-                color = astrikeColor,
-                modifier = Modifier.padding(top = 3.dp)
-            )
+//            Spacer(modifier = Modifier.width(5.dp))
+//            Text(
+//                text = "*",
+//                fontSize = 22.sp,
+//                fontFamily = fontFamilyLato,
+//                fontWeight = FontWeight.SemiBold,
+//                lineHeight = 22.sp,
+//                color = astrikeColor,
+//                modifier = Modifier.padding(top = 3.dp)
+//            )
         }
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -1293,7 +1295,7 @@ fun PageThreeContent(
     }
 
     LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage == 2)
+        if (pagerState.currentPage == 1)
             viewmodel.onEvent(TitleEvent.Load)
 
     }
