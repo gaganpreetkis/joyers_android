@@ -62,7 +62,10 @@ data class TitlesUiState(
     val preSelectedSubTitle: ProfileTitlesData? = null,
     val selectedSubTitle: ProfileTitlesData? = null,
     val firstClick: Boolean = true,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+
+    val headers: MutableList<String> = mutableListOf("Description", "Joyer Status", "Classic")
+
 
 ) {
 
@@ -87,16 +90,16 @@ data class TitlesUiState(
         get() = currentUiMode is TitlesDialogMode.SubTitle
 
 
-    val headers: List<String>
-        get() =  when (currentUiMode) {
-            TitlesDialogMode.Title -> {
-                arrayListOf("Description", "Joyer Status", "Classic")
-            }
-
-            TitlesDialogMode.SubTitle -> {
-                arrayListOf("Description", "Joyer Status", "Classic", localTitle?.name)
-            }
-        }
+//    val headers: List<String>
+//        get() =  when (currentUiMode) {
+//            TitlesDialogMode.Title -> {
+//                arrayListOf("Description", "Joyer Status", "Classic")
+//            }
+//
+//            TitlesDialogMode.SubTitle -> {
+//                arrayListOf("Description", "Joyer Status", "Classic", localTitle?.name)
+//            }
+//        }
 
 
     val isApplyEnabled: Boolean
@@ -221,6 +224,7 @@ class TitlesDialogViewmodel @Inject constructor(
                         )
                     }
                 } else {
+                    uiState.value.headers.add(event.selectedTitle?.name?:"")
                     _uiState.update {
                         var subItems = emptyList<ProfileTitlesData>()
                         val items = event.items.map { title ->
@@ -251,6 +255,7 @@ class TitlesDialogViewmodel @Inject constructor(
 
             }
             is TitlesEvent.OnBackButton -> {
+                uiState.value.headers.removeLast()
                 _uiState.update {
                     it.copy(
                         currentItems = it.rootItems,
@@ -268,6 +273,7 @@ class TitlesDialogViewmodel @Inject constructor(
             }
             is TitlesEvent.OnItemClicked -> {
                 if (!event.item.selections.isNullOrEmpty()) {
+                    uiState.value.headers.add(event.item.name?:"")
                     // 👉 Navigate to child list
                     _uiState.update {
                         it.copy(

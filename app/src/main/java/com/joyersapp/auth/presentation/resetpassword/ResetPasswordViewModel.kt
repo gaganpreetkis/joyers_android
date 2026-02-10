@@ -129,7 +129,7 @@ class ResetPasswordViewModel @Inject constructor (
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update { it.copy(isLoading = false, passwordResetErrorMessage = error.message ?: "Something went wrong") }
+                    _uiState.update { it.copy(isLoading = false, passwordResetErrorMessage = "Reset Password failed. Please try again.") }
                 }
             )
         }

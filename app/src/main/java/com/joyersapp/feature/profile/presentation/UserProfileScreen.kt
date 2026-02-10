@@ -105,7 +105,7 @@ fun UserProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(White)
+                    .background(GrayBG)
             ) {
 
                 ProfileTopHeader(

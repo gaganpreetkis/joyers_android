@@ -222,10 +222,10 @@ fun ForgotPasswordScreen(
                 Text(
                     text = if (!state.showVerificationCode) if (state.isPhoneMode) {
                         //stringResource(R.string.number_sent)
-                        "Enter your mobile number"
+                        "Enter your mobile number to reset your password"
                     } else {
                         //stringResource(R.string.email_sent)
-                        "Enter your username or email"
+                        "Enter your username or email to reset your password"
                     } else {
                         if (state.isPhoneMode) {
                             //stringResource(R.string.reset_password_in_two_steps)
@@ -235,7 +235,8 @@ fun ForgotPasswordScreen(
                         }
                     },
                     fontSize = 16.sp,
-                    lineHeight = if (!state.showVerificationCode) 19.sp else 23.sp,
+                    lineHeight = 23.sp,
+//                    lineHeight = if (!state.showVerificationCode) 19.sp else 23.sp,
                     fontFamily = fontFamilyLato,
                     fontWeight = FontWeight.SemiBold,
                     color = LightBlack,
@@ -698,30 +699,9 @@ fun ForgotPasswordScreen(
                 }
             }
 
-            // Error messages
-            if (state.phoneError != null && state.isPhoneMode) {
-                Text(
-                    text = state.phoneError!!,
-                    color = Red,
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = fontFamilyLato,
-                    modifier = Modifier.padding(top = 3.dp)
-                )
-            }
 
-            if (state.usernameEmailError != null && !state.isPhoneMode) {
-                Text(
-                    text = state.usernameEmailError!!,
-                    color = Red,
-                    fontSize = 14.sp,
-                    fontFamily = fontFamilyLato,
-                    lineHeight = 20.sp,
-                    modifier = Modifier.padding(top = 3.dp)
-                )
-            }
-
-            if (!state.showVerificationCode) {
+            // Removed in Sprint 3
+         /*   if (!state.showVerificationCode) {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Tab selection section (only shown before verification)
@@ -828,7 +808,7 @@ fun ForgotPasswordScreen(
                         )
                     }
                 }
-            }
+            }*/
 
             // Verification code input
             if (state.showVerificationCode) {
@@ -876,11 +856,43 @@ fun ForgotPasswordScreen(
                 }
             }
 
+
             // Next Button
             if (!state.showVerificationCode) {
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(37.dp))
 
-                Button(
+                // Error messages
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(35.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    if (state.phoneError != null && state.isPhoneMode) {
+                        Text(
+                            text = state.phoneError!!,
+                            color = Red,
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            fontFamily = fontFamilyLato,
+                            modifier = Modifier.padding(top = 3.dp)
+                        )
+                    }
+
+                    if (state.usernameEmailError != null && !state.isPhoneMode) {
+                        Text(
+                            text = state.usernameEmailError!!,
+                            color = Red,
+                            fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
+                            lineHeight = 20.sp,
+                            modifier = Modifier.padding(top = 3.dp)
+                        )
+                    }
+                }
+
+
+                    Button(
                     onClick = {
                         // Validate and proceed
                         if (!isFormValid) {
@@ -919,7 +931,36 @@ fun ForgotPasswordScreen(
 
             // Verify and Resend Code Buttons
             if (state.showVerificationCode) {
-                Spacer(modifier = Modifier.height(35.dp))
+                // Error messages
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(35.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    if (state.phoneError != null && state.isPhoneMode) {
+                        Text(
+                            text = state.phoneError!!,
+                            color = Red,
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            fontFamily = fontFamilyLato,
+                            modifier = Modifier.padding(top = 3.dp)
+                        )
+                    }
+
+                    if (state.usernameEmailError != null && !state.isPhoneMode) {
+                        Text(
+                            text = state.usernameEmailError!!,
+                            color = Red,
+                            fontSize = 14.sp,
+                            fontFamily = fontFamilyLato,
+                            lineHeight = 20.sp,
+                            modifier = Modifier.padding(top = 3.dp)
+                        )
+                    }
+                }
+
 
                 Button(
                     onClick = {

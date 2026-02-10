@@ -134,7 +134,6 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                             }?.language?.level else item.level
                             val selections =
                                 if (!item.selections.isNullOrEmpty()) {
-                                    uiState.value.headers.add("Sign Language")
                                     item.selections?.map { subItem ->
                                         val selectedSubLangs = event.selectedLanguages.firstOrNull{it.language?.id.equals(item.id)}?.sublanguages
                                         subItem.copy(

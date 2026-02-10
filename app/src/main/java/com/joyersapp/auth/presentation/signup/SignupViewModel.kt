@@ -15,9 +15,11 @@ import com.joyersapp.auth.domain.usecase.RegisterUseCase
 import com.joyersapp.auth.domain.usecase.VerifyOtpUseCase
 import com.joyersapp.core.SessionManager
 import com.joyersapp.utils.ApiErrorException
+import com.joyersapp.utils.UiError
 import com.joyersapp.utils.UiText
 import com.joyersapp.utils.UiText.*
 import com.joyersapp.utils.isValidPassword
+import com.joyersapp.utils.toUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Job
@@ -88,7 +90,7 @@ class SignupViewModel @Inject constructor(
                 val prevFocused = _uiState.value.isUsernameFocused
 
                 _uiState.update {
-                    it.copy(isUsernameFocused = event.isFocused, error = null)
+                    it.copy(isUsernameFocused = event.isFocused)
                 }
 
                 if (prevFocused && !event.isFocused && _uiState.value.username.text.isNotEmpty() && _uiState.value.username.text.length < 4) {
@@ -146,7 +148,7 @@ class SignupViewModel @Inject constructor(
                 val prevFocused = _uiState.value.isEmailFocused
 
                 _uiState.update {
-                    it.copy(isEmailFocused = event.isFocused, error = null)
+                    it.copy(isEmailFocused = event.isFocused)
                 }
 
                 if (prevFocused && !event.isFocused && state.email.isNotEmpty() &&  !isValidEmail) {
@@ -184,7 +186,7 @@ class SignupViewModel @Inject constructor(
                 val prevFocused = _uiState.value.isPhoneFocused
 
                 _uiState.update {
-                    it.copy(isPhoneFocused = event.isFocused, error = null)
+                    it.copy(isPhoneFocused = event.isFocused)
                 }
 
                 if (prevFocused && !event.isFocused && state.email.isNotEmpty() && !isValidPhone) {
@@ -383,19 +385,37 @@ class SignupViewModel @Inject constructor(
                             showUsernameLoader = false,
                             isValidUsername = true,
                             showUsernameError = false,
+                            error = null,
                             usernameError = null
                         )
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update {
-                        it.copy(
-                            usernameSuggestions = if (error is ApiErrorException) error.errorBody?.suggestions!! else emptyList(),
-                            showUsernameLoader = false,
-                            isValidUsername = false,
-                            showUsernameError = true,
-                            usernameError = DynamicString(error.message ?: "Something went wrong")
-                        )
+
+                    val uiError = error.toUiError()
+                    if (uiError is UiError.ServerError) {
+                        _uiState.update {
+                            it.copy(
+                                usernameSuggestions = if (error is ApiErrorException) error.errorBody?.suggestions!! else emptyList(),
+                                showUsernameLoader = false,
+                                isValidUsername = false,
+                                showUsernameError = true,
+                                usernameError = DynamicString(
+                                    error.message ?: "Something went wrong"
+                                )
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                usernameSuggestions = emptyList(),
+                                showUsernameLoader = false,
+                                isValidUsername = false,
+                                showUsernameError = false,
+                                usernameError = null,
+                                error = "Sign up failed. Please try again later."
+                            )
+                        }
                     }
                 }
             )
@@ -441,12 +461,26 @@ class SignupViewModel @Inject constructor(
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            showVerification = false,
-                            emailPhoneError = DynamicString(error.message ?: "Something went wrong"),
-                        )
+                    val uiError = error.toUiError()
+                    if (uiError is UiError.ServerError) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                showVerification = false,
+                                emailPhoneError = DynamicString(
+                                    error.message ?: "Something went wrong"
+                                ),
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                showVerification = false,
+                                emailPhoneError = null,
+                                error = "Sign up failed. Please try again later.",
+                            )
+                        }
                     }
                 }
             )
@@ -493,11 +527,21 @@ class SignupViewModel @Inject constructor(
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            verificationError = error.message,
-                        )
+                    val uiError = error.toUiError()
+                    if (uiError is UiError.ServerError) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                verificationError = error.message,
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = "Sign up failed. Please try again later.",
+                            )
+                        }
                     }
                 }
             )
@@ -548,11 +592,21 @@ class SignupViewModel @Inject constructor(
                     _navigationEvents.emit(SignupNavigationEvent.RegistrationCompleted(response.token ?: "", response.user?.id ?: ""))
                 },
                 onFailure = { error ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = error.message
-                        )
+                    val uiError = error.toUiError()
+                    if (uiError is UiError.ServerError) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = error.message
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = "Sign up failed. Please try again later."
+                            )
+                        }
                     }
                 }
             )

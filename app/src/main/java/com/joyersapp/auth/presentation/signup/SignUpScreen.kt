@@ -811,6 +811,8 @@ fun SignUpScreen(
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
                             lineHeight = 20.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
 //                        modifier = Modifier.padding(top = 3.dp)
                         )
                         Spacer(modifier = Modifier.height(14.dp))

@@ -82,6 +82,7 @@ import com.joyersapp.auth.presentation.identity.TitlesDialogViewmodel
 import com.joyersapp.auth.presentation.identity.TitlesEvent
 import com.joyersapp.auth.presentation.identity.TitlesNavEvent
 import com.joyersapp.common_widgets.AppBasicTextField
+import com.joyersapp.common_widgets.AppBasicTextField2
 import com.joyersapp.common_widgets.DashedLine
 import com.joyersapp.feature.dashboard.Routes
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
@@ -268,6 +269,7 @@ private fun EditDescriptionDialog2(
                             title = {
                                 SearchBarRow(
                                     searchQuery = searchQuery,
+                                    placeholder = "Search ${headers.lastOrNull()?:""}",
                                     showApplyButton = showApplyButton,
                                     onApply = { onApply() },
                                     onSearchQueryChanged = { onSearchQueryChanged(it) }
@@ -422,6 +424,7 @@ private fun EditDescriptionDialog2(
 @Composable
 private fun SearchBarRow(
     dialogModifier: Modifier = Modifier,
+    placeholder: String,
     searchQuery: String,
     showApplyButton: Boolean,
     onApply: () -> Unit,
@@ -439,7 +442,7 @@ private fun SearchBarRow(
             .fillMaxWidth()
             .padding(top = 0.dp, bottom = 20.dp)
             .height(35.dp)
-            .padding(horizontal = 15.dp),
+            .padding(end = 15.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         // Search field with icons
@@ -474,16 +477,16 @@ private fun SearchBarRow(
 
                 // AppBasicTextField - it has internal padding (15.dp start, 2.dp end)
                 // We account for this in our layout
-                AppBasicTextField(
+                AppBasicTextField2(
                     value = searchQuery,
                     onValueChange = { query ->
                         onSearchQueryChanged(query)
                     },
-                    placeholder = stringResource(R.string.search_speciality),
+                    placeholder = placeholder,
                     modifier = dialogModifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .padding(bottom = 1.dp),
+                        .padding(start = 10.dp, bottom = 1.dp),
                     textStyle = TextStyle(
                         platformStyle = PlatformTextStyle(
                             includeFontPadding = false

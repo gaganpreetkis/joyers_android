@@ -186,26 +186,34 @@ fun ProfileIdentitySection(
             Spacer(Modifier.height(10.dp))
         }
         else {
-            Box(
+            Column(
                 Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .background(White),
-                contentAlignment = Alignment.Center
+                    .background(GrayBG)
             ) {
-                Text(
-                    text = "No Identity yet!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamilyLato,
-                    color = LightBlack,
-                    lineHeight = 34.sp,
-                    modifier = Modifier
-                        .padding(bottom = 39.dp)
-                )
-            }
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No Identity yet!",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = LightBlack,
+                        lineHeight = 34.sp,
+                        modifier = Modifier
+                            .padding(bottom = 39.dp)
+                    )
+                }
 
-            Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(10.dp))
+
+            }
         }
 
 
