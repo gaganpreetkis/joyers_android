@@ -260,7 +260,9 @@ fun JoyerCodeSection(
 
                     Spacer(Modifier.height(10.dp))
                 }
-                if (!state.fullname?.trim().isNullOrEmpty()) {
+
+                // Removed in sprint 3
+                /*if (!state.fullname?.trim().isNullOrEmpty()) {
                     Text(
                         modifier = Modifier.width(200.dp),
                         text = state.fullname.trim(),
@@ -274,7 +276,7 @@ fun JoyerCodeSection(
                     )
 
                     Spacer(Modifier.height(7.dp))
-                }
+                }*/
 
                 if (state.username.trim().isNotEmpty()) {
                     Text(

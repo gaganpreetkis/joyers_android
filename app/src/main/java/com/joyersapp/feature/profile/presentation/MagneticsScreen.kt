@@ -338,7 +338,7 @@ fun MagneticsScreen(
                         )
                     }
 
-                    Spacer(Modifier.height(80.dp))
+                    Spacer(Modifier.height(45.dp))
                 }
 
 
@@ -708,10 +708,10 @@ fun DescriptionSection(state: MagneticsData, onclick: () -> Unit) {
     ) {
         SectionHeader(title = "Description")
         Spacer(Modifier.height(13.dp))
-        if (!(state.subTitle?.name?: state.title?.name).isNullOrEmpty()) {
+        if (!(state.subTitle?.name?: state.title?.name?: state.joyerStatus).isNullOrEmpty()) {
             KeyValueText(
                 "Joyer Status",
-                state.subTitle?.name?: state.title?.name?: "Classic"
+                state.subTitle?.name?: state.title?.name?: state.joyerStatus?: ""
             )
         } else { ProfileEditableRow(title = "Joyer Status") }
     }
