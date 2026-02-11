@@ -129,6 +129,10 @@ private fun CreateJoyScafold(state: CreateJoyUiState) {
                 .fillMaxSize()
         ) {
             CreateJoyHeader(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(63.dp)
+                    .background(White),
                 onBack = {},
                 onMenu = {}
             )
@@ -137,29 +141,47 @@ private fun CreateJoyScafold(state: CreateJoyUiState) {
                 thickness = 0.5.dp,
                 color = GrayOuterBorder
             )
-            Spacer(Modifier.height(15.dp))
 
-            JoyerRow()
+            JoyerRow(
+                modifier = Modifier
+                    .padding(top = 15.dp)
+                    .fillMaxWidth()
+                    .height(57.dp)
+                    .padding(horizontal = 15.dp)
+            )
 
         }
 
-        PlaceholderRow(Modifier.align(Alignment.Center))
+        PlaceholderRow(
+            Modifier
+                .align(Alignment.Center)
+                .padding(bottom = 57.dp)
+        )
+
+        JoyersCup(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 45.dp)
+        )
+
+        CameraFab(
+            Modifier
+                .padding(bottom = 45.dp, end = 15.dp)
+                .align(Alignment.BottomEnd)
+        )
 
     }
 }
 
 @Composable
 private fun CreateJoyHeader(
+    modifier: Modifier,
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
 ) {
 
-    val sideWidth = 56.dp
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(63.dp)
-            .background(White),
+        modifier = modifier,
     ) {
         Box(
             modifier = Modifier
@@ -222,12 +244,11 @@ private fun CreateJoyHeader(
 }
 
 @Composable
-private fun JoyerRow() {
+private fun JoyerRow(
+    modifier: Modifier
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(57.dp)
-            .padding(horizontal = 15.dp),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -318,8 +339,7 @@ private fun JoyerRow() {
 @Composable
 private fun PlaceholderRow(modifier: Modifier) {
     Row(
-        modifier = modifier
-            .padding(bottom = 57.dp),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -338,6 +358,52 @@ private fun PlaceholderRow(modifier: Modifier) {
             painter = painterResource(id = R.drawable.ic_joy_emoji),
             contentDescription = "Let’s Joy",
             modifier = Modifier.size(48.dp)
+        )
+    }
+}
+
+@Composable
+private fun JoyersCup(modifier: Modifier) {
+    Column (
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Image(
+            painter = painterResource(id = R.drawable.ic_joy_emoji),
+            contentDescription = "Joyers Cup",
+            modifier = Modifier.size(49.dp)
+        )
+
+        Spacer(Modifier.height(5.dp))
+
+        Text(
+            text = "Joyers Cup",
+            fontSize = 21.sp,
+            lineHeight = 24.sp,
+            color = Golden,
+            fontWeight = FontWeight.Bold,
+            fontFamily = fontFamilyLato,
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun CameraFab(modifier: Modifier) {
+    Box (
+        modifier = modifier
+            .clip(CircleShape)
+            .size(47.dp)
+            .border(width = 1.5.dp, color = Golden, shape = CircleShape),
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.camera_inside_color),
+            contentDescription = "Joyers Cup",
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 13.5.dp)
+                .size(23.4.dp, 18.11.dp)
         )
     }
 }
