@@ -58,6 +58,7 @@ class SignupViewModel @Inject constructor(
                         showUsernameError = false,
                         verificationCode = "",
                         verificationError = null,
+                        error = null,
                         usernameError = null,
                         passwordError = null,
                         confirmPasswordError = null,
@@ -118,6 +119,7 @@ class SignupViewModel @Inject constructor(
                         isValidUsername = true,
                         showUsernameError = false,
                         usernameError = null,
+                        error = null,
                     )
                 }
             }
@@ -134,6 +136,7 @@ class SignupViewModel @Inject constructor(
                         showVerification = false,
                         verificationCode = "",
                         verificationError = null,
+                        error = null,
                         showPasswordFields = false,
                         isValidEmail = isValidEmail
                     )
@@ -172,6 +175,7 @@ class SignupViewModel @Inject constructor(
                         showVerification = false,
                         verificationCode = "",
                         verificationError = null,
+                        error = null,
                         showPasswordFields = false,
                         isValidPhone = isValidPhone
                     )
@@ -239,6 +243,7 @@ class SignupViewModel @Inject constructor(
                         it.copy(
                             verificationCode = event.value,
                             verificationError = null,
+                            error = null,
                         )
                     }
                 }
@@ -411,7 +416,7 @@ class SignupViewModel @Inject constructor(
                                 usernameSuggestions = emptyList(),
                                 showUsernameLoader = false,
                                 isValidUsername = false,
-                                showUsernameError = false,
+                                showUsernameError = true,
                                 usernameError = null,
                                 error = "Sign up failed. Please try again later."
                             )
@@ -539,7 +544,8 @@ class SignupViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                error = "Sign up failed. Please try again later.",
+//                                error = "Sign up failed. Please try again later.",
+                                verificationError = "Sign up failed. Please try again later.",
                             )
                         }
                     }

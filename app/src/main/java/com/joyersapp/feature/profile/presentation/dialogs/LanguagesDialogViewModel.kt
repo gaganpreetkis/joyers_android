@@ -235,7 +235,7 @@ class LanguagesDialogViewModel @Inject constructor() : ViewModel() {
                     _uiState.update { state ->
                         val updated = state.rootItems.map { item ->
                             if (item.id == event.item.id) {
-                                item.copy(isSelected = !item.isSelected, isSelectionMode = !item.isSelected)
+                                item.copy(isSelected = !item.isSelected, isSelectionMode = !item.isSelected, level = "Basic")
                             } else {
                                 item.copy(isSelectionMode = false)
                             }

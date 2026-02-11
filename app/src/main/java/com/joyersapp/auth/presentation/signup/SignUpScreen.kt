@@ -90,68 +90,6 @@ import com.joyersapp.utils.highlightWords
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import kotlin.text.isNotEmpty
 
-@Composable
-fun OverviewEditor(
-    text: TextFieldValue,
-    onChange: (TextFieldValue) -> Unit
-) {
-    // 1. Remember a local state to handle immediate cursor updates
-    var localValue by remember { mutableStateOf(text) }
-
-    // 2. Sync local state when the ViewModel pushes a programmatic change
-    LaunchedEffect(text) {
-        if (text.text != localValue.text || text.selection != localValue.selection) {
-            localValue = text
-        }
-    }
-    BasicTextField(
-        value = localValue,
-        onValueChange = {
-            localValue = it // Update UI instantly
-            onChange(it)
-        },
-        visualTransformation = { textValue ->
-            TransformedText(
-                highlightWords(textValue.text),
-                OffsetMapping.Identity
-            )
-        },
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
-            keyboardType = KeyboardType.Text
-        ),
-        textStyle = TextStyle(
-            fontSize = 16.sp,
-            lineHeight = 22.sp,
-            fontFamily = fontFamilyLato,
-            color = Color.Red // we paint using AnnotatedString
-        ),
-        modifier = Modifier.fillMaxWidth()
-            .focusable(),
-//            .defaultMinSize(minHeight = 140.dp),
-        decorationBox = { inner ->
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            )  {
-
-                // Editable transparent text overlay
-                inner()
-                // Placeholder
-                if (text.text.isEmpty()) {
-                    Text(
-                        "About Joyer",
-                        color = LightBlack40,
-                        fontSize = 16.sp,
-                        lineHeight = 22.sp,
-                        fontFamily = fontFamilyLato
-                    )
-                }
-            }
-        }
-    )
-}
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SignUpScreen(
@@ -195,16 +133,6 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(if (isKeyBoardOpen) 20.dp else 45.dp))
 
         AppLogo(isKeyBoardOpen, Modifier.align(Alignment.CenterHorizontally))
-//        var value by remember {
-//            mutableStateOf(TextFieldValue(""))
-//        }
-//
-//        value = value.copy(text = "klfjndksjfn")
-
-//        OverviewEditor(
-//            state.test,
-//            onChange = { viewModel.onEvent(SignupEvent.TestChanged(it)) }
-//        )
 
         Spacer(modifier = Modifier.height(45.dp))
 
