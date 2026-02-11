@@ -282,11 +282,11 @@ fun JoyerCodeSection(
                     Text(
                         modifier = Modifier.width(200.dp),
                         text = "@${state.username}",
-                        fontSize = 14.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = fontFamilyLato,
-                        color = Golden,
-                        lineHeight = 17.sp,
+                        color = LightBlack,
+                        lineHeight = 22.sp,
                         textAlign = TextAlign.Center
                     )
                 }
