@@ -129,7 +129,8 @@ fun ForgotPasswordScreen(
         }
     }
 
-    val isVerificationValid = state.verificationCode.isNotEmpty()/*state.verificationCode.length == 6 && state.verificationCode.all { it.isDigit() }*/
+    val isVerificationValid =
+        state.verificationCode.isNotEmpty()/*state.verificationCode.length == 6 && state.verificationCode.all { it.isDigit() }*/
 
     fun updateKeyboardState(frameLayout: View) {
         val rect = Rect()
@@ -162,7 +163,8 @@ fun ForgotPasswordScreen(
             // Initial check
             updateKeyboardState(frameLayout)
 
-            val listener = ViewTreeObserver.OnGlobalLayoutListener { updateKeyboardState(frameLayout) }
+            val listener =
+                ViewTreeObserver.OnGlobalLayoutListener { updateKeyboardState(frameLayout) }
             frameLayout.viewTreeObserver.addOnGlobalLayoutListener(listener)
 
             onDispose {
@@ -179,7 +181,12 @@ fun ForgotPasswordScreen(
             val identifier = if (state.isPhoneMode) state.phone else state.usernameEmail
             val countryCode = if (state.isPhoneMode) state.selectedCountryCode else ""
             val countryNameCode = if (state.isPhoneMode) selectedCountryNameCode else ""
-            onNavigateToResetPassword(identifier, countryCode, countryNameCode, state.verificationCode)
+            onNavigateToResetPassword(
+                identifier,
+                countryCode,
+                countryNameCode,
+                state.verificationCode
+            )
         }
     }
 
@@ -219,28 +226,28 @@ fun ForgotPasswordScreen(
 
             // Description text
             //if (!state.showVerificationCode) {
-                Text(
-                    text = if (!state.showVerificationCode) if (state.isPhoneMode) {
-                        //stringResource(R.string.number_sent)
-                        "Enter your mobile number to reset your password"
+            Text(
+                text = if (!state.showVerificationCode) if (state.isPhoneMode) {
+                    //stringResource(R.string.number_sent)
+                    "Enter your mobile number to reset your password"
+                } else {
+                    //stringResource(R.string.email_sent)
+                    "Enter your username or email to reset your password"
+                } else {
+                    if (state.isPhoneMode) {
+                        //stringResource(R.string.reset_password_in_two_steps)
+                        "We’ll send a verification code to your mobile number if it matches an account."
                     } else {
-                        //stringResource(R.string.email_sent)
-                        "Enter your username or email to reset your password"
-                    } else {
-                        if (state.isPhoneMode) {
-                            //stringResource(R.string.reset_password_in_two_steps)
-                            "We’ll send a verification code to your mobile number if it matches an account."
-                        } else {
-                            "We’ll send a verification code to your email if it matches an account."
-                        }
-                    },
-                    fontSize = 16.sp,
-                    lineHeight = 23.sp,
+                        "We’ll send a verification code to your email if it matches an account."
+                    }
+                },
+                fontSize = 16.sp,
+                lineHeight = 23.sp,
 //                    lineHeight = if (!state.showVerificationCode) 19.sp else 23.sp,
-                    fontFamily = fontFamilyLato,
-                    fontWeight = FontWeight.SemiBold,
-                    color = LightBlack,
-                )
+                fontFamily = fontFamilyLato,
+                fontWeight = FontWeight.SemiBold,
+                color = LightBlack,
+            )
             //}
             Spacer(modifier = Modifier.height(/*if (state.showVerificationCode) 0.dp else*/ 13.dp))
 
@@ -503,16 +510,24 @@ fun ForgotPasswordScreen(
                         Modifier
                             .weight(0.85f)
                             .height(50.dp)
-                            .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
+                            .background(
+                                Gray20,
+                                RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
+                            )
                             .border(
-                                color = if (state.usernameEmailError != null) Red else colorResource(id = R.color.color_border_light),
+                                color = if (state.usernameEmailError != null) Red else colorResource(
+                                    id = R.color.color_border_light
+                                ),
                                 width = 1.dp,
                                 shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
                             )
                     } else {
                         Modifier
                             .weight(0.85f)
-                            .background(Gray20, RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
+                            .background(
+                                Gray20,
+                                RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)
+                            )
                             .border(
                                 color = if (state.phoneError != null) Red else colorResource(id = R.color.color_border_light),
                                 width = 1.dp,
@@ -547,7 +562,11 @@ fun ForgotPasswordScreen(
                                     initialPadding = 8f,
                                     defaultCountry = selectedCountryNameCode,
                                     onCountrySelected = { code ->
-                                        viewModel.onEvent(ForgotPasswordEvent.SelectedCountryCodeChanged(code))
+                                        viewModel.onEvent(
+                                            ForgotPasswordEvent.SelectedCountryCodeChanged(
+                                                code
+                                            )
+                                        )
                                     },
                                     onCountryNameCodeSelected = { nameCode ->
                                         selectedCountryNameCode = nameCode
@@ -560,30 +579,76 @@ fun ForgotPasswordScreen(
                                     if (state.isPhoneMode) {
                                         if (state.phone != it) {
                                             if (it.length <= 15) {
-                                                viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(it))
-                                                viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
-                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.PhoneChanged(
+                                                        it
+                                                    )
+                                                )
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.PhoneErrorChanged(
+                                                        null
+                                                    )
+                                                )
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.VerificationCodeChanged(
+                                                        ""
+                                                    )
+                                                )
                                             }
                                             if (state.showVerificationCode) {
-                                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
-                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.ShowVerificationCodeChanged(
+                                                        false
+                                                    )
+                                                )
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.VerificationCodeErrorChanged(
+                                                        null
+                                                    )
+                                                )
                                             }
                                         }
                                     } else {
                                         if (state.usernameEmail != it) {
-                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(it))
-                                            viewModel.onEvent(ForgotPasswordEvent.VerificationCodeChanged(""))
-                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
-                                            viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+                                            viewModel.onEvent(
+                                                ForgotPasswordEvent.UsernameEmailChanged(
+                                                    it
+                                                )
+                                            )
+                                            viewModel.onEvent(
+                                                ForgotPasswordEvent.VerificationCodeChanged(
+                                                    ""
+                                                )
+                                            )
+                                            viewModel.onEvent(
+                                                ForgotPasswordEvent.UsernameEmailErrorChanged(
+                                                    null
+                                                )
+                                            )
+                                            viewModel.onEvent(
+                                                ForgotPasswordEvent.PhoneErrorChanged(
+                                                    null
+                                                )
+                                            )
                                             if (state.showVerificationCode) {
-                                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
-                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.ShowVerificationCodeChanged(
+                                                        false
+                                                    )
+                                                )
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.VerificationCodeErrorChanged(
+                                                        null
+                                                    )
+                                                )
                                             }
                                         }
                                     }
                                 },
                                 maxLength = if (state.isPhoneMode) 15 else 100,
-                                placeholder = if (state.isPhoneMode) stringResource(R.string.phone_number) else stringResource(R.string.username_email),
+                                placeholder = if (state.isPhoneMode) stringResource(R.string.phone_number) else stringResource(
+                                    R.string.username_email
+                                ),
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(bottom = 1.dp),
@@ -607,11 +672,27 @@ fun ForgotPasswordScreen(
                                         .size(30.dp)
                                         .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
-                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(""))
-                                            viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
+                                            viewModel.onEvent(
+                                                ForgotPasswordEvent.UsernameEmailChanged(
+                                                    ""
+                                                )
+                                            )
+                                            viewModel.onEvent(
+                                                ForgotPasswordEvent.UsernameEmailErrorChanged(
+                                                    null
+                                                )
+                                            )
                                             if (state.showVerificationCode) {
-                                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
-                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.ShowVerificationCodeChanged(
+                                                        false
+                                                    )
+                                                )
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.VerificationCodeErrorChanged(
+                                                        null
+                                                    )
+                                                )
                                             }
                                         }
                                 )
@@ -625,10 +706,22 @@ fun ForgotPasswordScreen(
                                         .padding(start = 5.dp, end = 10.dp)
                                         .clickable {
                                             viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
-                                            viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
+                                            viewModel.onEvent(
+                                                ForgotPasswordEvent.PhoneErrorChanged(
+                                                    null
+                                                )
+                                            )
                                             if (state.showVerificationCode) {
-                                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
-                                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.ShowVerificationCodeChanged(
+                                                        false
+                                                    )
+                                                )
+                                                viewModel.onEvent(
+                                                    ForgotPasswordEvent.VerificationCodeErrorChanged(
+                                                        null
+                                                    )
+                                                )
                                             }
                                         }
                                 )
@@ -649,8 +742,16 @@ fun ForgotPasswordScreen(
                                 viewModel.onEvent(ForgotPasswordEvent.PhoneChanged(""))
                                 viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(null))
                                 viewModel.onEvent(ForgotPasswordEvent.IsPhoneModeChanged(false))
-                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
-                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                viewModel.onEvent(
+                                    ForgotPasswordEvent.ShowVerificationCodeChanged(
+                                        false
+                                    )
+                                )
+                                viewModel.onEvent(
+                                    ForgotPasswordEvent.VerificationCodeErrorChanged(
+                                        null
+                                    )
+                                )
                             }
                             .background(Gray20, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
                             .border(
@@ -677,8 +778,16 @@ fun ForgotPasswordScreen(
                                 viewModel.onEvent(ForgotPasswordEvent.UsernameEmailChanged(""))
                                 viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(null))
                                 viewModel.onEvent(ForgotPasswordEvent.IsPhoneModeChanged(true))
-                                viewModel.onEvent(ForgotPasswordEvent.ShowVerificationCodeChanged(false))
-                                viewModel.onEvent(ForgotPasswordEvent.VerificationCodeErrorChanged(null))
+                                viewModel.onEvent(
+                                    ForgotPasswordEvent.ShowVerificationCodeChanged(
+                                        false
+                                    )
+                                )
+                                viewModel.onEvent(
+                                    ForgotPasswordEvent.VerificationCodeErrorChanged(
+                                        null
+                                    )
+                                )
                             }
                             .background(Gray20, RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp))
                             .border(
@@ -701,114 +810,114 @@ fun ForgotPasswordScreen(
 
 
             // Removed in Sprint 3
-         /*   if (!state.showVerificationCode) {
-                Spacer(modifier = Modifier.height(20.dp))
+            /*   if (!state.showVerificationCode) {
+                   Spacer(modifier = Modifier.height(20.dp))
 
-                // Tab selection section (only shown before verification)
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Choose how to get your verification code:", //stringResource(R.string.send_verification_code),
-                        fontSize = 16.sp,
-                        fontFamily = fontFamilyLato,
-                        fontWeight = FontWeight.SemiBold,
-                        color = LightBlack,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Start,
-                        lineHeight = 23.sp
-                    )
+                   // Tab selection section (only shown before verification)
+                   Column(
+                       modifier = Modifier.fillMaxWidth(),
+                       horizontalAlignment = Alignment.CenterHorizontally
+                   ) {
+                       Text(
+                           text = "Choose how to get your verification code:", //stringResource(R.string.send_verification_code),
+                           fontSize = 16.sp,
+                           fontFamily = fontFamilyLato,
+                           fontWeight = FontWeight.SemiBold,
+                           color = LightBlack,
+                           modifier = Modifier.fillMaxWidth(),
+                           textAlign = TextAlign.Start,
+                           lineHeight = 23.sp
+                       )
 
-                    Spacer(modifier = Modifier.height(13.dp))
+                       Spacer(modifier = Modifier.height(13.dp))
 
-                    // Tab buttons and underlines - matching XML layout exactly
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Tab buttons container - 165dp wide, centered
-                        Row(
-                            modifier = Modifier.width(148.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.email),
-                                fontSize = 20.sp,
-                                fontFamily = fontFamilyLato,
-                                textAlign = TextAlign.Center,
-                                fontWeight = if (selectedTab == "Email") FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (selectedTab == "Email") Golden else LightBlack,
-                                modifier = Modifier
-                                    .width(74.dp)
-                                    //.padding(start = 12.dp, end = 15.dp)
-                                    .clickable {
-                                        selectedTab = "Email"
-                                        viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged(null))
-                                    }
-                            )
+                       // Tab buttons and underlines - matching XML layout exactly
+                       Column(
+                           modifier = Modifier.fillMaxWidth(),
+                           horizontalAlignment = Alignment.CenterHorizontally
+                       ) {
+                           // Tab buttons container - 165dp wide, centered
+                           Row(
+                               modifier = Modifier.width(148.dp),
+                               horizontalArrangement = Arrangement.Center,
+                               verticalAlignment = Alignment.CenterVertically
+                           ) {
+                               Text(
+                                   text = stringResource(R.string.email),
+                                   fontSize = 20.sp,
+                                   fontFamily = fontFamilyLato,
+                                   textAlign = TextAlign.Center,
+                                   fontWeight = if (selectedTab == "Email") FontWeight.SemiBold else FontWeight.Normal,
+                                   color = if (selectedTab == "Email") Golden else LightBlack,
+                                   modifier = Modifier
+                                       .width(74.dp)
+                                       //.padding(start = 12.dp, end = 15.dp)
+                                       .clickable {
+                                           selectedTab = "Email"
+                                           viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged(null))
+                                       }
+                               )
 
-                            Text(
-                                text = stringResource(R.string.sms),
-                                fontSize = 20.sp,
-                                fontFamily = fontFamilyLato,
-                                textAlign = TextAlign.Center,
-                                fontWeight = if (selectedTab == "SMS") FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (selectedTab == "SMS") Golden else LightBlack,
-                                modifier = Modifier
-                                    .width(74.dp)
-                                    //.padding(start = 15.dp, end = 13.dp)
-                                    .clickable {
-                                        selectedTab = "SMS"
-                                        viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged(null))
+                               Text(
+                                   text = stringResource(R.string.sms),
+                                   fontSize = 20.sp,
+                                   fontFamily = fontFamilyLato,
+                                   textAlign = TextAlign.Center,
+                                   fontWeight = if (selectedTab == "SMS") FontWeight.SemiBold else FontWeight.Normal,
+                                   color = if (selectedTab == "SMS") Golden else LightBlack,
+                                   modifier = Modifier
+                                       .width(74.dp)
+                                       //.padding(start = 15.dp, end = 13.dp)
+                                       .clickable {
+                                           selectedTab = "SMS"
+                                           viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged(null))
 
-                                    }
-                            )
-                        }
+                                       }
+                               )
+                           }
 
-                        Spacer(modifier = Modifier.height(5.5.dp))
+                           Spacer(modifier = Modifier.height(5.5.dp))
 
-                        // Underline indicators container - 148dp wide, centered, touching
-                        Row(
-                            modifier = Modifier.width(148.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(if (selectedTab == "Email") 2.dp else 1.dp)
-                                    .background(
-                                        color = if (selectedTab == "Email") Golden else LightBlack35
-                                    )
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(if (selectedTab == "SMS") 2.dp else 1.dp)
-                                    .background(
-                                        color = if (selectedTab == "SMS") Golden else LightBlack35
-                                    )
-                            )
-                        }
-                    }
+                           // Underline indicators container - 148dp wide, centered, touching
+                           Row(
+                               modifier = Modifier.width(148.dp),
+                               horizontalArrangement = Arrangement.Center,
+                               verticalAlignment = Alignment.Bottom
+                           ) {
+                               Box(
+                                   modifier = Modifier
+                                       .weight(1f)
+                                       .height(if (selectedTab == "Email") 2.dp else 1.dp)
+                                       .background(
+                                           color = if (selectedTab == "Email") Golden else LightBlack35
+                                       )
+                               )
+                               Box(
+                                   modifier = Modifier
+                                       .weight(1f)
+                                       .height(if (selectedTab == "SMS") 2.dp else 1.dp)
+                                       .background(
+                                           color = if (selectedTab == "SMS") Golden else LightBlack35
+                                       )
+                               )
+                           }
+                       }
 
-                    if (state.tabError != null) {
-                        Text(
-                            text = state.tabError!!,
-                            color = Red,
-                            fontSize = 14.sp,
-                            fontFamily = fontFamilyLato,
-                            lineHeight = 20.sp,
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }*/
+                       if (state.tabError != null) {
+                           Text(
+                               text = state.tabError!!,
+                               color = Red,
+                               fontSize = 14.sp,
+                               fontFamily = fontFamilyLato,
+                               lineHeight = 20.sp,
+                               modifier = Modifier
+                                   .padding(top = 4.dp)
+                                   .fillMaxWidth(),
+                               textAlign = TextAlign.Center
+                           )
+                       }
+                   }
+               }*/
 
             // Verification code input
             if (state.showVerificationCode) {
@@ -829,7 +938,13 @@ fun ForgotPasswordScreen(
                         .width(181.dp)
                         .height(40.dp)
                         .align(Alignment.CenterHorizontally)
-                        .border(width = 1.dp, color = if (state.verificationCodeError != null) Red else colorResource(id = R.color.color_border_light), shape = RoundedCornerShape(5.dp)),
+                        .border(
+                            width = 1.dp,
+                            color = if (state.verificationCodeError != null) Red else colorResource(
+                                id = R.color.color_border_light
+                            ),
+                            shape = RoundedCornerShape(5.dp)
+                        ),
                     containerColor = Gray20,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     textStyle = TextStyle(
@@ -845,6 +960,28 @@ fun ForgotPasswordScreen(
                 if (state.verificationCodeError != null) {
                     Text(
                         text = state.verificationCodeError!!,
+                        color = Red,
+                        fontSize = 14.sp,
+                        fontFamily = fontFamilyLato,
+                        lineHeight = 20.sp,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                } else if (state.phoneError != null && state.isPhoneMode) {
+                    Text(
+                        text = state.phoneError!!,
+                        color = Red,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        fontFamily = fontFamilyLato,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                } else if (state.usernameEmailError != null && !state.isPhoneMode) {
+                    Text(
+                        text = state.usernameEmailError!!,
                         color = Red,
                         fontSize = 14.sp,
                         fontFamily = fontFamilyLato,
@@ -875,7 +1012,7 @@ fun ForgotPasswordScreen(
                             fontSize = 14.sp,
                             lineHeight = 20.sp,
                             fontFamily = fontFamilyLato,
-                            modifier = Modifier.padding(top = 3.dp)
+                            modifier = Modifier.padding(top = 4.dp)
                         )
                     }
 
@@ -886,20 +1023,30 @@ fun ForgotPasswordScreen(
                             fontSize = 14.sp,
                             fontFamily = fontFamilyLato,
                             lineHeight = 20.sp,
-                            modifier = Modifier.padding(top = 3.dp)
+                            modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }
 
 
-                    Button(
+                Button(
                     onClick = {
                         // Validate and proceed
                         if (!isFormValid) {
                             if (state.isPhoneMode) {
-                                viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(context.getString(R.string.invaild_phone)))
+                                viewModel.onEvent(
+                                    ForgotPasswordEvent.PhoneErrorChanged(
+                                        context.getString(
+                                            R.string.invaild_phone
+                                        )
+                                    )
+                                )
                             } else {
-                                viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(context.getString(R.string.invaild_email)))
+                                viewModel.onEvent(
+                                    ForgotPasswordEvent.UsernameEmailErrorChanged(
+                                        context.getString(R.string.invaild_email)
+                                    )
+                                )
                             }
                         } else if (selectedTab.isEmpty()) {
                             viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged("Please select a verification method"))
@@ -931,36 +1078,8 @@ fun ForgotPasswordScreen(
 
             // Verify and Resend Code Buttons
             if (state.showVerificationCode) {
-                // Error messages
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(35.dp),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    if (state.phoneError != null && state.isPhoneMode) {
-                        Text(
-                            text = state.phoneError!!,
-                            color = Red,
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                            fontFamily = fontFamilyLato,
-                            modifier = Modifier.padding(top = 3.dp)
-                        )
-                    }
 
-                    if (state.usernameEmailError != null && !state.isPhoneMode) {
-                        Text(
-                            text = state.usernameEmailError!!,
-                            color = Red,
-                            fontSize = 14.sp,
-                            fontFamily = fontFamilyLato,
-                            lineHeight = 20.sp,
-                            modifier = Modifier.padding(top = 3.dp)
-                        )
-                    }
-                }
-
+                Spacer(modifier = Modifier.height(35.dp))
 
                 Button(
                     onClick = {
@@ -998,9 +1117,19 @@ fun ForgotPasswordScreen(
                     onClick = {
                         if (!isFormValid) {
                             if (state.isPhoneMode) {
-                                viewModel.onEvent(ForgotPasswordEvent.PhoneErrorChanged(context.getString(R.string.invaild_phone)))
+                                viewModel.onEvent(
+                                    ForgotPasswordEvent.PhoneErrorChanged(
+                                        context.getString(
+                                            R.string.invaild_phone
+                                        )
+                                    )
+                                )
                             } else {
-                                viewModel.onEvent(ForgotPasswordEvent.UsernameEmailErrorChanged(context.getString(R.string.invaild_email)))
+                                viewModel.onEvent(
+                                    ForgotPasswordEvent.UsernameEmailErrorChanged(
+                                        context.getString(R.string.invaild_email)
+                                    )
+                                )
                             }
                         } else if (selectedTab.isEmpty()) {
                             viewModel.onEvent(ForgotPasswordEvent.TabErrorChanged("Please select a verification method"))
