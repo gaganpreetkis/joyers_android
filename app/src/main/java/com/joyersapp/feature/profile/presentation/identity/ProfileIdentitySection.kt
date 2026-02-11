@@ -188,27 +188,40 @@ fun ProfileIdentitySection(
         else {
             Column(
                 Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
                     .background(GrayBG)
             ) {
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .weight(1f)
+                        .height(364.dp)
                         .background(White),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "No Identity yet!",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = fontFamilyLato,
-                        color = LightBlack,
-                        lineHeight = 34.sp,
+                    Column(
                         modifier = Modifier
-                            .padding(bottom = 39.dp)
-                    )
+                            .offset(y = -39.dp)
+                        , horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "No Identity yet!",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = fontFamilyLato,
+                            color = LightBlack,
+                            lineHeight = 34.sp,
+                            modifier = Modifier
+                                .padding(bottom = 15.dp)
+                        )
+                        Text(
+                            text = "Fill in your identity information to display it here.",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = fontFamilyLato,
+                            color = LightBlack60,
+                            lineHeight = 18.sp,
+                            modifier = Modifier
+                        )
+                    }
                 }
 
                 Spacer(Modifier.height(10.dp))

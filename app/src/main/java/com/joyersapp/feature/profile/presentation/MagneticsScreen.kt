@@ -340,9 +340,6 @@ fun MagneticsScreen(
 
                     Spacer(Modifier.height(45.dp))
                 }
-
-
-
             }
         }
 
@@ -738,7 +735,7 @@ fun ProfileHeaderSection(
         } else {
             ProfileEditableRow(title = "Profile Picture")
         }
-        Spacer(Modifier.height(11.dp))
+        Spacer(Modifier.height(13.dp))
         if (!state?.bio?.filteredBio().isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
             BioSection(
                 selectedBioTab = state.selectedTab,

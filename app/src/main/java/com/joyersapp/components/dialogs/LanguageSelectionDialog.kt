@@ -682,10 +682,10 @@ private fun LanguageLevel(
 
     // Custom LazyRow for tabs (replaces ScrollableTabRow)
     LazyRow(
-        modifier = modifier.padding(start = 10.dp),
+        modifier = modifier.padding(start = 10.dp).height(25.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         contentPadding = PaddingValues(start = 5.dp, end = 15.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
         val tabs = listOf("Basic", "Good", "Very Good", "Excellent")
         itemsIndexed(tabs) { idx, level ->
@@ -695,8 +695,8 @@ private fun LanguageLevel(
 
             Column(
                 modifier = Modifier
+                    .padding(top = 1.dp)
                     .wrapContentWidth()
-//                    .height(28.dp)
                     .noRippleClickable() {
                         onTabClick(level)
                     },
@@ -730,7 +730,7 @@ private fun LanguageLevel(
                             .height(3.dp)
                             .background(Golden)
                     )
-                }
+                } else Spacer(Modifier.height(3.dp))
             }
         }
     }

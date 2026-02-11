@@ -303,7 +303,9 @@ fun IdentificationDialog(
                         lineHeight = 19.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = fontFamilyLato,
-                        color = White
+                        color = White,
+                        modifier = Modifier
+                            .offset(y = -1.dp)
                     )
                 }
             }
@@ -367,6 +369,7 @@ fun LanguagesField(
                         if (!languages.isNullOrEmpty()) {
                             Row(
                                 modifier = Modifier.weight(1f)
+                                    .offset(y = -1.dp)
                             ) {
                                 val name = languages[0].language?.name?:""
                                 val level = languages[0].language?.level?:""
@@ -418,6 +421,7 @@ fun LanguagesField(
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack60,
                                 modifier = Modifier.weight(1f)
+                                    .offset(y = -1.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Image(
@@ -641,6 +645,7 @@ fun NationalityField(
                         if (values.isNotEmpty()) {
                             Row(
                                 modifier = Modifier.weight(1f)
+                                    .offset(y = -1.dp)
                             ) {
 
                                 Text(
@@ -680,6 +685,7 @@ fun NationalityField(
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack60,
                                 modifier = Modifier.weight(1f)
+                                    .offset(y = -1.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Image(
@@ -830,6 +836,7 @@ fun PoliticalIdeologyField(
                         if (values.isNotEmpty()) {
                             Row(
                                 modifier = Modifier.weight(1f)
+                                    .offset(y = -1.dp)
                             ) {
                                 Text(
                                     text = values[0].politicalIdeology?.name?: "",
@@ -868,6 +875,7 @@ fun PoliticalIdeologyField(
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack60,
                                 modifier = Modifier.weight(1f)
+                                    .offset(y = -1.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Image(
@@ -1178,7 +1186,11 @@ fun IdentificationDropdownField(
 
                     if (value.isNotEmpty()) {
 
-                        Row(  modifier = Modifier.weight(1f)) {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .offset(y = -1.dp)
+                        ) {
                             Text(
                                 text = value,
                                 fontSize = 16.sp,
@@ -1216,6 +1228,7 @@ fun IdentificationDropdownField(
                             fontWeight = FontWeight.Normal,
                             color = LightBlack60,
                             modifier = Modifier.weight(1f)
+                                .offset(y = -1.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Image(

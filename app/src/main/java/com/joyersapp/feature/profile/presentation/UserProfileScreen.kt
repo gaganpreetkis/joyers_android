@@ -190,7 +190,7 @@ fun UserProfileScreen(
                         !state.gender.isNullOrEmpty() || !state.nationality.isNullOrEmpty() || !state.ethnicity?.name.isNullOrEmpty() || !state.faith?.name.isNullOrEmpty() || !state.languages.isNullOrEmpty() || !state.education?.name.isNullOrEmpty() || !state.location?.name.isNullOrEmpty()
                     ) Modifier.fillMaxSize() else Modifier.weight(1f, fill = true)
 
-                    ProfileTabsContainer(modifier = Modifier.then(identityModifier), state, viewModel)
+                    ProfileTabsContainer(modifier = Modifier.fillMaxSize(), state, viewModel)
 
                 }
             }
