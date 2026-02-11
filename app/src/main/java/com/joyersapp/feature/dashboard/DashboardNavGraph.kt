@@ -32,8 +32,7 @@ import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.feature.home.presentation.HomeScreen
-import com.joyersapp.feature.post.presentation.CreateJoyScreen
-import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
+import com.joyersapp.feature.post.presentation.create_joy.CreateJoyScreen
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.presentation.MagneticsScreen
 import com.joyersapp.feature.profile.presentation.UserProfileEvent

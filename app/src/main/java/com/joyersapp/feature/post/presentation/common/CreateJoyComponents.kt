@@ -1,180 +1,43 @@
-package com.joyersapp.feature.post.presentation
+package com.joyersapp.feature.post.presentation.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.joyersapp.R
-import com.joyersapp.common_widgets.DashedLine
-import com.joyersapp.common_widgets.IdentificationDialog
-import com.joyersapp.components.dialogs.BirthdayDatePickerDialog
-import com.joyersapp.components.dialogs.DescriptionDialog
-import com.joyersapp.components.dialogs.EditProfileHeaderDialog
-import com.joyersapp.components.dialogs.HighlightBullet
-import com.joyersapp.components.dialogs.LanguageSelectionDialog
-import com.joyersapp.components.dialogs.MentionJoyersDialog
-import com.joyersapp.components.dialogs.MultipleSelectionsDialog
-import com.joyersapp.components.layouts.HardBlockingLoader
-import com.joyersapp.core.NetworkConfig
-import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
-import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
-import com.joyersapp.feature.profile.presentation.BulletRowText
-import com.joyersapp.feature.profile.presentation.HighlightedText
-import com.joyersapp.feature.profile.presentation.ProfileTopHeader
-import com.joyersapp.feature.profile.presentation.UserProfileEvent
-import com.joyersapp.feature.profile.presentation.UserProfileUiState
-import com.joyersapp.feature.profile.presentation.UserProfileViewModel
-import com.joyersapp.feature.profile.presentation.identity.ProfileIdentitySection
-import com.joyersapp.feature.profile.presentation.status.ProfileStatusSection
+import com.joyersapp.feature.post.domain.model.Joyer
 import com.joyersapp.theme.AvatarBorder
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
-import com.joyersapp.theme.GrayBG
-import com.joyersapp.theme.GrayOuterBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack35
 import com.joyersapp.theme.LightBlack55
-import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.White
-import com.joyersapp.utils.filteredBio
-import com.joyersapp.utils.flagEmoji
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
-import com.joyersapp.utils.toPrettyNumber
-
-@Preview
-@Composable
-private fun ScreenPreview() {
-    CreateJoyScafold(
-        CreateJoyUiState(
-
-        )
-    )
-}
 
 @Composable
-fun CreateJoyScreen(
-    viewModel: CreateJoyViewModel,
-) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-
-
-    HardBlockingLoader(state.isLoading)
-
-    CreateJoyScafold(state)
-
-//    }
-}
-
-@Composable
-private fun CreateJoyScafold(state: CreateJoyUiState) {
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(White)
-    ) {
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            CreateJoyHeader(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(63.dp)
-                    .background(White),
-                onBack = {},
-                onMenu = {}
-            )
-
-            HorizontalDivider(
-                thickness = 0.5.dp,
-                color = GrayOuterBorder
-            )
-
-            JoyerRow(
-                modifier = Modifier
-                    .padding(top = 15.dp)
-                    .fillMaxWidth()
-                    .height(57.dp)
-                    .padding(horizontal = 15.dp)
-            )
-
-        }
-
-        PlaceholderRow(
-            Modifier
-                .align(Alignment.Center)
-                .padding(bottom = 57.dp)
-        )
-
-        JoyersCup(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 45.dp)
-        )
-
-        CameraFab(
-            Modifier
-                .padding(bottom = 45.dp, end = 15.dp)
-                .align(Alignment.BottomEnd)
-        )
-
-    }
-}
-
-@Composable
-private fun CreateJoyHeader(
+fun CreateJoyHeader(
     modifier: Modifier,
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
@@ -244,8 +107,9 @@ private fun CreateJoyHeader(
 }
 
 @Composable
-private fun JoyerRow(
-    modifier: Modifier
+fun JoyerRow(
+    modifier: Modifier,
+    joyer: Joyer
 ) {
     Row(
         modifier = modifier,
@@ -280,7 +144,7 @@ private fun JoyerRow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "James",
+                    text = joyer.name,
                     fontSize = 16.sp,
                     lineHeight = 19.sp,
                     color = LightBlack,
@@ -291,7 +155,7 @@ private fun JoyerRow(
                 )
 
                 Spacer(modifier = Modifier.width(2.dp))
-                repeat(1) {
+                repeat(joyer.starsCount) {
                     Spacer(modifier = Modifier.width(3.dp))
                     Image(
                         painter = painterResource(R.drawable.ic_star_golden),
@@ -301,27 +165,30 @@ private fun JoyerRow(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(7.dp))
-                Box(
-                    modifier = Modifier
-                        .size(3.dp)
-                        .clip(CircleShape)
-                        .background(LightBlack55)
-                )
-                Spacer(modifier = Modifier.width(7.dp))
-                Image(
-                    painter = painterResource(R.drawable.ic_lock_heart_black),
-                    contentDescription = "Star",
-                    modifier = Modifier
-                        .size(9.5.dp, 14.19.dp)
-                )
+                if (joyer.isLockVisible) {
+
+                    Spacer(modifier = Modifier.width(7.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(3.dp)
+                            .clip(CircleShape)
+                            .background(LightBlack55)
+                    )
+                    Spacer(modifier = Modifier.width(7.dp))
+                    Image(
+                        painter = painterResource(R.drawable.ic_lock_heart_black),
+                        contentDescription = "Star",
+                        modifier = Modifier
+                            .size(9.5.dp, 14.19.dp)
+                    )
+                }
             }
 
             Spacer(Modifier.height(3.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Engineer",
+                    text = joyer.tag,
                     fontSize = 12.sp,
                     lineHeight = 15.sp,
                     color = Golden,
@@ -337,33 +204,7 @@ private fun JoyerRow(
 }
 
 @Composable
-private fun PlaceholderRow(modifier: Modifier) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Let’s Joy",
-            fontSize = 50.sp,
-            lineHeight = 24.sp,
-            color = LightBlack35,
-            fontWeight = FontWeight.Normal,
-            fontFamily = fontFamilyLato,
-            maxLines = 1
-        )
-
-        Spacer(Modifier.width(20.dp))
-
-        Image(
-            painter = painterResource(id = R.drawable.ic_joy_emoji),
-            contentDescription = "Let’s Joy",
-            modifier = Modifier.size(48.dp)
-        )
-    }
-}
-
-@Composable
-private fun JoyersCup(modifier: Modifier) {
+fun JoyersCup(modifier: Modifier) {
     Column (
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -390,7 +231,7 @@ private fun JoyersCup(modifier: Modifier) {
 }
 
 @Composable
-private fun CameraFab(modifier: Modifier) {
+fun CameraFab(modifier: Modifier) {
     Box (
         modifier = modifier
             .clip(CircleShape)
