@@ -209,6 +209,9 @@ fun MentionJoyersDialog(
             ) {
                 Column(
 
+                    modifier = Modifier
+                        .weight(1f, fill = !state.isAddMentionsMode)
+                        .padding(bottom = if (state.isAddMentionsMode) 15.dp else 0.dp)
                 ) {
                     Spacer(modifier = Modifier.height(14.dp))
                     SearchBarRowForEditMaganetic(
@@ -219,24 +222,55 @@ fun MentionJoyersDialog(
                     )
 
                     if (!state.isAddMentionsMode) {
-                        Spacer(modifier = Modifier.height(10.dp))
 
-                        Column(
-                            modifier = Modifier
-                                .weight(1f, fill = false)
-                                .padding(start = 15.dp, end = 15.dp)
-                                .width(354.dp)
-                                .clip(RoundedCornerShape(5.dp))
-                                .background(
-                                    color = Color.White, shape = RoundedCornerShape(5.dp)
+                        if (userList.isEmpty()) {
+//                    item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.no_results_found),
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = fontFamilyLato,
+                                    textAlign = TextAlign.Center,
+                                    color = LightBlack,
+                                    lineHeight = 22.sp,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            top = 95.dp,
+                                            bottom = 0.dp
+                                        )
                                 )
-                        ) {
-                            JoyersList(userList, onUserClick = { selectedUser ->
-                                viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
-                            })
+                            }
+//                    }
+                        } else {
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f, fill = false)
+                                    .padding(start = 15.dp, end = 15.dp)
+                                    .width(354.dp)
+                                    .clip(RoundedCornerShape(5.dp))
+                                    .background(
+                                        color = Color.White, shape = RoundedCornerShape(5.dp)
+                                    )
+                            ) {
+                                JoyersList(userList, onUserClick = { selectedUser ->
+                                    viewmodel.onEvent(
+                                        MentionJoyersEvent.OnUserSelectionToggled(
+                                            selectedUser
+                                        )
+                                    )
+                                })
+                            }
                         }
+                        Spacer(modifier = Modifier.height(15.dp))
                     }
-                    Spacer(modifier = Modifier.height(15.dp))
                 }
 
 
@@ -251,7 +285,7 @@ fun MentionJoyersDialog(
                     }
                 )
             } else {
-                if (state.filteredUserList.isEmpty()) {
+                /*if (state.filteredUserList.isEmpty()) {
 //                    item {
                         Box(
                             modifier = Modifier
@@ -274,7 +308,7 @@ fun MentionJoyersDialog(
                             )
                         }
 //                    }
-                }
+                }*/
             }
         }
     }
@@ -412,8 +446,8 @@ fun SelectedUsersColumn(selectedUsers: List<EditMagneticsUserListData>,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                top = if (rememberIsKeyboardOpen()) 95.dp else 55.dp,
-                                bottom = if (rememberIsKeyboardOpen()) 0.dp else 69.dp
+                                top = 95.dp ,
+                                bottom = 0.dp
                             )
                     )
                 }
@@ -726,8 +760,9 @@ private fun BaseMentionJoyersDialog(
         } else {
             // When keyboard is hidden, use a standard dialog height constraint
             Modifier
-                .wrapContentHeight()
-                .heightIn(min = minHeight, max = maxHeight)
+//                .wrapContentHeight()
+//                .heightIn(min = minHeight, max = maxHeight)
+                .height(maxHeight)
                 .padding(top = 50.dp, bottom = 50.dp)
         }
 
