@@ -26,7 +26,7 @@ sealed class Routes(val route: String) {
     data object ResetPassword : Routes("resetPassword")
     data object JoyersOath : Routes("joyersOath")
     data object SplashVideo : Routes("splashVideo")
-//    data object Dashboard : Routes("dashboard")
+//    data object Dashboard : ProfileRoutes("dashboard")
 
 }
 
@@ -37,13 +37,13 @@ fun AuthNavGraph() {
     NavHost(
         navController = navController,
         startDestination = Routes.Login.route
-//        startDestination = "${Routes.Identity.route}/test/test"
+//        startDestination = "${ProfileRoutes.Identity.route}/test/test"
     ) {
 
-//        composable(Routes.Splash.route) {
+//        composable(ProfileRoutes.Splash.route) {
 //            SplashScreen(onNavigateToLogin = {
-//                navController.navigate(Routes.Login.route) {
-//                    popUpTo(Routes.Splash.route) { inclusive = true }
+//                navController.navigate(ProfileRoutes.Login.route) {
+//                    popUpTo(ProfileRoutes.Splash.route) { inclusive = true }
 //                }
 //            })
 //        }
@@ -108,9 +108,9 @@ fun AuthNavGraph() {
             )
         }
 
-        /*composable(Routes.Identity.route) {
+        /*composable(ProfileRoutes.Identity.route) {
             IdentityScreen(0, onNavigateToNext = {
-                navController.navigate(Routes.JoyersOath.route) {
+                navController.navigate(ProfileRoutes.JoyersOath.route) {
                     popUpTo(0)
                     launchSingleTop = true
                 }
@@ -239,7 +239,7 @@ fun AuthNavGraph() {
                 onNavigateToDashboard = { context ->
                     // Show toast message
                     //Toast.makeText(context, "Navigating to Dashboard", Toast.LENGTH_SHORT).show()
-//                    navController.navigate(Routes.Dashboard.route) {
+//                    navController.navigate(ProfileRoutes.Dashboard.route) {
 //                        popUpTo(0) { inclusive = true }
 //                    }
                     // Navigate to DashboardActivity (Activity, not Compose screen)
@@ -250,7 +250,7 @@ fun AuthNavGraph() {
             )
         }
 
-//        composable(Routes.Dashboard.route) {
+//        composable(ProfileRoutes.Dashboard.route) {
 //            DashboardScreen()
 //        }
     }

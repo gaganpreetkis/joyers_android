@@ -48,7 +48,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -81,28 +80,19 @@ import com.joyersapp.R
 import com.joyersapp.auth.presentation.identity.TitlesDialogViewmodel
 import com.joyersapp.auth.presentation.identity.TitlesEvent
 import com.joyersapp.auth.presentation.identity.TitlesNavEvent
-import com.joyersapp.common_widgets.AppBasicTextField
 import com.joyersapp.common_widgets.AppBasicTextField2
 import com.joyersapp.common_widgets.DashedLine
-import com.joyersapp.feature.dashboard.Routes
 import com.joyersapp.feature.profile.data.remote.dto.ProfileMeta
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
-import com.joyersapp.feature.profile.presentation.UserProfileNavigationEvent
-import com.joyersapp.feature.profile.presentation.UserProfileViewModel
-import com.joyersapp.feature.profile.presentation.dialogs.DescriptionEvent
-import com.joyersapp.feature.profile.presentation.dialogs.DescriptionNavEvent
-import com.joyersapp.feature.profile.presentation.dialogs.DescriptionViewModel
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.utils.fontFamilyLato
-import com.joyersapp.utils.isScrollingUp
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
 import com.joyersapp.utils.tapToDismissKeyboard
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 //@Preview

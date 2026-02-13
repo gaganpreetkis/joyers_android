@@ -23,6 +23,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,6 +34,10 @@ import com.joyersapp.components.dialogs.EditProfileHeaderDialog
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.feature.home.presentation.HomeScreen
 import com.joyersapp.feature.post.presentation.create_joy.CreateJoyScreen
+import com.joyersapp.feature.post.presentation.create_joy.CreateJoyViewModel
+import com.joyersapp.feature.post.presentation.create_post.CreatePostScreen
+import com.joyersapp.feature.post.presentation.create_post.CreatePostViewModel
+import com.joyersapp.feature.post.presentation.create_post.MediaPreviewScreen
 import com.joyersapp.feature.profile.data.remote.dto.ProfileTitlesData
 import com.joyersapp.feature.profile.presentation.MagneticsScreen
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
@@ -43,13 +48,18 @@ import com.joyersapp.utils.defaultPopEnterTransition
 import com.joyersapp.utils.noRippleClickable
 
 
-sealed class Routes(val route: String) {
-    data object Magnetics : Routes("magnetics")
-    data object ProfileHeaderDialog : Routes("profile_header_dialog")
-    data object MentionJoyersDialog : Routes("mention_joyers_dialog")
-    data object IdentificationDialog : Routes("identification_dialog")
-    data object DescriptionDialog : Routes("description_dialog")
-    data object ProfileViewDialog : Routes("profile_view_dialog")
+sealed class ProfileRoutes(val route: String) {
+    data object Magnetics : ProfileRoutes("magnetics")
+    data object ProfileHeaderDialog : ProfileRoutes("profile_header_dialog")
+    data object MentionJoyersDialog : ProfileRoutes("mention_joyers_dialog")
+    data object IdentificationDialog : ProfileRoutes("identification_dialog")
+    data object DescriptionDialog : ProfileRoutes("description_dialog")
+    data object ProfileViewDialog : ProfileRoutes("profile_view_dialog")
+
+}
+sealed class JoyRoutes(val route: String) {
+    data object CreatePost : JoyRoutes("create_post")
+    data object PreviewMedia : JoyRoutes("preview_media")
 
 }
 
@@ -61,6 +71,8 @@ fun DashboardNavGraph(navController: NavHostController) {
     }
 
     val userProfileViewModel = hiltViewModel<UserProfileViewModel>()
+    val createJoyViewmodel = hiltViewModel<CreateJoyViewModel>()
+    val createPostViewmodel = hiltViewModel<CreatePostViewModel>()
     val bottomRoutes = BottomTab.entries.map { it.route }
     NavHost(
         navController = navController,
@@ -103,6 +115,8 @@ fun DashboardNavGraph(navController: NavHostController) {
 //        }
     ) {
 
+        // HOME TAB
+
         composable(BottomTab.HOME.route) {
             HomeScreen(
 //                onOpenPost = {
@@ -111,46 +125,47 @@ fun DashboardNavGraph(navController: NavHostController) {
             )
         }
 
-        // PROFILE
+        // PROFILE TAB
+
         composable(BottomTab.PROFILE.route) {
             UserProfileScreen(
                 viewModel = userProfileViewModel,
                 editMagnetics = {
 //                    navController.navigate("test")
-                    navController.navigate(Routes.Magnetics.route)
+                    navController.navigate(ProfileRoutes.Magnetics.route)
                 },
-//                navigateToIdentificationDialog = { navController.navigate(Routes.IdentificationDialog.route) },
-//                navigateToDescriptionDialog = { navController.navigate(Routes.DescriptionDialog.route) },
+//                navigateToIdentificationDialog = { navController.navigate(ProfileRoutes.IdentificationDialog.route) },
+//                navigateToDescriptionDialog = { navController.navigate(ProfileRoutes.DescriptionDialog.route) },
             )
         }
 
         // MAGNETICS SCREEN
-        composable(Routes.Magnetics.route) {
+        composable(ProfileRoutes.Magnetics.route) {
             MagneticsScreen(
                 viewModel = userProfileViewModel,
                 onBack = { navController.popBackStack() },
 
                 navigateToDescriptionDialog = {
 
-                    navController.navigate(Routes.DescriptionDialog.route)
+                    navController.navigate(ProfileRoutes.DescriptionDialog.route)
                     navController
-                        .getBackStackEntry(Routes.DescriptionDialog.route)
+                        .getBackStackEntry(ProfileRoutes.DescriptionDialog.route)
                         .savedStateHandle
                         .set(
                             "description_titles_list",
                             it
                         )
                 },
-                navigateToProfileHeaderDialog = { navController.navigate(Routes.ProfileHeaderDialog.route) },
-                navigateToMentionJoyersDialog = { navController.navigate(Routes.MentionJoyersDialog.route) },
-//                navigateToIdentification = { navController.navigate(Routes.IdentificationDialog.route) },
+                navigateToProfileHeaderDialog = { navController.navigate(ProfileRoutes.ProfileHeaderDialog.route) },
+                navigateToMentionJoyersDialog = { navController.navigate(ProfileRoutes.MentionJoyersDialog.route) },
+//                navigateToIdentification = { navController.navigate(ProfileRoutes.IdentificationDialog.route) },
             )
         }
 
 
         // MENTION JOYERS DIALOG
         dialog (
-            route = Routes.MentionJoyersDialog.route,
+            route = ProfileRoutes.MentionJoyersDialog.route,
             dialogProperties = DialogProperties(
                 dismissOnBackPress = true,
                 dismissOnClickOutside = false,
@@ -167,7 +182,7 @@ fun DashboardNavGraph(navController: NavHostController) {
 
         // PROFILE HEADER DIALOG
         dialog (
-            route = Routes.ProfileHeaderDialog.route,
+            route = ProfileRoutes.ProfileHeaderDialog.route,
             dialogProperties = DialogProperties(
                 dismissOnBackPress = true,
                 dismissOnClickOutside = false,
@@ -178,20 +193,20 @@ fun DashboardNavGraph(navController: NavHostController) {
             EditProfileHeaderDialog(
                 onDismiss = { navController.popBackStack() },
                 onApply = { navController.popBackStack() },
-                navigateToMentionJoyersDialog = { navController.navigate(Routes.MentionJoyersDialog.route) },
+                navigateToMentionJoyersDialog = { navController.navigate(ProfileRoutes.MentionJoyersDialog.route) },
 
             )
         }
 
-//        composable(Routes.IdentificationDialog.route) {
+//        composable(ProfileRoutes.IdentificationDialog.route) {
 //            IdentificationDialog (
 //                onDismiss = { navController.popBackStack() },
-////                navigateToDescriptionDialog = { navController.navigate(Routes.DescriptionDialog.route) }
+////                navigateToDescriptionDialog = { navController.navigate(ProfileRoutes.DescriptionDialog.route) }
 //            )
 //        }
 
         dialog (
-            route = Routes.DescriptionDialog.route,
+            route = ProfileRoutes.DescriptionDialog.route,
             dialogProperties = DialogProperties(
                 dismissOnBackPress = true,
                 dismissOnClickOutside = false,
@@ -211,13 +226,13 @@ fun DashboardNavGraph(navController: NavHostController) {
                 ),
                 onDismiss = { navController.popBackStack() },
                 onApply = { title, subTitle ->
-//                    navController.navigate(Routes.ProfileHeaderDialog.route)
+//                    navController.navigate(ProfileRoutes.ProfileHeaderDialog.route)
                     navController.popBackStack()
                     userProfileViewModel.onEvent(UserProfileEvent.OnApplyDescription(title, subTitle))
                 }
             )
         }
-//        composable(Routes.ProfileViewDialog.route) {
+//        composable(ProfileRoutes.ProfileViewDialog.route) {
 //            ProfileViewDialog (
 //                onDismiss = { navController.popBackStack() },
 //                onApply = { navController.popBackStack() }
@@ -240,16 +255,45 @@ fun DashboardNavGraph(navController: NavHostController) {
             }
         }
 
+        // CREATE JOY/POST TAB
+
         composable(BottomTab.POST.route) {
             CreateJoyScreen(
-                viewModel = hiltViewModel()
+                viewModel = createJoyViewmodel,
+                navCreatePost = {
+                    navController.navigate(JoyRoutes.CreatePost.route)
+                }
             )
         }
+
+        composable(JoyRoutes.CreatePost.route) {
+            CreatePostScreen(
+                sharedViewmodel = createJoyViewmodel,
+                viewmodel = createPostViewmodel,
+                onBack = { navController.popBackStack() },
+                onPreviewMedia = { navController.navigate(JoyRoutes.PreviewMedia.route) },
+            )
+        }
+
+        composable(JoyRoutes.PreviewMedia.route) {
+            MediaPreviewScreen(
+                mediaList = createPostViewmodel.uiState.collectAsStateWithLifecycle().value.mediaList,
+                initialPage = 0,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+
+
+        // CONTACTS TAB
 
         composable(BottomTab.CONTACTS.route) {
 //            HomeScreen()
             IdentityScreen("test", "test")
         }
+
+
+        // NOTIFICATIONS TAB
 
         composable(BottomTab.NOTIFICATIONS.route) {
             HomeScreen()

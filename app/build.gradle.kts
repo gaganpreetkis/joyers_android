@@ -69,6 +69,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.compose.animation.core)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.common)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,6 +82,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.7.0")
     implementation(libs.ccp)
     implementation(libs.coil.compose)
+    implementation(libs.coil.video)
     implementation(libs.coil.gif)
 
 

@@ -39,6 +39,7 @@ import com.joyersapp.utils.noRippleClickable
 @Composable
 fun CreateJoyHeader(
     modifier: Modifier,
+    title: String,
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
 ) {
@@ -71,7 +72,7 @@ fun CreateJoyHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Create Post",
+                text = title,
                 fontSize = 24.sp,
                 lineHeight = 22.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -106,102 +107,7 @@ fun CreateJoyHeader(
     }
 }
 
-@Composable
-fun JoyerRow(
-    modifier: Modifier,
-    joyer: Joyer
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
 
-        // Avatar
-        Box(
-            modifier = Modifier
-                .size(57.dp)
-                .border(width = 2.dp, color = AvatarBorder, shape = CircleShape)
-                .padding(2.dp)
-                .border(width = 2.5.dp, color = White, shape = CircleShape)
-                .clip(CircleShape)
-                .background(Gray20),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.avatar),
-                contentDescription = "avatar", modifier = Modifier.size(52.5.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        // Texts
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = joyer.name,
-                    fontSize = 16.sp,
-                    lineHeight = 19.sp,
-                    color = LightBlack,
-                    fontFamily = fontFamilyLato,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Spacer(modifier = Modifier.width(2.dp))
-                repeat(joyer.starsCount) {
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Image(
-                        painter = painterResource(R.drawable.ic_star_golden),
-                        contentDescription = "Star",
-                        modifier = Modifier
-                            .size(14.dp, 13.dp)
-                    )
-                }
-
-                if (joyer.isLockVisible) {
-
-                    Spacer(modifier = Modifier.width(7.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(3.dp)
-                            .clip(CircleShape)
-                            .background(LightBlack55)
-                    )
-                    Spacer(modifier = Modifier.width(7.dp))
-                    Image(
-                        painter = painterResource(R.drawable.ic_lock_heart_black),
-                        contentDescription = "Star",
-                        modifier = Modifier
-                            .size(9.5.dp, 14.19.dp)
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(3.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = joyer.tag,
-                    fontSize = 12.sp,
-                    lineHeight = 15.sp,
-                    color = Golden,
-                    fontFamily = fontFamilyLato,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, false)
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun JoyersCup(modifier: Modifier) {
@@ -235,6 +141,7 @@ fun CameraFab(modifier: Modifier) {
     Box (
         modifier = modifier
             .clip(CircleShape)
+            .background(White)
             .size(47.dp)
             .border(width = 1.5.dp, color = Golden, shape = CircleShape),
     ) {
