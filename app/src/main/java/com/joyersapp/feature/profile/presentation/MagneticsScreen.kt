@@ -338,11 +338,8 @@ fun MagneticsScreen(
                         )
                     }
 
-                    Spacer(Modifier.height(80.dp))
+                    Spacer(Modifier.height(45.dp))
                 }
-
-
-
             }
         }
 
@@ -451,21 +448,22 @@ fun TopBar(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // lock
-//            Box(contentAlignment = Alignment.TopEnd) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.ic_lock_heart_black),
-//                    contentDescription = "Lock",
-//                    modifier = Modifier.size(13.39.dp, 20.dp)
-//                )
-//            }
-
-//            Spacer(modifier = Modifier.width(7.01.dp))
 
             // Username
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "@$username",
+                    text = "@",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = fontFamilyLato,
+                    lineHeight = 22.sp,
+                    color = LightBlack,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.width(3.dp))
+                Text(
+                    text = username,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = fontFamilyLato,
@@ -708,10 +706,10 @@ fun DescriptionSection(state: MagneticsData, onclick: () -> Unit) {
     ) {
         SectionHeader(title = "Description")
         Spacer(Modifier.height(13.dp))
-        if (!(state.subTitle?.name?: state.title?.name).isNullOrEmpty()) {
+        if (!(state.subTitle?.name?: state.title?.name?: state.joyerStatus).isNullOrEmpty()) {
             KeyValueText(
                 "Joyer Status",
-                state.subTitle?.name?: state.title?.name?: "Classic"
+                state.subTitle?.name?: state.title?.name?: state.joyerStatus?: ""
             )
         } else { ProfileEditableRow(title = "Joyer Status") }
     }
@@ -738,7 +736,7 @@ fun ProfileHeaderSection(
         } else {
             ProfileEditableRow(title = "Profile Picture")
         }
-        Spacer(Modifier.height(11.dp))
+        Spacer(Modifier.height(13.dp))
         if (!state?.bio?.filteredBio().isNullOrEmpty() || !state?.websiteUrl.isNullOrEmpty()) {
             BioSection(
                 selectedBioTab = state.selectedTab,

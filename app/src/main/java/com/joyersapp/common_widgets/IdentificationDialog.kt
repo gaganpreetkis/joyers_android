@@ -89,7 +89,7 @@ fun IdentificationDialog(
                 // Name Field
                 IdentificationTextField(
                     label = "Name",
-                    value = identificationData.name?:"",
+                    value = identificationData.name ?: "",
                     onValueChange = { viewModel.onEvent(UserProfileEvent.OnNameChanged(value = it)) },
                     onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Name")) },
                 )
@@ -115,8 +115,8 @@ fun IdentificationDialog(
 
                 // Gender Field
                 GenderSelectionField(
-                    selectedGender = identificationData.gender?:"",
-                    sortedGenderList = identificationData.sortedGenderList,
+                    selectedGender = identificationData.gender ?: "",
+                    sortedGenderList = identificationData.genderList,
                     onSelection = { viewModel.onEvent(UserProfileEvent.OnGenderSelected(it.value)) }
                 )
 
@@ -126,7 +126,7 @@ fun IdentificationDialog(
                 NationalityField(
                     label = "Nationality",
                     hintText = "Joyer Nationality",
-                    values = identificationData.nationality?: emptyList(),
+                    values = identificationData.nationality ?: emptyList(),
                     onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Nationality")) },
                     onClick = {
                         viewModel.onEvent(
@@ -136,7 +136,9 @@ fun IdentificationDialog(
                                 show = true,
                                 headers = arrayListOf("Country"),
                                 titlesData = state.countryList,
-                                selectedIds = identificationData.nationality?.map { it.dropdownCountries?.id?: "" }?: emptyList()
+                                selectedIds = identificationData.nationality?.map {
+                                    it.dropdownCountries?.id ?: ""
+                                } ?: emptyList()
                             )
                         )
                     },
@@ -147,7 +149,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Ethnicity",
                     hintText = "Joyer Ethnicity",
-                    value = identificationData.ethnicity?.name?: "",
+                    value = identificationData.ethnicity?.name ?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleMultipleSelectionsDialog(
@@ -156,10 +158,12 @@ fun IdentificationDialog(
                                 show = true,
                                 headers = arrayListOf("Identification", "Ethnicity"),
                                 titlesData = state.ethenicityList,
-                                selectedIds = if (identificationData.ethnicity != null) listOf(identificationData.ethnicity?.id?: "") else emptyList()
+                                selectedIds = if (identificationData.ethnicity != null) listOf(
+                                    identificationData.ethnicity?.id ?: ""
+                                ) else emptyList()
                             )
                         )
-                              },
+                    },
                     onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Ethnicity")) },
                 )
 
@@ -168,7 +172,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Faith",
                     hintText = "Joyer Faith / Religion",
-                    value = identificationData.faith?.name?: "",
+                    value = identificationData.faith?.name ?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleMultipleSelectionsDialog(
@@ -177,7 +181,9 @@ fun IdentificationDialog(
                                 show = true,
                                 headers = arrayListOf("Identification", "Faith"),
                                 titlesData = state.faithReligionList,
-                                selectedIds = if (identificationData.faith != null) listOf(identificationData.faith?.id?: "") else emptyList()
+                                selectedIds = if (identificationData.faith != null) listOf(
+                                    identificationData.faith?.id ?: ""
+                                ) else emptyList()
 
                             )
                         )
@@ -192,7 +198,11 @@ fun IdentificationDialog(
                     label = "Language",
                     hintText = "Joyer Language",
                     languages = identificationData.selectedLanguages,
-                    signLanguages = identificationData.selectedLanguages?.firstOrNull{ it.language?.id.equals("72338abe-4687-487f-9515-c10d2a1be8ef")}?.sublanguages,
+                    signLanguages = identificationData.selectedLanguages?.firstOrNull {
+                        it.language?.id.equals(
+                            "72338abe-4687-487f-9515-c10d2a1be8ef"
+                        )
+                    }?.sublanguages,
                     onClear = { viewModel.onEvent(UserProfileEvent.OnClearMultipleSelections(key = "Language")) },
                     onClick = {
                         viewModel.onEvent(UserProfileEvent.ToggleLanguageDialog(show = true))
@@ -204,7 +214,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Education",
                     hintText = "Joyer Degree",
-                    value = identificationData.education?.name?: "",
+                    value = identificationData.education?.name ?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleMultipleSelectionsDialog(
@@ -213,7 +223,9 @@ fun IdentificationDialog(
                                 show = true,
                                 headers = arrayListOf("Identification", "Education"),
                                 titlesData = state.educationList,
-                                selectedIds = if (identificationData.education != null) listOf(identificationData.education?.id?: "") else emptyList()
+                                selectedIds = if (identificationData.education != null) listOf(
+                                    identificationData.education?.id ?: ""
+                                ) else emptyList()
                             )
                         )
                     },
@@ -225,7 +237,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Relationship",
                     hintText = "Relationship Status",
-                    value = identificationData.relationship?.name?: "",
+                    value = identificationData.relationship?.name ?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleMultipleSelectionsDialog(
@@ -234,7 +246,9 @@ fun IdentificationDialog(
                                 show = true,
                                 headers = arrayListOf("Identification", "Relationship"),
                                 titlesData = state.relationShipList,
-                                selectedIds = if (identificationData.relationship != null) listOf(identificationData.relationship?.id?: "") else emptyList()
+                                selectedIds = if (identificationData.relationship != null) listOf(
+                                    identificationData.relationship?.id ?: ""
+                                ) else emptyList()
                             )
                         )
                     },
@@ -243,10 +257,10 @@ fun IdentificationDialog(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                PoliticalIdeologyField (
+                PoliticalIdeologyField(
                     label = "Political Ideology",
                     hintText = "Joyer Ideology",
-                    values = identificationData.politicalIdeology?: arrayListOf(),
+                    values = identificationData.politicalIdeology ?: arrayListOf(),
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleMultipleSelectionsDialog(
@@ -255,7 +269,9 @@ fun IdentificationDialog(
                                 show = true,
                                 headers = arrayListOf("Identification", "Political Ideology"),
                                 titlesData = state.politicalIdeologyList,
-                                selectedIds = identificationData.politicalIdeology?.map { it.politicalIdeology?.id?: "" }?: emptyList()
+                                selectedIds = identificationData.politicalIdeology?.map {
+                                    it.politicalIdeology?.id ?: ""
+                                } ?: emptyList()
                             )
                         )
                     },
@@ -267,7 +283,7 @@ fun IdentificationDialog(
                 IdentificationDropdownField(
                     label = "Joyer Location",
                     hintText = "Joyer Location",
-                    value = identificationData.location?.name?: "",
+                    value = identificationData.location?.name ?: "",
                     onClick = {
                         viewModel.onEvent(
                             UserProfileEvent.ToggleMultipleSelectionsDialog(
@@ -276,7 +292,9 @@ fun IdentificationDialog(
                                 show = true,
                                 headers = arrayListOf("Country"),
                                 titlesData = state.countryList,
-                                selectedIds = if (identificationData.location != null) listOf(identificationData.location?.id?: "") else emptyList()
+                                selectedIds = if (identificationData.location != null) listOf(
+                                    identificationData.location?.id ?: ""
+                                ) else emptyList()
                             )
                         )
                     },
@@ -286,10 +304,10 @@ fun IdentificationDialog(
                 Spacer(modifier = Modifier.height(30.dp))
 
                 // ---------- APPLY BUTTON ----------
-                Button (
+                Button(
                     onClick = {
                         onApply(identificationData)
-                              },
+                    },
                     modifier = Modifier
                         .width(190.dp)
                         .align(Alignment.CenterHorizontally)
@@ -303,7 +321,9 @@ fun IdentificationDialog(
                         lineHeight = 19.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = fontFamilyLato,
-                        color = White
+                        color = White,
+                        modifier = Modifier
+                            .offset(y = -1.dp)
                     )
                 }
             }
@@ -366,10 +386,12 @@ fun LanguagesField(
 
                         if (!languages.isNullOrEmpty()) {
                             Row(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .offset(y = -1.dp)
                             ) {
-                                val name = languages[0].language?.name?:""
-                                val level = languages[0].language?.level?:""
+                                val name = languages[0].language?.name ?: ""
+                                val level = languages[0].language?.level ?: ""
                                 Text(
                                     text = name,
                                     fontSize = 16.sp,
@@ -417,7 +439,9 @@ fun LanguagesField(
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack60,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .offset(y = -1.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Image(
@@ -486,8 +510,8 @@ fun LanguagesField(
 
                             if (item.language?.id.equals("72338abe-4687-487f-9515-c10d2a1be8ef")) return@forEachIndexed
 
-                            val name = item.language?.name?:""
-                            val level = (item.language?.level?:"").trim()
+                            val name = item.language?.name ?: ""
+                            val level = (item.language?.level ?: "").trim()
                             val language = buildString {
                                 append(name)
                                 if (level.isNotEmpty()) {
@@ -508,25 +532,25 @@ fun LanguagesField(
                                 Spacer(Modifier.width(10.dp))
                             }
 
+                            Text(
+                                text = name,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = fontFamilyLato,
+                                color = LightBlack,
+                                lineHeight = 22.sp,
+                            )
+                            if (level.isNotEmpty()) {
+                                Spacer(Modifier.width(6.dp))
                                 Text(
-                                    text = name,
+                                    text = "($level)",
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Normal,
                                     fontFamily = fontFamilyLato,
                                     color = LightBlack,
                                     lineHeight = 22.sp,
                                 )
-                                if (level.isNotEmpty()) {
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(
-                                        text = "($level)",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        fontFamily = fontFamilyLato,
-                                        color = LightBlack,
-                                        lineHeight = 22.sp,
-                                    )
-                                }
+                            }
 //                            }
                         }
 
@@ -543,39 +567,39 @@ fun LanguagesField(
                             Spacer(modifier = Modifier.width(10.dp))
 
                             signLanguages.forEachIndexed { index, item ->
-                                val name = item.sublanguage?.name?:""
-                                val level = (item.sublanguage?.level?:"").trim()
+                                val name = item.sublanguage?.name ?: ""
+                                val level = (item.sublanguage?.level ?: "").trim()
 
 //                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    if (index != 0 ) {
-                                        Spacer(Modifier.width(10.dp))
-                                        Box(
-                                            modifier = Modifier
-                                                .clip(CircleShape)
-                                                .background(LightBlack55)
-                                                .size(3.dp)
-                                        )
-                                        Spacer(Modifier.width(10.dp))
-                                    }
+                                if (index != 0) {
+                                    Spacer(Modifier.width(10.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(LightBlack55)
+                                            .size(3.dp)
+                                    )
+                                    Spacer(Modifier.width(10.dp))
+                                }
+                                Text(
+                                    text = name,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    fontFamily = fontFamilyLato,
+                                    color = LightBlack,
+                                    lineHeight = 22.sp,
+                                )
+                                if (level.isNotEmpty()) {
+                                    Spacer(Modifier.width(6.dp))
                                     Text(
-                                        text = name,
+                                        text = "($level)",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Normal,
                                         fontFamily = fontFamilyLato,
                                         color = LightBlack,
                                         lineHeight = 22.sp,
                                     )
-                                    if (level.isNotEmpty()) {
-                                        Spacer(Modifier.width(6.dp))
-                                        Text(
-                                            text = "($level)",
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            fontFamily = fontFamilyLato,
-                                            color = LightBlack,
-                                            lineHeight = 22.sp,
-                                        )
-                                    }
+                                }
 
 //                                }
                             }
@@ -640,11 +664,13 @@ fun NationalityField(
 
                         if (values.isNotEmpty()) {
                             Row(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .offset(y = -1.dp)
                             ) {
 
                                 Text(
-                                    text = values[0].dropdownCountries?.name?: "",
+                                    text = values[0].dropdownCountries?.name ?: "",
                                     fontSize = 16.sp,
                                     lineHeight = 23.sp,
                                     fontFamily = fontFamilyLato,
@@ -679,7 +705,9 @@ fun NationalityField(
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack60,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .offset(y = -1.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Image(
@@ -744,7 +772,7 @@ fun NationalityField(
                         )
                     ) {
                         values.forEachIndexed { index, item ->
-                            val name = item.dropdownCountries?.name?: ""
+                            val name = item.dropdownCountries?.name ?: ""
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -829,10 +857,12 @@ fun PoliticalIdeologyField(
 
                         if (values.isNotEmpty()) {
                             Row(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .offset(y = -1.dp)
                             ) {
                                 Text(
-                                    text = values[0].politicalIdeology?.name?: "",
+                                    text = values[0].politicalIdeology?.name ?: "",
                                     fontSize = 16.sp,
                                     lineHeight = 23.sp,
                                     fontFamily = fontFamilyLato,
@@ -867,7 +897,9 @@ fun PoliticalIdeologyField(
                                 fontFamily = fontFamilyLato,
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack60,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .offset(y = -1.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Image(
@@ -932,7 +964,7 @@ fun PoliticalIdeologyField(
                         )
                     ) {
                         values.forEachIndexed { index, item ->
-                            val name = item.politicalIdeology?.name?: ""
+                            val name = item.politicalIdeology?.name ?: ""
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -1095,7 +1127,9 @@ fun IdentificationTextField(
                             text = remainingChars.toString(),
                             fontSize = 12.sp,
                             color = if (remainingChars < 0) Red else LightBlack60,
-                            modifier = Modifier.fillMaxHeight().padding(top = 4.dp, end = 14.dp),
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(top = 4.dp, end = 14.dp),
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.SemiBold,
                             lineHeight = 24.sp,
@@ -1178,7 +1212,11 @@ fun IdentificationDropdownField(
 
                     if (value.isNotEmpty()) {
 
-                        Row(  modifier = Modifier.weight(1f)) {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .offset(y = -1.dp)
+                        ) {
                             Text(
                                 text = value,
                                 fontSize = 16.sp,
@@ -1187,18 +1225,18 @@ fun IdentificationDropdownField(
                                 fontWeight = FontWeight.Normal,
                                 color = LightBlack,
 
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            if (label.equals("Joyer Location")) {
-                                Text(
-                                    modifier = Modifier
-                                        .size(18.76.dp, 12.22.dp)
-                                        .align(Alignment.CenterVertically),
-                                    text = flagEmoji(value),
-                                    fontSize = 12.sp,
-                                    lineHeight = 12.sp
                                 )
-                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+//                            if (label.equals("Joyer Location")) {
+//                                Text(
+//                                    modifier = Modifier
+//                                        .size(18.76.dp, 12.22.dp)
+//                                        .align(Alignment.CenterVertically),
+//                                    text = flagEmoji(value),
+//                                    fontSize = 12.sp,
+//                                    lineHeight = 12.sp
+//                                )
+//                            }
                         }
                         Image(
                             painter = painterResource(id = R.drawable.ic_cross_round_gray),
@@ -1215,7 +1253,9 @@ fun IdentificationDropdownField(
                             fontFamily = fontFamilyLato,
                             fontWeight = FontWeight.Normal,
                             color = LightBlack60,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
+                                .offset(y = -1.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Image(
@@ -1275,7 +1315,7 @@ data class IdentificationData(
     var location: ProfileMeta? = null,
     var children: String? = null,
 
-) {
+    ) {
 
     val genderList: LinkedHashMap<String, Gender>
         get() = linkedMapOf(
@@ -1284,14 +1324,14 @@ data class IdentificationData(
             Pair("Other Gender", Gender.OTHER),
         )
 
-    val sortedGenderList: LinkedHashMap<String, Gender> =
-        genderList.entries
-            .partition { it.value.value.equals(gender) }
-            .let { (selected, unSelected) ->
-                (selected + unSelected)
-                    .associate { it.key to it.value }
-            }
-            .toMap(LinkedHashMap())
+    //    val sortedGenderList: LinkedHashMap<String, Gender> =
+//        genderList.entries
+//            .partition { it.value.value.equals(gender) }
+//            .let { (selected, unSelected) ->
+//                (selected + unSelected)
+//                    .associate { it.key to it.value }
+//            }
+//            .toMap(LinkedHashMap())
     val dataList: LinkedHashMap<String, Any?>
         get() = linkedMapOf(
             Pair("Name", name),

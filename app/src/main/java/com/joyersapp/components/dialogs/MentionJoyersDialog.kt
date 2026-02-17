@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -75,6 +77,8 @@ import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack55
 import com.joyersapp.theme.LightBlack60
+import com.joyersapp.theme.LightBlack80
+import com.joyersapp.theme.Red
 import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
@@ -85,18 +89,20 @@ import com.joyersapp.utils.tapToDismissKeyboard
 @Composable
 fun composePreview() {
 
-//    MentionJoyerRow(EditMagneticsUserListData(
-//        first_name = "Har",
-//        last_name = "Kirat Kirat Kirat Kidgd fgrgc frrgdf",
-//        starCount = 3,
-//        showLock = true
-//    )) { }
-    MentionJoyersDialog(
-        initList = arrayListOf(),
-        onDismiss = {},
-        onApply = {},
-        viewmodel = hiltViewModel()
-        )
+    MentionJoyerRow(
+        false,
+        EditMagneticsUserListData(
+        first_name = "Har",
+        last_name = "Kirat Kirat Kirat Kidgd fgrgc frrgdf",
+        starCount = 3,
+        showLock = true
+    )) { }
+//    MentionJoyersDialog(
+//        initList = arrayListOf(),
+//        onDismiss = {},
+//        onApply = {},
+//        viewmodel = hiltViewModel()
+//        )
 }
 
 @Composable
@@ -144,7 +150,7 @@ fun MentionJoyersDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp, top = 20.dp, bottom = botttomPadding)
+                .padding(start = 15.dp, end = 15.dp, top = 0.dp, bottom = botttomPadding)
                 .background(Color.White)
         ) {
             // ---------- HEADER SECTION ----------
@@ -156,7 +162,7 @@ fun MentionJoyersDialog(
             } else {
                 Row(
                     modifier = Modifier
-                        .padding(bottom = 13.dp)
+                        .padding(top = 20.dp, bottom = 13.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -209,6 +215,9 @@ fun MentionJoyersDialog(
             ) {
                 Column(
 
+                    modifier = Modifier
+                        .weight(1f, fill = !state.isAddMentionsMode)
+                        .padding(bottom = if (state.isAddMentionsMode) 15.dp else 0.dp)
                 ) {
                     Spacer(modifier = Modifier.height(14.dp))
                     SearchBarRowForEditMaganetic(
@@ -219,24 +228,30 @@ fun MentionJoyersDialog(
                     )
 
                     if (!state.isAddMentionsMode) {
-                        Spacer(modifier = Modifier.height(10.dp))
 
-                        Column(
-                            modifier = Modifier
-                                .weight(1f, fill = false)
-                                .padding(start = 15.dp, end = 15.dp)
-                                .width(354.dp)
-                                .clip(RoundedCornerShape(5.dp))
-                                .background(
-                                    color = Color.White, shape = RoundedCornerShape(5.dp)
-                                )
-                        ) {
-                            JoyersList(userList, onUserClick = { selectedUser ->
-                                viewmodel.onEvent(MentionJoyersEvent.OnUserSelectionToggled(selectedUser))
-                            })
-                        }
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f, fill = true)
+                                    .padding(start = 15.dp, end = 15.dp)
+                                    .width(354.dp)
+                                    .clip(RoundedCornerShape(5.dp))
+                                    .background(
+                                        color = Color.White, shape = RoundedCornerShape(5.dp)
+                                    )
+                            ) {
+                                JoyersList(userList, onUserClick = { selectedUser ->
+                                    viewmodel.onEvent(
+                                        MentionJoyersEvent.OnUserSelectionToggled(
+                                            selectedUser
+                                        )
+                                    )
+                                })
+                            }
+
+                        Spacer(modifier = Modifier.height(15.dp))
                     }
-                    Spacer(modifier = Modifier.height(15.dp))
                 }
 
 
@@ -251,7 +266,7 @@ fun MentionJoyersDialog(
                     }
                 )
             } else {
-                if (state.filteredUserList.isEmpty()) {
+                /*if (state.filteredUserList.isEmpty()) {
 //                    item {
                         Box(
                             modifier = Modifier
@@ -274,7 +289,7 @@ fun MentionJoyersDialog(
                             )
                         }
 //                    }
-                }
+                }*/
             }
         }
     }
@@ -377,16 +392,40 @@ fun JoyersList(getPreviewJoyerList: List<EditMagneticsUserListData>,
 
     val isKeyBoardOpen = rememberIsKeyboardOpen()
     val items = getPreviewJoyerList
-    LazyColumn {
 
-        itemsIndexed(items) { index, user ->
+    if (items.isEmpty()) {
+//                    item {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.no_results_found),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = fontFamilyLato,
+                textAlign = TextAlign.Center,
+                color = LightBlack,
+                lineHeight = 22.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = -24.dp)
+            )
+        }
+//                    }
+    } else {
+        LazyColumn {
+
+            itemsIndexed(items) { index, user ->
 //            if (index < 5) {
                 Spacer(Modifier.height(15.dp))
                 MentionJoyerRow(showCancelButton = false, user, onUserClick = onUserClick)
-            if (items.size -1  == index) {
-                Spacer(Modifier.height(25.dp))
-            }
+                if (items.size - 1 == index) {
+                    Spacer(Modifier.height(25.dp))
+                }
 //            }
+            }
         }
     }
 }
@@ -399,7 +438,8 @@ fun SelectedUsersColumn(selectedUsers: List<EditMagneticsUserListData>,
             item {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = stringResource(R.string.no_results_found),
@@ -411,10 +451,7 @@ fun SelectedUsersColumn(selectedUsers: List<EditMagneticsUserListData>,
                         lineHeight = 22.sp,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                top = if (rememberIsKeyboardOpen()) 95.dp else 55.dp,
-                                bottom = if (rememberIsKeyboardOpen()) 0.dp else 69.dp
-                            )
+                            .offset(y = -54.dp)
                     )
                 }
             }
@@ -476,16 +513,16 @@ fun MentionJoyerRow(
         Box(
             modifier = Modifier
                 .size(37.dp)
-                .border(width = 1.dp, color = AvatarBorder, shape = CircleShape)
-                .padding(1.dp)
-                .border(width = 1.dp, color = White, shape = CircleShape)
+                .border(width = 1.5.dp, color = AvatarBorder, shape = CircleShape)
+                .padding(1.5.dp)
+                .border(width = 2.5.dp, color = White, shape = CircleShape)
                 .clip(CircleShape)
                 .background(Gray20),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.avatar), // your J icon
-                contentDescription = "avatar", modifier = Modifier.size(34.dp)
+                contentDescription = "avatar", modifier = Modifier.size(33.dp)
             )
         }
 //        AsyncImage(
@@ -607,7 +644,7 @@ fun ClearMentionsActions(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
-            .padding(bottom = 12.dp),
+            .padding(top = 17.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -615,18 +652,18 @@ fun ClearMentionsActions(
         // 🗑 Clear All
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = Modifier.height(23.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_clear),
                 contentDescription = null,
-                modifier = Modifier.size(14.2.dp, 15.dp)
+                modifier = Modifier.size(14.dp, 15.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "Clear All",
                 fontSize = 12.sp,
-                lineHeight = 24.sp,
+                lineHeight = 19.sp,
                 fontFamily = fontFamilyLato,
                 fontWeight = FontWeight.Bold,
                 color = LightBlack
@@ -675,7 +712,7 @@ fun ActionChip(
             fontFamily = fontFamilyLato,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
-            lineHeight = 24.sp
+            lineHeight = 19.sp
         )
     }
 }
@@ -726,30 +763,39 @@ private fun BaseMentionJoyersDialog(
         } else {
             // When keyboard is hidden, use a standard dialog height constraint
             Modifier
-                .wrapContentHeight()
-                .heightIn(min = minHeight, max = maxHeight)
+//                .wrapContentHeight()
+//                .heightIn(min = minHeight, max = maxHeight)
+                .height(maxHeight)
                 .padding(top = 50.dp, bottom = 50.dp)
         }
 
-        Card(
-            modifier = dialogModifier
-                .windowInsetsPadding(WindowInsets.systemBars)
-                .then(dialogHeightModifier) // Apply dynamic height
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(25.dp))
-                .background(Color.White) // Ensure background captures taps
-                .imePadding()
-                .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(White)
+                .background(LightBlack80),
+            contentAlignment = Alignment.Center
         ) {
-            // Header
-            Row(
+
+            Card(
                 modifier = dialogModifier
+                    .windowInsetsPadding(WindowInsets.systemBars)
+                    .then(dialogHeightModifier) // Apply dynamic height
                     .fillMaxWidth()
-                    .padding(top = 16.dp, start = 18.dp, end = 19.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .clip(RoundedCornerShape(25.dp))
+                    .background(Color.White) // Ensure background captures taps
+                    .imePadding()
+                    .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
-                // Back button (only visible in subtitle mode)
+                // Header
+                Row(
+                    modifier = dialogModifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, start = 18.dp, end = 19.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    // Back button (only visible in subtitle mode)
                     Image(
                         painter = painterResource(id = R.drawable.ic_back_arrow_golden),
                         contentDescription = null,
@@ -760,62 +806,69 @@ private fun BaseMentionJoyersDialog(
                     )
 
 
-                // Title or Second Title
-                if (titles.size == 1) {
-                    Text(
-                        text = titles[0],
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = fontFamilyLato,
-                        color = lightBlackColor,
-                        modifier = dialogModifier.padding(top = 2.dp)
-                    )
-                } else {
-                    FlowRow(
-                        modifier = dialogModifier.padding(top = 4.dp, bottom = 2.dp, start = 10.dp, end = 10.dp),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        titles.forEachIndexed { index, item ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = item,
-                                    fontSize = 16.sp,
-                                    lineHeight = if (index == 0) 19.sp else 22.sp,
-                                    fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
-                                    fontFamily = fontFamilyLato,
-                                    color = lightBlackColor,
-                                    modifier = dialogModifier
-                                )
-                                if (index < titles.size - 1) {
-                                    Spacer(modifier = dialogModifier.width(11.dp))
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_forward_black),
-                                        contentDescription = null,
-                                        modifier = dialogModifier.size(6.dp, 10.dp)
+                    // Title or Second Title
+                    if (titles.size == 1) {
+                        Text(
+                            text = titles[0],
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor,
+                            modifier = dialogModifier.padding(top = 2.dp)
+                        )
+                    } else {
+                        FlowRow(
+                            modifier = dialogModifier.padding(
+                                top = 4.dp,
+                                bottom = 2.dp,
+                                start = 10.dp,
+                                end = 10.dp
+                            ),
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            titles.forEachIndexed { index, item ->
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = item,
+                                        fontSize = 16.sp,
+                                        lineHeight = if (index == 0) 19.sp else 22.sp,
+                                        fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
+                                        fontFamily = fontFamilyLato,
+                                        color = lightBlackColor,
+                                        modifier = dialogModifier
                                     )
-                                    Spacer(modifier = dialogModifier.width(10.dp))
+                                    if (index < titles.size - 1) {
+                                        Spacer(modifier = dialogModifier.width(11.dp))
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_forward_black),
+                                            contentDescription = null,
+                                            modifier = dialogModifier.size(6.dp, 10.dp)
+                                        )
+                                        Spacer(modifier = dialogModifier.width(10.dp))
+                                    }
                                 }
                             }
-                        }
 
+                        }
                     }
-                }
 
-                // Apply button
-                Text(
-                    text = "Apply",
-                    fontSize = 16.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamilyLato,
-                    color = if (isApplyEnabled) Golden else Golden60,
-                    modifier = dialogModifier
-                        .noRippleClickable(enabled = isApplyEnabled) {
-                            onApply()
-                        }
-                )
+                    // Apply button
+                    Text(
+                        text = "Apply",
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        color = if (isApplyEnabled) Golden else Golden60,
+                        modifier = dialogModifier
+                            .noRippleClickable(enabled = isApplyEnabled) {
+                                onApply()
+                            }
+                    )
+                }
+                dialogContent(dialogModifier, dialogFocusManager, maxHeight)
             }
-            dialogContent(dialogModifier, dialogFocusManager, maxHeight)
+
         }
 //        }
     }

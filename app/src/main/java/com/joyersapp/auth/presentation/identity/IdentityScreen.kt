@@ -483,7 +483,7 @@ fun PageOneContent(
         Spacer(modifier = Modifier.height(10.dp))
 
         // Name Input
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp)
@@ -496,109 +496,127 @@ fun PageOneContent(
                     color = if (usernameError != null) Red else GrayLightBorder,
                     shape = RoundedCornerShape(5.dp)
                 ),
-            verticalAlignment = Alignment.CenterVertically
+            contentAlignment = Alignment.Center
         ) {
-            Spacer(modifier = Modifier.width(15.dp))
 
-            CustomTextField2(
-                text = state.name,
-                onValueChange = {
-                    if (state.name == it) return@CustomTextField2
-                    if (it.length <= state.maxLength + 20) {
-                        //state.name = it
-                        viewModel2.onEvent(IdentityEvent.NameChanged(it))
-                        if (it.isEmpty()) {
-                            //remainingChars = maxLength - it.length
-                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.graphemeCount()))
-                            usernameError = null
-                            return@CustomTextField2
-                        }
-                        if (containsEmoji(it) || !isAllowedIdentityNameChars(it)) {
-                            //remainingChars = maxLength - (it.length / 2)
-                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - (it.graphemeCount())))
-                            usernameError = context.getString(R.string.username_error)
-                        } else {
-                            //remainingChars = maxLength - it.length
-                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.graphemeCount()))
-                            usernameError = null
-                        }
-                    }
-                },
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words
-                ),
-                placeholder = stringResource(R.string.joyer_name),
+            Row(
                 modifier = Modifier
-                    .weight(0.8f, fill = true)
-                    .offset(y = (-1).dp)
+                    .fillMaxWidth()
+                    .height(55.dp)
+                    .background(
+                        color = Gray20,
+                        shape = RoundedCornerShape(5.dp)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = if (usernameError != null) Red else GrayLightBorder,
+                        shape = RoundedCornerShape(5.dp)
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.width(20.dp))
+
+                CustomTextField2(
+                    text = state.name,
+                    onValueChange = {
+                        if (state.name == it) return@CustomTextField2
+                        if (it.length <= state.maxLength + 20) {
+                            //state.name = it
+                            viewModel2.onEvent(IdentityEvent.NameChanged(it))
+                            if (it.isEmpty()) {
+                                //remainingChars = maxLength - it.length
+                                viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.graphemeCount()))
+                                usernameError = null
+                                return@CustomTextField2
+                            }
+                            if (containsEmoji(it) || !isAllowedIdentityNameChars(it)) {
+                                //remainingChars = maxLength - (it.length / 2)
+                                viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - (it.graphemeCount())))
+                                usernameError = context.getString(R.string.username_error)
+                            } else {
+                                //remainingChars = maxLength - it.length
+                                viewModel2.onEvent(IdentityEvent.RemainingCharChanged(state.maxLength - it.graphemeCount()))
+                                usernameError = null
+                            }
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words
+                    ),
+                    placeholder = stringResource(R.string.joyer_name),
+                    modifier = Modifier
+                        .weight(0.8f, fill = true)
+                        .offset(x = 0.dp, y = (-1).dp)
 //                    .fillMaxWidth()
-                    .imePadding(),
-                onFocusChanged = { focusState ->
-                    isUsernamFocused = focusState.isFocused
-                },
-                textOverflow = TextOverflow.Ellipsis,
-                textStyle = TextStyle(
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp,
-                    color = lightBlackColor,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    fontFamily = fontFamilyLato,
+                        .imePadding(),
+                    onFocusChanged = { focusState ->
+                        isUsernamFocused = focusState.isFocused
+                    },
+                    textOverflow = TextOverflow.Ellipsis,
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        color = lightBlackColor,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        fontFamily = fontFamilyLato,
 
-                ),
-                placeHolderTextStyle = TextStyle(
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp,
-                    color = LightBlack60,
-                    fontWeight = FontWeight.Normal,
-                    textAlign = TextAlign.Center,
-                    fontFamily = fontFamilyLato,
+                        ),
+                    placeHolderTextStyle = TextStyle(
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        color = LightBlack60,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center,
+                        fontFamily = fontFamilyLato,
 
-                ),
-                maxLines = 1,
-                singleLine = true,
-                maxLength = 65,
-                highlightWords = false
-            )
+                        ),
+                    maxLines = 1,
+                    singleLine = true,
+                    maxLength = 65,
+                    highlightWords = false
+                )
 
-            if (isUsernamFocused || state.name.isEmpty()) {
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = state.remainingChars.toString(),
-                    fontSize = 12.sp,
-                    color = if (state.remainingChars < 0) redColor else hintColor,
-                    modifier = Modifier.fillMaxHeight().padding(top = 5.dp, end = 7.dp),
-                    fontFamily = fontFamilyLato,
-                    fontWeight = FontWeight.SemiBold,
-                    lineHeight = 24.sp,
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(
-                            includeFontPadding = false
+                if (isUsernamFocused || state.name.isEmpty()) {
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = state.remainingChars.toString(),
+                        fontSize = 12.sp,
+                        color = if (state.remainingChars < 0) redColor else hintColor,
+                        modifier = Modifier.fillMaxHeight().padding(top = 5.dp, end = 7.dp),
+                        fontFamily = fontFamilyLato,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 24.sp,
+                        style = TextStyle(
+                            platformStyle = PlatformTextStyle(
+                                includeFontPadding = false
+                            )
                         )
                     )
-                )
-            } else {
-                Spacer(modifier = Modifier.width(5.dp))
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .padding(end = 15.dp)
-                        .size(15.dp)
-                        .clickable {
-                            viewModel2.onEvent(IdentityEvent.NameChanged(""))
-                            viewModel2.onEvent(IdentityEvent.RemainingCharChanged(45))
-                            usernameError = null
-                                   },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_cross_round_gray),
-                        contentDescription = "Clear",
-                        modifier = Modifier.size(15.dp)
-                    )
+                } else {
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .padding(end = 15.dp)
+                            .size(15.dp)
+                            .clickable {
+                                viewModel2.onEvent(IdentityEvent.NameChanged(""))
+                                viewModel2.onEvent(IdentityEvent.RemainingCharChanged(45))
+                                usernameError = null
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_cross_round_gray),
+                            contentDescription = "Clear",
+                            modifier = Modifier.size(15.dp)
+                        )
+                    }
                 }
             }
         }
+
 
         if (usernameError != null) {
             Text(
@@ -668,7 +686,7 @@ fun PageOneContent(
                 fontWeight = if (state.joyerLocation.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(start = 15.dp, end = 48.dp, bottom = 1.dp)
+                modifier = Modifier.padding(start = 48.dp, end = 48.dp, bottom = 1.dp)
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),

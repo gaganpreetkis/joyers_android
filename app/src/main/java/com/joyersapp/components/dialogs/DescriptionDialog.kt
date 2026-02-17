@@ -87,6 +87,8 @@ import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.Gray40
 import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack80
+import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.noRippleClickable
 import com.joyersapp.utils.rememberIsKeyboardOpen
@@ -726,92 +728,107 @@ private fun BaseCard(
                 .padding(top = 50.dp, bottom = 50.dp)
         }
 
-        Card(
-            modifier = dialogModifier
-
-                .windowInsetsPadding(WindowInsets.systemBars)
-                .then(dialogHeightModifier) // Apply dynamic height
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(25.dp))
-                .background(Color.White) // Ensure background captures taps
-                .imePadding()
-//                .dismissKeyboardOnScroll()
-                .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(White)
+                .background(LightBlack80),
+            contentAlignment = Alignment.Center
         ) {
 
-            // Header
-            Row(
+            Card(
                 modifier = dialogModifier
-                    .fillMaxWidth()
-                    .padding(top = 18.dp, start = 18.dp, end = 23.04.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                // Back button (only visible in subtitle mode)
-                if (showBackButton) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_back_arrow_golden),
-                        contentDescription = null,
-                        modifier = dialogModifier
-                            .size(20.dp, 15.dp)
-                            .noRippleClickable { onBack() }
-                    )
-                } else {
-                    Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
-                }
 
-                // Title or Second Title
-                if (titles.size == 1) {
-                    Text(
-                        text = titles[0],
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = fontFamilyLato,
-                        color = lightBlackColor,
-                        lineHeight = 29.sp,
-                        modifier = dialogModifier.padding(top = 0.dp)
-                    )
-                } else {
-                    FlowRow(
-                        modifier = dialogModifier.padding(top = 2.dp, bottom = 2.dp, start = 10.dp, end = 10.dp),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        titles.forEachIndexed { index, item ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = item,
-                                    fontSize = 16.sp,
-                                    lineHeight = if (index == 0) 19.sp else 22.sp,
-                                    fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
-                                    fontFamily = fontFamilyLato,
-                                    color = lightBlackColor,
-                                    modifier = dialogModifier
-                                )
-                                if (index < titles.size - 1) {
-                                    Spacer(modifier = dialogModifier.width(11.dp))
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_forward_black),
-                                        contentDescription = null,
-                                        modifier = dialogModifier.size(6.dp, 10.dp)
+                    .windowInsetsPadding(WindowInsets.systemBars)
+                    .then(dialogHeightModifier) // Apply dynamic height
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(25.dp))
+                    .background(Color.White) // Ensure background captures taps
+                    .imePadding()
+//                .dismissKeyboardOnScroll()
+                    .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+
+                // Header
+                Row(
+                    modifier = dialogModifier
+                        .fillMaxWidth()
+                        .padding(top = 18.dp, start = 18.dp, end = 23.04.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    // Back button (only visible in subtitle mode)
+                    if (showBackButton) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_back_arrow_golden),
+                            contentDescription = null,
+                            modifier = dialogModifier
+                                .size(20.dp, 15.dp)
+                                .noRippleClickable { onBack() }
+                        )
+                    } else {
+                        Spacer(modifier = dialogModifier.size(20.dp, 15.dp))
+                    }
+
+                    // Title or Second Title
+                    if (titles.size == 1) {
+                        Text(
+                            text = titles[0],
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = fontFamilyLato,
+                            color = lightBlackColor,
+                            lineHeight = 29.sp,
+                            modifier = dialogModifier.padding(top = 0.dp)
+                        )
+                    } else {
+                        FlowRow(
+                            modifier = dialogModifier.padding(
+                                top = 2.dp,
+                                bottom = 2.dp,
+                                start = 10.dp,
+                                end = 10.dp
+                            ),
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            titles.forEachIndexed { index, item ->
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = item,
+                                        fontSize = 16.sp,
+                                        lineHeight = if (index == 0) 19.sp else 22.sp,
+                                        fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
+                                        fontFamily = fontFamilyLato,
+                                        color = lightBlackColor,
+                                        modifier = dialogModifier
                                     )
-                                    Spacer(modifier = dialogModifier.width(10.dp))
+                                    if (index < titles.size - 1) {
+                                        Spacer(modifier = dialogModifier.width(11.dp))
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_forward_black),
+                                            contentDescription = null,
+                                            modifier = dialogModifier.size(6.dp, 10.dp)
+                                        )
+                                        Spacer(modifier = dialogModifier.width(10.dp))
+                                    }
                                 }
                             }
+
                         }
-
                     }
-                }
 
-                // Close button
-                Image(
-                    painter = painterResource(id = R.drawable.ic_cross_golden),
-                    contentDescription = null,
-                    modifier = dialogModifier
-                        .width(15.51.dp)
-                        .noRippleClickable { onDismiss() }
-                )
+                    // Close button
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_cross_golden),
+                        contentDescription = null,
+                        modifier = dialogModifier
+                            .width(15.51.dp)
+                            .noRippleClickable { onDismiss() }
+                    )
+                }
+                dialogContent(dialogModifier, dialogFocusManager, maxHeight)
             }
-            dialogContent(dialogModifier, dialogFocusManager, maxHeight)
+
         }
 //        }
     }

@@ -155,7 +155,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
         } catch (e: HttpException) {
             val errorMsg = parseNetworkError(e)
-            Result.failure(IllegalArgumentException(errorMsg, e))
+            Result.failure( IllegalArgumentException(errorMsg, e))
         } catch (e: Exception) {
             Result.failure(e)
         }

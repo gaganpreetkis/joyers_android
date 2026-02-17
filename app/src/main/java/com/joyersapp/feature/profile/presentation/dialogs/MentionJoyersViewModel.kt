@@ -117,7 +117,9 @@ class MentionJoyersViewModel @Inject constructor(
                             state.copy(
                                 isAddMentionsMode = false,
                                 isClearMentionsMode = false,
-                                selectedUsersCount = ""
+                                selectedUsersCount = "",
+                                searchQuery = "",
+                                filteredUserList = state.userList,
                             )
                         }
                     } else {

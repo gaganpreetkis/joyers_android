@@ -114,20 +114,50 @@ class ForgotPasswordViewModel @Inject constructor(
 
                     if (response.statusCode == 200) {
                         val (mainText, secondaryText) = parseForgotPasswordMessage(response.message)
-                        _uiState.update { it.copy(isLoading = false, showVerificationCode = true, mainText = mainText, secondaryText = secondaryText) }
+                        _uiState.update { it.copy(
+                            isLoading = false,
+                            verificationCodeError = null,
+                            usernameEmailError = null,
+                            phoneError = null,
+                            showVerificationCode = true,
+                            verificationCode = "",
+                            mainText = mainText,
+                            secondaryText = secondaryText) }
                     } else {
                         if (uiState.value.isPhoneMode) {
-                            _uiState.update { it.copy(isLoading = false, phoneError = response.message) }
+                            _uiState.update { it.copy(
+                                isLoading = false,
+                                verificationCodeError = null,
+                                usernameEmailError = null,
+                                verificationCode = "",
+                                phoneError = response.message
+                            ) }
                         } else {
-                            _uiState.update { it.copy(isLoading = false, usernameEmailError = response.message) }
+                            _uiState.update { it.copy(
+                                isLoading = false,
+                                verificationCodeError = null,
+                                phoneError = null,
+                                verificationCode = "",
+                                usernameEmailError = response.message
+                            ) }
                         }
                     }
                 },
                 onFailure = { error ->
                     if (uiState.value.isPhoneMode) {
-                        _uiState.update { it.copy(isLoading = false, phoneError = "Reset Password failed. Please try again.") }
+                        _uiState.update { it.copy(
+                            isLoading = false,
+                            verificationCodeError = null,
+                            verificationCode = "",
+                            phoneError = "Reset Password failed. Please try again."
+                        ) }
                     } else {
-                        _uiState.update { it.copy(isLoading = false, usernameEmailError = "Reset Password failed. Please try again.") }
+                        _uiState.update { it.copy(
+                            isLoading = false,
+                            verificationCodeError = null,
+                            verificationCode = "",
+                            usernameEmailError = "Reset Password failed. Please try again."
+                        ) }
                     }
                 }
             )
@@ -170,13 +200,29 @@ class ForgotPasswordViewModel @Inject constructor(
                     Log.e("forgot msg", response.message)
 
                     if (response.statusCode == 200) {
-                        _uiState.update { it.copy(isLoading = false, isVerificationSuccess = true) }
+                        _uiState.update { it.copy(
+                            isLoading = false,
+                            verificationCodeError = null,
+                            usernameEmailError = null,
+                            phoneError = null,
+                            isVerificationSuccess = true
+                        ) }
                     } else {
-                        _uiState.update { it.copy(isLoading = false, verificationCodeError = response.message) }
+                        _uiState.update { it.copy(
+                            isLoading = false,
+                            usernameEmailError = null,
+                            phoneError = null,
+                            verificationCodeError = response.message
+                        ) }
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update { it.copy(isLoading = false, verificationCodeError = error.message ?: "Something went wrong") }
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        usernameEmailError = null,
+                        phoneError = null,
+                        verificationCodeError = "Reset Password failed. Please try again."
+                    ) }
                 }
             )
         }

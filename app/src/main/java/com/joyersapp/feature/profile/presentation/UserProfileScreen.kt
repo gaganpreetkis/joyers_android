@@ -190,7 +190,7 @@ fun UserProfileScreen(
                         !state.gender.isNullOrEmpty() || !state.nationality.isNullOrEmpty() || !state.ethnicity?.name.isNullOrEmpty() || !state.faith?.name.isNullOrEmpty() || !state.languages.isNullOrEmpty() || !state.education?.name.isNullOrEmpty() || !state.location?.name.isNullOrEmpty()
                     ) Modifier.fillMaxSize() else Modifier.weight(1f, fill = true)
 
-                    ProfileTabsContainer(modifier = Modifier.then(identityModifier), state, viewModel)
+                    ProfileTabsContainer(modifier = Modifier.fillMaxSize(), state, viewModel)
 
                 }
             }
@@ -428,20 +428,13 @@ fun ProfileInfo(
                         lineHeight = 17.sp
                     )
 
-                    Spacer(Modifier.width(5.dp))
-
-//                Image(
-//                    painter = painterResource(id = com.hbb20.R.drawable.flag_united_states_of_america),
-//                    contentDescription = "flag",
-//                    modifier = Modifier.size(18.76.dp, 12.22.dp)
-//                )
-
-                    Text(
-                        modifier = Modifier.size(18.76.dp, 12.22.dp),
-                        text = flagEmoji(state.location?.name ?: state.joyerLocation ?: ""),
-                        fontSize = 12.sp,
-                        lineHeight = 12.sp
-                    )
+//                    Spacer(Modifier.width(5.dp))
+//                    Text(
+//                        modifier = Modifier.size(18.76.dp, 12.22.dp),
+//                        text = flagEmoji(state.location?.name ?: state.joyerLocation ?: ""),
+//                        fontSize = 12.sp,
+//                        lineHeight = 12.sp
+//                    )
                 }
             }
         }

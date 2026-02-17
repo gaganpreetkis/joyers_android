@@ -13,8 +13,12 @@ fun Throwable.toUiError(): UiError {
             // You can parse your error body here if needed
             UiError.ServerError("Server error: ${this.code()}")
         }
-        is ApiErrorException -> UiError.ServerError(this.message ?: "API Error")
-        else -> UiError.Unknown(this.localizedMessage)
+        is IllegalArgumentException -> {
+            // You can parse your error body here if needed
+            UiError.ServerError(this.message?:"Something went wrong")
+        }
+        is ApiErrorException -> UiError.ServerError(this.message ?: "Something went wrong")
+        else -> UiError.Unknown(this.message)
     }
 }
 
