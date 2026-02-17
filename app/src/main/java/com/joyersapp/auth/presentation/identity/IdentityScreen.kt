@@ -512,7 +512,7 @@ fun PageOneContent(
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.width(15.dp))
+                Spacer(modifier = Modifier.width(20.dp))
 
                 CustomTextField2(
                     text = state.name,
@@ -684,7 +684,7 @@ fun PageOneContent(
                 fontWeight = if (state.joyerLocation.isNotEmpty()) FontWeight.Bold else FontWeight.Normal,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(start = 15.dp, end = 48.dp, bottom = 1.dp)
+                modifier = Modifier.padding(start = 48.dp, end = 48.dp, bottom = 1.dp)
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
