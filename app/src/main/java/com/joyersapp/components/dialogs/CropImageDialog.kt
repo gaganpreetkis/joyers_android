@@ -67,7 +67,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import com.joyersapp.R
-import com.joyersapp.components.chips.CircleImageCropper
 import com.joyersapp.theme.Black
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.LightBlack

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- "name" is a visible alias in the URI, "path" is the actual subfolder -->
+    <cache-path name="joyers_cache" path="." />
+    <files-path name="joyers_videos" path="videos/" />
+</paths>

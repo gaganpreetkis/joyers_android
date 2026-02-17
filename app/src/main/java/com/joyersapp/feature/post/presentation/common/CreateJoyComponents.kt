@@ -117,7 +117,7 @@ fun JoyersCup(modifier: Modifier) {
     ) {
 
         Image(
-            painter = painterResource(id = R.drawable.ic_joy_emoji),
+            painter = painterResource(id = R.drawable.ic_joyers_cup),
             contentDescription = "Joyers Cup",
             modifier = Modifier.size(49.dp)
         )

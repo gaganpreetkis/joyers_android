@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,9 +26,11 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
+import androidx.navigation.navArgument
 import com.joyersapp.auth.presentation.identity.IdentityScreen
 import com.joyersapp.components.dialogs.DescriptionDialog
 import com.joyersapp.components.dialogs.EditProfileHeaderDialog
@@ -239,21 +242,6 @@ fun DashboardNavGraph(navController: NavHostController) {
 //            )
 //        }
 
-        composable("test") {
-            var showPopup by remember { mutableStateOf(false) }
-
-            Box(Modifier.fillMaxSize()) {
-                Button(onClick = { showPopup = true }) {
-                    Text("Open Full-Screen Popup")
-                }
-
-                if (showPopup) {
-                    FullScreenPopupOverlay(onDismiss = { showPopup = false }) {
-                        Text("I am a full-screen popup!")
-                    }
-                }
-            }
-        }
 
         // CREATE JOY/POST TAB
 
@@ -269,16 +257,26 @@ fun DashboardNavGraph(navController: NavHostController) {
         composable(JoyRoutes.CreatePost.route) {
             CreatePostScreen(
                 sharedViewmodel = createJoyViewmodel,
-                viewmodel = createPostViewmodel,
+                viewmodel = hiltViewModel(),
+//                viewmodel = createPostViewmodel,
                 onBack = { navController.popBackStack() },
-                onPreviewMedia = { navController.navigate(JoyRoutes.PreviewMedia.route) },
+                onPreviewMedia = { index -> navController.navigate("${JoyRoutes.PreviewMedia.route}/$index") },
             )
         }
 
-        composable(JoyRoutes.PreviewMedia.route) {
+        composable(
+            route = "${JoyRoutes.PreviewMedia.route}/{initialPage}",
+            arguments = listOf(
+                navArgument("initialPage") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+
+            val initialPage =
+                backStackEntry.arguments?.getInt("initialPage") ?: 0
+
             MediaPreviewScreen(
-                mediaList = createPostViewmodel.uiState.collectAsStateWithLifecycle().value.mediaList,
-                initialPage = 0,
+                mediaList = createPostViewmodel.uiState.collectAsState().value.mediaList,
+                initialPage = initialPage,
                 onBack = { navController.popBackStack() },
             )
         }
@@ -299,31 +297,5 @@ fun DashboardNavGraph(navController: NavHostController) {
             HomeScreen()
         }
 
-    }
-}
-
-@Composable
-fun FullScreenPopupOverlay(
-    onDismiss: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    Popup(
-        onDismissRequest = onDismiss,
-        properties = PopupProperties(
-            focusable = true,
-            dismissOnBackPress = true
-        )
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f)) // The full-screen background
-                .noRippleClickable(onClick = onDismiss),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(Modifier.clickable(enabled = false) { }) {
-                content()
-            }
-        }
     }
 }

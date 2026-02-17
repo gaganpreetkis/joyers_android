@@ -116,7 +116,7 @@ fun CreatePostScreen(
     sharedViewmodel: CreateJoyViewModel,
     viewmodel: CreatePostViewModel,
     onBack: () -> Unit,
-    onPreviewMedia: () -> Unit,
+    onPreviewMedia: (Int) -> Unit,
 ) {
 
     val sharedState by sharedViewmodel.uiState.collectAsStateWithLifecycle()
@@ -156,7 +156,7 @@ private fun CreatePostScafold(
     addMedia: (List<Uri>, Context) -> Unit,
     removeMedia: (MediaItem) -> Unit,
     applyMentionedJoyers: (List<EditMagneticsUserListData>) -> Unit,
-    onPreviewMedia: () -> Unit,
+    onPreviewMedia: (Int) -> Unit,
 ) {
 
     Box(
@@ -349,7 +349,7 @@ fun JoyerRow(
 
 @Composable
 fun MediaGridScreen(
-    navMediaPreview: () -> Unit,
+    navMediaPreview: (Int) -> Unit,
     mediaList: List<MediaItem>,
     removeMedia: (MediaItem) -> Unit,
 ) {
@@ -358,9 +358,7 @@ fun MediaGridScreen(
         if (mediaList.isNotEmpty()) {
             MediaDynamicGrid(
                 mediaList = mediaList,
-                preview = {
-                    navMediaPreview()
-                },
+                onPreview = navMediaPreview,
                 removeMedia = removeMedia
             )
         }
@@ -371,7 +369,7 @@ fun MediaGridScreen(
 @Composable
 fun MediaDynamicGrid(
     mediaList: List<MediaItem>,
-    preview: (MediaItem) -> Unit,
+    onPreview: (Int) -> Unit,
     removeMedia: (MediaItem) -> Unit,
 ) {
     val count = mediaList.size
@@ -389,7 +387,9 @@ fun MediaDynamicGrid(
                 MediaItemView(
                     Modifier.fillMaxSize(),
                     mediaList[0],
-                    preview,
+                    onPreview = { item ->
+                        onPreview(mediaList.indexOf(item))
+                                },
                     removeMedia
                 )
             }
@@ -404,7 +404,9 @@ fun MediaDynamicGrid(
                         MediaItemView(
                             Modifier.weight(1f).fillMaxHeight(),
                             it,
-                            preview,
+                            onPreview = { item ->
+                                onPreview(mediaList.indexOf(item))
+                            },
                             removeMedia
                         )
 
@@ -426,7 +428,9 @@ fun MediaDynamicGrid(
                             MediaItemView(
                                 Modifier.weight(1f).fillMaxHeight(),
                                 it,
-                                preview,
+                                onPreview = { item ->
+                                    onPreview(mediaList.indexOf(item))
+                                },
                                 removeMedia
                             )
                         }
@@ -435,7 +439,9 @@ fun MediaDynamicGrid(
                     MediaItemView(
                         Modifier.weight(1f).fillMaxWidth(),
                         mediaList[2],
-                        preview,
+                        onPreview = { item ->
+                            onPreview(mediaList.indexOf(item))
+                        },
                         removeMedia
                     )
                 }
@@ -455,7 +461,9 @@ fun MediaDynamicGrid(
                                 MediaItemView(
                                     Modifier.weight(1f).fillMaxHeight(),
                                     it,
-                                    preview,
+                                    onPreview = { item ->
+                                        onPreview(mediaList.indexOf(item))
+                                    },
                                     removeMedia
                                 )
                             }
@@ -474,11 +482,13 @@ fun MediaDynamicGrid(
                         Modifier.weight(1f),
                         horizontalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
-                        mediaList.take(3).forEach {
+                        mediaList.take(2).forEach {
                             MediaItemView(
                                 Modifier.weight(1f).fillMaxHeight(),
                                 it,
-                                preview,
+                                onPreview = { item ->
+                                    onPreview(mediaList.indexOf(item))
+                                },
                                 removeMedia
                             )
                         }
@@ -488,11 +498,13 @@ fun MediaDynamicGrid(
                         Modifier.weight(1f),
                         horizontalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
-                        mediaList.takeLast(2).forEach {
+                        mediaList.takeLast(3).forEach {
                             MediaItemView(
                                 Modifier.weight(1f).fillMaxHeight(),
                                 it,
-                                preview,
+                                onPreview = { item ->
+                                    onPreview(mediaList.indexOf(item))
+                                },
                                 removeMedia
                             )
                         }
@@ -507,12 +519,12 @@ fun MediaDynamicGrid(
 fun MediaItemView(
     modifier: Modifier,
     item: MediaItem,
-    preview: (MediaItem) -> Unit,
+    onPreview: (MediaItem) -> Unit,
     removeMedia: (MediaItem) -> Unit,
 ) {
     Box(
         modifier = modifier
-            .clickable { preview(item) }
+            .clickable { onPreview(item) }
     ) {
         when (item.type) {
             MediaType.IMAGE -> {
@@ -537,7 +549,7 @@ fun MediaItemView(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                Icon(
+                Image(
                     painterResource(R.drawable.ic_video_play_golden),
                     contentDescription = null,
                     modifier = Modifier

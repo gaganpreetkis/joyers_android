@@ -1,9 +1,14 @@
 package com.joyersapp.feature.post.presentation.common
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -26,11 +31,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.substring
+import androidx.compose.ui.unit.dp
+import com.joyersapp.R
 import com.joyersapp.utils.filterNameCase
 import com.joyersapp.utils.filterSentenceCase
 import com.joyersapp.utils.graphemeCount
@@ -125,7 +133,7 @@ fun JoyTextField(
         } else null,
         decorator = { innerTextField ->
             Box(
-                modifier = modifier,
+                modifier = Modifier,
                 contentAlignment = contentAlignment
             ) {
 
@@ -134,7 +142,17 @@ fun JoyTextField(
                 }
 
                 if (textState.text.isEmpty()) {
-                    Text(placeholder, style = placeHolderTextStyle)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(placeholder, style = placeHolderTextStyle)
+                        Spacer(Modifier.width(10.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_joy_emoji),
+                            contentDescription = "Let’s Joy",
+                            modifier = Modifier.size(19.dp)
+                        )
+                    }
                 }
 
                 if (!isFocused) {
