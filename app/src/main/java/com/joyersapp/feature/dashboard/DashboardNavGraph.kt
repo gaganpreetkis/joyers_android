@@ -60,6 +60,7 @@ sealed class ProfileRoutes(val route: String) {
     data object ProfileViewDialog : ProfileRoutes("profile_view_dialog")
 
 }
+
 sealed class JoyRoutes(val route: String) {
     data object CreatePost : JoyRoutes("create_post")
     data object PreviewMedia : JoyRoutes("preview_media")
@@ -167,7 +168,7 @@ fun DashboardNavGraph(navController: NavHostController) {
 
 
         // MENTION JOYERS DIALOG
-        dialog (
+        dialog(
             route = ProfileRoutes.MentionJoyersDialog.route,
             dialogProperties = DialogProperties(
                 dismissOnBackPress = true,
@@ -176,7 +177,7 @@ fun DashboardNavGraph(navController: NavHostController) {
                 decorFitsSystemWindows = false
             )
         ) {
-            MentionJoyersDialog (
+            MentionJoyersDialog(
                 initList = userProfileViewModel.uiState.value.editMagneticsUserList,
                 onDismiss = { navController.popBackStack() },
                 onApply = { userProfileViewModel.onEvent(UserProfileEvent.OnApplyMentionedJoyers(it)) },
@@ -184,21 +185,21 @@ fun DashboardNavGraph(navController: NavHostController) {
         }
 
         // PROFILE HEADER DIALOG
-        dialog (
+        dialog(
             route = ProfileRoutes.ProfileHeaderDialog.route,
             dialogProperties = DialogProperties(
                 dismissOnBackPress = true,
                 dismissOnClickOutside = false,
                 usePlatformDefaultWidth = false,
                 decorFitsSystemWindows = false
-        )
+            )
         ) {
             EditProfileHeaderDialog(
                 onDismiss = { navController.popBackStack() },
                 onApply = { navController.popBackStack() },
                 navigateToMentionJoyersDialog = { navController.navigate(ProfileRoutes.MentionJoyersDialog.route) },
 
-            )
+                )
         }
 
 //        composable(ProfileRoutes.IdentificationDialog.route) {
@@ -208,7 +209,7 @@ fun DashboardNavGraph(navController: NavHostController) {
 //            )
 //        }
 
-        dialog (
+        dialog(
             route = ProfileRoutes.DescriptionDialog.route,
             dialogProperties = DialogProperties(
                 dismissOnBackPress = true,
@@ -217,11 +218,11 @@ fun DashboardNavGraph(navController: NavHostController) {
                 decorFitsSystemWindows = false
             )
         ) {
-            DescriptionDialog (
+            DescriptionDialog(
                 initList = userProfileViewModel.uiState.value.titles,
                 selectedTitle = ProfileTitlesData(
-                    id = userProfileViewModel.uiState.value.magneticsData.title?.id?:"",
-                    name = userProfileViewModel.uiState.value.magneticsData.title?.name?:"",
+                    id = userProfileViewModel.uiState.value.magneticsData.title?.id ?: "",
+                    name = userProfileViewModel.uiState.value.magneticsData.title?.name ?: "",
                 ),
                 selectedSubTitle = ProfileTitlesData(
                     id = userProfileViewModel.uiState.value.magneticsData.subTitle?.id,
@@ -231,7 +232,12 @@ fun DashboardNavGraph(navController: NavHostController) {
                 onApply = { title, subTitle ->
 //                    navController.navigate(ProfileRoutes.ProfileHeaderDialog.route)
                     navController.popBackStack()
-                    userProfileViewModel.onEvent(UserProfileEvent.OnApplyDescription(title, subTitle))
+                    userProfileViewModel.onEvent(
+                        UserProfileEvent.OnApplyDescription(
+                            title,
+                            subTitle
+                        )
+                    )
                 }
             )
         }
@@ -249,7 +255,16 @@ fun DashboardNavGraph(navController: NavHostController) {
             CreateJoyScreen(
                 viewModel = createJoyViewmodel,
                 navCreatePost = {
-                    navController.navigate(JoyRoutes.CreatePost.route)
+                    navController.navigate(JoyRoutes.CreatePost.route) {
+                        popUpTo(
+                            navController.currentBackStackEntry?.destination?.id ?: return@navigate
+                        ) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -257,9 +272,11 @@ fun DashboardNavGraph(navController: NavHostController) {
         composable(JoyRoutes.CreatePost.route) {
             CreatePostScreen(
                 sharedViewmodel = createJoyViewmodel,
-                viewmodel = hiltViewModel(),
-//                viewmodel = createPostViewmodel,
-                onBack = { navController.popBackStack() },
+//                viewmodel = hiltViewModel(),
+                viewmodel = createPostViewmodel,
+                onBack = {
+                    navController.popBackStack()
+                },
                 onPreviewMedia = { index -> navController.navigate("${JoyRoutes.PreviewMedia.route}/$index") },
             )
         }
@@ -282,12 +299,11 @@ fun DashboardNavGraph(navController: NavHostController) {
         }
 
 
-
         // CONTACTS TAB
 
         composable(BottomTab.CONTACTS.route) {
-//            HomeScreen()
-            IdentityScreen("test", "test")
+            HomeScreen()
+//            IdentityScreen("test", "test")
         }
 
 

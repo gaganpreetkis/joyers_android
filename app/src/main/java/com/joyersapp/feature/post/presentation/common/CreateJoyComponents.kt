@@ -40,6 +40,8 @@ import com.joyersapp.utils.noRippleClickable
 fun CreateJoyHeader(
     modifier: Modifier,
     title: String,
+    isPostingEnabled: Boolean = false,
+    onCanceled: () -> Unit = {},
     onBack: () -> Unit = {},
     onMenu: () -> Unit = {},
 ) {
@@ -53,15 +55,33 @@ fun CreateJoyHeader(
                 .fillMaxHeight()
                 .padding(start = 16.dp)
 //                .align(Alignment.CenterStart)
-                .noRippleClickable { onBack() },
+                .noRippleClickable {
+                    if (isPostingEnabled) {
+                        onCanceled()
+                    } else {
+                        onBack()
+                    }
+                                   },
             contentAlignment = Alignment.CenterEnd
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_cross_golden),
-                contentDescription = "Back",
-                modifier = Modifier
-                    .size(13.5.dp)
-            )
+            if (isPostingEnabled) {
+                Text(
+                    text = "Cancel",
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = fontFamilyLato,
+                    maxLines = 1,
+                    color = Golden
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_cross_golden),
+                    contentDescription = "Back",
+                    modifier = Modifier
+                        .size(13.5.dp)
+                )
+            }
         }
 
         // Title
@@ -94,10 +114,10 @@ fun CreateJoyHeader(
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
-                text = "Drafts",
+                text = if (isPostingEnabled) "Post" else "Drafts",
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = if (isPostingEnabled) FontWeight.Bold else FontWeight.SemiBold,
                 fontFamily = fontFamilyLato,
                 maxLines = 1,
                 color = Golden

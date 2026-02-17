@@ -36,7 +36,7 @@ fun FloatingBottomNavHost(
     modifier: Modifier = Modifier,
     showBottomTab: Boolean,
     topBar: @Composable () -> Unit = {},
-    selectedTab: BottomTab,
+    currentRoute: String,
     onBottomTabSelected: (BottomTab) -> Unit = {},
     content: @Composable (innerPadding: PaddingValues) -> Unit = {}
 ) {
@@ -48,7 +48,7 @@ fun FloatingBottomNavHost(
                 if (showBottomTab) {
                     BottomNavBar(
                         modifier = modifier.align(Alignment.BottomCenter),
-                        selected = selectedTab,
+                        currentRoute = currentRoute,
                         onTabSelected = onBottomTabSelected
                     )
                 }
@@ -69,7 +69,7 @@ fun FloatingBottomNavHost(
 @Composable
 fun BottomNavBar(
     modifier: Modifier = Modifier,
-    selected: BottomTab,
+    currentRoute: String,
     onTabSelected: (BottomTab) -> Unit
 ) {
     val bottomLift = 0.dp
@@ -95,7 +95,7 @@ fun BottomNavBar(
                 // Replace with your Nav icons
                 Image(
                     painter = painterResource(tab.selectedIcon),
-                    contentDescription = "Toggle Password",
+                    contentDescription = "",
                     modifier = Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
@@ -103,7 +103,7 @@ fun BottomNavBar(
                         ) {
                             onTabSelected(tab)
                         },
-                    colorFilter = ColorFilter.tint(if (tab == selected) Golden else LightBlack)
+                    colorFilter = ColorFilter.tint(if (tab.route == currentRoute) Golden else LightBlack)
                 )
             }
         }

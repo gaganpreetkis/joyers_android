@@ -75,6 +75,7 @@ import com.joyersapp.feature.post.presentation.common.CameraFab
 import com.joyersapp.feature.post.presentation.common.CreateJoyHeader
 import com.joyersapp.feature.post.presentation.common.JoyTextField
 import com.joyersapp.feature.post.presentation.common.MediaPickerDialog
+import com.joyersapp.feature.post.presentation.common.SaveDraftsPrompt
 import com.joyersapp.feature.post.presentation.create_joy.CreateJoyUiState
 import com.joyersapp.feature.post.presentation.create_joy.CreateJoyViewModel
 import com.joyersapp.feature.profile.data.remote.dto.EditMagneticsUserListData
@@ -108,6 +109,9 @@ private fun ScreenPreview() {
         addMedia = {a,s -> },
         removeMedia = {a -> },
         onPreviewMedia = { },
+        toggleSavedDraftsPrompt = {},
+        deleteDraft = {},
+        saveDraft = {}
     )
 }
 
@@ -139,6 +143,15 @@ fun CreatePostScreen(
         applyMentionedJoyers = {viewmodel.onEvent(CreatePostEvent.ApplyMentionedJoyers(it))},
         addMedia = {media, context -> viewmodel.addMedia(media, context)},
         removeMedia = {mediaItem -> viewmodel.removeMedia(mediaItem)},
+        toggleSavedDraftsPrompt = { viewmodel.onEvent(CreatePostEvent.ToggleSavedDraftsPrompt(it)) },
+        deleteDraft = {
+            viewmodel.clearData()
+            onBack()
+                      },
+        saveDraft = {
+            viewmodel.onEvent(CreatePostEvent.ToggleSavedDraftsPrompt(false))
+            onBack()
+        }
     )
 
 //    }
@@ -157,6 +170,9 @@ private fun CreatePostScafold(
     removeMedia: (MediaItem) -> Unit,
     applyMentionedJoyers: (List<EditMagneticsUserListData>) -> Unit,
     onPreviewMedia: (Int) -> Unit,
+    toggleSavedDraftsPrompt: (Boolean) -> Unit,
+    deleteDraft: () -> Unit,
+    saveDraft: () -> Unit,
 ) {
 
     Box(
@@ -176,6 +192,8 @@ private fun CreatePostScafold(
                     .height(63.dp)
                     .background(White),
                 title = "Create Post",
+                isPostingEnabled = state.isPostingEnabled,
+                onCanceled = { toggleSavedDraftsPrompt(true) },
                 onBack = onBack,
                 onMenu = {}
             )
@@ -257,9 +275,16 @@ private fun CreatePostScafold(
                 .align(Alignment.BottomEnd)
                 .imePadding()
                 .clip(CircleShape)
-                .clickable{
+                .clickable {
                     toggleMediaPickerDialog(true)
                 }
+        )
+
+        SaveDraftsPrompt(
+            show = state.showSaveDraftsPrompt,
+            onCancel = { toggleSavedDraftsPrompt(false) },
+            onDelete = { deleteDraft() },
+            onSave = { saveDraft() },
         )
 
         MediaPickerDialog(
@@ -402,7 +427,9 @@ fun MediaDynamicGrid(
                 ) {
                     mediaList.forEach {
                         MediaItemView(
-                            Modifier.weight(1f).fillMaxHeight(),
+                            Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
                             it,
                             onPreview = { item ->
                                 onPreview(mediaList.indexOf(item))
@@ -426,7 +453,9 @@ fun MediaDynamicGrid(
                     ) {
                         mediaList.take(2).forEach {
                             MediaItemView(
-                                Modifier.weight(1f).fillMaxHeight(),
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),
                                 it,
                                 onPreview = { item ->
                                     onPreview(mediaList.indexOf(item))
@@ -437,7 +466,9 @@ fun MediaDynamicGrid(
                     }
 
                     MediaItemView(
-                        Modifier.weight(1f).fillMaxWidth(),
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
                         mediaList[2],
                         onPreview = { item ->
                             onPreview(mediaList.indexOf(item))
@@ -459,7 +490,9 @@ fun MediaDynamicGrid(
                         ) {
                             rowItems.forEach {
                                 MediaItemView(
-                                    Modifier.weight(1f).fillMaxHeight(),
+                                    Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     it,
                                     onPreview = { item ->
                                         onPreview(mediaList.indexOf(item))
@@ -484,7 +517,9 @@ fun MediaDynamicGrid(
                     ) {
                         mediaList.take(2).forEach {
                             MediaItemView(
-                                Modifier.weight(1f).fillMaxHeight(),
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),
                                 it,
                                 onPreview = { item ->
                                     onPreview(mediaList.indexOf(item))
@@ -500,7 +535,9 @@ fun MediaDynamicGrid(
                     ) {
                         mediaList.takeLast(3).forEach {
                             MediaItemView(
-                                Modifier.weight(1f).fillMaxHeight(),
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),
                                 it,
                                 onPreview = { item ->
                                     onPreview(mediaList.indexOf(item))
@@ -567,7 +604,7 @@ fun MediaItemView(
                 .padding(top = 10.dp)
                 .padding(end = 10.dp)
                 .size(21.dp)
-                .noRippleClickable{
+                .noRippleClickable {
                     removeMedia(item)
                 }
         )

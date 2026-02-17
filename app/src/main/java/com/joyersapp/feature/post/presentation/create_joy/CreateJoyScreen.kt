@@ -52,7 +52,8 @@ private fun ScreenPreview() {
         CreateJoyUiState(
 
         ),
-        navCreatePost = {}
+        navCreatePost = {},
+        onBack = {}
     )
 }
 
@@ -60,6 +61,7 @@ private fun ScreenPreview() {
 fun CreateJoyScreen(
     viewModel: CreateJoyViewModel,
     navCreatePost: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -71,7 +73,8 @@ fun CreateJoyScreen(
 
     CreateJoyScafold(
         state,
-        navCreatePost = navCreatePost
+        navCreatePost = navCreatePost,
+        onBack = onBack
     )
 
 //    }
@@ -81,6 +84,7 @@ fun CreateJoyScreen(
 private fun CreateJoyScafold(
     state: CreateJoyUiState,
     navCreatePost: () -> Unit,
+    onBack: () -> Unit,
 ) {
 
     Box(
@@ -102,7 +106,8 @@ private fun CreateJoyScafold(
                     .height(63.dp)
                     .background(White),
                 title = "Create Joy",
-                onBack = {},
+                isPostingEnabled = false,
+                onBack = onBack,
                 onMenu = {}
             )
 

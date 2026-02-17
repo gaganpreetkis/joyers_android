@@ -29,6 +29,7 @@ data class CreatePostUiState(
     val isDataLoaded: Boolean = false,
     val showMentionJoyersDialog: Boolean = false,
     val showMediaPickerDialog: Boolean = false,
+    val showSaveDraftsPrompt: Boolean = false,
     val textState: TextFieldState = TextFieldState(),
     val joyer: Joyer = Joyer(
         id = "1",
@@ -43,6 +44,7 @@ data class CreatePostUiState(
 
     ) {
     val remainingCharacters get() =  (300 - textState.text.toString().graphemeCount())
+    val isPostingEnabled get() =  (mediaList.isNotEmpty() || textState.text.toString().isNotEmpty())
     }
 
 sealed class CreatePostNavigationEvent {
@@ -54,6 +56,7 @@ sealed class CreatePostEvent {
 
     data class ToggleMediaPickerDialog(val show: Boolean) : CreatePostEvent()
     data class ToggleMentionJoyersDialog(val show: Boolean) : CreatePostEvent()
+    data class ToggleSavedDraftsPrompt(val show: Boolean) : CreatePostEvent()
     data class ApplyMentionedJoyers(val selectedUserList: List<EditMagneticsUserListData>) : CreatePostEvent()
 
 
@@ -81,6 +84,15 @@ class CreatePostViewModel @Inject constructor(
 
     private val _navigationEvents = Channel<CreatePostNavigationEvent>(Channel.BUFFERED)
     val navigationEvents = _navigationEvents.receiveAsFlow()
+
+    override fun onCleared() {
+        super.onCleared()
+        _uiState.update { CreatePostUiState() }
+    }
+
+    fun clearData() {
+       onCleared()
+    }
 
     fun addMedia(uris: List<Uri>, context: Context) {
         viewModelScope.launch {
@@ -131,6 +143,10 @@ class CreatePostViewModel @Inject constructor(
 
             is CreatePostEvent.ToggleMediaPickerDialog -> {
                 _uiState.value = _uiState.value.copy(showMediaPickerDialog = event.show)
+            }
+
+            is CreatePostEvent.ToggleSavedDraftsPrompt -> {
+                _uiState.value = _uiState.value.copy(showSaveDraftsPrompt = event.show)
             }
         }
     }

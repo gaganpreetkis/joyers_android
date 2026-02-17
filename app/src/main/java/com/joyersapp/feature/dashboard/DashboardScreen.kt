@@ -17,12 +17,12 @@ fun DashboardScreen(
     // Track current route for bottom bar visibility
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val bottomBarRoutes = BottomTab.entries.map { it.route }
+    val bottomBarRoutes = BottomTab.entries.map { it.route }.filterNot { it.equals("post") }
 
     FloatingBottomNavHost(
         topBar = {},
         showBottomTab = currentRoute in bottomBarRoutes,
-        selectedTab = uiState.selectedTab,
+        currentRoute = currentRoute?: BottomTab.HOME.route,
         onBottomTabSelected = { tab ->
             viewModel.onBottomTabSelected(tab)
             navController.navigate(tab.route) {
