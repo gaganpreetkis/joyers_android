@@ -448,21 +448,22 @@ fun TopBar(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // lock
-//            Box(contentAlignment = Alignment.TopEnd) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.ic_lock_heart_black),
-//                    contentDescription = "Lock",
-//                    modifier = Modifier.size(13.39.dp, 20.dp)
-//                )
-//            }
-
-//            Spacer(modifier = Modifier.width(7.01.dp))
 
             // Username
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "@$username",
+                    text = "@",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = fontFamilyLato,
+                    lineHeight = 22.sp,
+                    color = LightBlack,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.width(3.dp))
+                Text(
+                    text = username,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = fontFamilyLato,

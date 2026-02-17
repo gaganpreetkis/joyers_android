@@ -274,7 +274,7 @@ fun CustomTextField2(
         // 4. Handle MaxLength and Case Filtering via InputTransformation
         inputTransformation = InputTransformation {
             // Max length check
-            if (asCharSequence().length > maxLength) {
+            if (asCharSequence().toString().graphemeCount() > maxLength) {
                 revertAllChanges()
             }
             // Case filtering logic

@@ -69,7 +69,8 @@ fun ProfileStatusSection(
 
         /** -------- Description Header -------- */
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(start = 15.dp, end = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -86,7 +87,8 @@ fun ProfileStatusSection(
             )
 
             Box(
-                modifier = Modifier.size(35.dp)
+                modifier = Modifier
+                    .size(35.dp)
                     .clip(CircleShape)
                     .background(LightBlack5)
                     .clickable {
@@ -105,23 +107,24 @@ fun ProfileStatusSection(
         Spacer(Modifier.height(8.dp))
 
         if (!state.joyerStatus.isNullOrEmpty() || !state.titleName.isNullOrEmpty() || !state.subTitleName.isNullOrEmpty() || !state.areaOfInterest.isNullOrEmpty())
-        Column(
-            modifier = Modifier
-                .background(White)
-                .padding(top = 10.dp, start = 15.dp, bottom = 12.dp, end = 15.dp)
-        ) {
-            /** -------- Key-Value Rows -------- */
-            ProfileKeyValueRow(label = "Joyer Status", value = state.joyerStatus?:"")
-            ProfileKeyValueRow(label = "Title", value = state.titleName?:"")
-            ProfileKeyValueRow(label = "Sub-Title", value = state.subTitleName?:"")
-            InterestsRowWithDotSeparators("Area of Interest",state.areaOfInterest)
-        }
+            Column(
+                modifier = Modifier
+                    .background(White)
+                    .padding(top = 10.dp, start = 15.dp, bottom = 12.dp, end = 15.dp)
+            ) {
+                /** -------- Key-Value Rows -------- */
+                ProfileKeyValueRow(label = "Joyer Status", value = state.joyerStatus ?: "")
+                ProfileKeyValueRow(label = "Title", value = state.titleName ?: "")
+                ProfileKeyValueRow(label = "Sub-Title", value = state.subTitleName ?: "")
+                InterestsRowWithDotSeparators("Area of Interest", state.areaOfInterest)
+            }
 
         Spacer(Modifier.height(7.dp))
 
         /** -------- Joying Header -------- */
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(start = 15.dp, end = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -137,21 +140,6 @@ fun ProfileStatusSection(
                     .offset(-1.dp)
             )
 
-            Box(
-                modifier = Modifier.size(35.dp)
-                    .clip(CircleShape)
-                    .background(LightBlack5)
-                    .padding(start = 10.dp, top = 9.5.dp)
-                    .clickable {
-
-                    }
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_edit_pencil),
-                    contentDescription = "Edit",
-                    modifier = Modifier.size(15.7.dp)
-                )
-            }
         }
 
         Spacer(Modifier.height(7.dp))
@@ -190,7 +178,8 @@ fun ProfileKeyValueRow(
                 fontFamily = fontFamilyLato,
                 color = LightBlack,
                 lineHeight = 22.sp,
-                modifier = Modifier.padding(start = 130.dp)
+                modifier = Modifier
+                    .padding(start = 130.dp)
                     .align(Alignment.CenterStart)
             )
         }
@@ -212,19 +201,19 @@ fun JoyerCodeSection(
 
         DateInfoRow(
             label = "Joying Since",
-            date = state.joySince?:"",
-            duration = state.joySinceDuration?:""
+            date = state.joySince ?: "",
+            duration = state.joySinceDuration ?: ""
         )
 
         Spacer(Modifier.height(19.dp))
 
-      /*  DateInfoRow(
-            label = "Friends Since",
-            date = "12 June 2019",
-            duration = "2 Years, 6 Months, 11 Days"
-        )
+        /*  DateInfoRow(
+              label = "Friends Since",
+              date = "12 June 2019",
+              duration = "2 Years, 6 Months, 11 Days"
+          )
 
-        Spacer(Modifier.height(19.dp))*/
+          Spacer(Modifier.height(19.dp))*/
 
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -238,7 +227,12 @@ fun JoyerCodeSection(
                 lineHeight = 24.sp,
             )
 
-            Column(Modifier.padding(start = 130.dp).wrapContentWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                Modifier
+                    .padding(start = 130.dp)
+                    .wrapContentWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
                 Spacer(Modifier.height(5.5.dp))
 
@@ -279,16 +273,31 @@ fun JoyerCodeSection(
                 }*/
 
                 if (state.username.trim().isNotEmpty()) {
-                    Text(
-                        modifier = Modifier.width(200.dp),
-                        text = "@${state.username}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = fontFamilyLato,
-                        color = LightBlack,
-                        lineHeight = 22.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    Row(
+                        modifier = Modifier
+                            .widthIn(max = 200.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                        ) {
+                        Text(
+                            text = "@",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = fontFamilyLato,
+                            color = LightBlack,
+                            lineHeight = 22.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.width(3.5.dp))
+                        Text(
+                            text = state.username,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = fontFamilyLato,
+                            color = LightBlack,
+                            lineHeight = 22.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }
@@ -373,7 +382,9 @@ fun InterestsRowWithDotSeparators(
                     if (index != values.lastIndex) {
                         Spacer(Modifier.width(10.dp))
                         Box(
-                            modifier = Modifier.clip(CircleShape).size(3.dp)
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(3.dp)
                                 .background(LightBlack55)
                         )
                         Spacer(Modifier.width(10.dp))

@@ -617,12 +617,11 @@ class UserProfileViewModel @Inject constructor(
 
             is UserProfileEvent.OnOverviewChanged -> {
                 val overviewRemainingChars = 150 - event.value.text.graphemeCount()
-                if (overviewRemainingChars >= -20) {
                     _uiState.update {
                         it.copy(
                             profileHeaderData = it.profileHeaderData.copy(
 //                            bio = event.value.text,
-                                overviewFieldValue = event.value.copy(selection = TextRange(event.value.text.length)),
+                                overviewFieldValue = event.value,
 //                                overviewRemainingChars = 150 - event.value.text.graphemeCount(),
                                 bioValidationError = if (overviewRemainingChars <= -1) UiText.StringResource(
                                     R.string.bio_validation_error
@@ -630,7 +629,6 @@ class UserProfileViewModel @Inject constructor(
                             ),
                         )
                     }
-                }
             }
 
             is UserProfileEvent.OnHighlightChanged -> {
@@ -1057,11 +1055,12 @@ class UserProfileViewModel @Inject constructor(
                         ) { it.username ?: "" }
                     if (profileHeaderData.selectedTab.equals("overview")) {
                         val bio = profileHeaderData.overviewFieldValue.text + selectedUsers
+                        val text = bio.takeGraphemes(170)
                         onEvent(
                             UserProfileEvent.OnOverviewChanged(
                                 profileHeaderData.overviewFieldValue.copy(
-                                    text = bio,
-                                    selection = TextRange(bio.length)
+                                    text = text,
+                                    selection = TextRange(text.length)
                                 )
                             )
                         )

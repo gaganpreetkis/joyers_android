@@ -119,6 +119,7 @@ class MentionJoyersViewModel @Inject constructor(
                                 isClearMentionsMode = false,
                                 selectedUsersCount = "",
                                 searchQuery = "",
+                                filteredUserList = state.userList,
                             )
                         }
                     } else {

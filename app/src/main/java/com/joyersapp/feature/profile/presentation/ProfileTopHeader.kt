@@ -59,7 +59,7 @@ fun ProfileTopHeader(
                 painter = painterResource(id = R.drawable.ic_menu_golden),
                 contentDescription = "Back",
                 modifier = Modifier
-                    .size(19.51.dp, 17.dp)
+                    .size(24.dp, 17.dp)
             )
         }
 
@@ -73,7 +73,18 @@ fun ProfileTopHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "@${state.username}",
+                text = "@",
+                fontSize = 22.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = fontFamilyLato,
+                maxLines = 1,
+                color = LightBlack,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.width(3.dp))
+            Text(
+                text = state.username,
                 fontSize = 22.sp,
                 lineHeight = 22.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -102,96 +113,10 @@ fun ProfileTopHeader(
                 painter = painterResource(id = R.drawable.ic_menu_dots_horizontal),
                 contentDescription = "Menu",
                 modifier = Modifier
-                    .size(18.dp, 4.dp)
+//                    .size(18.dp, 4.dp)
                     .noRippleClickable { onMenu() }
             )
         }
 
     }
-/*    val sideWidth = 56.dp
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(63.dp),
-        color = White
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            // left back image
-            Box(
-                modifier = Modifier
-                    .width(sideWidth)
-                    .fillMaxHeight()
-                    .align(Alignment.CenterStart)
-                    .clickable { onBack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_menu_golden),
-                    contentDescription = "Back",
-                    modifier = Modifier
-                        .size(19.51.dp, 17.dp)
-                )
-            }
-
-            // center username block
-            Row(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // lock
-//                Box(contentAlignment = Alignment.TopEnd) {
-//                    Image(
-//                        painter = painterResource(id = R.drawable.ic_lock_heart_black), // replace
-//                        contentDescription = "Lock",
-//                        modifier = Modifier.size(13.39.dp, 20.dp)
-//                    )
-//                }
-
-//                Spacer(modifier = Modifier.width(7.dp))
-
-                // Username
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "@${state.username}",
-                        fontSize = 22.sp,
-                        lineHeight = 22.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = fontFamilyLato,
-                        maxLines = 1,
-                        color = LightBlack,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(Modifier.width(7.dp))
-                    Image(
-                        painter = painterResource(id = R.drawable.arrowdown_lite),
-                        contentDescription = "Dropdown",
-                        modifier = Modifier.size(14.dp, 8.dp)
-                    )
-                }
-            }
-
-            // right menu
-            Box(
-                modifier = Modifier
-                    .width(sideWidth)
-                    .fillMaxHeight()
-                    .align(Alignment.CenterEnd),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_menu_dots_horizontal),
-                    contentDescription = "Menu",
-                    modifier = Modifier
-                        .size(18.dp, 4.dp)
-                        .clickable { onMenu() }
-                )
-            }
-        }
-    }*/
 }
