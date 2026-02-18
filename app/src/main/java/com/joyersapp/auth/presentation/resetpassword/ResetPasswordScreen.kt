@@ -490,7 +490,7 @@ fun ResetPasswordScreen(
                             },
                             maxLength = 16,
                             isEnabled = !state.isPasswordResetSuccess,
-                            placeholder = stringResource(R.string.password),
+                            placeholder = stringResource(R.string.new_password),
                             isPassword = true,
                             passwordVisible = isPasswordVisible,
                             onPasswordToggle = {

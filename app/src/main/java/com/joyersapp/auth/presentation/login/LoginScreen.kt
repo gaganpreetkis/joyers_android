@@ -262,7 +262,7 @@ fun LoginScreen(
                             viewModel.onEvent(LoginEvent.UsernameChanged(it))
                         },
                         maxLength = if (state.isPhoneMode) 15 else 100,
-                        placeholder = if (state.isPhoneMode) "Phone Number" else "Username / Email",
+                        placeholder = if (state.isPhoneMode) "Mobile Number" else "Username / Email",
                         modifier = Modifier
                             .weight(1f)
                             .padding(bottom = 1.dp),
