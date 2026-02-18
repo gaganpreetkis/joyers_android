@@ -28,6 +28,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.KeyboardActionHandler
@@ -36,6 +37,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -71,6 +73,7 @@ import com.joyersapp.R
 import com.joyersapp.components.dialogs.MentionJoyersDialog
 import com.joyersapp.components.layouts.HardBlockingLoader
 import com.joyersapp.feature.post.domain.model.Joyer
+import com.joyersapp.feature.post.domain.model.LinkMetaData
 import com.joyersapp.feature.post.presentation.common.CameraFab
 import com.joyersapp.feature.post.presentation.common.CreateJoyHeader
 import com.joyersapp.feature.post.presentation.common.JoyTextField
@@ -85,6 +88,7 @@ import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Gray20
 import com.joyersapp.theme.GrayOuterBorder
 import com.joyersapp.theme.LightBlack
+import com.joyersapp.theme.LightBlack35
 import com.joyersapp.theme.LightBlack55
 import com.joyersapp.theme.LightBlack60
 import com.joyersapp.theme.Red
@@ -92,27 +96,38 @@ import com.joyersapp.theme.White
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.graphemeCount
 import com.joyersapp.utils.noRippleClickable
+import com.joyersapp.utils.rememberIsKeyboardOpen
 import kotlin.collections.isNotEmpty
 
 @Preview
 @Composable
 private fun ScreenPreview() {
-    CreatePostScafold(
-        context = LocalContext.current,
-        CreateJoyUiState(),
-        CreatePostUiState(),
-        toggleMediaPickerDialog = {},
-        dismissMentionJoyersDialog = {},
-        showMentionedJoyersDialog = {},
-        applyMentionedJoyers = {},
-        onBack = {},
-        addMedia = {a,s -> },
-        removeMedia = {a -> },
-        onPreviewMedia = { },
-        toggleSavedDraftsPrompt = {},
-        deleteDraft = {},
-        saveDraft = {}
+
+    LinkPreviewCard(
+        Modifier,
+        LinkMetaData(
+            title = "Title",
+            description = "Description",
+            image = "",
+            icon = ""
+        )
     )
+//    CreatePostScafold(
+//        context = LocalContext.current,
+//        CreateJoyUiState(),
+//        CreatePostUiState(),
+//        toggleMediaPickerDialog = {},
+//        dismissMentionJoyersDialog = {},
+//        showMentionedJoyersDialog = {},
+//        applyMentionedJoyers = {},
+//        onBack = {},
+//        addMedia = {a,s -> },
+//        removeMedia = {a -> },
+//        onPreviewMedia = { },
+//        toggleSavedDraftsPrompt = {},
+//        deleteDraft = {},
+//        saveDraft = {}
+//    )
 }
 
 @Composable
@@ -174,6 +189,8 @@ private fun CreatePostScafold(
     deleteDraft: () -> Unit,
     saveDraft: () -> Unit,
 ) {
+
+    val isKeyboardVisible = rememberIsKeyboardOpen()
 
     Box(
         modifier = Modifier
@@ -267,11 +284,16 @@ private fun CreatePostScafold(
                 removeMedia = removeMedia
             )
 
+            Spacer(Modifier.height(if (isKeyboardVisible) 87.dp else 107.dp))
+
         }
 
         CameraFab(
             Modifier
-                .padding(bottom = 45.dp, end = 15.dp)
+                .padding(
+                    bottom = if (isKeyboardVisible) 25.dp else 45.dp,
+                    end = 15.dp
+                )
                 .align(Alignment.BottomEnd)
                 .imePadding()
                 .clip(CircleShape)
@@ -705,4 +727,83 @@ private fun VideoPreview(item: MediaItem) {
         },
         modifier = Modifier.fillMaxSize()
     )
+}
+
+@Composable
+private fun LinkPreviewCard(
+    modifier: Modifier,
+    linkMetaData: LinkMetaData?,
+) {
+    linkMetaData?.let { metaData ->
+        Box(
+            modifier = modifier
+                .fillMaxWidth(),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Golden,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+            ) {
+
+                Box(
+                    modifier = Modifier,
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        modifier = Modifier.size(118.dp, 100.dp),
+                        model = metaData.image,
+                        contentDescription = "Preview",
+                    )
+
+                    Image(
+                        modifier = Modifier.size(27.dp),
+                        painter = painterResource(R.drawable.ic_video_play_golden),
+                        contentDescription = "Preview",
+                    )
+                }
+
+                VerticalDivider(thickness = 1.dp, color = Golden)
+
+                Column (
+                    modifier = modifier
+                        .padding(horizontal = 10.dp)
+                        .fillMaxWidth()
+                        .align(Alignment.CenterVertically),
+                ) {
+
+                    Text(
+                        text = metaData.title?:"",
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp,
+                        color = LightBlack,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = fontFamilyLato,
+                        maxLines = 2
+                    )
+                    Text(
+                        text = metaData.description?:"",
+                        fontSize = 12.sp,
+                        lineHeight = 15.sp,
+                        color = Golden,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamilyLato,
+                        maxLines = 1
+                    )
+                }
+            }
+
+            Image(
+                modifier = Modifier
+                    .size(20.dp)
+                    .align(Alignment.TopEnd),
+                painter = painterResource(R.drawable.ic_cross_golden_round),
+                contentDescription = "Preview",
+            )
+        }
+    }
 }

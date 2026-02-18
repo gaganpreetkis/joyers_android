@@ -105,4 +105,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.javapoet)
+
+    // Extract link metadata
+    implementation(libs.metaprobe)
 }

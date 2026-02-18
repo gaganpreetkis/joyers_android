@@ -30,6 +30,7 @@ lifecycleViewmodelKtx = "2.10.0"
 ui = "1.10.2"
 animationCore = "1.10.2"
 media3 = "1.9.2"
+metaprobe = "1.0.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -74,6 +75,7 @@ androidx-compose-animation-core = { group = "androidx.compose.animation", name =
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
 androidx-media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3" }
+metaprobe = { group = "tech.dev-scion", name = "metaprobe", version.ref = "metaprobe" }
 
 
 [plugins]
