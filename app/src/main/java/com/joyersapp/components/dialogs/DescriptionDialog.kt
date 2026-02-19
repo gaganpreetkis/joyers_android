@@ -94,6 +94,7 @@ import com.joyersapp.theme.GrayLightBorder
 import com.joyersapp.theme.LightBlack
 import com.joyersapp.theme.LightBlack80
 import com.joyersapp.theme.White
+import com.joyersapp.utils.dismissKeyboardOnScroll
 import com.joyersapp.utils.fontFamilyLato
 import com.joyersapp.utils.isScrollingUp
 import com.joyersapp.utils.noRippleClickable
@@ -752,7 +753,7 @@ private fun BaseCard(
                     .clip(RoundedCornerShape(25.dp))
                     .background(Color.White) // Ensure background captures taps
                     .imePadding()
-//                .dismissKeyboardOnScroll()
+                .dismissKeyboardOnScroll()
                     .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {

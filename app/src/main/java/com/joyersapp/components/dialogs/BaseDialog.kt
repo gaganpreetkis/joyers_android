@@ -151,7 +151,7 @@ fun BaseDialog(
                     .clip(RoundedCornerShape(25.dp))
                     .background(Color.White) // Ensure background captures taps
                     .imePadding()
-//                .dismissKeyboardOnScroll()
+                .dismissKeyboardOnScroll()
                     .tapToDismissKeyboard(), shape = RoundedCornerShape(25.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
