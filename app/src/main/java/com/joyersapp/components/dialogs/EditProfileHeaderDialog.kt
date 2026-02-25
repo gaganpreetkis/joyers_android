@@ -63,6 +63,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -106,10 +107,12 @@ import com.joyersapp.common_widgets.CustomTextField2
 import com.joyersapp.common_widgets.CustomTextField3
 import com.joyersapp.common_widgets.ImagePickerBottomSheet
 import com.joyersapp.common_widgets.ImagePickerBottomSheetBack
+import com.joyersapp.core.NetworkConfig
 import com.joyersapp.feature.profile.presentation.ProfileHeaderData
 import com.joyersapp.feature.profile.presentation.UserProfileEvent
 import com.joyersapp.feature.profile.presentation.UserProfileNavigationEvent
 import com.joyersapp.feature.profile.presentation.UserProfileViewModel
+import com.joyersapp.feature.profile.presentation.dialogs.CropImageViewModel
 import com.joyersapp.theme.DisabledTextColor
 import com.joyersapp.theme.Golden
 import com.joyersapp.theme.Golden60
@@ -159,22 +162,28 @@ fun EditProfileHeaderDialog(
     navigateToMentionJoyersDialog: () -> Unit = {},
     viewModel: UserProfileViewModel = hiltViewModel()
 ) {
+    val cropImageViewmodel: CropImageViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val profileHeaderData = state.profileHeaderData
     val isKeyboardVisible = rememberIsKeyboardOpen()
-    var showProfilePlaceholder by remember { mutableStateOf(true) }
+
     var showImagePickerBottomSheet by remember { mutableStateOf(false) }
     var showImagePickerBottomSheetBack by remember { mutableStateOf(false) }
-    var showHeaderPicker by remember { mutableStateOf(true) }
     var showProfilePicturePreview by remember { mutableStateOf(false) }
     var showCropDialog by remember { mutableStateOf(false) }
+
     var selectedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
-    var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
+    var croppedProfileImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var profileImageScale by remember { mutableStateOf<Float?>(null) }
+    var profileImageOffset by remember { mutableStateOf<Offset?>(null) }
+//    var selectedProfileImagePath by remember { mutableStateOf<String?>(null) }
+
     var isImageCropped by remember { mutableStateOf<Boolean>(false) }
 
     // Background image preview and crop states
     var showBackgroundImagePreview by remember { mutableStateOf(false) }
     var showBackgroundCropDialog by remember { mutableStateOf(false) }
+
     var selectedBackgroundImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedBackgroundImagePath by remember { mutableStateOf<String?>(null) }
 
@@ -250,10 +259,14 @@ fun EditProfileHeaderDialog(
                     viewModel.onEvent(
                         UserProfileEvent.UpdateProfileHeaderData(
                             state.profileHeaderData.copy(
-                                profilePicture = ""
+                                profilePicture = "",
                             )
                         )
                     )
+                    selectedProfileImageUri = null
+                    croppedProfileImageUri = null
+                    profileImageScale = null
+                    profileImageOffset = null
                 }
             )
 
@@ -350,8 +363,9 @@ fun EditProfileHeaderDialog(
             val profileImageUri = uris[0]
             if (profileImageUri.path!!.isNotEmpty()) {
                 selectedProfileImageUri = profileImageUri
-                val file = uriToFile(context, profileImageUri)
-                selectedProfileImagePath = file.path.toString()
+                croppedProfileImageUri = null
+                profileImageScale = null
+                profileImageOffset = null
                 showImagePickerBottomSheet = false
                 showProfilePicturePreview = true
             }
@@ -360,8 +374,9 @@ fun EditProfileHeaderDialog(
             val profileImageUri = uri
             if (profileImageUri.path!!.isNotEmpty()) {
                 selectedProfileImageUri = profileImageUri
-                val file = uriToFile(context, profileImageUri)
-                selectedProfileImagePath = file.path.toString()
+                croppedProfileImageUri = null
+                profileImageScale = null
+                profileImageOffset = null
                 showImagePickerBottomSheet = false
                 showProfilePicturePreview = true
             }
@@ -373,39 +388,37 @@ fun EditProfileHeaderDialog(
         showDialog = showProfilePicturePreview,
         isImageCropped = isImageCropped,
         imageUri = selectedProfileImageUri,
-        imagePath = selectedProfileImagePath,
+        croppedImageUri = croppedProfileImageUri,
         onDismiss = {
             showProfilePicturePreview = false
             selectedProfileImageUri = null
-            selectedProfileImagePath = null
-            isImageCropped = false
+//            isImageCropped = false
         },
         onChangePicture = {
             showImagePickerBottomSheet = true
-            isImageCropped = false
+//            isImageCropped = false
         },
         onDelete = {
             selectedProfileImageUri = null
-            selectedProfileImagePath = null
-            showProfilePlaceholder = true
+            croppedProfileImageUri = null
+            profileImageScale = null
+            profileImageOffset = null
             showProfilePicturePreview = true
             isImageCropped = false
         },
         onCrop = {
             if (selectedProfileImageUri != null) {
-                // showProfilePicturePreview = false // Close preview before opening crop
                 showCropDialog = true
             }
-            isImageCropped = false
         },
         onDone = {
-            selectedProfileImagePath?.let { path ->
-                showProfilePlaceholder = false
+            croppedProfileImageUri?.path?.let { path ->
+                viewModel.onEvent(UserProfileEvent.ProfilePicturePathChanged(path))
+            }?: selectedProfileImageUri?.path?.let { path ->
                 viewModel.onEvent(UserProfileEvent.ProfilePicturePathChanged(path))
             }
             showProfilePicturePreview = false
             selectedProfileImageUri = null
-            selectedProfileImagePath = null
             isImageCropped = false
         }
     )
@@ -413,6 +426,10 @@ fun EditProfileHeaderDialog(
     // Crop Dialog
     CropImageDialog(
         showDialog = showCropDialog,
+        isImageCropped = isImageCropped,
+        initialScale = profileImageScale,
+        initialOffset = profileImageOffset,
+//        viewmodel = cropImageViewmodel,
         imageUri = selectedProfileImageUri,
         onDismiss = {
             showCropDialog = false
@@ -421,11 +438,12 @@ fun EditProfileHeaderDialog(
                 showProfilePicturePreview = true
             }
         },
-        onCropped = { newUri, newPath ->
+        onCropped = { newUri, newScale, newOffset ->
             showCropDialog = false
             // Update state with cropped image
-            selectedProfileImageUri = newUri
-            selectedProfileImagePath = newPath
+            croppedProfileImageUri = newUri
+            profileImageScale = newScale
+            profileImageOffset = newOffset
             // Show preview dialog with updated cropped image
             showProfilePicturePreview = true
             isImageCropped = true
@@ -622,7 +640,8 @@ private fun EditableProfilePictureCard(
             ) {
                 if (profilePicturePath.isNotEmpty()) {
                     AsyncImage(
-                        model = "https://joyers-api-dev.krishnais.com/uploads/$profilePicturePath",
+                        model = "${NetworkConfig.IMAGE_BASE_URL}$profilePicturePath",
+//                        model = "https://joyers-api-dev.krishnais.com/uploads/$profilePicturePath",
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxSize()

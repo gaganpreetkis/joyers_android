@@ -57,7 +57,7 @@ fun ProfilePicturePreviewDialog(
     showDialog: Boolean,
     isImageCropped: Boolean,
     imageUri: Uri?,
-    imagePath: String?,
+    croppedImageUri: Uri?,
     onDismiss: () -> Unit,
     onChangePicture: () -> Unit,
     onDelete: () -> Unit,
@@ -128,7 +128,7 @@ fun ProfilePicturePreviewDialog(
                             ) {
                                 if (imageUri != null) {
                                     // Use imagePath if available (for local files), otherwise use imageUri
-                                    val imageModel = imagePath ?: imageUri
+                                    val imageModel =  croppedImageUri?: imageUri
                                     AsyncImage(
                                         model = imageModel,
                                         contentDescription = "Profile picture preview",

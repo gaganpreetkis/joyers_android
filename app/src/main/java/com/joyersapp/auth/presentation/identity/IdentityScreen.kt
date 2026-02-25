@@ -865,7 +865,8 @@ fun PageOneContent(
         showDialog = showProfilePicturePreview,
         isImageCropped = isImageCropped,
         imageUri = selectedProfileImageUri,
-        imagePath = selectedProfileImagePath,
+        croppedImageUri = selectedProfileImageUri,
+//        imagePath = selectedProfileImagePath,
         onDismiss = {
             showProfilePicturePreview = false
             selectedProfileImageUri = null
@@ -905,6 +906,8 @@ fun PageOneContent(
     // Crop Dialog
     CropImageDialog(
         showDialog = showCropDialog,
+        isImageCropped = isImageCropped,
+//        viewmodel = hiltViewModel(),
         imageUri = selectedProfileImageUri,
         onDismiss = {
             showCropDialog = false
@@ -913,11 +916,11 @@ fun PageOneContent(
                 showProfilePicturePreview = true
             }
         },
-        onCropped = { newUri, newPath ->
+        onCropped = { newUri, newScale, newOffset ->
             showCropDialog = false
             // Update state with cropped image
             selectedProfileImageUri = newUri
-            selectedProfileImagePath = newPath
+//            selectedProfileImagePath = newPath
             // Show preview dialog with updated cropped image
             showProfilePicturePreview = true
             isImageCropped = true
